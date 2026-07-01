@@ -838,7 +838,10 @@ setTimeout(()=>document.getElementById('flag').style.display='none',9000);
 #hc-add-btn{padding:10px 18px;background:#2c3e8f;color:#fff;border:none;border-radius:24px;cursor:pointer;font-size:13px;font-weight:700;box-shadow:0 2px 10px rgba(44,62,143,.35);transition:background .15s;font-family:-apple-system,sans-serif}
 #hc-add-btn.hc-on{background:#c43d4b}
 #hc-refresh-btn{padding:6px 14px;background:rgba(255,255,255,.95);color:#2c3e8f;border:1.5px solid #c3d0f8;border-radius:24px;cursor:pointer;font-size:12px;font-weight:600;font-family:-apple-system,sans-serif}
-body.hc-mode,body.hc-mode *{cursor:crosshair!important}
+body.hc-mode,body.hc-mode *{cursor:url("data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' width='32' height='32'><text y='24' font-size='24'>💬</text></svg>") 4 28,auto!important}
+/* Hover highlight overlay (DevTools-style inspect) */
+#hc-highlight{position:absolute;pointer-events:none;z-index:99980;border:2px solid #6366f1;background:rgba(99,102,241,.08);border-radius:3px;transition:all .06s ease-out;display:none}
+#hc-highlight-label{position:absolute;pointer-events:none;z-index:99981;background:#6366f1;color:#fff;font-size:10.5px;font-weight:700;font-family:"SF Mono",ui-monospace,monospace;padding:2px 6px;border-radius:3px;white-space:nowrap;display:none}
 .hc-pin{position:absolute;z-index:99990}
 .hc-pin-btn{width:28px;height:28px;background:#c43d4b;color:#fff;border:none;border-radius:50%;cursor:pointer;font-size:12px;font-weight:800;font-family:-apple-system,sans-serif;box-shadow:0 2px 8px rgba(0,0,0,.3);transition:transform .15s;display:flex;align-items:center;justify-content:center;padding:0}
 .hc-pin-btn:hover{transform:scale(1.2)}
@@ -872,8 +875,10 @@ body.hc-mode,body.hc-mode *{cursor:crosshair!important}
 </style>
 <div id="hc-fab">
   <button id="hc-refresh-btn">↺ Refresh</button>
-  <button id="hc-add-btn">📌 Add pin</button>
+  <button id="hc-add-btn">� Add comment</button>
 </div>
+<div id="hc-highlight"></div>
+<div id="hc-highlight-label"></div>
 <div id="hc-modal">
   <div id="hc-modal-box">
     <h3>🔑 One-time GitHub setup</h3>
@@ -908,8 +913,51 @@ body.hc-mode,body.hc-mode *{cursor:crosshair!important}
     modal.classList.remove('open');enterMode();
   };
 
-  function enterMode(){mode=true;addBtn.textContent='❌ Cancel';addBtn.classList.add('hc-on');document.body.classList.add('hc-mode');}
-  function exitMode(){mode=false;addBtn.textContent='📌 Add pin';addBtn.classList.remove('hc-on');document.body.classList.remove('hc-mode');}
+  function enterMode(){mode=true;addBtn.textContent='💬 Click to comment';addBtn.classList.add('hc-on');document.body.classList.add('hc-mode');}
+  function exitMode(){mode=false;addBtn.textContent='💬 Add comment';addBtn.classList.remove('hc-on');document.body.classList.remove('hc-mode');hideHighlight();}
+
+  /* Escape key exits pin mode */
+  document.addEventListener('keydown',function(e){
+    if(e.key==='Escape'){
+      if(activePanel){closePanels();return;}
+      if(mode){exitMode();closePanels();}
+    }
+  });
+
+  /* Hover highlight (DevTools inspect style) */
+  var hl=document.getElementById('hc-highlight');
+  var hlLabel=document.getElementById('hc-highlight-label');
+  var lastHovered=null;
+
+  function showHighlight(el){
+    if(!el||el===document.body||el===document.documentElement)return hideHighlight();
+    if(el===lastHovered)return;
+    lastHovered=el;
+    var r=el.getBoundingClientRect();
+    hl.style.left=(r.left+window.scrollX)+'px';
+    hl.style.top=(r.top+window.scrollY)+'px';
+    hl.style.width=r.width+'px';
+    hl.style.height=r.height+'px';
+    hl.style.display='block';
+    /* Label */
+    var tag=el.tagName.toLowerCase();
+    var id=el.id?'#'+el.id:'';
+    var cls=el.className&&typeof el.className==='string'?'.'+el.className.trim().split(/\s+/).slice(0,2).join('.'):'';
+    hlLabel.textContent=tag+id+cls;
+    hlLabel.style.left=(r.left+window.scrollX)+'px';
+    hlLabel.style.top=(r.top+window.scrollY-18)+'px';
+    if(r.top<20)hlLabel.style.top=(r.bottom+window.scrollY+4)+'px';
+    hlLabel.style.display='block';
+  }
+  function hideHighlight(){hl.style.display='none';hlLabel.style.display='none';lastHovered=null;}
+
+  document.addEventListener('mousemove',function(e){
+    if(!mode)return;
+    if(e.target.closest('#hc-fab')||e.target.closest('#hc-modal')){hideHighlight();return;}
+    var el=document.elementFromPoint(e.clientX,e.clientY);
+    if(el&&(el.id==='hc-highlight'||el.id==='hc-highlight-label'))el=null;
+    if(el)showHighlight(el);
+  });
 
   addBtn.addEventListener('click',function(e){
     e.stopPropagation();
@@ -918,13 +966,21 @@ body.hc-mode,body.hc-mode *{cursor:crosshair!important}
     enterMode();
   });
 
+  /* Get the currently visible screen id (e.g. "empty","scan","config") */
+  function currentScreen(){
+    var s=document.querySelector('.screen:not(.hidden)');
+    return s?s.id.replace('s-',''):'unknown';
+  }
+
   document.addEventListener('click',function(e){
     if(!mode)return;
     if(e.target.closest('#hc-fab')||e.target.closest('#hc-modal'))return;
-    e.preventDefault();e.stopPropagation();
+    e.preventDefault();e.stopImmediatePropagation();
     exitMode();
+    hideHighlight();
     var cx=e.clientX,cy=e.clientY;
     var px=Math.round(e.pageX),py=Math.round(e.pageY);
+    var screen=currentScreen();
     var selector='',ctx='';
     try{
       var el=document.elementFromPoint(cx,cy);
@@ -937,10 +993,10 @@ body.hc-mode,body.hc-mode *{cursor:crosshair!important}
         ctx=((nearest||el).textContent||'').trim().slice(0,80);
       }
     }catch(_){}
-    showAnnotationPanel(cx,cy,px,py,selector,ctx);
+    showAnnotationPanel(cx,cy,px,py,selector,ctx,screen);
   });
 
-  function showAnnotationPanel(cx,cy,px,py,selector,ctx){
+  function showAnnotationPanel(cx,cy,px,py,selector,ctx,screen){
     closePanels();
     var panel=document.createElement('div');
     panel.className='hc-ann-panel';
@@ -965,8 +1021,8 @@ body.hc-mode,body.hc-mode *{cursor:crosshair!important}
       if(!txt){panel.querySelector('.hc-ann-ta').classList.add('err');return;}
       closePanels();
       var num=document.querySelectorAll('.hc-pin').length+1;
-      renderPin(px,py,txt,gName(),selector,ctx,num);
-      postPin(px,py,txt,gName(),selector,ctx,num);
+      renderPin(px,py,txt,gName(),selector,ctx,num,screen);
+      postPin(px,py,txt,gName(),selector,ctx,num,screen);
     });
     panel.querySelector('.hc-ann-ta').addEventListener('keydown',function(e){
       if((e.ctrlKey||e.metaKey)&&e.key==='Enter'){panel.querySelector('.hc-ann-save').click();}
@@ -985,12 +1041,13 @@ body.hc-mode,body.hc-mode *{cursor:crosshair!important}
     document.querySelectorAll('.hc-cbubble').forEach(function(b){b.remove();});
   }
 
-  function renderPin(px,py,text,name,selector,ctx,num){
+  function renderPin(px,py,text,name,selector,ctx,num,screen){
     var wrap=document.createElement('div');
     wrap.className='hc-pin';
     wrap.style.left=(px-14)+'px';
     wrap.style.top=(py-14)+'px';
     wrap.style.position='absolute';
+    wrap.dataset.screen=screen||'unknown';
     var btn=document.createElement('button');
     btn.className='hc-pin-btn';
     btn.title=name+': '+text;
@@ -1014,13 +1071,13 @@ body.hc-mode,body.hc-mode *{cursor:crosshair!important}
     document.body.appendChild(wrap);
   }
 
-  function postPin(px,py,text,name,selector,ctx,num){
+  function postPin(px,py,text,name,selector,ctx,num,screen){
     fetch('https://api.github.com/repos/'+REPO+'/issues',{
       method:'POST',
       headers:{'Authorization':'token '+gTok(),'Accept':'application/vnd.github.v3+json','Content-Type':'application/json'},
       body:JSON.stringify({
         title:'['+PAGE.toUpperCase()+'] #'+num+': '+text.slice(0,60),
-        body:'**Page**: '+PAGE+'\n**Name**: '+name+'\n**Comment**: '+text+'\n**Element**: '+selector+'\n**Context**: '+ctx+'\n**Coordinates**: x='+px+', y='+py+'\n**Viewport**: '+window.innerWidth+'x'+window.innerHeight+'\n**DocSize**: '+document.body.scrollWidth+'x'+document.body.scrollHeight
+        body:'**Page**: '+PAGE+'\n**Screen**: '+screen+'\n**Name**: '+name+'\n**Comment**: '+text+'\n**Element**: '+selector+'\n**Context**: '+ctx+'\n**Coordinates**: x='+px+', y='+py+'\n**Viewport**: '+window.innerWidth+'x'+window.innerHeight+'\n**DocSize**: '+document.body.scrollWidth+'x'+document.body.scrollHeight
       })
     }).then(function(r){
       if(r.status===401){localStorage.removeItem('hc_tok');showToast('Token rejected — click Add pin again to re-enter.');}
@@ -1041,7 +1098,8 @@ body.hc-mode,body.hc-mode *{cursor:crosshair!important}
         var xM=b.match(/\*\*Coordinates\*\*: x=(\d+)/),yM=b.match(/y=(\d+)/);
         var nm=b.match(/\*\*Name\*\*: (.+)/),tm=b.match(/\*\*Comment\*\*: (.+)/);
         var sm=b.match(/\*\*Element\*\*: (.*)/),cm=b.match(/\*\*Context\*\*: (.*)/);
-        if(xM&&yM)renderPin(parseInt(xM[1]),parseInt(yM[1]),tm?tm[1]:'',nm?nm[1]:'?',sm?sm[1]:'',cm?cm[1]:'',i+1);
+        var scr=b.match(/\*\*Screen\*\*: (.*)/);
+        if(xM&&yM)renderPin(parseInt(xM[1]),parseInt(yM[1]),tm?tm[1]:'',nm?nm[1]:'?',sm?sm[1]:'',cm?cm[1]:'',i+1,scr?scr[1]:'unknown');
       });
     }).catch(function(err){console.warn('Could not load pins:',err);});
   }
@@ -1055,6 +1113,21 @@ body.hc-mode,body.hc-mode *{cursor:crosshair!important}
   }
 
   refreshBtn.addEventListener('click',loadComments);
+
+  /* Show/hide pins based on which prototype screen is active */
+  function syncPinVisibility(){
+    var cur=currentScreen();
+    document.querySelectorAll('.hc-pin').forEach(function(p){
+      p.style.display=(p.dataset.screen===cur||p.dataset.screen==='unknown')?'':'none';
+    });
+  }
+  /* Observe screen changes via MutationObserver on class changes */
+  var screens=document.querySelectorAll('.screen');
+  if(screens.length){
+    var obs=new MutationObserver(syncPinVisibility);
+    screens.forEach(function(s){obs.observe(s,{attributes:true,attributeFilter:['class']});});
+  }
+
   document.addEventListener('click',function(e){
     if(e.target.closest('.hc-pin')||e.target.closest('.hc-ann-panel')||e.target.closest('.hc-cbubble'))return;
     closePanels();
