@@ -457,54 +457,64 @@ flowchart TB
   }));
 </script>
 
-<!-- ═══ Comment Widget — Figma-style pins via GitHub Issues ═══ -->
+<!-- ═══ Comment Widget v2 — no prompt(), Copilot Annotation style ═══ -->
 <style>
-#hc-fab{position:fixed;bottom:20px;right:20px;z-index:99999;display:flex;flex-direction:column;align-items:flex-end;gap:8px}
-#hc-add-btn{padding:10px 18px;background:#2c3e8f;color:#fff;border:none;border-radius:24px;cursor:pointer;font-size:13.5px;font-weight:700;box-shadow:0 2px 10px rgba(44,62,143,.35);transition:background .2s;font-family:-apple-system,sans-serif}
-#hc-add-btn.hc-active{background:#e53e3e}
-#hc-refresh-btn{padding:6px 14px;background:#fff;color:#2c3e8f;border:1.5px solid #c3d0f8;border-radius:24px;cursor:pointer;font-size:12px;font-weight:600;font-family:-apple-system,sans-serif;opacity:.9}
-#hc-refresh-btn:hover{opacity:1}
+#hc-fab{position:fixed;bottom:20px;right:20px;z-index:100000;display:flex;flex-direction:column;align-items:flex-end;gap:8px}
+#hc-add-btn{padding:10px 18px;background:#2c3e8f;color:#fff;border:none;border-radius:24px;cursor:pointer;font-size:13px;font-weight:700;box-shadow:0 2px 10px rgba(44,62,143,.35);transition:background .15s;font-family:-apple-system,sans-serif}
+#hc-add-btn.hc-on{background:#c43d4b}
+#hc-refresh-btn{padding:6px 14px;background:rgba(255,255,255,.95);color:#2c3e8f;border:1.5px solid #c3d0f8;border-radius:24px;cursor:pointer;font-size:12px;font-weight:600;font-family:-apple-system,sans-serif}
 body.hc-mode,body.hc-mode *{cursor:crosshair!important}
-.hc-pin{position:absolute;width:26px;height:26px;background:#e53e3e;border-radius:50% 50% 50% 0;transform:rotate(-45deg);z-index:99990;cursor:pointer;box-shadow:0 2px 6px rgba(0,0,0,.28);display:flex;align-items:center;justify-content:center;transition:transform .15s}
-.hc-pin:hover{transform:rotate(-45deg) scale(1.15)}
-.hc-num{transform:rotate(45deg);color:#fff;font-size:10px;font-weight:800;font-family:-apple-system,sans-serif;line-height:1}
-.hc-bubble{position:absolute;bottom:32px;left:2px;background:#fff;border:1px solid #e2e8f0;border-radius:10px;padding:10px 13px;min-width:180px;max-width:260px;box-shadow:0 4px 18px rgba(0,0,0,.14);z-index:99999;display:none;pointer-events:auto;font-family:-apple-system,sans-serif}
-.hc-bubble.open{display:block}
-.hc-bubble-name{font-size:11.5px;font-weight:700;color:#2c3e8f;margin-bottom:3px}
-.hc-bubble-ctx{font-size:10.5px;color:#9aa;margin-bottom:5px;font-style:italic;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;max-width:220px}
-.hc-bubble-text{font-size:13px;color:#1a202c;line-height:1.45}
-#hc-modal{display:none;position:fixed;inset:0;background:rgba(0,0,0,.45);z-index:999999;align-items:center;justify-content:center}
+.hc-pin{position:absolute;z-index:99990}
+.hc-pin-btn{width:28px;height:28px;background:#c43d4b;color:#fff;border:none;border-radius:50%;cursor:pointer;font-size:12px;font-weight:800;font-family:-apple-system,sans-serif;box-shadow:0 2px 8px rgba(0,0,0,.3);transition:transform .15s;display:flex;align-items:center;justify-content:center;padding:0}
+.hc-pin-btn:hover{transform:scale(1.2)}
+#hc-modal{display:none;position:fixed;inset:0;background:rgba(0,0,0,.5);z-index:999999;align-items:center;justify-content:center}
 #hc-modal.open{display:flex}
-#hc-modal-box{background:#fff;border-radius:14px;padding:28px 26px;max-width:420px;width:92%;box-shadow:0 8px 40px rgba(0,0,0,.2);font-family:-apple-system,sans-serif}
-#hc-modal-box h3{margin:0 0 10px;font-size:16px;color:#1a202c}
-#hc-modal-box p{margin:0 0 14px;font-size:13px;color:#555;line-height:1.55}
-#hc-modal-box code{background:#f0f2f7;padding:2px 6px;border-radius:4px;font-size:12px}
-#hc-modal-box input{width:100%;padding:9px 12px;border:1.5px solid #e2e8f0;border-radius:8px;font-size:13.5px;box-sizing:border-box;margin-bottom:10px;font-family:inherit}
+#hc-modal-box{background:#fff;border-radius:12px;padding:24px;max-width:400px;width:90%;box-shadow:0 8px 32px rgba(0,0,0,.2);font-family:-apple-system,sans-serif}
+#hc-modal-box h3{margin:0 0 8px;font-size:15px;color:#1a202c}
+#hc-modal-box p{margin:0 0 14px;font-size:13px;color:#555;line-height:1.5}
+#hc-modal-box code{background:#f0f2f7;padding:2px 5px;border-radius:4px;font-size:12px}
+#hc-modal-box input{width:100%;padding:9px 11px;border:1.5px solid #e2e8f0;border-radius:7px;font-size:13px;box-sizing:border-box;margin-bottom:8px;font-family:inherit}
 #hc-modal-box input:focus{outline:none;border-color:#2c3e8f}
-.hc-modal-btns{display:flex;gap:8px;justify-content:flex-end;margin-top:4px}
-.hc-btn-s{padding:8px 16px;background:#f7f8fa;border:1.5px solid #e2e8f0;border-radius:8px;cursor:pointer;font-size:13px;font-weight:600;font-family:inherit}
-.hc-btn-p{padding:8px 18px;background:#2c3e8f;color:#fff;border:none;border-radius:8px;cursor:pointer;font-size:13px;font-weight:700;font-family:inherit}
+.hc-modal-btns{display:flex;gap:8px;justify-content:flex-end;margin-top:8px}
+.hc-btn-s{padding:7px 14px;background:#f7f8fa;border:1.5px solid #e2e8f0;border-radius:7px;cursor:pointer;font-size:13px;font-weight:600;font-family:inherit}
+.hc-btn-p{padding:7px 14px;background:#2c3e8f;color:#fff;border:none;border-radius:7px;cursor:pointer;font-size:13px;font-weight:700;font-family:inherit}
+.hc-ann-panel{position:fixed;width:min(300px,calc(100vw - 24px));border:1px solid rgba(255,255,255,.1);border-radius:8px;background:#1f1f1f;color:#f7fafc;box-shadow:0 16px 34px rgba(7,13,25,.4);z-index:99995;font-family:-apple-system,sans-serif}
+.hc-ann-sec{padding:10px;border-bottom:1px solid rgba(255,255,255,.08)}
+.hc-ann-foot{padding:10px;display:flex;align-items:center;justify-content:flex-end;gap:8px}
+.hc-ctx-card{background:rgba(12,17,24,.72);border:1px solid rgba(255,255,255,.1);border-radius:6px;padding:7px 9px;font-size:12px;color:rgba(247,250,252,.8);font-family:"SF Mono",monospace;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.hc-ctx-sub{font-size:11px;color:rgba(247,250,252,.45);margin-top:5px;font-style:italic;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.hc-ann-ta{width:100%;min-height:76px;padding:9px 10px;background:rgba(12,17,24,.72);border:1px solid rgba(255,255,255,.12);border-radius:6px;color:#f7fafc;font-size:13px;font-family:-apple-system,sans-serif;resize:vertical;box-sizing:border-box}
+.hc-ann-ta:focus{outline:none;border-color:#4a7fff}
+.hc-ann-ta.err{border-color:#c43d4b}
+.hc-ann-btn{padding:6px 12px;border-radius:5px;font-size:12px;font-weight:600;cursor:pointer;font-family:inherit;border:1px solid rgba(255,255,255,.14)}
+.hc-ann-cancel{background:transparent;color:rgba(247,250,252,.8)}
+.hc-ann-save{background:linear-gradient(135deg,#4a7fff,#2c5fe0);border-color:#2c5fe0;color:#fff}
+.hc-cbubble{position:fixed;width:min(260px,calc(100vw - 24px));background:#1f1f1f;border:1px solid rgba(255,255,255,.1);border-radius:8px;padding:12px;z-index:99994;font-family:-apple-system,sans-serif;box-shadow:0 8px 24px rgba(0,0,0,.4)}
+.hc-cb-name{font-size:11px;font-weight:700;color:#4a7fff;margin-bottom:3px}
+.hc-cb-ctx{font-size:10.5px;color:rgba(247,250,252,.45);margin-bottom:6px;font-style:italic;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.hc-cb-text{font-size:13px;color:#f7fafc;line-height:1.45}
+#hc-toast{position:fixed;bottom:80px;right:20px;background:#1f1f1f;color:#f7fafc;padding:10px 16px;border-radius:8px;font-size:13px;font-family:-apple-system,sans-serif;box-shadow:0 4px 16px rgba(0,0,0,.3);z-index:100001;pointer-events:none}
 </style>
 <div id="hc-fab">
-  <button id="hc-refresh-btn">↺ Refresh pins</button>
+  <button id="hc-refresh-btn">↺ Refresh</button>
   <button id="hc-add-btn">📌 Add pin</button>
 </div>
 <div id="hc-modal">
   <div id="hc-modal-box">
-    <h3>🔑 One-time setup — GitHub token</h3>
-    <p>To drop pins you need a <strong>fine-grained GitHub token</strong> with <code>Issues: Write</code> on the <code>html-commnet</code> repo.<br/><br/>
-    <a href="https://github.com/settings/tokens?type=beta" target="_blank" rel="noopener">Create token at github.com/settings/tokens →</a><br/>
-    <em style="font-size:11.5px;color:#888">Settings: Repository access → html-commnet only · Permissions → Issues → Read &amp; Write</em></p>
-    <input id="hc-tok" type="password" placeholder="Paste your token here (stays in this browser only)"/>
-    <input id="hc-nam" type="text" placeholder="Your display name (e.g. Gal, Roy, Kobi)"/>
+    <h3>🔑 One-time GitHub setup</h3>
+    <p>To post pins you need a fine-grained token with <code>Issues: Write</code> on <code>html-commnet</code>.<br/>
+    <a href="https://github.com/settings/tokens?type=beta" target="_blank" rel="noopener">Create token →</a><br/>
+    <em style="font-size:11px;color:#888">Repository: html-commnet only · Permission: Issues → Read &amp; Write</em></p>
+    <input id="hc-tok" type="password" placeholder="Paste token here (stays in your browser only)"/>
+    <input id="hc-nam" type="text" placeholder="Your name (e.g. Gal, Roy, Kobi)"/>
     <div class="hc-modal-btns">
       <button class="hc-btn-s" id="hc-cancel">Cancel</button>
-      <button class="hc-btn-p" id="hc-save">Save &amp; drop pin</button>
+      <button class="hc-btn-p" id="hc-save">Save &amp; continue</button>
     </div>
   </div>
 </div>
 <script>(function(){
-  var REPO='galcohen-ctrl/html-commnet', PAGE='prd';
+  var REPO='galcohen-ctrl/html-commnet',PAGE='prd',activePanel=null;
   function gTok(){return localStorage.getItem('hc_tok')||'';}
   function sTok(t){localStorage.setItem('hc_tok',t.trim());}
   function gName(){return localStorage.getItem('hc_name')||'Reviewer';}
@@ -518,33 +528,166 @@ body.hc-mode,body.hc-mode *{cursor:crosshair!important}
   document.getElementById('hc-save').onclick=function(){
     var t=document.getElementById('hc-tok').value.trim();
     var n=document.getElementById('hc-nam').value.trim();
-    if(!t){alert('Please paste your GitHub token.');return;}
-    sTok(t); if(n) localStorage.setItem('hc_name',n);
-    modal.classList.remove('open'); enterMode();
+    if(!t){showToast('Please paste your GitHub token first.');return;}
+    sTok(t);if(n)localStorage.setItem('hc_name',n);
+    modal.classList.remove('open');enterMode();
   };
 
-  function enterMode(){mode=true;addBtn.textContent='❌ Cancel';addBtn.classList.add('hc-active');document.body.classList.add('hc-mode');}
-  function exitMode(){mode=false;addBtn.textContent='📌 Add pin';addBtn.classList.remove('hc-active');document.body.classList.remove('hc-mode');}
+  function enterMode(){mode=true;addBtn.textContent='❌ Cancel';addBtn.classList.add('hc-on');document.body.classList.add('hc-mode');}
+  function exitMode(){mode=false;addBtn.textContent='📌 Add pin';addBtn.classList.remove('hc-on');document.body.classList.remove('hc-mode');}
 
   addBtn.addEventListener('click',function(e){
     e.stopPropagation();
-    if(mode){exitMode();return;}
+    if(mode){exitMode();closePanels();return;}
     if(!gTok()){modal.classList.add('open');return;}
     enterMode();
   });
 
   document.addEventListener('click',function(e){
     if(!mode)return;
-    if(e.target===addBtn||e.target.closest('#hc-fab')||e.target.closest('#hc-modal'))return;
-    e.preventDefault();e.stopPropagation();exitMode();
-    var x=Math.round(e.pageX),y=Math.round(e.pageY);
-    var ctx='';
-    try{var el=document.elementFromPoint(e.clientX,e.clientY);ctx=(el&&el.closest('h1,h2,h3,h4,h5,td,th,li,p'))?el.closest('h1,h2,h3,h4,h5,td,th,li,p').textContent.trim().slice(0,80):'';}catch(_){}
-    var text=prompt('Your comment:');
-    if(!text)return;
-    var name=gName();
-    var num=document.querySelectorAll('.hc-pin').length+1;
-    renderPin(x,y,text,name,ctx,num);
+    if(e.target.closest('#hc-fab')||e.target.closest('#hc-modal'))return;
+    e.preventDefault();e.stopPropagation();
+    exitMode();
+    var cx=e.clientX,cy=e.clientY;
+    var px=Math.round(e.pageX),py=Math.round(e.pageY);
+    var selector='',ctx='';
+    try{
+      var el=document.elementFromPoint(cx,cy);
+      if(el){
+        var tag=el.tagName.toLowerCase();
+        var idStr=el.id?'#'+el.id:'';
+        var clsStr=el.className&&typeof el.className==='string'?'.'+el.className.trim().split(/\s+/).slice(0,2).join('.'):'';
+        selector=tag+(idStr||clsStr).slice(0,30);
+        var nearest=el.closest('h1,h2,h3,h4,h5,td,th,li,p,button,label');
+        ctx=((nearest||el).textContent||'').trim().slice(0,80);
+      }
+    }catch(_){}
+    showAnnotationPanel(cx,cy,px,py,selector,ctx);
+  });
+
+  function showAnnotationPanel(cx,cy,px,py,selector,ctx){
+    closePanels();
+    var panel=document.createElement('div');
+    panel.className='hc-ann-panel';
+    panel.innerHTML=[
+      '<div class="hc-ann-sec">',
+      selector?'<div class="hc-ctx-card">'+escH(selector)+'</div>':'',
+      ctx?'<div class="hc-ctx-sub">\u201c'+escH(ctx.slice(0,60))+'\u201d</div>':'',
+      '</div>',
+      '<div class="hc-ann-sec"><textarea class="hc-ann-ta" placeholder="Describe the issue or suggestion..."></textarea></div>',
+      '<div class="hc-ann-foot">',
+      '<button class="hc-ann-btn hc-ann-cancel">Cancel</button>',
+      '<button class="hc-ann-btn hc-ann-save">Save</button>',
+      '</div>'
+    ].join('');
+    document.body.appendChild(panel);
+    posPanel(panel,cx,cy);
+    panel.querySelector('.hc-ann-ta').focus();
+    activePanel=panel;
+    panel.querySelector('.hc-ann-cancel').addEventListener('click',closePanels);
+    panel.querySelector('.hc-ann-save').addEventListener('click',function(){
+      var txt=panel.querySelector('.hc-ann-ta').value.trim();
+      if(!txt){panel.querySelector('.hc-ann-ta').classList.add('err');return;}
+      closePanels();
+      var num=document.querySelectorAll('.hc-pin').length+1;
+      renderPin(px,py,txt,gName(),selector,ctx,num);
+      postPin(px,py,txt,gName(),selector,ctx,num);
+    });
+    panel.querySelector('.hc-ann-ta').addEventListener('keydown',function(e){
+      if((e.ctrlKey||e.metaKey)&&e.key==='Enter'){panel.querySelector('.hc-ann-save').click();}
+    });
+  }
+
+  function posPanel(panel,cx,cy){
+    var vw=window.innerWidth,vh=window.innerHeight,g=12,pw=300;
+    var left=cx+16;if(left+pw>vw-g)left=cx-pw-16;if(left<g)left=g;
+    var top=cy;if(top+220>vh-g)top=vh-220-g;if(top<g)top=g;
+    panel.style.left=left+'px';panel.style.top=top+'px';
+  }
+
+  function closePanels(){
+    if(activePanel){activePanel.remove();activePanel=null;}
+    document.querySelectorAll('.hc-cbubble').forEach(function(b){b.remove();});
+  }
+
+  function renderPin(px,py,text,name,selector,ctx,num){
+    var wrap=document.createElement('div');
+    wrap.className='hc-pin';
+    wrap.style.left=(px-14)+'px';
+    wrap.style.top=(py-14)+'px';
+    wrap.style.position='absolute';
+    var btn=document.createElement('button');
+    btn.className='hc-pin-btn';
+    btn.title=name+': '+text;
+    btn.textContent=String(num);
+    btn.addEventListener('click',function(e){
+      e.stopPropagation();
+      var existing=document.querySelector('.hc-cbubble');
+      if(existing){existing.remove();return;}
+      var bub=document.createElement('div');
+      bub.className='hc-cbubble';
+      bub.innerHTML='<div class="hc-cb-name">'+escH(name)+'</div>'+(selector?'<div class="hc-cb-ctx">'+escH(selector)+'</div>':'')+'<div class="hc-cb-text">'+escH(text)+'</div>';
+      document.body.appendChild(bub);
+      var r=btn.getBoundingClientRect();
+      var bw=bub.getBoundingClientRect().width||260,bh=bub.getBoundingClientRect().height||80;
+      var vw=window.innerWidth,vh=window.innerHeight;
+      var bl=r.right+8;if(bl+bw>vw-12)bl=r.left-bw-8;if(bl<12)bl=12;
+      var bt=r.top;if(bt+bh>vh-12)bt=vh-bh-12;if(bt<12)bt=12;
+      bub.style.left=bl+'px';bub.style.top=bt+'px';
+    });
+    wrap.appendChild(btn);
+    document.body.appendChild(wrap);
+  }
+
+  function postPin(px,py,text,name,selector,ctx,num){
+    fetch('https://api.github.com/repos/'+REPO+'/issues',{
+      method:'POST',
+      headers:{'Authorization':'token '+gTok(),'Accept':'application/vnd.github.v3+json','Content-Type':'application/json'},
+      body:JSON.stringify({
+        title:'['+PAGE.toUpperCase()+'] #'+num+': '+text.slice(0,60),
+        body:'**Page**: '+PAGE+'\n**Name**: '+name+'\n**Comment**: '+text+'\n**Element**: '+selector+'\n**Context**: '+ctx+'\n**Coordinates**: x='+px+', y='+py+'\n**Viewport**: '+window.innerWidth+'x'+window.innerHeight+'\n**DocSize**: '+document.body.scrollWidth+'x'+document.body.scrollHeight
+      })
+    }).then(function(r){
+      if(r.status===401){localStorage.removeItem('hc_tok');showToast('Token rejected — click Add pin again to re-enter.');}
+      else if(!r.ok){showToast('Pin saved locally but GitHub sync failed ('+r.status+').');}
+      else{showToast('Pin #'+num+' saved \u2713');}
+    }).catch(function(){showToast('Pin saved locally — no network.');});
+  }
+
+  function loadComments(){
+    document.querySelectorAll('.hc-pin').forEach(function(p){p.remove();});
+    fetch('https://api.github.com/repos/'+REPO+'/issues?state=open&per_page=100',{headers:{'Accept':'application/vnd.github.v3+json'}})
+    .then(function(r){return r.json();})
+    .then(function(issues){
+      if(!Array.isArray(issues))return;
+      issues.filter(function(i){return i.title.indexOf('['+PAGE.toUpperCase()+']')===0;})
+      .reverse().forEach(function(issue,i){
+        var b=issue.body||'';
+        var xM=b.match(/\*\*Coordinates\*\*: x=(\d+)/),yM=b.match(/y=(\d+)/);
+        var nm=b.match(/\*\*Name\*\*: (.+)/),tm=b.match(/\*\*Comment\*\*: (.+)/);
+        var sm=b.match(/\*\*Element\*\*: (.*)/),cm=b.match(/\*\*Context\*\*: (.*)/);
+        if(xM&&yM)renderPin(parseInt(xM[1]),parseInt(yM[1]),tm?tm[1]:'',nm?nm[1]:'?',sm?sm[1]:'',cm?cm[1]:'',i+1);
+      });
+    }).catch(function(err){console.warn('Could not load pins:',err);});
+  }
+
+  function showToast(msg){
+    var t=document.getElementById('hc-toast');
+    if(t)t.remove();
+    t=document.createElement('div');t.id='hc-toast';t.textContent=msg;
+    document.body.appendChild(t);
+    setTimeout(function(){if(t.parentNode)t.remove();},3000);
+  }
+
+  refreshBtn.addEventListener('click',loadComments);
+  document.addEventListener('click',function(e){
+    if(e.target.closest('.hc-pin')||e.target.closest('.hc-ann-panel')||e.target.closest('.hc-cbubble'))return;
+    closePanels();
+  });
+  if(document.readyState==='loading'){document.addEventListener('DOMContentLoaded',loadComments);}else{loadComments();}
+})();</script>
+</body>
+</html>
     fetch('https://api.github.com/repos/'+REPO+'/issues',{
       method:'POST',
       headers:{'Authorization':'token '+gTok(),'Accept':'application/vnd.github.v3+json','Content-Type':'application/json'},
