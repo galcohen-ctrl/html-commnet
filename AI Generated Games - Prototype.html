@@ -21,13 +21,14 @@ button{font-family:inherit;cursor:pointer}
 
 /* ---------- prototype chrome ---------- */
 .protobar{position:sticky;top:0;z-index:60;background:#0f1626;color:#fff;display:flex;align-items:center;
-  gap:14px;padding:9px 16px;font-size:12.5px}
+  justify-content:center;gap:14px;padding:9px 16px;font-size:12.5px}
 .protobar b{font-size:13px}
-.protobar .seg{display:flex;gap:4px;margin-left:auto;flex-wrap:wrap}
+.protobar .seg{display:flex;gap:4px;flex-wrap:wrap;align-items:center}
 .protobar .seg button{background:rgba(255,255,255,.08);color:#cdd5e6;border:1px solid rgba(255,255,255,.12);
   border-radius:7px;padding:5px 9px;font-size:11.5px;font-weight:600}
 .protobar .seg button.on{background:var(--brand);color:#fff;border-color:var(--brand)}
 .protobar .grp{color:#67718a;font-weight:700;text-transform:uppercase;letter-spacing:.5px;font-size:10px;margin-left:8px}
+.protobar .seg .grp{color:#a4b0cc;font-size:10.5px;background:rgba(255,255,255,.06);padding:3px 8px;border-radius:5px;border:1px solid rgba(255,255,255,.12)}
 
 /* ---------- HUB SHELL ---------- */
 .hub{display:flex;min-height:calc(100vh - 39px)}
