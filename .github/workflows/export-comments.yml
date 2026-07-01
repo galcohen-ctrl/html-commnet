@@ -1,0 +1,47 @@
+name: Export web comments to comments.json
+
+# Run manually from Actions tab, or automatically whenever a new Issue is opened
+on:
+  workflow_dispatch:
+  issues:
+    types: [opened, edited, deleted, closed, reopened]
+
+jobs:
+  export:
+    runs-on: ubuntu-latest
+    permissions:
+      issues: read
+      contents: write
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Fetch all web-comment issues and write comments.json
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          gh api \
+            "repos/galcohen-ctrl/html-commnet/issues?state=open&per_page=100" \
+            --jq '[.[] | select(.title | startswith("[PRD]") or startswith("[PROTOTYPE]")) | {
+              id: .number,
+              title: .title,
+              page: (if (.title | startswith("[PRD]")) then "prd" else "prototype" end),
+              author: .user.login,
+              created_at: .created_at,
+              body: .body,
+              html_url: .html_url,
+              comment:  (.body | capture("\\*\\*Comment\\*\\*: (?P<v>.+)") | .v // ""),
+              name:     (.body | capture("\\*\\*Name\\*\\*: (?P<v>.+)")    | .v // ""),
+              context:  (.body | capture("\\*\\*Context\\*\\*: (?P<v>.*)")  | .v // ""),
+              x:        (.body | capture("\\*\\*Coordinates\\*\\*: x=(?P<v>\\d+)") | .v | tonumber? // 0),
+              y:        (.body | capture("y=(?P<v>\\d+)")                    | .v | tonumber? // 0)
+            }]' > comments.json
+
+      - name: Commit and push comments.json
+        run: |
+          git config user.name  "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add comments.json
+          git diff --staged --quiet && echo "No changes" || \
+            git commit -m "chore: sync comments.json [$(date -u +%Y-%m-%d)]" && git push

@@ -831,5 +831,142 @@ function setState(state,btn){
 showScreen('empty');
 setTimeout(()=>document.getElementById('flag').style.display='none',9000);
 </script>
+
+<!-- ═══ Comment Widget — Figma-style pins via GitHub Issues ═══ -->
+<style>
+#hc-fab{position:fixed;bottom:20px;right:20px;z-index:99999;display:flex;flex-direction:column;align-items:flex-end;gap:8px}
+#hc-add-btn{padding:10px 18px;background:#2c3e8f;color:#fff;border:none;border-radius:24px;cursor:pointer;font-size:13.5px;font-weight:700;box-shadow:0 2px 10px rgba(44,62,143,.35);transition:background .2s;font-family:-apple-system,sans-serif}
+#hc-add-btn.hc-active{background:#e53e3e}
+#hc-refresh-btn{padding:6px 14px;background:#fff;color:#2c3e8f;border:1.5px solid #c3d0f8;border-radius:24px;cursor:pointer;font-size:12px;font-weight:600;font-family:-apple-system,sans-serif;opacity:.9}
+#hc-refresh-btn:hover{opacity:1}
+body.hc-mode,body.hc-mode *{cursor:crosshair!important}
+.hc-pin{position:absolute;width:26px;height:26px;background:#e53e3e;border-radius:50% 50% 50% 0;transform:rotate(-45deg);z-index:99990;cursor:pointer;box-shadow:0 2px 6px rgba(0,0,0,.28);display:flex;align-items:center;justify-content:center;transition:transform .15s}
+.hc-pin:hover{transform:rotate(-45deg) scale(1.15)}
+.hc-num{transform:rotate(45deg);color:#fff;font-size:10px;font-weight:800;font-family:-apple-system,sans-serif;line-height:1}
+.hc-bubble{position:absolute;bottom:32px;left:2px;background:#fff;border:1px solid #e2e8f0;border-radius:10px;padding:10px 13px;min-width:180px;max-width:260px;box-shadow:0 4px 18px rgba(0,0,0,.14);z-index:99999;display:none;pointer-events:auto;font-family:-apple-system,sans-serif}
+.hc-bubble.open{display:block}
+.hc-bubble-name{font-size:11.5px;font-weight:700;color:#2c3e8f;margin-bottom:3px}
+.hc-bubble-ctx{font-size:10.5px;color:#9aa;margin-bottom:5px;font-style:italic;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;max-width:220px}
+.hc-bubble-text{font-size:13px;color:#1a202c;line-height:1.45}
+#hc-modal{display:none;position:fixed;inset:0;background:rgba(0,0,0,.45);z-index:999999;align-items:center;justify-content:center}
+#hc-modal.open{display:flex}
+#hc-modal-box{background:#fff;border-radius:14px;padding:28px 26px;max-width:420px;width:92%;box-shadow:0 8px 40px rgba(0,0,0,.2);font-family:-apple-system,sans-serif}
+#hc-modal-box h3{margin:0 0 10px;font-size:16px;color:#1a202c}
+#hc-modal-box p{margin:0 0 14px;font-size:13px;color:#555;line-height:1.55}
+#hc-modal-box code{background:#f0f2f7;padding:2px 6px;border-radius:4px;font-size:12px}
+#hc-modal-box input{width:100%;padding:9px 12px;border:1.5px solid #e2e8f0;border-radius:8px;font-size:13.5px;box-sizing:border-box;margin-bottom:10px;font-family:inherit}
+#hc-modal-box input:focus{outline:none;border-color:#2c3e8f}
+.hc-modal-btns{display:flex;gap:8px;justify-content:flex-end;margin-top:4px}
+.hc-btn-s{padding:8px 16px;background:#f7f8fa;border:1.5px solid #e2e8f0;border-radius:8px;cursor:pointer;font-size:13px;font-weight:600;font-family:inherit}
+.hc-btn-p{padding:8px 18px;background:#2c3e8f;color:#fff;border:none;border-radius:8px;cursor:pointer;font-size:13px;font-weight:700;font-family:inherit}
+</style>
+<div id="hc-fab">
+  <button id="hc-refresh-btn">↺ Refresh pins</button>
+  <button id="hc-add-btn">📌 Add pin</button>
+</div>
+<div id="hc-modal">
+  <div id="hc-modal-box">
+    <h3>🔑 One-time setup — GitHub token</h3>
+    <p>To drop pins you need a <strong>fine-grained GitHub token</strong> with <code>Issues: Write</code> on the <code>html-commnet</code> repo.<br/><br/>
+    <a href="https://github.com/settings/tokens?type=beta" target="_blank" rel="noopener">Create token at github.com/settings/tokens →</a><br/>
+    <em style="font-size:11.5px;color:#888">Settings: Repository access → html-commnet only · Permissions → Issues → Read &amp; Write</em></p>
+    <input id="hc-tok" type="password" placeholder="Paste your token here (stays in this browser only)"/>
+    <input id="hc-nam" type="text" placeholder="Your display name (e.g. Gal, Roy, Kobi)"/>
+    <div class="hc-modal-btns">
+      <button class="hc-btn-s" id="hc-cancel">Cancel</button>
+      <button class="hc-btn-p" id="hc-save">Save &amp; drop pin</button>
+    </div>
+  </div>
+</div>
+<script>(function(){
+  var REPO='galcohen-ctrl/html-commnet', PAGE='prototype';
+  function gTok(){return localStorage.getItem('hc_tok')||'';}
+  function sTok(t){localStorage.setItem('hc_tok',t.trim());}
+  function gName(){return localStorage.getItem('hc_name')||'Reviewer';}
+  function escH(s){var d=document.createElement('div');d.textContent=s;return d.innerHTML;}
+  var mode=false;
+  var addBtn=document.getElementById('hc-add-btn');
+  var refreshBtn=document.getElementById('hc-refresh-btn');
+  var modal=document.getElementById('hc-modal');
+
+  document.getElementById('hc-cancel').onclick=function(){modal.classList.remove('open');};
+  document.getElementById('hc-save').onclick=function(){
+    var t=document.getElementById('hc-tok').value.trim();
+    var n=document.getElementById('hc-nam').value.trim();
+    if(!t){alert('Please paste your GitHub token.');return;}
+    sTok(t); if(n) localStorage.setItem('hc_name',n);
+    modal.classList.remove('open'); enterMode();
+  };
+
+  function enterMode(){mode=true;addBtn.textContent='❌ Cancel';addBtn.classList.add('hc-active');document.body.classList.add('hc-mode');}
+  function exitMode(){mode=false;addBtn.textContent='📌 Add pin';addBtn.classList.remove('hc-active');document.body.classList.remove('hc-mode');}
+
+  addBtn.addEventListener('click',function(e){
+    e.stopPropagation();
+    if(mode){exitMode();return;}
+    if(!gTok()){modal.classList.add('open');return;}
+    enterMode();
+  });
+
+  document.addEventListener('click',function(e){
+    if(!mode)return;
+    if(e.target===addBtn||e.target.closest('#hc-fab')||e.target.closest('#hc-modal'))return;
+    e.preventDefault();e.stopPropagation();exitMode();
+    var x=Math.round(e.pageX),y=Math.round(e.pageY);
+    var ctx='';
+    try{var el=document.elementFromPoint(e.clientX,e.clientY);ctx=(el&&el.closest('h1,h2,h3,h4,h5,td,th,li,p'))?el.closest('h1,h2,h3,h4,h5,td,th,li,p').textContent.trim().slice(0,80):'';}catch(_){}
+    var text=prompt('Your comment:');
+    if(!text)return;
+    var name=gName();
+    var num=document.querySelectorAll('.hc-pin').length+1;
+    renderPin(x,y,text,name,ctx,num);
+    fetch('https://api.github.com/repos/'+REPO+'/issues',{
+      method:'POST',
+      headers:{'Authorization':'token '+gTok(),'Accept':'application/vnd.github.v3+json','Content-Type':'application/json'},
+      body:JSON.stringify({
+        title:'['+PAGE.toUpperCase()+'] #'+num+': '+text.slice(0,60),
+        body:'**Page**: '+PAGE+'\n**Name**: '+name+'\n**Comment**: '+text+'\n**Context**: '+ctx+'\n**Coordinates**: x='+x+', y='+y+'\n**Viewport**: '+window.innerWidth+'x'+window.innerHeight+'\n**DocSize**: '+document.body.scrollWidth+'x'+document.body.scrollHeight
+      })
+    }).then(function(r){
+      if(r.status===401){localStorage.removeItem('hc_tok');alert('Token rejected — please re-enter your token next time.');}
+      else if(!r.ok){alert('Pin shown locally but could not save to GitHub (status '+r.status+').');}
+    }).catch(function(err){console.warn('GitHub sync failed:',err);});
+  });
+
+  function renderPin(x,y,text,name,ctx,num){
+    var pin=document.createElement('div');pin.className='hc-pin';
+    pin.style.left=(x-13)+'px';pin.style.top=(y-13)+'px';
+    var bubble='<div class="hc-bubble"><div class="hc-bubble-name">'+escH(name)+'</div>'+(ctx?'<div class="hc-bubble-ctx">“'+escH(ctx.slice(0,60))+'”</div>':'')+'<div class="hc-bubble-text">'+escH(text)+'</div></div>';
+    pin.innerHTML='<span class="hc-num">'+num+'</span>'+bubble;
+    pin.addEventListener('click',function(e){
+      e.stopPropagation();
+      var b=pin.querySelector('.hc-bubble');
+      var was=b.classList.contains('open');
+      document.querySelectorAll('.hc-bubble.open').forEach(function(x){x.classList.remove('open');});
+      if(!was)b.classList.add('open');
+    });
+    document.body.appendChild(pin);
+  }
+
+  function loadComments(){
+    document.querySelectorAll('.hc-pin').forEach(function(p){p.remove();});
+    fetch('https://api.github.com/repos/'+REPO+'/issues?state=open&per_page=100',{headers:{'Accept':'application/vnd.github.v3+json'}})
+    .then(function(r){return r.json();})
+    .then(function(issues){
+      var mine=issues.filter(function(i){return i.title.indexOf('['+PAGE.toUpperCase()+']')===0;});
+      mine.reverse().forEach(function(issue,i){
+        var b=issue.body||'';
+        var xM=b.match(/\*\*Coordinates\*\*: x=(\d+)/),yM=b.match(/y=(\d+)/);
+        var nm=b.match(/\*\*Name\*\*: (.+)/),tm=b.match(/\*\*Comment\*\*: (.+)/);
+        var cm=b.match(/\*\*Context\*\*: (.*)/);
+        if(xM&&yM)renderPin(parseInt(xM[1]),parseInt(yM[1]),tm?tm[1]:'',nm?nm[1]:'?',cm?cm[1]:'',i+1);
+      });
+    }).catch(function(err){console.warn('Could not load pins:',err);});
+  }
+
+  refreshBtn.addEventListener('click',loadComments);
+  document.addEventListener('click',function(){if(!mode)document.querySelectorAll('.hc-bubble.open').forEach(function(b){b.classList.remove('open');});});
+  if(document.readyState==='loading'){document.addEventListener('DOMContentLoaded',loadComments);}else{loadComments();}
+})();</script>
 </body>
 </html>
