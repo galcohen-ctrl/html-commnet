@@ -1,0 +1,460 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>AI-Generated Games — PRD (V1)</title>
+<script src="https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.min.js"></script>
+<style>
+  :root{
+    --bg:#f6f7f9; --surface:#ffffff; --ink:#1c2430; --ink-soft:#5b6675;
+    --line:#e4e8ee; --brand:#3b5bdb; --brand-soft:#edf1fe;
+    --green:#1f9d57; --green-soft:#e7f6ee; --amber:#b7791f; --amber-soft:#fdf3e2;
+    --red:#d6455d; --red-soft:#fdeef0; --gray-soft:#eef1f5;
+    --radius:12px; --shadow:0 1px 2px rgba(20,30,50,.06),0 8px 24px rgba(20,30,50,.05);
+  }
+  *{box-sizing:border-box}
+  body{margin:0;font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;
+    background:var(--bg);color:var(--ink);line-height:1.55;-webkit-font-smoothing:antialiased}
+  a{color:var(--brand);text-decoration:none}
+  a:hover{text-decoration:underline}
+  header.top{background:linear-gradient(120deg,#2c3e8f,#3b5bdb);color:#fff;padding:30px 0 26px}
+  .wrap{max-width:1080px;margin:0 auto;padding:0 24px}
+  header.top h1{margin:0 0 6px;font-size:26px;letter-spacing:-.3px}
+  header.top p{margin:0;opacity:.9;font-size:14px}
+  .badges{margin-top:16px;display:flex;flex-wrap:wrap;gap:8px}
+  .badge{background:rgba(255,255,255,.16);border:1px solid rgba(255,255,255,.25);
+    padding:4px 10px;border-radius:999px;font-size:12px}
+  nav.tabs{position:sticky;top:0;z-index:20;background:var(--surface);border-bottom:1px solid var(--line);
+    box-shadow:0 2px 6px rgba(20,30,50,.03)}
+  nav.tabs .wrap{display:flex;gap:2px;overflow-x:auto}
+  nav.tabs button{background:none;border:none;padding:14px 14px;font-size:13.5px;font-weight:600;
+    color:var(--ink-soft);cursor:pointer;border-bottom:2.5px solid transparent;white-space:nowrap}
+  nav.tabs button:hover{color:var(--ink)}
+  nav.tabs button.active{color:var(--brand);border-bottom-color:var(--brand)}
+  main{padding:30px 0 80px}
+  section.tab{display:none;animation:fade .25s ease}
+  section.tab.active{display:block}
+  @keyframes fade{from{opacity:0;transform:translateY(4px)}to{opacity:1;transform:none}}
+  h2{font-size:20px;margin:6px 0 14px;letter-spacing:-.2px}
+  h3{font-size:15.5px;margin:26px 0 10px}
+  p,li{font-size:14px;color:var(--ink)}
+  .card{background:var(--surface);border:1px solid var(--line);border-radius:var(--radius);
+    padding:20px 22px;box-shadow:var(--shadow);margin-bottom:18px}
+  .lead{font-size:15px;color:var(--ink-soft)}
+  table{width:100%;border-collapse:collapse;font-size:13.5px;margin:8px 0 4px}
+  th,td{text-align:left;padding:9px 10px;border-bottom:1px solid var(--line);vertical-align:top}
+  th{font-size:11.5px;text-transform:uppercase;letter-spacing:.4px;color:var(--ink-soft);font-weight:700}
+  tr:last-child td{border-bottom:none}
+  code{background:var(--gray-soft);padding:1.5px 6px;border-radius:6px;font-size:12.5px;
+    font-family:"SF Mono",ui-monospace,Menlo,monospace}
+  .pill{display:inline-block;padding:2px 9px;border-radius:999px;font-size:11.5px;font-weight:700}
+  .p-green{background:var(--green-soft);color:var(--green)}
+  .p-amber{background:var(--amber-soft);color:var(--amber)}
+  .p-red{background:var(--red-soft);color:var(--red)}
+  .p-gray{background:var(--gray-soft);color:var(--ink-soft)}
+  .p-brand{background:var(--brand-soft);color:var(--brand)}
+  .grid2{display:grid;grid-template-columns:1fr 1fr;gap:16px}
+  .grid3{display:grid;grid-template-columns:repeat(3,1fr);gap:16px}
+  @media(max-width:780px){.grid2,.grid3{grid-template-columns:1fr}}
+  .kv{display:flex;gap:10px;font-size:13.5px;padding:7px 0;border-bottom:1px dashed var(--line)}
+  .kv b{min-width:140px;color:var(--ink-soft);font-weight:600}
+  .callout{border-left:3px solid var(--brand);background:var(--brand-soft);padding:12px 16px;
+    border-radius:0 10px 10px 0;margin:14px 0;font-size:13.5px}
+  .callout.warn{border-left-color:var(--amber);background:var(--amber-soft)}
+  .callout.win{border-left-color:var(--green);background:var(--green-soft)}
+  .num{display:inline-flex;align-items:center;justify-content:center;width:22px;height:22px;border-radius:6px;
+    background:var(--brand);color:#fff;font-size:12px;font-weight:700;margin-right:8px}
+  .mermaid{background:var(--surface);border:1px solid var(--line);border-radius:var(--radius);padding:18px;
+    text-align:center;overflow-x:auto}
+  .step{display:flex;gap:12px;margin-bottom:14px}
+  .step .dot{flex:none;width:26px;height:26px;border-radius:50%;background:var(--brand-soft);color:var(--brand);
+    display:flex;align-items:center;justify-content:center;font-weight:700;font-size:13px}
+  ul.clean{list-style:none;padding:0;margin:0}
+  ul.clean li{padding:7px 0;border-bottom:1px dashed var(--line);padding-left:22px;position:relative}
+  ul.clean li:before{content:"›";position:absolute;left:4px;color:var(--brand);font-weight:700}
+  ul.clean li:last-child{border-bottom:none}
+  .foot{color:var(--ink-soft);font-size:12.5px;text-align:center;padding:24px 0}
+  .tag-row{display:flex;gap:6px;flex-wrap:wrap;margin-top:6px}
+</style>
+</head>
+<body>
+<header class="top">
+  <div class="wrap">
+    <h1>AI-Generated Games — Product Requirements (V1 / MVP)</h1>
+    <p>Branded loyalty mini-games from a merchant URL · powered by an AI scrape → plan → skin pipeline · rewards via Campaign Center</p>
+    <div class="badges">
+      <span class="badge">Spike: CE-3975</span>
+      <span class="badge">Owner: Gal Cohen</span>
+      <span class="badge">Sprint 71 discovery</span>
+      <span class="badge">Status: Draft for review</span>
+      <span class="badge">Updated 2026-06-30</span>
+    </div>
+  </div>
+</header>
+
+<nav class="tabs">
+  <div class="wrap" id="tabbar">
+    <button class="active" data-t="overview">Overview</button>
+    <button data-t="decisions">V1 Decisions</button>
+    <button data-t="flow">End-to-End Flow</button>
+    <button data-t="merchant">Merchant UX</button>
+    <button data-t="member">Member UX</button>
+    <button data-t="arch">Architecture</button>
+    <button data-t="questions">Open Questions</button>
+    <button data-t="tickets">Build Tickets</button>
+  </div>
+</nav>
+
+<main>
+<div class="wrap">
+
+<!-- OVERVIEW -->
+<section class="tab active" id="overview">
+  <h2>What we're building</h2>
+  <div class="card">
+    <p class="lead">Let a merchant turn their own brand into playable, branded HTML5 loyalty mini-games — with no design work and no per-merchant development. The merchant enters a website URL (or uploads assets), an AI pipeline scrapes the brand and skins games from a verified template bank, and the merchant configures and activates them. Members play in the Como app and Customer Portal and win rewards. Eligibility and rewards run on the <b>existing Campaign Center</b> — the same model Spin the Wheel uses today.</p>
+    <div class="callout">Merchant one-liner: <b>Type in your website. Get branded games your members play to win your rewards — in minutes.</b></div>
+  </div>
+
+  <h3>Why now — customer evidence</h3>
+  <div class="grid2">
+    <div class="card">
+      <span class="pill p-brand">Pancake Parlour · AU · ~60 stores</span>
+      <p style="margin-top:12px">Spin to Win is their best campaign ever:</p>
+      <ul class="clean">
+        <li><b>10.5%</b> YoY revenue lift during campaign</li>
+        <li><b>15–16k</b> spins per week</li>
+        <li><b>28–30%</b> spin → in-store redemption</li>
+      </ul>
+      <p style="margin-top:10px;color:var(--ink-soft)">Wants profitability controls: retry limits, tier/behaviour gating.</p>
+    </div>
+    <div class="card">
+      <span class="pill p-brand">Java Cafe · SA · ~32 stores</span>
+      <p style="margin-top:12px"><i>"We need our customer to be obsessed with the Como application… let me find a game."</i></p>
+      <ul class="clean">
+        <li>Spend-gated games ($3+ unlocks)</li>
+        <li>Values <b>AI curation over manual selection</b></li>
+        <li>Flagged the per-game config screen as unclear</li>
+      </ul>
+    </div>
+  </div>
+
+  <h3>Goals &amp; non-goals</h3>
+  <div class="grid2">
+    <div class="card">
+      <span class="pill p-green">V1 Goals</span>
+      <ul class="clean" style="margin-top:10px">
+        <li>Generate branded games from a URL — no design/dev work</li>
+        <li>Configurable + phone-previewable before going live</li>
+        <li>Members discover, play, win, redeem in app + portal</li>
+        <li>Reuse Campaign Center for eligibility + rewards</li>
+        <li>Brand artifact built generically for future agents</li>
+      </ul>
+    </div>
+    <div class="card">
+      <span class="pill p-red">Non-goals (V1)</span>
+      <ul class="clean" style="margin-top:10px">
+        <li>From-scratch dynamic game-code generation (lab only)</li>
+        <li>"Describe a game and AI builds it" (V2)</li>
+        <li>Always-on mode (triggered/tag-based only)</li>
+        <li>Analytics dashboards · kiosk channel · multiplayer</li>
+        <li>Auto re-skin on rebrand · merchant-uploaded templates</li>
+      </ul>
+    </div>
+  </div>
+</section>
+
+<!-- DECISIONS -->
+<section class="tab" id="decisions">
+  <h2>Locked V1 decisions</h2>
+  <p class="lead">Confirmed with PM on 2026-06-30. These are the constraints the build inherits.</p>
+  <div class="card">
+    <table>
+      <thead><tr><th style="width:48px">#</th><th>Decision</th></tr></thead>
+      <tbody>
+        <tr><td><b>D1</b></td><td><b>Entry point:</b> new "Games" item in the Campaign Center left sidebar. (Future note: consider moving Spin the Wheel config here too — not V1.)</td></tr>
+        <tr><td><b>D2</b></td><td><b>Input:</b> primary = merchant URL; secondary/fallback = bulk upload (drag-drop / paste / ZIP). URL is the dominant CTA.</td></tr>
+        <tr><td><b>D3</b></td><td><b>Consent:</b> legal modal before scraping; record written to the existing Hub audit table.</td></tr>
+        <tr><td><b>D4</b></td><td><b>Scrape progress:</b> progressive asset gallery, not a plain spinner.</td></tr>
+        <tr><td><b>D5</b></td><td><b>Partial scrape:</b> ask merchant to fill gaps instead of failing.</td></tr>
+        <tr><td><b>D6</b></td><td><b>Selection model:</b> Hybrid — planner picks <b>3 games per batch</b>; merchant approves / regenerates / requests more. Bank size hidden.</td></tr>
+        <tr><td><b>D7</b></td><td><b>Template bank:</b> <b>10 verified HTML5 templates</b> in V1.</td></tr>
+        <tr><td><b>D8</b></td><td><b>Per-game config:</b> win score, wins-allowed, reward (Benefit Picker), eligibility (Filter Members). No difficulty field. Phone preview on the right.</td></tr>
+        <tr><td><b>D9</b></td><td><b>Activation:</b> per-row <b>Activate</b> button (status/tag-based). No global "Publish" button.</td></tr>
+        <tr><td><b>D10</b></td><td><b>Eligibility ownership:</b> Games UI owns it. Activation auto-creates 1 eligibility + 1 reward rule in CC, shown read-only with a "Managed by Games" badge.</td></tr>
+        <tr><td><b>D11</b></td><td><b>One rule set per game.</b> Disabling a game disables its CC rules.</td></tr>
+        <tr><td><b>D12</b></td><td><b>Member discovery (V1):</b> home card (only with a <code>game_*_eligible</code> tag) + push/deep-link. Games tab = V2. Never replace Spin the Wheel.</td></tr>
+        <tr><td><b>D13</b></td><td><b>Single vs Arena:</b> 1 eligible game → launch directly. 2+ → minimal Games Arena chooser.</td></tr>
+        <tr><td><b>D14</b></td><td><b>Play/win:</b> unlimited plays until a win; wins-allowed caps reward wins; untag on final win. MVP fallback: hard-code 1 win.</td></tr>
+        <tr><td><b>D15</b></td><td><b>Lifecycle:</b> scrape once (first run); later batches reuse assets + add table rows; disabled games keep assets (re-activatable free).</td></tr>
+        <tr><td><b>D16</b></td><td><b>Max-out:</b> at 10 templates used, Generate button disabled → replaced with fake-door feedback CTA.</td></tr>
+        <tr><td><b>D17</b></td><td><b>Mode:</b> triggered/tag-based only (Spin-the-Wheel-consistent). "Always-on" simulated via a low-bar eligibility rule.</td></tr>
+      </tbody>
+    </table>
+  </div>
+</section>
+
+<!-- FLOW -->
+<section class="tab" id="flow">
+  <h2>End-to-end flow</h2>
+  <p class="lead">Four blocks = four build conversations: Hub 2 UI · Brand &amp; agent pipeline · Hosting + event bridge · Member touchpoints.</p>
+  <div class="mermaid">
+flowchart TB
+  subgraph HUB["HUB 2 — Campaign Center &gt; Games"]
+    A1["Games page (new sidebar entry)"]
+    A2{First time?}
+    A3["Empty state: URL input (primary)<br/>+ Upload assets (secondary)"]
+    A3b["Consent modal -&gt; Hub audit table"]
+    A5["Brand Scraping Service<br/>(progressive gallery)"]
+    A6{Scrape result}
+    A7["Partial: fill gaps"]
+    A7b["Bulk upload fallback"]
+    A8[("Brand Understanding Store<br/>DESIGN.md · tokens · assets — reusable")]
+    A9["Planner picks 3 templates"]
+    A10[("Template Bank — 10 games")]
+    A11["Coder agents skin 3 (parallel)"]
+    A12["Config screen + phone preview"]
+    A13["Games table (name + status)"]
+  end
+  subgraph CC["CAMPAIGN CENTER (existing)"]
+    B1["Eligibility Rule (Filter Members)"]
+    B2["Tag: game_&lt;id&gt;_eligible"]
+    B3["Reward Rule (fires on GAME_WIN)"]
+  end
+  subgraph HOST["GAME HOSTING (Como-owned)"]
+    C1["Skinned game HTML"]
+    C2["postMessage: READY/SCORE/OVER"]
+    C3["submitEvent -&gt; Como backend"]
+    C4["Win counter + untag at max wins"]
+  end
+  subgraph TP["MEMBER TOUCHPOINTS"]
+    D1["Home card (if eligible) + push"]
+    D3{Eligible 2+ games?}
+    D4["Single game"]
+    D5["Games Arena"]
+    D6["Play -&gt; win/lose/out-of-wins"]
+  end
+  A1-->A2
+  A2-->|Yes|A3-->A3b-->A5-->A6
+  A2-->|No, reuse assets|A9
+  A6-->|Partial|A7-->A8
+  A6-->|Fail|A7b-->A8
+  A6-->|OK|A8
+  A8-->A9-->A10-->A11-->A12-->A13
+  A13-->|Activate|B1-->B2
+  A13-->|Activate|B3
+  B2-->D1-->D3
+  D3-->|1|D4-->D6
+  D3-->|2+|D5-->D6
+  D6-->C1-->C2-->C3-->B3
+  C3-->C4-->|untag|B2
+  </div>
+  <div class="callout">Open the companion <b>clickable prototype</b> (<code>AI Generated Games - Prototype.html</code>) to walk these screens live.</div>
+</section>
+
+<!-- MERCHANT -->
+<section class="tab" id="merchant">
+  <h2>Merchant experience (Hub 2)</h2>
+
+  <div class="step"><div class="dot">1</div><div><b>Empty state</b> — centered games icon, title, helper <i>"Enter your website URL to generate games for your members."</i> Primary CTA = URL + Generate. Secondary (lower weight) = <i>"No website? Upload your brand assets"</i> with drag-drop / ⌘V paste / ZIP.</div></div>
+  <div class="step"><div class="dot">2</div><div><b>Consent modal</b> — exact legal copy (see card below); on authorize writes to the existing Hub audit table.</div></div>
+  <div class="step"><div class="dot">3</div><div><b>Progressive scrape gallery</b> — assets stream in (logos, color swatches, fonts, product images). Status: <i>"Reading your brand… about 2 minutes."</i></div></div>
+  <div class="step"><div class="dot">4</div><div><b>Gap-fill</b> — if partial, show only the missing categories with an inline uploader; merchant may skip (defaults used).</div></div>
+  <div class="step"><div class="dot">5</div><div><b>Config screen</b> — 3 generated games + live phone preview on the right; per-row <b>Activate</b>.</div></div>
+  <div class="step"><div class="dot">6</div><div><b>Games table</b> — collapsed rows show only <b>name + status</b>; <code>+ Generate games</code> adds another batch of 3 (shimmering "Generating…" rows with a streaming status line).</div></div>
+
+  <div class="card">
+    <h3 style="margin-top:0">Consent modal — exact copy</h3>
+    <div class="callout">
+      <b>Authorize Como to use your brand assets</b><br/><br/>
+      To generate your games, Como will:<br/>
+      • Visit your website at <code>&lt;merchant URL&gt;</code><br/>
+      • Download publicly available brand assets (logo, colors, fonts, product images, menu items)<br/>
+      • Store these assets to skin your games and power future Como features for your brand<br/><br/>
+      You can request deletion at any time via your Como account manager. By continuing, you confirm you own or have the right to use this content, and you authorize Como to use it for the purposes above.<br/><br/>
+      <span class="pill p-gray">Cancel</span> &nbsp; <span class="pill p-brand">I authorize — start generating</span>
+    </div>
+  </div>
+
+  <div class="grid2">
+    <div class="card">
+      <h3 style="margin-top:0">Collapsed row</h3>
+      <ul class="clean">
+        <li>Game name</li>
+        <li>Status pill: <span class="pill p-green">Active</span> <span class="pill p-gray">Draft</span> <span class="pill p-red">Disabled</span> <span class="pill p-brand">Generating…</span></li>
+        <li>Row <b>Activate</b> button when Draft/Disabled</li>
+      </ul>
+    </div>
+    <div class="card">
+      <h3 style="margin-top:0">Expanded row — config (left) + phone preview (right)</h3>
+      <ul class="clean">
+        <li><b>Game name</b> — AI-prefilled, editable</li>
+        <li><b>Score needed to win</b> — <i>"Members keep playing until they reach this score."</i></li>
+        <li><b>Wins allowed per member</b> — 1 / 3 / 5 / 10 / Unlimited (replaces "Max Retries")</li>
+        <li><b>Reward</b> — existing Benefit Picker dropdown</li>
+        <li><b>Eligible members</b> — existing Filter Members component</li>
+        <li>Preview state toggles: Game · Win · Lose · Out of wins</li>
+      </ul>
+    </div>
+  </div>
+
+  <div class="card">
+    <h3 style="margin-top:0">Activation &amp; lifecycle</h3>
+    <div class="kv"><b>Activate</b><span>Confirm modal → auto-create CC eligibility + reward rule → status <span class="pill p-green">Active</span>. CC rules read-only, badged "Managed by Games".</span></div>
+    <div class="kv"><b>Disable</b><span>⋯ → Disable → CC rules disabled, status <span class="pill p-red">Disabled</span>, assets preserved (re-activatable free).</span></div>
+    <div class="kv"><b>Re-scrape</b><span>"Brand assets last refreshed: &lt;date&gt; · Refresh". Updates stored assets; next batch uses them. No auto re-skin.</span></div>
+    <div class="kv"><b>Max-out</b><span>All 10 used → Generate disabled → fake-door card: <i>"Want new games for your brand? Tell us what you'd play →"</i></span></div>
+  </div>
+</section>
+
+<!-- MEMBER -->
+<section class="tab" id="member">
+  <h2>Member experience</h2>
+  <div class="grid3">
+    <div class="card">
+      <span class="pill p-brand">Discovery</span>
+      <ul class="clean" style="margin-top:10px">
+        <li>Home card — only with a <code>game_*_eligible</code> tag</li>
+        <li>Push / deep-link from email/SMS</li>
+        <li>No dedicated Games tab in V1</li>
+      </ul>
+    </div>
+    <div class="card">
+      <span class="pill p-brand">Routing</span>
+      <ul class="clean" style="margin-top:10px">
+        <li>1 eligible game → launch directly</li>
+        <li>2+ eligible → Games Arena chooser</li>
+        <li>Token + <code>return_to</code> via query params</li>
+      </ul>
+    </div>
+    <div class="card">
+      <span class="pill p-brand">Channels</span>
+      <ul class="clean" style="margin-top:10px">
+        <li>Phoenix app — webview wrapper</li>
+        <li>Customer Portal — iframe/route</li>
+        <li>Same hosting service for both</li>
+      </ul>
+    </div>
+  </div>
+
+  <div class="card">
+    <h3 style="margin-top:0">Game session — terminal states (D14)</h3>
+    <table>
+      <thead><tr><th>State</th><th>Member sees</th><th>System does</th></tr></thead>
+      <tbody>
+        <tr><td><span class="pill p-amber">Lose</span></td><td>"So close! Try again." → Play again / Back</td><td>Increment play count (analytics only; no gating)</td></tr>
+        <tr><td><span class="pill p-green">Win (wins left)</span></td><td>"You won! &lt;reward&gt;." → Use my reward / Play again</td><td><code>GAME_WIN</code> → CC grants reward; win +1; stays tagged</td></tr>
+        <tr><td><span class="pill p-brand">Win (final)</span></td><td>"You won! Last play for this game." → Use my reward</td><td>Grant reward; win hits max → <b>untag</b>; game leaves surfaces</td></tr>
+      </tbody>
+    </table>
+    <div class="callout win">Plays are unlimited until first win (avoids rage-quit). "Wins allowed" caps reward wins, not plays. MVP-simplest fallback: hard-code 1 win.</div>
+  </div>
+</section>
+
+<!-- ARCH -->
+<section class="tab" id="arch">
+  <h2>Architecture &amp; integration</h2>
+  <div class="grid2">
+    <div class="card">
+      <h3 style="margin-top:0">Components</h3>
+      <ul class="clean">
+        <li><b>Hub 2 Games UI</b> — empty state, consent, gallery, gap-fill, config, table</li>
+        <li><b>Brand Scraping Service</b> — URL + upload → canonical artifact</li>
+        <li><b>Brand Understanding Store</b> — reusable schema for future agents</li>
+        <li><b>Agent pipeline</b> — Planner + Coder (parallel), reuse ADK shape</li>
+        <li><b>Template Bank</b> — 10 verified templates + contract</li>
+        <li><b>Game Hosting Service</b> — serve, token-auth, event bridge, untag</li>
+        <li><b>Campaign Center integration</b> — auto rules + <code>GAME_WIN</code></li>
+        <li><b>Member touchpoints</b> — Phoenix webview + CP iframe</li>
+      </ul>
+    </div>
+    <div class="card">
+      <h3 style="margin-top:0">postMessage contract</h3>
+      <p style="margin:0 0 6px"><b>Game → host:</b></p>
+      <p style="margin:0"><code>GAME_READY</code> <code>GAME_STARTED</code> <code>SCORE_UPDATE</code> <code>LEVEL_PASSED</code> <code>GAME_OVER {won,score}</code></p>
+      <p style="margin:12px 0 6px"><b>Host → game:</b></p>
+      <p style="margin:0"><code>INIT {config}</code> <code>PAUSE</code> <code>RESUME</code></p>
+      <div class="callout" style="margin-top:14px">On <code>GAME_OVER {won:true}</code> the host calls the existing <b>submitEvent</b> API → CC reward rule fires.</div>
+    </div>
+  </div>
+  <div class="card">
+    <h3 style="margin-top:0">Data model (sketch)</h3>
+    <ul class="clean">
+      <li><code>brand_understanding</code> — merchantId, sourceType, designMd, tokensJson, assetManifest, refreshedAt</li>
+      <li><code>game</code> — gameId, merchantId, templateId, name, status, winScore, winsAllowed, rewardBenefitId, eligibilityFilterId, assetPath</li>
+      <li><code>game_win</code> — gameId, memberId, winCount, lastWonAt <span class="pill p-amber">or reuse CC event store — Q3</span></li>
+      <li>CC: <code>eligibility_rule</code>, <code>reward_rule</code> tagged "Managed by Games"</li>
+    </ul>
+  </div>
+</section>
+
+<!-- QUESTIONS -->
+<section class="tab" id="questions">
+  <h2>Open questions for the spike</h2>
+  <div class="card">
+    <table>
+      <thead><tr><th style="width:48px">#</th><th>Question</th><th>Why it matters</th></tr></thead>
+      <tbody>
+        <tr><td><b>Q1</b></td><td>Template "verified" bar + who curates the 10?</td><td>Content-ops cost; quality</td></tr>
+        <tr><td><b>Q2</b></td><td>Residential proxy for scraping — in or out for V1?</td><td>Reliability vs complexity</td></tr>
+        <tr><td><b>Q3</b></td><td>Win-counter source of truth: new store vs CC frequency caps? (fallback: hard-code 1 win)</td><td>Core to untag logic</td></tr>
+        <tr><td><b>Q4</b></td><td>Games Arena lift — V1 or V2?</td><td>Multi-eligibility UX</td></tr>
+        <tr><td><b>Q5</b></td><td>Agent service location — extend existing or new?</td><td>Ownership + deploy</td></tr>
+        <tr><td><b>Q6</b></td><td>Per-merchant Vertex AI cost envelope at SMB scale</td><td>Pricing / unit economics</td></tr>
+        <tr><td><b>Q7</b></td><td>Brand Understanding Store schema — how generic?</td><td>Reuse vs over-engineering</td></tr>
+        <tr><td><b>Q8</b></td><td>Pricing model (Java Cafe asked directly)</td><td>Go-to-market</td></tr>
+      </tbody>
+    </table>
+  </div>
+  <div class="callout">Suggested spike deliverable: an <code>architecture.md</code> in the LoyaPlayAI repo — component diagram, per-component contracts, sequence diagrams, data model, estimates, risks, V1 recommendation. Copilot helpers: <code>/learn-codebase</code>, <code>/pathfinder</code>, <code>/make-plan</code> + <code>/do</code>, <code>/do-prd</code>. Present back to Gal, Kobi, Gabi, Ofir.</div>
+</section>
+
+<!-- TICKETS -->
+<section class="tab" id="tickets">
+  <h2>Draft build tickets</h2>
+  <p class="lead">Children/links of spike CE-3975. <b>Not created yet</b> — drafted here for PM review. Sizes are placeholders for dev estimation.</p>
+  <div class="card">
+    <table>
+      <thead><tr><th style="width:40px">#</th><th>Ticket</th><th>Block</th></tr></thead>
+      <tbody>
+        <tr><td>1</td><td>Games entry point + empty state (sidebar, URL input, secondary upload)</td><td><span class="pill p-brand">Hub UI</span></td></tr>
+        <tr><td>2</td><td>Consent modal + audit-table write</td><td><span class="pill p-brand">Hub UI</span></td></tr>
+        <tr><td>3</td><td>Brand Scraping Service (URL + upload) + progressive gallery API</td><td><span class="pill p-amber">Pipeline</span></td></tr>
+        <tr><td>4</td><td>Partial-scrape gap-fill flow</td><td><span class="pill p-amber">Pipeline</span></td></tr>
+        <tr><td>5</td><td>Brand Understanding Store (reusable artifact + schema)</td><td><span class="pill p-amber">Pipeline</span></td></tr>
+        <tr><td>6</td><td>Template Bank: 10 verified templates + contract</td><td><span class="pill p-amber">Pipeline</span></td></tr>
+        <tr><td>7</td><td>Agent pipeline (Planner + Coders) service + cost envelope</td><td><span class="pill p-amber">Pipeline</span></td></tr>
+        <tr><td>8</td><td>Games table + collapsed/expanded rows + generating state</td><td><span class="pill p-brand">Hub UI</span></td></tr>
+        <tr><td>9</td><td>Per-game config (Benefit Picker + Filter Members + win score + wins-allowed)</td><td><span class="pill p-brand">Hub UI</span></td></tr>
+        <tr><td>10</td><td>Activation: auto-create/disable CC rules ("Managed by Games")</td><td><span class="pill p-green">CC</span></td></tr>
+        <tr><td>11</td><td>Game Hosting Service + postMessage→submitEvent + win counter/untag</td><td><span class="pill p-red">Hosting</span></td></tr>
+        <tr><td>12</td><td>Member discovery: home card + push/deep-link</td><td><span class="pill p-gray">Member</span></td></tr>
+        <tr><td>13</td><td>Routing: single-game vs Games Arena chooser</td><td><span class="pill p-gray">Member</span></td></tr>
+        <tr><td>14</td><td>Game session terminal states + return_to nav</td><td><span class="pill p-gray">Member</span></td></tr>
+        <tr><td>15</td><td>Max-out fake-door feedback CTA</td><td><span class="pill p-brand">Hub UI</span></td></tr>
+        <tr><td>16</td><td>Re-scrape / brand refresh</td><td><span class="pill p-amber">Pipeline</span></td></tr>
+      </tbody>
+    </table>
+  </div>
+</section>
+
+</div>
+</main>
+
+<div class="foot">AI-Generated Games PRD · CE-3975 · Gal Cohen · companion to the clickable prototype &amp; the strategic brief</div>
+
+<script>
+  mermaid.initialize({startOnLoad:true,theme:"neutral",flowchart:{useMaxWidth:true,htmlLabels:true}});
+  const tabs=document.querySelectorAll('#tabbar button');
+  const secs=document.querySelectorAll('section.tab');
+  tabs.forEach(b=>b.addEventListener('click',()=>{
+    tabs.forEach(x=>x.classList.remove('active'));
+    secs.forEach(x=>x.classList.remove('active'));
+    b.classList.add('active');
+    document.getElementById(b.dataset.t).classList.add('active');
+    window.scrollTo({top:0,behavior:'smooth'});
+  }));
+</script>
+</body>
+</html>

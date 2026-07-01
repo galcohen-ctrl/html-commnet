@@ -1,0 +1,677 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>AI-Generated Games — Clickable Prototype</title>
+<style>
+:root{
+  --bg:#f4f6f9; --shell:#ffffff; --ink:#1c2430; --soft:#5b6675; --line:#e4e8ee;
+  --brand:#3b5bdb; --brand-d:#2c47b8; --brand-soft:#edf1fe;
+  --green:#1f9d57; --green-soft:#e7f6ee; --amber:#b7791f; --amber-soft:#fdf3e2;
+  --red:#d6455d; --red-soft:#fdeef0; --graypill:#eef1f5;
+  --sidebar:#141b2d; --sidebar-soft:#9aa6bd;
+  --pp:#e8552f; --pp-soft:#fdeee9; /* pancake brand accent for demo merchant */
+}
+*{box-sizing:border-box}
+body{margin:0;font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;
+  background:var(--bg);color:var(--ink);-webkit-font-smoothing:antialiased}
+button{font-family:inherit;cursor:pointer}
+.hidden{display:none!important}
+
+/* ---------- prototype chrome ---------- */
+.protobar{position:sticky;top:0;z-index:60;background:#0f1626;color:#fff;display:flex;align-items:center;
+  gap:14px;padding:9px 16px;font-size:12.5px}
+.protobar b{font-size:13px}
+.protobar .seg{display:flex;gap:4px;margin-left:auto;flex-wrap:wrap}
+.protobar .seg button{background:rgba(255,255,255,.08);color:#cdd5e6;border:1px solid rgba(255,255,255,.12);
+  border-radius:7px;padding:5px 9px;font-size:11.5px;font-weight:600}
+.protobar .seg button.on{background:var(--brand);color:#fff;border-color:var(--brand)}
+.protobar .grp{color:#67718a;font-weight:700;text-transform:uppercase;letter-spacing:.5px;font-size:10px;margin-left:8px}
+
+/* ---------- HUB SHELL ---------- */
+.hub{display:flex;min-height:calc(100vh - 39px)}
+.side{width:220px;flex:none;background:var(--sidebar);color:#fff;padding:18px 12px}
+.side .logo{display:flex;align-items:center;gap:9px;padding:6px 10px 16px;font-weight:700;font-size:15px}
+.side .logo .mk{width:26px;height:26px;border-radius:7px;background:linear-gradient(135deg,#3b5bdb,#6f8bff);
+  display:flex;align-items:center;justify-content:center;font-size:14px}
+.side .grp{color:var(--sidebar-soft);font-size:10px;text-transform:uppercase;letter-spacing:.6px;
+  padding:14px 10px 6px;font-weight:700}
+.side a{display:flex;align-items:center;gap:10px;color:#c7d0e2;text-decoration:none;padding:8px 10px;
+  border-radius:8px;font-size:13px;margin-bottom:1px}
+.side a .ic{width:17px;text-align:center;opacity:.85}
+.side a:hover{background:rgba(255,255,255,.06);color:#fff}
+.side a.active{background:var(--brand);color:#fff}
+.side a.new::after{content:"NEW";margin-left:auto;font-size:9px;background:#2bbd7e;color:#04231a;
+  padding:1px 5px;border-radius:5px;font-weight:800}
+
+.main{flex:1;min-width:0;display:flex;flex-direction:column}
+.topbar{height:54px;background:var(--shell);border-bottom:1px solid var(--line);display:flex;align-items:center;
+  padding:0 22px;gap:12px}
+.crumb{font-size:13px;color:var(--soft)}
+.crumb b{color:var(--ink)}
+.topbar .me{margin-left:auto;display:flex;align-items:center;gap:9px;font-size:12.5px;color:var(--soft)}
+.avatar{width:28px;height:28px;border-radius:50%;background:var(--pp-soft);color:var(--pp);display:flex;
+  align-items:center;justify-content:center;font-weight:700;font-size:12px}
+.content{padding:26px 24px;flex:1}
+.canvas{max-width:1000px;margin:0 auto}
+
+/* generic UI atoms */
+.h1{font-size:20px;font-weight:700;margin:0 0 4px}
+.sub{color:var(--soft);font-size:13.5px;margin:0 0 20px}
+.btn{border:none;border-radius:9px;padding:10px 16px;font-size:13.5px;font-weight:600;background:var(--brand);color:#fff}
+.btn:hover{background:var(--brand-d)}
+.btn.sec{background:var(--shell);color:var(--ink);border:1px solid var(--line)}
+.btn.sec:hover{background:var(--bg)}
+.btn.ghost{background:transparent;color:var(--brand);padding:8px 10px}
+.btn.sm{padding:6px 11px;font-size:12.5px;border-radius:8px}
+.btn.green{background:var(--green)}
+.btn.danger{background:var(--shell);color:var(--red);border:1px solid var(--red-soft)}
+.card{background:var(--shell);border:1px solid var(--line);border-radius:14px;box-shadow:0 1px 2px rgba(20,30,50,.05);}
+.pill{display:inline-flex;align-items:center;gap:5px;padding:3px 10px;border-radius:999px;font-size:11.5px;font-weight:700}
+.p-green{background:var(--green-soft);color:var(--green)}
+.p-amber{background:var(--amber-soft);color:var(--amber)}
+.p-red{background:var(--red-soft);color:var(--red)}
+.p-gray{background:var(--graypill);color:var(--soft)}
+.p-brand{background:var(--brand-soft);color:var(--brand)}
+.dotpulse{width:7px;height:7px;border-radius:50%;background:currentColor;animation:pulse 1s infinite}
+@keyframes pulse{0%,100%{opacity:.35}50%{opacity:1}}
+
+/* empty state */
+.empty{display:flex;flex-direction:column;align-items:center;text-align:center;padding:50px 20px}
+.empty .gicon{width:74px;height:74px;border-radius:20px;background:var(--brand-soft);color:var(--brand);
+  display:flex;align-items:center;justify-content:center;font-size:36px;margin-bottom:18px}
+.empty h2{font-size:22px;margin:0 0 8px}
+.empty p.help{color:var(--soft);font-size:14px;max-width:440px;margin:0 0 22px}
+.urlrow{display:flex;gap:10px;width:100%;max-width:520px}
+.urlrow input{flex:1;border:1.5px solid var(--line);border-radius:10px;padding:12px 14px;font-size:14px}
+.urlrow input:focus{outline:none;border-color:var(--brand)}
+.altlink{margin-top:18px;font-size:13px;color:var(--soft)}
+.altlink button{background:none;border:none;color:var(--brand);font-weight:600;text-decoration:underline;font-size:13px}
+.dropzone{margin-top:16px;width:100%;max-width:520px;border:2px dashed var(--line);border-radius:14px;
+  padding:26px;color:var(--soft);font-size:13px;background:#fbfcfe}
+.dropzone b{color:var(--ink)}
+
+/* modal */
+.modal-bg{position:fixed;inset:0;background:rgba(15,20,35,.55);display:flex;align-items:center;justify-content:center;
+  z-index:80;padding:20px}
+.modal{background:var(--shell);border-radius:16px;max-width:480px;width:100%;padding:24px;box-shadow:0 24px 60px rgba(0,0,0,.3)}
+.modal h3{margin:0 0 12px;font-size:17px}
+.modal .legal{font-size:13px;color:var(--soft);line-height:1.6}
+.modal .legal code{background:var(--graypill);padding:1px 5px;border-radius:5px}
+.modal .acts{display:flex;gap:10px;justify-content:flex-end;margin-top:20px}
+
+/* gallery */
+.scanhead{display:flex;align-items:center;gap:12px;margin-bottom:16px}
+.spinner{width:18px;height:18px;border:2.5px solid var(--brand-soft);border-top-color:var(--brand);border-radius:50%;
+  animation:spin .8s linear infinite}
+@keyframes spin{to{transform:rotate(360deg)}}
+.masonry{column-count:4;column-gap:12px}
+@media(max-width:720px){.masonry{column-count:2}}
+.masonry .tile{break-inside:avoid;margin-bottom:12px;border-radius:12px;border:1px solid var(--line);overflow:hidden;
+  background:var(--shell);opacity:0;transform:translateY(8px);animation:rise .5s forwards}
+@keyframes rise{to{opacity:1;transform:none}}
+.tile .swatch{height:70px}
+.tile .cap{font-size:11px;color:var(--soft);padding:7px 9px}
+.tile.logo{padding:18px;text-align:center;font-weight:800;color:var(--pp);font-size:18px}
+.tile.font{padding:14px 12px}
+.tile.font .big{font-size:22px;font-weight:800}
+.tile.img{height:96px;background:#f1d9cf;display:flex;align-items:center;justify-content:center;font-size:34px}
+
+/* games table */
+.tablehead{display:flex;align-items:center;margin-bottom:14px}
+.tablehead .h1{margin:0}
+.tablehead .grow{flex:1}
+.gtable{overflow:hidden}
+.grow-row{border-bottom:1px solid var(--line)}
+.grow-row:last-child{border-bottom:none}
+.grow-main{display:flex;align-items:center;gap:14px;padding:15px 18px}
+.grow-main:hover{background:#fafbfd}
+.gthumb{width:42px;height:42px;border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:21px;flex:none}
+.gname{font-weight:650;font-size:14.5px}
+.gmeta{font-size:12px;color:var(--soft);margin-top:1px}
+.grow-main .right{margin-left:auto;display:flex;align-items:center;gap:10px}
+.chev{color:var(--soft);transition:transform .2s;font-size:12px}
+.grow-row.open .chev{transform:rotate(90deg)}
+.shimmer{background:linear-gradient(100deg,#eef1f6 30%,#f7f9fc 50%,#eef1f6 70%);background-size:200% 100%;
+  animation:sh 1.3s infinite}
+@keyframes sh{to{background-position:-200% 0}}
+.genline{font-size:12px;color:var(--brand);display:flex;align-items:center;gap:7px}
+
+/* expanded config */
+.expand{display:none;padding:4px 18px 22px;background:#fbfcfe;border-top:1px dashed var(--line)}
+.grow-row.open .expand{display:grid;grid-template-columns:1.3fr 1fr;gap:24px}
+@media(max-width:780px){.grow-row.open .expand{grid-template-columns:1fr}}
+.field{margin-bottom:15px}
+.field label{display:block;font-size:12.5px;font-weight:700;margin-bottom:5px}
+.field .hint{font-size:11.5px;color:var(--soft);margin-top:4px}
+.field input,.field select{width:100%;border:1.5px solid var(--line);border-radius:9px;padding:9px 11px;font-size:13.5px;background:#fff}
+.field input:focus,.field select:focus{outline:none;border-color:var(--brand)}
+.cfg-acts{display:flex;gap:10px;margin-top:8px}
+
+/* phone preview */
+.phone{width:248px;margin:0 auto;border:9px solid #11161f;border-radius:34px;background:#0c0f15;overflow:hidden;
+  box-shadow:0 16px 40px rgba(0,0,0,.25)}
+.phone .notch{height:22px;background:#11161f;border-radius:0 0 12px 12px;width:120px;margin:0 auto}
+.pscreen{height:420px;background:#fff;position:relative;overflow:hidden}
+.preview-toggles{display:flex;gap:5px;justify-content:center;margin-bottom:12px;flex-wrap:wrap}
+.preview-toggles button{font-size:11px;border:1px solid var(--line);background:#fff;border-radius:7px;padding:4px 9px;font-weight:600;color:var(--soft)}
+.preview-toggles button.on{background:var(--brand);color:#fff;border-color:var(--brand)}
+.preview-cap{text-align:center;font-size:11.5px;color:var(--soft);margin-top:10px}
+
+/* game canvas mock (merchant preview + member) */
+.gamewrap{position:absolute;inset:0;background:var(--pp-soft);display:flex;flex-direction:column}
+.gtop{display:flex;justify-content:space-between;align-items:center;padding:10px 12px;font-size:11px;color:var(--pp);font-weight:700}
+.gboard{flex:1;display:grid;grid-template-columns:repeat(4,1fr);gap:7px;padding:12px;align-content:center}
+.gcell{background:#fff;border-radius:9px;display:flex;align-items:center;justify-content:center;font-size:18px;
+  box-shadow:0 1px 3px rgba(0,0,0,.08);aspect-ratio:1}
+.gstate{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;
+  text-align:center;padding:24px;color:#fff}
+.gstate.win{background:linear-gradient(160deg,#1f9d57,#15894a)}
+.gstate.lose{background:linear-gradient(160deg,#e8552f,#c8431f)}
+.gstate.out{background:linear-gradient(160deg,#2c3550,#1a2034)}
+.gstate .em{font-size:46px;margin-bottom:10px}
+.gstate h4{margin:0 0 6px;font-size:18px}
+.gstate p{margin:0 0 16px;font-size:12.5px;opacity:.92}
+.gstate .pbtn{background:#fff;color:#1c2430;border:none;border-radius:10px;padding:9px 16px;font-weight:700;font-size:12.5px;margin:3px}
+.gstate .pbtn.sec{background:rgba(255,255,255,.18);color:#fff}
+.reward-chip{background:rgba(255,255,255,.16);border-radius:10px;padding:8px 12px;font-size:12px;margin-bottom:14px}
+
+/* member device frames */
+.devs{display:flex;gap:40px;flex-wrap:wrap;justify-content:center}
+.homecard{position:absolute;left:14px;right:14px;bottom:80px;background:linear-gradient(135deg,#e8552f,#f07a45);
+  color:#fff;border-radius:16px;padding:16px;box-shadow:0 10px 24px rgba(232,85,47,.4)}
+.homecard .t{font-weight:800;font-size:15px}
+.homecard .d{font-size:11.5px;opacity:.92;margin:3px 0 10px}
+.homecard .cta{background:#fff;color:#c8431f;border:none;border-radius:9px;padding:7px 14px;font-weight:800;font-size:12px}
+.appbg{position:absolute;inset:0;background:#fff;display:flex;flex-direction:column}
+.appbg .ahead{background:var(--pp);color:#fff;padding:14px;font-weight:800;font-size:14px;text-align:center}
+.appbg .abody{flex:1;padding:14px;color:var(--soft);font-size:12px}
+.profrow{display:flex;gap:10px;align-items:center;padding:10px;border:1px solid var(--line);border-radius:12px;margin-bottom:10px}
+.profrow .pic{width:38px;height:38px;border-radius:10px;background:var(--pp-soft);display:flex;align-items:center;justify-content:center;font-size:18px}
+
+/* arena */
+.arena{position:absolute;inset:0;background:#fff;display:flex;flex-direction:column}
+.arena .ah{background:#141b2d;color:#fff;padding:14px;text-align:center;font-weight:800;font-size:14px}
+.arena .alist{flex:1;padding:12px;overflow:auto}
+.acard{display:flex;align-items:center;gap:11px;border:1px solid var(--line);border-radius:13px;padding:11px;margin-bottom:10px}
+.acard:hover{border-color:var(--brand);background:var(--brand-soft)}
+.acard .ai{width:40px;height:40px;border-radius:10px;background:var(--pp-soft);display:flex;align-items:center;justify-content:center;font-size:20px}
+.acard .an{font-weight:700;font-size:13px}
+.acard .ad{font-size:11px;color:var(--soft)}
+.acard .ago{margin-left:auto;color:var(--brand);font-weight:800;font-size:18px}
+
+.note{background:var(--brand-soft);border-left:3px solid var(--brand);border-radius:0 10px 10px 0;padding:11px 14px;
+  font-size:12.5px;color:var(--ink);margin:16px 0}
+.note.warn{background:var(--amber-soft);border-left-color:var(--amber)}
+.maxout{text-align:center;padding:26px;border:1.5px dashed var(--line);border-radius:14px;background:#fbfcfe}
+.maxout .em{font-size:34px}
+.flag{position:fixed;bottom:14px;right:14px;background:#0f1626;color:#cdd5e6;font-size:11px;padding:8px 12px;
+  border-radius:9px;z-index:50;max-width:230px;line-height:1.4}
+</style>
+</head>
+<body>
+
+<!-- prototype navigator -->
+<div class="protobar">
+  <b>🎮 AI Games — Clickable Prototype</b>
+  <span class="grp">Merchant (Hub 2)</span>
+  <div class="seg" id="nav">
+    <button data-s="empty" class="on">1·Empty</button>
+    <button data-s="scan">2·Scrape</button>
+    <button data-s="gap">3·Gap-fill</button>
+    <button data-s="config">4·Config</button>
+    <button data-s="table">5·Games table</button>
+    <button data-s="maxout">6·Max-out</button>
+    <span class="grp">Member</span>
+    <button data-s="m-home">7·Home card</button>
+    <button data-s="m-arena">8·Arena</button>
+    <button data-s="m-play">9·Play+states</button>
+  </div>
+</div>
+
+<!-- ============ MERCHANT SHELL ============ -->
+<div class="hub" id="hubshell">
+  <aside class="side">
+    <div class="logo"><span class="mk">C</span> Como Hub</div>
+    <div class="grp">Engage</div>
+    <a href="#"><span class="ic">📊</span> Dashboard</a>
+    <a href="#"><span class="ic">🎯</span> Campaign Center</a>
+    <a href="#" class="active new" style="margin-left:14px"><span class="ic">🎮</span> Games</a>
+    <a href="#" style="margin-left:14px"><span class="ic">🎡</span> Spin the Wheel</a>
+    <a href="#" style="margin-left:14px"><span class="ic">🎁</span> Gifts &amp; Deals</a>
+    <div class="grp">Members</div>
+    <a href="#"><span class="ic">👥</span> Members</a>
+    <a href="#"><span class="ic">🏷️</span> Segments &amp; Tags</a>
+    <div class="grp">Build</div>
+    <a href="#"><span class="ic">📱</span> App Builder</a>
+    <a href="#"><span class="ic">⚙️</span> Settings</a>
+  </aside>
+
+  <div class="main">
+    <div class="topbar">
+      <div class="crumb">Campaign Center / <b>Games</b></div>
+      <div class="me"><span>Pancake Parlour</span><div class="avatar">PP</div></div>
+    </div>
+    <div class="content">
+      <div class="canvas">
+
+        <!-- 1. EMPTY STATE -->
+        <div class="screen" id="s-empty">
+          <div class="empty">
+            <div class="gicon">🎮</div>
+            <h2>Create games for your members</h2>
+            <p class="help">Enter your website URL and Como will build branded mini-games your members can play to win your rewards.</p>
+            <div class="urlrow">
+              <input id="urlInput" type="text" placeholder="https://pancakeparlour.com.au" value="https://pancakeparlour.com.au" />
+              <button class="btn" onclick="openConsent()">Generate games</button>
+            </div>
+            <div class="altlink">No website? <button onclick="toggleDrop()">Upload your brand assets instead</button></div>
+            <div class="dropzone hidden" id="drop">
+              <div style="font-size:26px;margin-bottom:8px">📁</div>
+              <b>Drag &amp; drop, or ⌘V paste</b><br/>
+              Logos, fonts, product photos, brand guidelines — ZIP or folder. We'll extract what we need.
+            </div>
+          </div>
+          <div class="note">Primary path is the URL (dominant CTA). Upload is the visible-but-secondary fallback for merchants with no usable site.</div>
+        </div>
+
+        <!-- 2. SCRAPE GALLERY -->
+        <div class="screen hidden" id="s-scan">
+          <div class="scanhead">
+            <div class="spinner" id="scanSpin"></div>
+            <div>
+              <div class="h1" style="font-size:17px" id="scanTitle">Reading your brand…</div>
+              <div class="sub" style="margin:0" id="scanSub">Scanning pancakeparlour.com.au · this takes about 2 minutes</div>
+            </div>
+            <div style="margin-left:auto" id="scanDone" class="hidden"><button class="btn" onclick="go('gap')">Continue →</button></div>
+          </div>
+          <div class="masonry" id="masonry"></div>
+        </div>
+
+        <!-- 3. GAP-FILL -->
+        <div class="screen hidden" id="s-gap">
+          <div class="h1">Almost there — fill a couple of gaps</div>
+          <p class="sub">We found your logo, colors and fonts, but couldn't pull clean product photos. Add a few so your games look right (or skip — we'll use smart defaults).</p>
+          <div class="card" style="padding:20px;display:flex;gap:16px;align-items:center">
+            <div style="font-size:30px">🍔</div>
+            <div style="flex:1">
+              <div style="font-weight:700;font-size:14px">Product images <span class="pill p-amber" style="margin-left:6px">Missing</span></div>
+              <div class="sub" style="margin:4px 0 0">Used to skin game tiles and rewards. 3–8 images recommended.</div>
+            </div>
+            <button class="btn sec" onclick="alert('Inline uploader (prototype)')">Upload images</button>
+          </div>
+          <div class="cfg-acts" style="margin-top:18px">
+            <button class="btn" onclick="startGen()">Generate my games →</button>
+            <button class="btn ghost" onclick="startGen()">Skip, use defaults</button>
+          </div>
+        </div>
+
+        <!-- 4. CONFIG (first run, 3 games + preview) -->
+        <div class="screen hidden" id="s-config">
+          <div class="tablehead">
+            <div>
+              <div class="h1">Your games are ready 🎉</div>
+              <div class="sub" style="margin:2px 0 0">The planner picked 3 games that fit your brand. Configure each, preview it, then activate.</div>
+            </div>
+          </div>
+          <div class="note">Each game activates on its own (tag- &amp; status-based). There's no global "publish" — you turn each game on when it's ready.</div>
+          <div class="card gtable" id="configRows"></div>
+        </div>
+
+        <!-- 5. GAMES TABLE -->
+        <div class="screen hidden" id="s-table">
+          <div class="tablehead">
+            <div>
+              <div class="h1">Games</div>
+              <div class="sub" style="margin:2px 0 0">Brand assets last refreshed: 30 Jun 2026 · <a href="#" onclick="alert('Re-scrape confirmation (prototype)');return false;">Refresh</a></div>
+            </div>
+            <div class="grow"></div>
+            <button class="btn" id="genMoreBtn" onclick="generateMore()">+ Generate games</button>
+          </div>
+          <div class="card gtable" id="tableRows"></div>
+        </div>
+
+        <!-- 6. MAX-OUT -->
+        <div class="screen hidden" id="s-maxout">
+          <div class="tablehead"><div class="h1">Games</div><div class="grow"></div>
+            <button class="btn sec" disabled style="opacity:.5;cursor:not-allowed">+ Generate games</button>
+          </div>
+          <div class="maxout">
+            <div class="em">🏆</div>
+            <h3 style="margin:10px 0 6px">You're using every game in our library</h3>
+            <p class="sub" style="max-width:420px;margin:0 auto 16px">You've generated all 10 games for your brand. Want new ones designed specifically for Pancake Parlour?</p>
+            <button class="btn" onclick="alert('Fake-door feedback form (prototype) — captures V2 demand')">Tell us what you'd play →</button>
+          </div>
+          <div class="note warn">Fake door: captures the strongest possible signal — a merchant who exhausted the bank. Feeds V2 prioritization (describe-to-generate).</div>
+        </div>
+
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ============ MEMBER SCREENS ============ -->
+<div id="memberShell" class="hidden">
+  <div class="content"><div class="canvas">
+
+    <!-- 7. HOME CARD -->
+    <div class="screen hidden" id="s-m-home">
+      <div class="h1" style="text-align:center">Member · discovery</div>
+      <p class="sub" style="text-align:center">Home card appears only when the member has a <code>game_*_eligible</code> tag. Plus push / deep-link from campaigns.</p>
+      <div class="devs">
+        <div>
+          <div class="phone"><div class="notch"></div><div class="pscreen">
+            <div class="appbg">
+              <div class="ahead">Pancake Parlour</div>
+              <div class="abody">
+                <div class="profrow"><div class="pic">⭐</div><div><div style="font-weight:700;color:var(--ink)">240 points</div><div>Gold member</div></div></div>
+                <div class="profrow"><div class="pic">🎁</div><div><div style="font-weight:700;color:var(--ink)">2 rewards</div><div>Ready to use</div></div></div>
+              </div>
+            </div>
+            <div class="homecard">
+              <div class="t">🎮 Play &amp; win</div>
+              <div class="d">You've unlocked a game. Beat the score to win a reward.</div>
+              <button class="cta" onclick="memberGo('m-play')">Play now</button>
+            </div>
+          </div></div>
+          <div class="preview-cap">Phoenix app · home card</div>
+        </div>
+        <div>
+          <div class="phone"><div class="notch"></div><div class="pscreen">
+            <div class="appbg">
+              <div class="ahead" style="background:#141b2d">Customer Portal</div>
+              <div class="abody">
+                <div style="text-align:center;padding:20px 0;color:var(--soft);font-size:12px">Same hosting service · iframe/route wrapper · token via query param</div>
+              </div>
+            </div>
+            <div class="homecard" style="background:linear-gradient(135deg,#3b5bdb,#6f8bff);box-shadow:0 10px 24px rgba(59,91,219,.4)">
+              <div class="t">🎮 Play &amp; win</div>
+              <div class="d">One game unlocked for you.</div>
+              <button class="cta" style="color:#2c47b8" onclick="memberGo('m-play')">Play now</button>
+            </div>
+          </div></div>
+          <div class="preview-cap">Customer Portal · web</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- 8. ARENA -->
+    <div class="screen hidden" id="s-m-arena">
+      <div class="h1" style="text-align:center">Member · Games Arena</div>
+      <p class="sub" style="text-align:center">Shown only when the member is eligible for 2+ games. One game = skip arena, launch directly.</p>
+      <div class="devs">
+        <div>
+          <div class="phone"><div class="notch"></div><div class="pscreen">
+            <div class="arena">
+              <div class="ah">🎮 Choose a game</div>
+              <div class="alist">
+                <div class="acard" onclick="memberGo('m-play')"><div class="ai">🥞</div><div><div class="an">Short Stack Panic</div><div class="ad">Win: free kids pancake</div></div><div class="ago">›</div></div>
+                <div class="acard" onclick="memberGo('m-play')"><div class="ai">🍯</div><div><div class="an">Syrup Drizzle Dash</div><div class="ad">Win: 15% off next visit</div></div><div class="ago">›</div></div>
+                <div class="acard" onclick="memberGo('m-play')"><div class="ai">🧠</div><div><div class="an">Parlour Memory Match</div><div class="ad">Win: 200 points</div></div><div class="ago">›</div></div>
+              </div>
+            </div>
+          </div></div>
+          <div class="preview-cap">Eligible for 3 games → arena chooser</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- 9. PLAY + STATES -->
+    <div class="screen hidden" id="s-m-play">
+      <div class="h1" style="text-align:center">Member · gameplay &amp; terminal states</div>
+      <p class="sub" style="text-align:center">Tap the buttons under the phone to preview each state.</p>
+      <div class="preview-toggles" style="max-width:420px;margin:0 auto 16px">
+        <button class="on" onclick="setState('play',this)">Game</button>
+        <button onclick="setState('win',this)">Win (wins left)</button>
+        <button onclick="setState('winfinal',this)">Win (final)</button>
+        <button onclick="setState('lose',this)">Lose</button>
+        <button onclick="setState('out',this)">Out of wins</button>
+      </div>
+      <div class="phone" style="margin-bottom:6px"><div class="notch"></div><div class="pscreen" id="memberGame"></div></div>
+      <div class="preview-cap" id="stateCap">Unlimited plays until you win.</div>
+    </div>
+
+  </div></div>
+</div>
+
+<!-- CONSENT MODAL -->
+<div class="modal-bg hidden" id="consent">
+  <div class="modal">
+    <h3>Authorize Como to use your brand assets</h3>
+    <div class="legal">
+      To generate your games, Como will:<br/><br/>
+      • Visit your website at <code>pancakeparlour.com.au</code><br/>
+      • Download publicly available brand assets (logo, colors, fonts, product images, menu items)<br/>
+      • Store these assets to skin your games and power future Como features for your brand<br/><br/>
+      You can request deletion at any time via your Como account manager. By continuing, you confirm you own or have the right to use this content, and you authorize Como to use it for the purposes above.
+    </div>
+    <div class="acts">
+      <button class="btn sec" onclick="closeConsent()">Cancel</button>
+      <button class="btn" onclick="authorize()">I authorize — start generating</button>
+    </div>
+    <div class="note" style="margin:16px 0 0">On authorize → consent record (merchant, URL, timestamp, user) written to the existing Hub audit table.</div>
+  </div>
+</div>
+
+<!-- ACTIVATE MODAL -->
+<div class="modal-bg hidden" id="activate">
+  <div class="modal">
+    <h3>Activate this game?</h3>
+    <div class="legal">Activating creates <b>one eligibility rule</b> and <b>one reward rule</b> in your Campaign Center, managed automatically. They'll appear there with a "Managed by Games" badge. You can disable anytime.</div>
+    <div class="acts">
+      <button class="btn sec" onclick="hide('activate')">Cancel</button>
+      <button class="btn green" onclick="confirmActivate()">Activate</button>
+    </div>
+  </div>
+</div>
+
+<div class="flag" id="flag">Tip: use the top bar to jump between screens. CTAs are wired to advance the flow.</div>
+
+<script>
+/* ---------- game data ---------- */
+const GAMES=[
+  {id:'g1',name:'Short Stack Panic',emoji:'🥞',desc:'Catch falling pancakes to build the tallest stack',score:75,wins:'1 time',reward:'Free Kids Pancake'},
+  {id:'g2',name:'Syrup Drizzle Dash',emoji:'🍯',desc:'Drizzle syrup while dodging spills',score:50,wins:'3 times',reward:'15% off next visit'},
+  {id:'g3',name:'Parlour Memory Match',emoji:'🧠',desc:'Flip cards to match menu pairs',score:90,wins:'1 time',reward:'200 Club points'},
+];
+const EXTRA=[
+  {id:'g4',name:'Flip or Miss',emoji:'🥏',desc:'Time the pancake flip perfectly',score:60,wins:'1 time',reward:'Free coffee'},
+  {id:'g5',name:'Berry Catch',emoji:'🫐',desc:'Catch berries, avoid the pits',score:40,wins:'3 times',reward:'10% off'},
+  {id:'g6',name:'Maple Run',emoji:'🏃',desc:'Endless runner through the diner',score:120,wins:'1 time',reward:'Free topping'},
+];
+let tableGames=[...GAMES.map(g=>({...g,status:'draft'}))];
+
+/* ---------- screen routing ---------- */
+const navBtns=document.querySelectorAll('#nav button[data-s]');
+function setNav(s){navBtns.forEach(b=>b.classList.toggle('on',b.dataset.s===s));}
+function showScreen(s){
+  const member=s.startsWith('m-');
+  document.getElementById('hubshell').classList.toggle('hidden',member);
+  document.getElementById('memberShell').classList.toggle('hidden',!member);
+  document.querySelectorAll('.screen').forEach(el=>el.classList.add('hidden'));
+  const el=document.getElementById('s-'+s); if(el) el.classList.remove('hidden');
+  setNav(s); window.scrollTo({top:0,behavior:'smooth'});
+}
+function go(s){ if(s==='config'){renderConfig();} if(s==='table'){renderTable();} showScreen(s); }
+navBtns.forEach(b=>b.addEventListener('click',()=>go(b.dataset.s)));
+
+/* ---------- empty / consent ---------- */
+function toggleDrop(){document.getElementById('drop').classList.toggle('hidden');}
+function openConsent(){document.getElementById('consent').classList.remove('hidden');}
+function closeConsent(){document.getElementById('consent').classList.add('hidden');}
+function hide(id){document.getElementById(id).classList.add('hidden');}
+function authorize(){closeConsent();showScreen('scan');runScan();}
+
+/* ---------- scrape gallery ---------- */
+const TILES=[
+  {t:'logo',html:'PANCAKE<br>PARLOUR'},
+  {t:'swatch',c:'#e8552f',cap:'Primary #e8552f'},
+  {t:'img',e:'🥞'},
+  {t:'swatch',c:'#f5b73d',cap:'Accent #f5b73d'},
+  {t:'font',big:'Aa',cap:'Heading — Poppins'},
+  {t:'img',e:'🍓'},
+  {t:'swatch',c:'#3b2a22',cap:'Text #3b2a22'},
+  {t:'img',e:'☕'},
+  {t:'font',big:'Aa',cap:'Body — Inter'},
+  {t:'swatch',c:'#fdeee9',cap:'Surface #fdeee9'},
+  {t:'img',e:'🧇'},
+  {t:'img',e:'🍯'},
+];
+function runScan(){
+  const m=document.getElementById('masonry');m.innerHTML='';
+  document.getElementById('scanDone').classList.add('hidden');
+  document.getElementById('scanSpin').classList.remove('hidden');
+  document.getElementById('scanTitle').textContent='Reading your brand…';
+  let i=0;
+  const iv=setInterval(()=>{
+    if(i>=TILES.length){clearInterval(iv);finishScan();return;}
+    const t=TILES[i];const d=document.createElement('div');d.className='tile '+t.t;d.style.animationDelay='0s';
+    if(t.t==='logo')d.innerHTML=t.html;
+    else if(t.t==='swatch')d.innerHTML='<div class="swatch" style="background:'+t.c+'"></div><div class="cap">'+t.cap+'</div>';
+    else if(t.t==='font')d.innerHTML='<div class="big">'+t.big+'</div><div class="cap">'+t.cap+'</div>';
+    else if(t.t==='img')d.innerHTML='<div class="img">'+t.e+'</div>';
+    m.appendChild(d);i++;
+  },230);
+}
+function finishScan(){
+  document.getElementById('scanSpin').classList.add('hidden');
+  document.getElementById('scanTitle').textContent='Found 76 assets · 12 colors · 2 fonts';
+  document.getElementById('scanSub').textContent='Couldn\u2019t pull clean product photos — we\u2019ll ask you to fill that gap';
+  document.getElementById('scanDone').classList.remove('hidden');
+}
+
+/* ---------- config + table rows ---------- */
+function rowHTML(g,ctx){
+  const statusPill = g.status==='active'?'<span class="pill p-green"><span class="dotpulse"></span>Active</span>'
+    : g.status==='disabled'?'<span class="pill p-red">Disabled</span>'
+    : g.status==='generating'?'<span class="pill p-brand"><span class="dotpulse"></span>Generating…</span>'
+    : '<span class="pill p-gray">Draft</span>';
+  const actBtn = (g.status==='draft'||g.status==='disabled')
+    ? '<button class="btn green sm" onclick="event.stopPropagation();askActivate(\''+g.id+'\',\''+ctx+'\')">Activate</button>' : '';
+  return `
+  <div class="grow-row" id="row-${ctx}-${g.id}">
+    <div class="grow-main" onclick="toggleRow('${ctx}','${g.id}')">
+      <div class="gthumb" style="background:var(--pp-soft)">${g.emoji}</div>
+      <div>
+        <div class="gname">${g.name}</div>
+        <div class="gmeta">${g.desc}</div>
+      </div>
+      <div class="right">${statusPill}${actBtn}<span class="chev">▶</span></div>
+    </div>
+    <div class="expand">
+      <div>
+        <div class="field"><label>Game name</label><input value="${g.name}"/></div>
+        <div class="field"><label>Score needed to win</label><input value="${g.score}"/>
+          <div class="hint">Members keep playing until they reach this score. Higher = harder, fewer wins.</div></div>
+        <div class="field"><label>Wins allowed per member</label>
+          <select><option>1 time</option><option>3 times</option><option>5 times</option><option>10 times</option><option>Unlimited</option></select>
+          <div class="hint">After this many wins, the game disappears for that member. Set 1 for a one-time gift.</div></div>
+        <div class="field"><label>Reward</label>
+          <select><option>${g.reward}</option><option>Free coffee</option><option>200 Club points</option><option>+ Create new benefit…</option></select>
+          <div class="hint">Pick from your existing gifts, points or promo codes (Benefit Picker).</div></div>
+        <div class="field"><label>Eligible members</label>
+          <select><option>All members</option><option>Spent $200+ in last 90 days</option><option>Gold tier only</option><option>+ New filter…</option></select>
+          <div class="hint">Same filter you use for campaigns. Matching members will see this game.</div></div>
+        <div class="cfg-acts">
+          ${(g.status==='draft'||g.status==='disabled')?'<button class="btn green sm" onclick="askActivate(\''+g.id+'\',\''+ctx+'\')">Activate game</button>':''}
+          <button class="btn sec sm" onclick="alert('Regenerate → planner swaps in a different unused template (prototype)')">🔄 Regenerate</button>
+          ${g.status==='active'?'<button class="btn danger sm" onclick="disableGame(\''+g.id+'\',\''+ctx+'\')">Disable</button>':''}
+        </div>
+      </div>
+      <div>
+        <div class="preview-toggles">
+          <button class="on" onclick="setPrev('${ctx}','${g.id}','play',this)">Game</button>
+          <button onclick="setPrev('${ctx}','${g.id}','win',this)">Win</button>
+          <button onclick="setPrev('${ctx}','${g.id}','lose',this)">Lose</button>
+          <button onclick="setPrev('${ctx}','${g.id}','out',this)">Out of wins</button>
+        </div>
+        <div class="phone"><div class="notch"></div><div class="pscreen" id="prev-${ctx}-${g.id}">${gameStateHTML('play',g)}</div></div>
+        <div class="preview-cap">This is what your member sees. Play it — it's real.</div>
+      </div>
+    </div>
+  </div>`;
+}
+function renderConfig(){document.getElementById('configRows').innerHTML=GAMES.map(g=>rowHTML({...g,status:'draft'},'cfg')).join('');}
+function renderTable(){document.getElementById('tableRows').innerHTML=tableGames.map(g=>rowHTML(g,'tbl')).join('');}
+function toggleRow(ctx,id){document.getElementById('row-'+ctx+'-'+id).classList.toggle('open');}
+
+/* ---------- game state mock ---------- */
+function gameStateHTML(state,g){
+  if(state==='play')return `<div class="gamewrap"><div class="gtop"><span>SCORE 0/${g?g.score:75}</span><span>❤❤❤</span></div>
+    <div class="gboard">${Array(8).fill('<div class="gcell">'+(g?g.emoji:'🥞')+'</div>').join('')}</div></div>`;
+  if(state==='win')return `<div class="gstate win"><div class="em">🎉</div><h4>You won!</h4>
+    <div class="reward-chip">🎁 ${g?g.reward:'Free Kids Pancake'}</div>
+    <p>Nice one. You can keep playing to win again.</p>
+    <button class="pbtn">Use my reward</button><button class="pbtn sec">Play again</button></div>`;
+  if(state==='winfinal')return `<div class="gstate win"><div class="em">🏅</div><h4>You won!</h4>
+    <div class="reward-chip">🎁 ${g?g.reward:'Free Kids Pancake'}</div>
+    <p>That's your last play for this game. See you next campaign!</p>
+    <button class="pbtn">Use my reward</button></div>`;
+  if(state==='lose')return `<div class="gstate lose"><div class="em">😅</div><h4>So close!</h4>
+    <p>Try again — unlimited tries until you win.</p>
+    <button class="pbtn">Play again</button><button class="pbtn sec">Back to home</button></div>`;
+  if(state==='out')return `<div class="gstate out"><div class="em">🔒</div><h4>Game over for now</h4>
+    <p>You've won this one. Come back when a new game unlocks.</p>
+    <button class="pbtn">Back to home</button></div>`;
+}
+function setPrev(ctx,id,state,btn){
+  const g=[...tableGames,...GAMES].find(x=>x.id===id);
+  document.getElementById('prev-'+ctx+'-'+id).innerHTML=gameStateHTML(state,g);
+  btn.parentElement.querySelectorAll('button').forEach(b=>b.classList.remove('on'));btn.classList.add('on');
+}
+
+/* ---------- activation ---------- */
+let pending=null;
+function askActivate(id,ctx){pending={id,ctx};document.getElementById('activate').classList.remove('hidden');}
+function confirmActivate(){
+  hide('activate');
+  if(pending.ctx==='cfg'){
+    // move on to table with this game active
+    tableGames=GAMES.map(g=>({...g,status:g.id===pending.id?'active':'draft'}));
+    go('table');
+  }else{
+    const g=tableGames.find(x=>x.id===pending.id); if(g)g.status='active'; renderTable();
+  }
+  pending=null;
+}
+function disableGame(id,ctx){const g=tableGames.find(x=>x.id===id);if(g)g.status='disabled';renderTable();}
+
+/* ---------- generate more (lazy rows) ---------- */
+let extraIdx=0;
+function generateMore(){
+  const batch=EXTRA.slice(extraIdx,extraIdx+3).map(g=>({...g,status:'generating'}));
+  if(batch.length===0){go('maxout');return;}
+  tableGames=[...tableGames,...batch];extraIdx+=3;renderTable();
+  // simulate streaming completion
+  const lines=['Planner picking templates…','Skinning game 1…','Skinning game 2…','Finalizing…'];
+  batch.forEach((b,k)=>{
+    setTimeout(()=>{const g=tableGames.find(x=>x.id===b.id);if(g)g.status='draft';renderTable();
+      if(extraIdx>=EXTRA.length && k===batch.length-1){/* near max */}},1800+k*700);
+  });
+}
+
+/* ---------- gap-fill → generation ---------- */
+function startGen(){
+  // jump straight to config (generation simulated)
+  renderConfig();showScreen('config');
+}
+
+/* ---------- member screens ---------- */
+function memberGo(s){showScreen(s);if(s==='m-play')renderMemberGame('play');}
+function renderMemberGame(state){document.getElementById('memberGame').innerHTML=gameStateHTML(state,GAMES[0]);}
+function setState(state,btn){
+  renderMemberGame(state);
+  btn.parentElement.querySelectorAll('button').forEach(b=>b.classList.remove('on'));btn.classList.add('on');
+  const caps={play:'Unlimited plays until you win.',win:'GAME_WIN → CC reward rule grants the reward · member stays tagged.',
+    winfinal:'Final allowed win → member is untagged · game leaves their surfaces.',
+    lose:'Play count +1 (analytics only) · no gating.',out:'Member already won max times · untagged.'};
+  document.getElementById('stateCap').textContent=caps[state];
+}
+
+/* init */
+showScreen('empty');
+setTimeout(()=>document.getElementById('flag').style.display='none',9000);
+</script>
+</body>
+</html>
