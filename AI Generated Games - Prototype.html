@@ -140,8 +140,7 @@ button{font-family:inherit;cursor:pointer}
 
 /* expanded config */
 .expand{display:none;padding:4px 18px 22px;background:#fbfcfe;border-top:1px dashed var(--line)}
-.grow-row.open .expand{display:grid;grid-template-columns:1.3fr 1fr;gap:24px}
-@media(max-width:780px){.grow-row.open .expand{grid-template-columns:1fr}}
+.grow-row.open .expand{display:block}
 .field{margin-bottom:15px}
 .field label{display:block;font-size:12.5px;font-weight:700;margin-bottom:5px}
 .field .hint{font-size:11.5px;color:var(--soft);margin-top:4px}
@@ -220,7 +219,7 @@ button{font-family:inherit;cursor:pointer}
     <button data-s="empty" class="on">1·Empty</button>
     <button data-s="scan">2·Scrape</button>
     <button data-s="gap">3·Gap-fill</button>
-    <button data-s="config">4·Config</button>
+    <button data-s="config">4·Generate+Config</button>
     <button data-s="table">5·Games table</button>
     <button data-s="maxout">6·Max-out</button>
     <span class="grp">Member</span>
@@ -307,41 +306,81 @@ button{font-family:inherit;cursor:pointer}
           </div>
         </div>
 
-        <!-- 4. CONFIG (first run, 3 games + preview) -->
+        <!-- 4. GENERATE + CONFIG (combined: agent stream + rows appear progressively) -->
         <div class="screen hidden" id="s-config">
-          <div class="tablehead">
+          <div style="display:grid;grid-template-columns:1fr 280px;gap:24px;align-items:start">
             <div>
-              <div class="h1">Your games are ready 🎉</div>
-              <div class="sub" style="margin:2px 0 0">The planner picked 3 games that fit your brand. Configure each, preview it, then activate.</div>
+              <!-- Agent stream panel (top) -->
+              <div class="card" style="padding:16px;margin-bottom:14px" id="agentPanel">
+                <div style="display:flex;align-items:center;gap:10px;margin-bottom:10px">
+                  <div class="spinner" id="cfgSpinner"></div>
+                  <span style="font-weight:700;font-size:13.5px;color:var(--brand)" id="agentTitle">Game Designer Agent</span>
+                </div>
+                <div id="designerThoughts" style="font-size:12px;color:var(--soft);line-height:1.6;font-family:ui-monospace,monospace;padding:8px 10px;background:var(--bg);border-radius:9px;max-height:120px;overflow-y:auto"></div>
+              </div>
+              <!-- Games list (rows appear as coders finish) -->
+              <div class="tablehead">
+                <div>
+                  <div class="h1" id="cfgTitle">Generating your games…</div>
+                  <div class="sub" style="margin:2px 0 0" id="cfgSub">Games appear below as the coders finish skinning each one.</div>
+                </div>
+              </div>
+              <div class="card gtable" id="configRows"></div>
+              <div class="note">Each game activates on its own (tag- &amp; status-based). No global "publish" — you turn each game on when it's ready.</div>
+            </div>
+            <div style="position:sticky;top:60px">
+              <div class="preview-toggles" id="cfgPrevToggles">
+                <button class="on" onclick="setCfgPrev('play',this)">Game</button>
+                <button onclick="setCfgPrev('win',this)">Win</button>
+                <button onclick="setCfgPrev('lose',this)">Lose</button>
+                <button onclick="setCfgPrev('out',this)">Out of wins</button>
+                <button onclick="setCfgPrev('arena',this)">Arena</button>
+              </div>
+              <div class="phone"><div class="notch"></div><div class="pscreen" id="cfgPhonePreview"></div></div>
+              <div class="preview-cap">Live preview · click a row to switch game</div>
             </div>
           </div>
-          <div class="note">Each game activates on its own (tag- &amp; status-based). There's no global "publish" — you turn each game on when it's ready.</div>
-          <div class="card gtable" id="configRows"></div>
         </div>
 
         <!-- 5. GAMES TABLE -->
         <div class="screen hidden" id="s-table">
-          <div class="tablehead">
+          <div style="display:grid;grid-template-columns:1fr 280px;gap:24px;align-items:start">
             <div>
-              <div class="h1">Games</div>
-              <div class="sub" style="margin:2px 0 0">Brand assets last refreshed: 30 Jun 2026 · <a href="#" onclick="alert('Re-scrape confirmation (prototype)');return false;">Refresh</a></div>
+              <div class="tablehead">
+                <div>
+                  <div class="h1">Games</div>
+                  <div class="sub" style="margin:2px 0 0">Brand assets last refreshed: 30 Jun 2026 · <a href="#" onclick="alert('Re-scrape confirmation (prototype)');return false;">Refresh</a></div>
+                </div>
+                <div class="grow"></div>
+                <button class="btn" id="genMoreBtn" onclick="generateMore()">+ Generate games</button>
+              </div>
+              <div class="card gtable" id="tableRows"></div>
             </div>
-            <div class="grow"></div>
-            <button class="btn" id="genMoreBtn" onclick="generateMore()">+ Generate games</button>
+            <div style="position:sticky;top:60px">
+              <div class="preview-toggles" id="tblPrevToggles">
+                <button class="on" onclick="setTblPrev('play',this)">Game</button>
+                <button onclick="setTblPrev('win',this)">Win</button>
+                <button onclick="setTblPrev('lose',this)">Lose</button>
+                <button onclick="setTblPrev('out',this)">Out of wins</button>
+                <button onclick="setTblPrev('arena',this)">Arena</button>
+              </div>
+              <div class="phone"><div class="notch"></div><div class="pscreen" id="tblPhonePreview"></div></div>
+              <div class="preview-cap">Preview · click a game row to switch</div>
+            </div>
           </div>
-          <div class="card gtable" id="tableRows"></div>
         </div>
 
         <!-- 6. MAX-OUT -->
         <div class="screen hidden" id="s-maxout">
-          <div class="tablehead"><div class="h1">Games</div><div class="grow"></div>
+          <div class="tablehead"><div class="h1">Games <span class="pill p-amber" style="margin-left:8px">10/10 used</span></div><div class="grow"></div>
             <button class="btn sec" disabled style="opacity:.5;cursor:not-allowed">+ Generate games</button>
           </div>
-          <div class="maxout">
+          <div class="card gtable" id="maxoutRows"></div>
+          <div class="maxout" style="margin-top:16px">
             <div class="em">🏆</div>
             <h3 style="margin:10px 0 6px">You're using every game in our library</h3>
             <p class="sub" style="max-width:420px;margin:0 auto 16px">You've generated all 10 games for your brand. Want new ones designed specifically for Pancake Parlour?</p>
-            <button class="btn" onclick="alert('Fake-door feedback form (prototype) — captures V2 demand')">Tell us what you'd play →</button>
+            <button class="btn" onclick="openFakeDoor()">Tell us what you'd play →</button>
           </div>
           <div class="note warn">Fake door: captures the strongest possible signal — a merchant who exhausted the bank. Feeds V2 prioritization (describe-to-generate).</div>
         </div>
@@ -466,6 +505,28 @@ button{font-family:inherit;cursor:pointer}
   </div>
 </div>
 
+<!-- FAKE-DOOR MODAL -->
+<div class="modal-bg hidden" id="fakedoor">
+  <div class="modal">
+    <h3>🎮 Request new games for your brand</h3>
+    <div class="legal" style="margin-bottom:16px">Tell us what kind of games you'd like and what member behavior you want to drive. We'll use this to design new templates.</div>
+    <div class="field"><label>What type of game would you like?</label>
+      <select><option>Quiz / trivia</option><option>Puzzle</option><option>Racing / speed</option><option>Card / matching</option><option>Something cultural / regional</option><option>Other (describe below)</option></select>
+    </div>
+    <div class="field"><label>What member behavior should this game drive?</label>
+      <select><option>Visit more often</option><option>Spend more per visit</option><option>Try new menu items</option><option>Refer friends</option><option>Engage during quiet periods</option></select>
+    </div>
+    <div class="field"><label>Anything else?</label>
+      <input placeholder="Optional — describe your ideal game or audience" />
+    </div>
+    <div class="acts">
+      <button class="btn sec" onclick="hide('fakedoor')">Cancel</button>
+      <button class="btn" onclick="hide('fakedoor');alert('✅ Submitted! We\'ll notify you when new games are available.')">Submit request</button>
+    </div>
+    <div class="note" style="margin:14px 0 0">This captures V2 demand signal: game type preference + behavioral intent.</div>
+  </div>
+</div>
+
 <div class="flag" id="flag">Tip: use the top bar to jump between screens. CTAs are wired to advance the flow.</div>
 
 <script>
@@ -493,7 +554,7 @@ function showScreen(s){
   const el=document.getElementById('s-'+s); if(el) el.classList.remove('hidden');
   setNav(s); window.scrollTo({top:0,behavior:'smooth'});
 }
-function go(s){ if(s==='config'){renderConfig();} if(s==='table'){renderTable();} showScreen(s); }
+function go(s){ if(s==='config'){startGen();return;} if(s==='table'){renderTable();initPersistentPreview('tbl');} if(s==='maxout'){renderMaxout();} showScreen(s); }
 navBtns.forEach(b=>b.addEventListener('click',()=>go(b.dataset.s)));
 
 /* ---------- empty / consent ---------- */
@@ -551,7 +612,7 @@ function rowHTML(g,ctx){
     ? '<button class="btn green sm" onclick="event.stopPropagation();askActivate(\''+g.id+'\',\''+ctx+'\')">Activate</button>' : '';
   return `
   <div class="grow-row" id="row-${ctx}-${g.id}">
-    <div class="grow-main" onclick="toggleRow('${ctx}','${g.id}')">
+    <div class="grow-main" onclick="selectGame('${ctx}','${g.id}');toggleRow('${ctx}','${g.id}')">
       <div class="gthumb" style="background:var(--pp-soft)">${g.emoji}</div>
       <div>
         <div class="gname">${g.name}</div>
@@ -575,19 +636,9 @@ function rowHTML(g,ctx){
           <div class="hint">Same filter you use for campaigns. Matching members will see this game.</div></div>
         <div class="cfg-acts">
           ${(g.status==='draft'||g.status==='disabled')?'<button class="btn green sm" onclick="askActivate(\''+g.id+'\',\''+ctx+'\')">Activate game</button>':''}
-          <button class="btn sec sm" onclick="alert('Regenerate → planner swaps in a different unused template (prototype)')">🔄 Regenerate</button>
+          <button class="btn sec sm" onclick="alert('Regenerate → Game Designer swaps in a different unused template (prototype)')">🔄 Regenerate</button>
           ${g.status==='active'?'<button class="btn danger sm" onclick="disableGame(\''+g.id+'\',\''+ctx+'\')">Disable</button>':''}
         </div>
-      </div>
-      <div>
-        <div class="preview-toggles">
-          <button class="on" onclick="setPrev('${ctx}','${g.id}','play',this)">Game</button>
-          <button onclick="setPrev('${ctx}','${g.id}','win',this)">Win</button>
-          <button onclick="setPrev('${ctx}','${g.id}','lose',this)">Lose</button>
-          <button onclick="setPrev('${ctx}','${g.id}','out',this)">Out of wins</button>
-        </div>
-        <div class="phone"><div class="notch"></div><div class="pscreen" id="prev-${ctx}-${g.id}">${gameStateHTML('play',g)}</div></div>
-        <div class="preview-cap">This is what your member sees. Play it — it's real.</div>
       </div>
     </div>
   </div>`;
@@ -614,6 +665,11 @@ function gameStateHTML(state,g){
   if(state==='out')return `<div class="gstate out"><div class="em">🔒</div><h4>Game over for now</h4>
     <p>You've won this one. Come back when a new game unlocks.</p>
     <button class="pbtn">Back to home</button></div>`;
+  if(state==='arena')return `<div class="arena"><div class="ah">🎮 Choose a game</div><div class="alist">
+    <div class="acard"><div class="ai">🥞</div><div><div class="an">Short Stack Panic</div><div class="ad">Win: free kids pancake</div></div><div class="ago">›</div></div>
+    <div class="acard"><div class="ai">🍯</div><div><div class="an">Syrup Drizzle Dash</div><div class="ad">Win: 15% off next visit</div></div><div class="ago">›</div></div>
+    <div class="acard"><div class="ai">🧠</div><div><div class="an">Parlour Memory Match</div><div class="ad">Win: 200 points</div></div><div class="ago">›</div></div>
+    </div></div>`;
 }
 function setPrev(ctx,id,state,btn){
   const g=[...tableGames,...GAMES].find(x=>x.id===id);
@@ -644,17 +700,119 @@ function generateMore(){
   if(batch.length===0){go('maxout');return;}
   tableGames=[...tableGames,...batch];extraIdx+=3;renderTable();
   // simulate streaming completion
-  const lines=['Planner picking templates…','Skinning game 1…','Skinning game 2…','Finalizing…'];
+  const lines=['Game Designer picking templates…','Skinning game 1…','Skinning game 2…','Finalizing…'];
   batch.forEach((b,k)=>{
     setTimeout(()=>{const g=tableGames.find(x=>x.id===b.id);if(g)g.status='draft';renderTable();
       if(extraIdx>=EXTRA.length && k===batch.length-1){/* near max */}},1800+k*700);
   });
 }
 
-/* ---------- gap-fill → generation ---------- */
+/* ---------- gap-fill → generation (combined into config screen) ---------- */
 function startGen(){
-  // jump straight to config (generation simulated)
-  renderConfig();showScreen('config');
+  showScreen('config');
+  // reset config screen to generating state
+  document.getElementById('configRows').innerHTML='';
+  document.getElementById('cfgTitle').textContent='Generating your games…';
+  document.getElementById('cfgSub').textContent='Games appear below as the Game Designer delegates to coders.';
+  document.getElementById('agentPanel').classList.remove('hidden');
+  document.getElementById('cfgSpinner').style.display='';
+  document.getElementById('designerThoughts').innerHTML='';
+  initPersistentPreview('cfg');
+  runGenerating();
+}
+
+/* ---------- generating flow (streams into config screen) ---------- */
+const DESIGNER_THOUGHTS=[
+  'Analyzing brand personality… Pancake Parlour is warm, family-friendly, Australian.',
+  'Menu items detected: pancakes, waffles, berries, syrup, coffee, shakes.',
+  'Best mechanics for food brands: catching, stacking, memory matching.',
+  'Selecting 3 templates from the bank…',
+  '→ Delegating "Short Stack Panic" (catch & stack) to Coder 1…',
+  '→ Delegating "Syrup Drizzle Dash" (dodge & drizzle) to Coder 2…',
+  '→ Delegating "Parlour Memory Match" (card flip) to Coder 3…',
+];
+function runGenerating(){
+  const dt=document.getElementById('designerThoughts'); dt.innerHTML='';
+  let di=0;
+  const dIv=setInterval(()=>{
+    if(di>=DESIGNER_THOUGHTS.length){clearInterval(dIv);finishGenerating();return;}
+    dt.innerHTML+='<div style="margin-bottom:3px">› '+DESIGNER_THOUGHTS[di]+'</div>';
+    dt.scrollTop=dt.scrollHeight;
+    // When designer delegates a game (lines 4,5,6), add a generating row
+    if(di===4) addGenRow(GAMES[0]);
+    if(di===5) addGenRow(GAMES[1]);
+    if(di===6) addGenRow(GAMES[2]);
+    di++;
+  },500);
+}
+function addGenRow(g){
+  const rows=document.getElementById('configRows');
+  const row=document.createElement('div');row.className='grow-row';row.id='genrow-'+g.id;
+  row.innerHTML=`<div class="grow-main" style="opacity:.7">
+    <div class="gthumb shimmer" style="background:var(--brand-soft)">${g.emoji}</div>
+    <div><div class="gname">${g.name}</div><div class="genline"><div class="dotpulse" style="color:var(--brand)"></div> Coder skinning…</div></div>
+    <div class="right"><span class="pill p-brand"><span class="dotpulse"></span>Generating…</span></div>
+  </div>`;
+  rows.appendChild(row);
+}
+function finishGenerating(){
+  // After a brief pause, replace generating rows with real config rows
+  setTimeout(()=>{
+    document.getElementById('cfgSpinner').style.display='none';
+    document.getElementById('agentTitle').textContent='✅ Game Designer done — 3 games ready';
+    document.getElementById('cfgTitle').textContent='Your games are ready 🎉';
+    document.getElementById('cfgSub').textContent='Configure each game, preview it on the right, then activate.';
+    renderConfig();
+    initPersistentPreview('cfg');
+  },800);
+}
+
+/* ---------- persistent phone preview ---------- */
+let selectedGameId='g1';
+function selectGame(ctx,id){
+  selectedGameId=id;
+  const target=ctx==='cfg'?'cfgPhonePreview':'tblPhonePreview';
+  const g=[...tableGames,...GAMES,...EXTRA,...ALL_GAMES].find(x=>x.id===id);
+  if(g && document.getElementById(target)) document.getElementById(target).innerHTML=gameStateHTML('play',g);
+}
+function setCfgPrev(state,btn){
+  const g=[...GAMES,...EXTRA,...ALL_GAMES].find(x=>x.id===selectedGameId)||GAMES[0];
+  document.getElementById('cfgPhonePreview').innerHTML=gameStateHTML(state,g);
+  btn.parentElement.querySelectorAll('button').forEach(b=>b.classList.remove('on'));btn.classList.add('on');
+}
+function setTblPrev(state,btn){
+  const g=[...tableGames,...EXTRA,...ALL_GAMES].find(x=>x.id===selectedGameId)||tableGames[0];
+  document.getElementById('tblPhonePreview').innerHTML=gameStateHTML(state,g);
+  btn.parentElement.querySelectorAll('button').forEach(b=>b.classList.remove('on'));btn.classList.add('on');
+}
+function initPersistentPreview(ctx){
+  const target=ctx==='cfg'?'cfgPhonePreview':'tblPhonePreview';
+  const g=GAMES[0];selectedGameId=g.id;
+  if(document.getElementById(target)) document.getElementById(target).innerHTML=gameStateHTML('play',g);
+}
+
+/* ---------- fake door ---------- */
+function openFakeDoor(){document.getElementById('fakedoor').classList.remove('hidden');}
+
+/* ---------- max-out rows ---------- */
+const ALL_GAMES=[
+  ...GAMES,...EXTRA,
+  {id:'g7',name:'Waffle Tower',emoji:'🧇',desc:'Stack waffles as high as you can',score:80,wins:'1 time',reward:'Free waffle',status:'active'},
+  {id:'g8',name:'Latte Art',emoji:'☕',desc:'Draw the perfect latte heart',score:70,wins:'3 times',reward:'Free coffee',status:'active'},
+  {id:'g9',name:'Fruit Frenzy',emoji:'🍓',desc:'Sort berries before time runs out',score:55,wins:'1 time',reward:'Free smoothie',status:'draft'},
+  {id:'g10',name:'Pancake Flip',emoji:'🥞',desc:'Time your flips to perfection',score:65,wins:'1 time',reward:'10% off',status:'disabled'},
+];
+function renderMaxout(){
+  const rows=ALL_GAMES.map(g=>{
+    const s=g.status||'active';
+    const pill=s==='active'?'<span class="pill p-green"><span class="dotpulse"></span>Active</span>'
+      :s==='disabled'?'<span class="pill p-red">Disabled</span>':'<span class="pill p-gray">Draft</span>';
+    return `<div class="grow-row"><div class="grow-main">
+      <div class="gthumb" style="background:var(--pp-soft)">${g.emoji}</div>
+      <div><div class="gname">${g.name}</div><div class="gmeta">${g.desc}</div></div>
+      <div class="right">${pill}</div></div></div>`;
+  }).join('');
+  document.getElementById('maxoutRows').innerHTML=rows;
 }
 
 /* ---------- member screens ---------- */
