@@ -1,6 +1,6 @@
 name: Export web comments to comments.json
 
-# Run manually from Actions tab, or automatically whenever a new Issue is opened
+# Auto-runs when issues change; writes to 'data' branch (not main — avoids redeployment)
 on:
   workflow_dispatch:
   issues:
@@ -14,15 +14,32 @@ jobs:
       contents: write
 
     steps:
-      - name: Checkout
+      - name: Checkout data branch (create if needed)
         uses: actions/checkout@v4
+        with:
+          ref: data
+          fetch-depth: 0
+        continue-on-error: true
+
+      - name: Init data branch if it does not exist
+        run: |
+          if ! git rev-parse --verify origin/data >/dev/null 2>&1; then
+            git checkout --orphan data
+            git rm -rf . 2>/dev/null || true
+            echo "[]" > comments.json
+            git add comments.json
+            git config user.name "github-actions[bot]"
+            git config user.email "github-actions[bot]@users.noreply.github.com"
+            git commit -m "init: data branch for comments"
+            git push origin data
+          fi
 
       - name: Fetch all web-comment issues and write comments.json
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
           gh api \
-            "repos/galcohen-ctrl/html-commnet/issues?state=open&per_page=100" \
+            "repos/${{ github.repository }}/issues?state=open&per_page=100" \
             --jq '[.[] | select(.title | startswith("[PRD]") or startswith("[PROTOTYPE]")) | {
               id: .number,
               title: .title,
@@ -30,18 +47,13 @@ jobs:
               author: .user.login,
               created_at: .created_at,
               body: .body,
-              html_url: .html_url,
-              comment:  (.body | capture("\\*\\*Comment\\*\\*: (?P<v>.+)") | .v // ""),
-              name:     (.body | capture("\\*\\*Name\\*\\*: (?P<v>.+)")    | .v // ""),
-              context:  (.body | capture("\\*\\*Context\\*\\*: (?P<v>.*)")  | .v // ""),
-              x:        (.body | capture("\\*\\*Coordinates\\*\\*: x=(?P<v>\\d+)") | .v | tonumber? // 0),
-              y:        (.body | capture("y=(?P<v>\\d+)")                    | .v | tonumber? // 0)
+              html_url: .html_url
             }]' > comments.json
 
-      - name: Commit and push comments.json
+      - name: Commit and push to data branch
         run: |
-          git config user.name  "github-actions[bot]"
+          git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
           git add comments.json
           git diff --staged --quiet && echo "No changes" || \
-            git commit -m "chore: sync comments.json [$(date -u +%Y-%m-%d)]" && git push
+            (git commit -m "chore: sync comments.json [$(date -u +%Y-%m-%d)]" && git push origin data)

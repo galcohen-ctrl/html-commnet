@@ -1088,7 +1088,6 @@ body.hc-mode,body.hc-mode *{cursor:url("data:image/svg+xml,<svg xmlns='http://ww
   }
 
   function loadComments(){
-    document.querySelectorAll('.hc-pin').forEach(function(p){p.remove();});
     var hdrs={'Accept':'application/vnd.github.v3+json'};
     if(gTok())hdrs['Authorization']='token '+gTok();
     fetch('https://api.github.com/repos/'+REPO+'/issues?state=open&per_page=100',{headers:hdrs})
@@ -1098,6 +1097,8 @@ body.hc-mode,body.hc-mode *{cursor:url("data:image/svg+xml,<svg xmlns='http://ww
     })
     .then(function(issues){
       if(!issues||!Array.isArray(issues))return;
+      /* Only clear pins if we got a valid response */
+      document.querySelectorAll('.hc-pin').forEach(function(p){p.remove();});
       issues.filter(function(i){return i.title.indexOf('['+PAGE.toUpperCase()+']')===0;})
       .reverse().forEach(function(issue,i){
         var b=issue.body||'';
@@ -1105,7 +1106,8 @@ body.hc-mode,body.hc-mode *{cursor:url("data:image/svg+xml,<svg xmlns='http://ww
         var nm=b.match(/\*\*Name\*\*: (.+)/),tm=b.match(/\*\*Comment\*\*: (.+)/);
         var sm=b.match(/\*\*Element\*\*: (.*)/),cm=b.match(/\*\*Context\*\*: (.*)/);
         var scr=b.match(/\*\*Screen\*\*: (.*)/);
-        if(xM&&yM)renderPin(parseInt(xM[1]),parseInt(yM[1]),tm?tm[1]:'',nm?nm[1]:'?',sm?sm[1]:'',cm?cm[1]:'',i+1,scr?scr[1]:'unknown');
+        var screenVal=scr?scr[1].trim():'unknown';
+        if(xM&&yM)renderPin(parseInt(xM[1]),parseInt(yM[1]),tm?tm[1]:'',nm?nm[1]:'?',sm?sm[1]:'',cm?cm[1]:'',i+1,screenVal);
       });
       syncPinVisibility();
     }).catch(function(err){console.warn('Could not load pins:',err);});
@@ -1125,7 +1127,8 @@ body.hc-mode,body.hc-mode *{cursor:url("data:image/svg+xml,<svg xmlns='http://ww
   function syncPinVisibility(){
     var cur=currentScreen();
     document.querySelectorAll('.hc-pin').forEach(function(p){
-      p.style.display=(p.dataset.screen===cur||p.dataset.screen==='unknown')?'':'none';
+      var show=(p.dataset.screen===cur||p.dataset.screen==='unknown');
+      p.style.display=show?'':'none';
     });
   }
   /* Observe screen changes via MutationObserver on class changes */
