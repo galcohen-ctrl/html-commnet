@@ -1089,10 +1089,15 @@ body.hc-mode,body.hc-mode *{cursor:url("data:image/svg+xml,<svg xmlns='http://ww
 
   function loadComments(){
     document.querySelectorAll('.hc-pin').forEach(function(p){p.remove();});
-    fetch('https://api.github.com/repos/'+REPO+'/issues?state=open&per_page=100',{headers:{'Accept':'application/vnd.github.v3+json'}})
-    .then(function(r){return r.json();})
+    var hdrs={'Accept':'application/vnd.github.v3+json'};
+    if(gTok())hdrs['Authorization']='token '+gTok();
+    fetch('https://api.github.com/repos/'+REPO+'/issues?state=open&per_page=100',{headers:hdrs})
+    .then(function(r){
+      if(!r.ok){showToast('Could not load pins (HTTP '+r.status+'). Try again later.');return Promise.reject(r.status);}
+      return r.json();
+    })
     .then(function(issues){
-      if(!Array.isArray(issues))return;
+      if(!issues||!Array.isArray(issues))return;
       issues.filter(function(i){return i.title.indexOf('['+PAGE.toUpperCase()+']')===0;})
       .reverse().forEach(function(issue,i){
         var b=issue.body||'';
@@ -1102,6 +1107,7 @@ body.hc-mode,body.hc-mode *{cursor:url("data:image/svg+xml,<svg xmlns='http://ww
         var scr=b.match(/\*\*Screen\*\*: (.*)/);
         if(xM&&yM)renderPin(parseInt(xM[1]),parseInt(yM[1]),tm?tm[1]:'',nm?nm[1]:'?',sm?sm[1]:'',cm?cm[1]:'',i+1,scr?scr[1]:'unknown');
       });
+      syncPinVisibility();
     }).catch(function(err){console.warn('Could not load pins:',err);});
   }
 
