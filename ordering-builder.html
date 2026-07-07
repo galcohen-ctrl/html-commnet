@@ -1,0 +1,946 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Como Ordering Builder — Concept (VCE-531 · Option B)</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Sora:wght@400;600;700;800&family=Fraunces:opsz,wght@9..144,500;9..144,700&family=Quicksand:wght@500;600;700&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
+<style>
+:root{
+  --ink:#14181D; --panel:#1B2129; --panel2:#222A34; --panel-line:#2E3947;
+  --canvas:#ECEFF2; --card:#FFFFFF;
+  --txt:#E8ECF1; --txt-sub:#93A0AE; --txt-dark:#1B2129; --txt-dark-sub:#5C6672;
+  --dlv:#17B8A6;      /* Deliverect-owned data */
+  --como:#8B7CF7;     /* Como loyalty / identity */
+  --mrc:#E8A13D;      /* Merchant config */
+  --live:#35C275; --build:#E07840; --lock:#8A94A0;
+  --mono:'JetBrains Mono',monospace; --disp:'Sora',sans-serif;
+  --ui:-apple-system,'Segoe UI',Roboto,Helvetica,Arial,sans-serif;
+  /* merchant theme — set by JS */
+  --m-primary:#1F6E4A; --m-primary-press:#175338; --m-on-primary:#fff;
+  --m-bg:#F4F6F4; --m-surface:#fff; --m-tint:#EDF5F0; --m-text:#1B1D21;
+  --m-sub:#6A7077; --m-line:#E2E8E3; --m-chip:#E4F0E9; --m-chip-txt:#1F6E4A;
+  --m-radius:14px; --m-font:'Sora',sans-serif;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+body{background:var(--canvas);color:var(--txt-dark);font-family:var(--ui);font-size:14px;line-height:1.5}
+button{font-family:inherit;cursor:pointer;border:none;background:none;color:inherit}
+input,select{font-family:inherit}
+
+/* ---------- Header ---------- */
+.hdr{background:var(--ink);color:var(--txt);padding:22px 28px 20px;border-bottom:1px solid #000}
+.hdr-top{display:flex;align-items:flex-start;justify-content:space-between;gap:20px;flex-wrap:wrap;max-width:1460px;margin:0 auto}
+.hdr h1{font-family:var(--disp);font-size:21px;font-weight:800;letter-spacing:-.02em}
+.hdr h1 em{font-style:normal;color:var(--dlv)}
+.hdr .sub{color:var(--txt-sub);font-size:13px;margin-top:4px;max-width:760px}
+.hdr .sub b{color:var(--txt);font-weight:600}
+.chips{display:flex;gap:8px;flex-wrap:wrap;margin-top:12px}
+.chip{font-size:11.5px;padding:4px 10px;border-radius:99px;border:1px solid var(--panel-line);color:var(--txt-sub);white-space:nowrap}
+.chip.bad{border-color:#5A3038;color:#E89AA4}
+.chip.good{border-color:#1F4A3A;color:#6FD5A8}
+.legend{display:flex;gap:14px;flex-wrap:wrap;align-items:center;font-size:11.5px;color:var(--txt-sub);margin-top:6px}
+.legend .dot{width:8px;height:8px;border-radius:50%;display:inline-block;margin-right:5px;vertical-align:1px}
+.d-dlv{background:var(--dlv)}.d-como{background:var(--como)}.d-mrc{background:var(--mrc)}
+
+/* ---------- Workbench layout ---------- */
+.wb{display:grid;grid-template-columns:408px minmax(0,1fr);gap:22px;max-width:1460px;margin:20px auto 30px;padding:0 24px;align-items:start}
+@media(max-width:1040px){.wb{grid-template-columns:1fr}}
+
+/* ---------- Builder panel ---------- */
+.builder{background:var(--panel);border:1px solid var(--panel-line);border-radius:16px;color:var(--txt);overflow:hidden}
+.pub{display:flex;align-items:center;justify-content:space-between;gap:10px;padding:14px 16px;background:var(--panel2);border-bottom:1px solid var(--panel-line)}
+.pub .t{font-family:var(--disp);font-weight:700;font-size:14px}
+.pub .s{font-size:11px;color:var(--txt-sub);margin-top:2px}
+.btn-pub{background:var(--live);color:#0B2417;font-weight:700;font-size:13px;padding:9px 16px;border-radius:9px;transition:transform .12s}
+.btn-pub:hover{transform:translateY(-1px)}
+.sec{padding:16px;border-bottom:1px solid var(--panel-line)}
+.sec:last-child{border-bottom:none}
+.sec-h{display:flex;align-items:center;gap:8px;margin-bottom:4px}
+.sec-h .n{font-family:var(--mono);font-size:10px;color:var(--txt-sub);border:1px solid var(--panel-line);border-radius:5px;padding:1px 6px}
+.sec-h h3{font-family:var(--disp);font-size:13.5px;font-weight:700;flex:1}
+.tier{font-size:9.5px;font-weight:700;letter-spacing:.05em;padding:2px 7px;border-radius:99px;text-transform:uppercase}
+.tier.live{background:rgba(53,194,117,.14);color:var(--live)}
+.tier.build{background:rgba(224,120,64,.14);color:var(--build)}
+.sec-d{font-size:11.5px;color:var(--txt-sub);margin-bottom:12px}
+.sec-d a{color:var(--dlv);text-decoration:none}
+
+/* Deliverect connection card */
+.conn{background:rgba(23,184,166,.07);border:1px solid rgba(23,184,166,.35);border-radius:11px;padding:12px}
+.conn-top{display:flex;align-items:center;gap:8px}
+.conn-top .st{width:8px;height:8px;border-radius:50%;background:var(--dlv);box-shadow:0 0 0 3px rgba(23,184,166,.18)}
+.conn-top b{font-size:12.5px}
+.conn code{font-family:var(--mono);font-size:10px;color:var(--dlv)}
+.conn ul{list-style:none;margin-top:9px;display:grid;grid-template-columns:1fr 1fr;gap:4px 10px}
+.conn li{font-size:11px;color:var(--txt-sub)}
+.conn li::before{content:'↓ ';color:var(--dlv)}
+.conn .note{margin-top:10px;font-size:11px;color:var(--txt-sub);border-top:1px dashed rgba(23,184,166,.3);padding-top:9px}
+.conn .note b{color:var(--txt)}
+.conn .open{margin-top:8px;font-size:11.5px;color:var(--dlv);font-weight:600}
+/* connect flow (step 1) */
+.fld{width:100%;background:var(--ink);border:1px solid var(--panel-line);border-radius:9px;color:var(--txt);font-size:12.5px;padding:9px 11px;font-family:var(--mono)}
+.fld:focus{outline:none;border-color:var(--dlv)}
+.fld-l{display:block;font-size:11px;color:var(--txt-sub);margin:11px 0 4px}
+.prov{display:flex;align-items:center;gap:10px;background:var(--panel2);border:1px solid var(--panel-line);border-radius:10px;padding:10px 12px}
+.prov .lg{width:26px;height:26px;border-radius:7px;background:var(--dlv);color:#04201d;font-weight:800;display:flex;align-items:center;justify-content:center;font-size:13px}
+.prov b{font-size:12.5px}.prov span{font-size:10.5px;color:var(--txt-sub);display:block}
+.btn-conn{width:100%;margin-top:13px;background:var(--dlv);color:#04201d;font-weight:700;font-size:13px;padding:10px;border-radius:9px}
+.locs{margin-top:10px;display:grid;gap:7px}
+.loc{display:flex;align-items:center;gap:10px;background:var(--panel2);border:1px solid var(--panel-line);border-radius:9px;padding:9px 11px;cursor:pointer;transition:border-color .12s}
+.loc:hover{border-color:#465162}
+.loc .cbx{width:17px;height:17px;border-radius:5px;border:1.5px solid #4a5563;flex-shrink:0;display:flex;align-items:center;justify-content:center;font-size:11px;color:#04201d;font-weight:800}
+.loc.on .cbx{background:var(--dlv);border-color:var(--dlv)}
+.loc .li{flex:1}.loc .li b{font-size:12px}.loc .li span{font-size:10.5px;color:var(--txt-sub);display:block}
+.loc .badge{font-size:9.5px;font-weight:700;color:var(--txt-sub);border:1px solid var(--panel-line);border-radius:99px;padding:2px 7px}
+.conn-foot{display:flex;justify-content:space-between;align-items:center;margin-top:11px;gap:10px}
+.link-btn{font-size:11px;color:var(--txt-sub);text-decoration:underline}
+
+/* template picker */
+.tpls{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}
+.tpl{border:1.5px solid var(--panel-line);border-radius:10px;padding:8px 8px 7px;text-align:center;transition:border-color .15s,background .15s}
+.tpl:hover{border-color:#4A5868}
+.tpl.on{border-color:var(--mrc);background:rgba(232,161,61,.08)}
+.tpl .thumb{height:56px;border-radius:6px;background:var(--panel2);margin-bottom:6px;padding:6px;display:flex;flex-direction:column;gap:3px}
+.tpl .thumb i{background:#3A4655;border-radius:2px;display:block}
+.tpl.on .thumb i{background:var(--mrc)}
+.tpl b{font-size:11px;display:block}
+.tpl span{font-size:9.5px;color:var(--txt-sub)}
+.th-grid{flex-direction:row!important;flex-wrap:wrap}
+.th-grid i{width:calc(50% - 2px);height:18px}
+.th-list i{height:9px;width:100%}
+.th-hero i:first-child{height:26px;width:100%}
+.th-hero i{height:7px;width:100%}
+
+/* brand controls */
+.row{display:flex;align-items:center;justify-content:space-between;gap:10px;margin-bottom:12px}
+.row:last-child{margin-bottom:0}
+.row .lbl{font-size:12px;font-weight:600}
+.row .lbl small{display:block;font-weight:400;font-size:10.5px;color:var(--txt-sub)}
+.swatches{display:flex;gap:6px;align-items:center}
+.sw{width:24px;height:24px;border-radius:50%;border:2px solid transparent;transition:transform .12s}
+.sw:hover{transform:scale(1.12)}
+.sw.on{border-color:#fff;box-shadow:0 0 0 2px var(--panel)}
+.sw-custom{width:24px;height:24px;border-radius:50%;padding:0;border:1px dashed var(--txt-sub);background:none;overflow:hidden;position:relative}
+.sw-custom input{position:absolute;inset:-6px;width:36px;height:36px;cursor:pointer;opacity:1;border:none;padding:0;background:none}
+.name-in{background:var(--panel2);border:1px solid var(--panel-line);color:var(--txt);border-radius:8px;padding:7px 10px;font-size:12.5px;width:170px}
+.name-in:focus{outline:none;border-color:var(--mrc)}
+.seg{display:flex;background:var(--panel2);border:1px solid var(--panel-line);border-radius:8px;padding:2px}
+.seg button{font-size:11px;padding:5px 10px;border-radius:6px;color:var(--txt-sub);font-weight:600}
+.seg button.on{background:#3A4655;color:var(--txt)}
+.pal{display:flex;gap:0;border-radius:8px;overflow:hidden;border:1px solid var(--panel-line);height:26px;margin-top:2px}
+.pal span{flex:1}
+.pal-note{font-size:10.5px;color:var(--txt-sub);margin-top:7px}
+.pal-note b{color:var(--live)}
+
+/* toggles */
+.tgl-row{display:flex;align-items:center;gap:9px;padding:8px 0;border-bottom:1px dashed var(--panel-line)}
+.tgl-row:last-child{border-bottom:none}
+.tgl-row .info{flex:1}
+.tgl-row .info b{font-size:12px;display:block}
+.tgl-row .info span{font-size:10.5px;color:var(--txt-sub)}
+.tgl-row .src{font-family:var(--mono);font-size:9px;padding:2px 6px;border-radius:5px;white-space:nowrap}
+.src.s-dlv{color:var(--dlv);background:rgba(23,184,166,.1)}
+.src.s-como{color:var(--como);background:rgba(139,124,247,.12)}
+.tgl{width:34px;height:20px;border-radius:99px;background:#3A4655;position:relative;transition:background .15s;flex-shrink:0}
+.tgl::after{content:'';position:absolute;width:16px;height:16px;border-radius:50%;background:#fff;top:2px;left:2px;transition:left .15s}
+.tgl.on{background:var(--live)}
+.tgl.on::after{left:16px}
+
+/* radio list (support) */
+.rlist{display:flex;flex-direction:column;gap:6px}
+.ropt{display:flex;align-items:center;gap:9px;border:1.5px solid var(--panel-line);border-radius:9px;padding:8px 11px;text-align:left;transition:border-color .15s}
+.ropt.on{border-color:var(--mrc);background:rgba(232,161,61,.07)}
+.ropt .ic{font-size:15px}
+.ropt b{font-size:12px;display:block}
+.ropt span{font-size:10.5px;color:var(--txt-sub)}
+
+/* locked list */
+.locked{background:var(--panel2);border-radius:10px;padding:11px 13px}
+.locked li{list-style:none;font-size:11.5px;color:var(--txt-sub);padding:3px 0;display:flex;gap:8px;align-items:baseline}
+.locked li::before{content:'🔒';font-size:10px}
+.locked li b{color:var(--txt);font-weight:600}
+
+/* ---------- Preview panel ---------- */
+.preview{display:flex;gap:20px;align-items:flex-start;flex-wrap:wrap}
+.phone-col{flex-shrink:0}
+.phone{width:334px;height:668px;background:#0D0F12;border-radius:46px;padding:11px;box-shadow:0 24px 60px -18px rgba(20,26,34,.45),0 4px 14px rgba(20,26,34,.18)}
+.screen{width:100%;height:100%;border-radius:36px;overflow:hidden;background:var(--m-bg);position:relative;font-family:var(--m-font);display:flex;flex-direction:column}
+.status{height:34px;display:flex;align-items:center;justify-content:space-between;padding:0 22px;font-size:11px;font-weight:600;color:var(--m-text);flex-shrink:0}
+.scr-body{flex:1;overflow-y:auto;overscroll-behavior:contain;scrollbar-width:none}
+.scr-body::-webkit-scrollbar{display:none}
+.stepper{display:flex;gap:5px;justify-content:center;margin-top:16px;flex-wrap:wrap;max-width:334px}
+.step{font-size:11px;font-weight:600;padding:6px 10px;border-radius:99px;border:1.5px solid #C9CFD6;color:var(--txt-dark-sub);background:#fff;transition:all .15s}
+.step:hover{border-color:#9AA4AF}
+.step.on{background:var(--ink);color:#fff;border-color:var(--ink)}
+.step .k{font-family:var(--mono);font-size:9px;opacity:.6;margin-right:3px}
+
+/* ownership rail */
+.rail{flex:1;min-width:300px;max-width:430px;background:var(--card);border:1px solid #DDE2E8;border-radius:16px;padding:18px 18px 14px}
+.rail h4{font-family:var(--disp);font-size:13px;font-weight:700;margin-bottom:2px}
+.rail .scr-name{font-family:var(--mono);font-size:10.5px;color:var(--txt-dark-sub);margin-bottom:14px}
+.rail-row{display:flex;gap:10px;padding:9px 0;border-top:1px dashed #E3E7EC}
+.rail-row .dot{width:9px;height:9px;border-radius:50%;margin-top:4px;flex-shrink:0}
+.rail-row .who{font-size:9.5px;font-weight:700;letter-spacing:.06em;text-transform:uppercase}
+.w-dlv{color:var(--dlv)}.w-como{color:#6D5BE8}.w-mrc{color:#C07E1B}
+.rail-row b{font-size:12px;display:block;margin:1px 0 2px}
+.rail-row code{font-family:var(--mono);font-size:10px;color:var(--txt-dark-sub);background:#F1F3F6;padding:1px 6px;border-radius:5px;display:inline-block;word-break:break-all}
+.rail-row p{font-size:11px;color:var(--txt-dark-sub);margin-top:2px}
+.rail-flow{margin-top:14px;border-top:2px solid #EDF0F3;padding-top:12px}
+.rail-flow h5{font-family:var(--disp);font-size:11px;font-weight:700;color:var(--txt-dark-sub);text-transform:uppercase;letter-spacing:.05em;margin-bottom:8px}
+.flow-chips{display:flex;flex-wrap:wrap;gap:4px;align-items:center}
+.fchip{font-size:10.5px;font-weight:600;padding:3px 8px;border-radius:6px;background:#F1F3F6;border:1px solid #E1E5EA}
+.fchip.on{background:var(--ink);color:#fff;border-color:var(--ink)}
+.farrow{color:#B6BEC7;font-size:10px}
+
+/* ---------- merchant UI atoms (inside phone) ---------- */
+.m-btn{background:var(--m-primary);color:var(--m-on-primary);font-family:var(--m-font);font-weight:700;font-size:14px;padding:13px;border-radius:calc(var(--m-radius) - 2px);width:100%;transition:background .12s}
+.m-btn:active{background:var(--m-primary-press)}
+.m-card{background:var(--m-surface);border-radius:var(--m-radius);border:1px solid var(--m-line)}
+.m-chip{background:var(--m-chip);color:var(--m-chip-txt);font-size:10px;font-weight:700;padding:2px 8px;border-radius:99px}
+.pts-banner{display:flex;align-items:center;gap:9px;background:linear-gradient(100deg,var(--m-primary),var(--m-primary-press));color:var(--m-on-primary);border-radius:var(--m-radius);padding:11px 13px;margin:0 14px 12px}
+.pts-banner .star{width:30px;height:30px;border-radius:50%;background:rgba(255,255,255,.18);display:flex;align-items:center;justify-content:center;font-size:14px}
+.pts-banner b{font-size:13px;display:block}
+.pts-banner span{font-size:10.5px;opacity:.85}
+.toast{position:fixed;left:50%;bottom:26px;transform:translateX(-50%) translateY(80px);background:var(--ink);color:#fff;padding:12px 18px;border-radius:12px;font-size:13px;box-shadow:0 10px 30px rgba(0,0,0,.3);transition:transform .3s;z-index:99;display:flex;gap:9px;align-items:center}
+.toast.show{transform:translateX(-50%) translateY(0)}
+.toast .ok{color:var(--live)}
+
+/* ===================== NEW: prototype navigator + hub shell + wizard ===================== */
+.protobar{position:sticky;top:0;z-index:60;background:#0f1626;color:#fff;display:flex;align-items:center;gap:12px;padding:9px 16px;font-size:12.5px;flex-wrap:wrap}
+.protobar>b{font-size:13px;white-space:nowrap}
+.protobar .seg{display:flex;gap:4px;flex-wrap:wrap;align-items:center}
+.protobar .seg button{background:rgba(255,255,255,.08);color:#cdd5e6;border:1px solid rgba(255,255,255,.12);border-radius:7px;padding:5px 9px;font-size:11.5px;font-weight:600}
+.protobar .seg button.on{background:var(--dlv);color:#04201d;border-color:var(--dlv)}
+.protobar .grp{color:#7d88a0;font-weight:700;text-transform:uppercase;letter-spacing:.5px;font-size:10px;margin-left:6px}
+.hub{display:flex;min-height:calc(100vh - 40px);background:var(--canvas)}
+.side{width:210px;flex:none;background:#141a24;color:#fff;padding:16px 11px}
+.side .logo{display:flex;align-items:center;gap:9px;padding:6px 10px 14px;font-weight:800;font-size:15px}
+.side .logo .mk{width:26px;height:26px;border-radius:7px;background:linear-gradient(135deg,var(--dlv),#4fe0cf);color:#04201d;display:flex;align-items:center;justify-content:center;font-size:14px;font-weight:800}
+.side .grp{color:#7c8aa3;font-size:10px;text-transform:uppercase;letter-spacing:.6px;padding:14px 10px 6px;font-weight:700}
+.side a{display:flex;align-items:center;gap:10px;color:#c7d0e2;text-decoration:none;padding:8px 10px;border-radius:8px;font-size:13px;margin-bottom:1px}
+.side a .ic{width:17px;text-align:center;opacity:.85}
+.side a:hover{background:rgba(255,255,255,.06);color:#fff}
+.side a.active{background:var(--dlv);color:#04201d;font-weight:700}
+.side a.new::after{content:"NEW";margin-left:auto;font-size:9px;background:#2bbd7e;color:#04231a;padding:1px 5px;border-radius:5px;font-weight:800}
+.main{flex:1;min-width:0;display:flex;flex-direction:column}
+.topbar{min-height:56px;background:var(--card);border-bottom:1px solid #E1E6EC;display:flex;align-items:center;padding:10px 22px;gap:14px;flex-wrap:wrap}
+.crumb{font-size:13px;color:#5C6672}.crumb b{color:var(--txt-dark)}
+.chip-dlv{font-size:11px;font-weight:700;color:var(--dlv);background:rgba(23,184,166,.1);border:1px solid rgba(23,184,166,.3);border-radius:99px;padding:4px 10px}
+.topbar .me{margin-left:auto;display:flex;align-items:center;gap:10px;font-size:12.5px;color:#5C6672}
+.avatar{width:28px;height:28px;border-radius:50%;background:var(--mrc);color:#fff;display:flex;align-items:center;justify-content:center;font-weight:800;font-size:12px}
+.topbar .btn-pub{padding:8px 15px;font-size:12.5px}
+.wizbar{display:flex;gap:5px;align-items:center;padding:14px 24px 0;flex-wrap:wrap;max-width:1320px;margin:0 auto;width:100%}
+.wiznode{display:flex;align-items:center;gap:7px;background:var(--card);border:1px solid #E1E6EC;border-radius:99px;padding:6px 12px 6px 7px;font-size:11.5px;font-weight:600;color:#5C6672;transition:.15s;white-space:nowrap}
+.wiznode .num{width:18px;height:18px;border-radius:50%;background:#E7EBF0;color:#5C6672;font-size:10px;font-weight:800;display:flex;align-items:center;justify-content:center}
+.wiznode:hover{border-color:#B6BEC7}
+.wiznode.on{border-color:var(--ink);background:var(--ink);color:#fff}
+.wiznode.on .num{background:var(--dlv);color:#04201d}
+.wiznode.done .num{background:var(--live);color:#04231a}
+.wizsep{color:#c3ccd6;font-size:12px}
+.stage{display:grid;grid-template-columns:minmax(0,1fr) 404px;gap:22px;max-width:1320px;margin:18px auto 40px;padding:0 24px;align-items:start}
+@media(max-width:1000px){.stage{grid-template-columns:1fr}}
+.stepcol .builder{min-height:340px}
+.wizstep{display:none;padding:20px 20px 18px}
+.wizstep.on{display:block;animation:fadein .25s}
+@keyframes fadein{from{opacity:0;transform:translateY(4px)}to{opacity:1;transform:none}}
+.wizstep-h{display:flex;align-items:center;gap:10px;margin-bottom:5px}
+.wizstep-h .num{font-family:var(--mono);font-size:11px;color:#04201d;background:var(--dlv);border-radius:6px;padding:2px 8px;font-weight:800}
+.wizstep-h h2{font-family:var(--disp);font-size:17px;font-weight:800;flex:1}
+.wizstep-d{font-size:12.5px;color:var(--txt-sub);margin-bottom:16px;line-height:1.55}
+.wizstep-d b{color:var(--txt)}
+.wiznav{display:flex;justify-content:space-between;align-items:center;gap:10px;margin-top:18px;padding-top:15px;border-top:1px solid var(--panel-line)}
+.wiznav button{font-size:12.5px;font-weight:700;padding:9px 15px;border-radius:9px}
+.wiz-back{background:var(--panel2);color:var(--txt-sub);border:1px solid var(--panel-line)}
+.wiz-next{background:var(--dlv);color:#04201d}
+.ff{font-size:11.5px;font-weight:700;padding:6px 12px;border-radius:99px;background:var(--panel2);border:1px solid var(--panel-line);color:var(--txt-sub)}
+.ff.on{background:rgba(23,184,166,.12);border-color:var(--dlv);color:var(--dlv)}
+.jlg{display:flex;gap:9px;align-items:flex-start;font-size:12px;color:var(--txt-sub);padding:9px 0;border-top:1px dashed var(--panel-line)}
+.jlg .bdot{width:9px;height:9px;border-radius:50%;margin-top:4px;flex-shrink:0}
+.previewcol{position:sticky;top:70px;display:flex;flex-direction:column;gap:14px}
+.phone-wrap{display:flex;flex-direction:column;align-items:center;background:var(--card);border:1px solid #E1E6EC;border-radius:18px;padding:16px}
+.behind{background:var(--card);border:1px solid #E1E6EC;border-radius:14px;padding:15px 16px}
+.behind h4{font-family:var(--disp);font-size:12px;font-weight:800;text-transform:uppercase;letter-spacing:.05em;color:#495260}
+.behind .bsub{font-size:11px;color:#8A94A0;margin:2px 0 10px}
+.brow{display:flex;gap:10px;padding:9px 0;border-top:1px solid #EEF1F5}
+.brow .bdot{width:9px;height:9px;border-radius:50%;margin-top:4px;flex-shrink:0}
+.brow .bwho{font-size:9.5px;font-weight:800;letter-spacing:.04em;text-transform:uppercase}
+.brow b{font-size:12px;display:block;margin:2px 0 3px;color:var(--txt-dark);font-weight:600}
+.brow code{font-family:var(--mono);font-size:10px;color:#4A5460;background:#F1F3F6;padding:2px 6px;border-radius:5px;display:inline-block;word-break:break-all;line-height:1.6}
+.behind .bnote{font-size:11px;color:#6C7683;margin-top:11px;border-top:1px dashed #E3E7EC;padding-top:10px}
+.behind .bnote b{color:var(--build)}
+#railWrap{margin:0}
+.previewcol .rail{max-width:none}
+@media(prefers-reduced-motion:reduce){*{transition:none!important;animation:none!important}}
+</style>
+</head>
+<body>
+
+<!-- ============ prototype navigator ============ -->
+<div class="protobar">
+  <b>🛒 Ordering Builder — Prototype</b>
+  <span class="grp">Merchant · Hub 2 wizard</span>
+  <div class="seg" id="nav">
+    <button data-w="connect" class="on">1·Connect</button>
+    <button data-w="locations">2·Locations</button>
+    <button data-w="brand">3·Brand</button>
+    <button data-w="menu">4·Menu</button>
+    <button data-w="loyalty">5·Loyalty</button>
+    <button data-w="fulfil">6·Fulfilment</button>
+    <button data-w="support">7·Support</button>
+    <button data-w="publish">8·Publish</button>
+    <span class="grp">Member</span>
+    <button data-w="journey">9·Journey</button>
+  </div>
+</div>
+
+<!-- ============ HUB SHELL ============ -->
+<div class="hub">
+  <aside class="side">
+    <div class="logo"><span class="mk">C</span> Como Hub</div>
+    <div class="grp">Engage</div>
+    <a href="#"><span class="ic">📊</span> Dashboard</a>
+    <a href="#"><span class="ic">🎯</span> Campaign Center</a>
+    <a href="#" class="active new"><span class="ic">🛒</span> Online Ordering</a>
+    <a href="#"><span class="ic">🎁</span> Gifts &amp; Deals</a>
+    <div class="grp">Members</div>
+    <a href="#"><span class="ic">👥</span> Members</a>
+    <a href="#"><span class="ic">🏷️</span> Segments</a>
+    <div class="grp">Build</div>
+    <a href="#"><span class="ic">📱</span> App Builder</a>
+    <a href="#"><span class="ic">⚙️</span> Settings</a>
+  </aside>
+
+  <div class="main">
+    <div class="topbar">
+      <div class="crumb">App Builder / <b>Online Ordering Builder</b></div>
+      <span class="chip-dlv" id="connChip">● Deliverect connected</span>
+      <div class="me"><span>Brava Kitchen</span><div class="avatar">B</div>
+        <button class="btn-pub" id="btnPublish">Publish</button></div>
+    </div>
+
+    <div class="wizbar" id="wizbar"></div>
+
+    <div class="stage">
+      <!-- ========== LEFT: one wizard step at a time ========== -->
+      <section class="stepcol">
+        <div class="builder">
+
+          <!-- 1 · Connect -->
+          <div class="wizstep on" id="ws-connect">
+            <div class="wizstep-h"><span class="num">01</span><h2>Connect ordering backend</h2></div>
+            <div class="wizstep-d">Como is <b>headless</b> — it renders the UI, the provider runs ordering. Unlike Toast / Paytronix (who own the backend), <b>this is step one</b>: pick the provider, paste keys, pull locations. Menu &amp; prices stay in the provider = one source of truth.</div>
+            <div id="connBox"></div>
+            <div class="wiznav"><span></span><button class="wiz-next">Next: Locations →</button></div>
+          </div>
+
+          <!-- 2 · Locations -->
+          <div class="wizstep" id="ws-locations">
+            <div class="wizstep-h"><span class="num">02</span><h2>Select locations</h2></div>
+            <div class="wizstep-d">Every branch Deliverect returns — with address, hours and prep time. Tick the ones that expose online ordering; the rest stay hidden from members.</div>
+            <div id="locBox"></div>
+            <div class="wiznav"><button class="wiz-back">← Back</button><button class="wiz-next">Next: Brand →</button></div>
+          </div>
+
+          <!-- 3 · Brand -->
+          <div class="wizstep" id="ws-brand">
+            <div class="wizstep-h"><span class="num">03</span><h2>Brand &amp; theme</h2></div>
+            <div class="wizstep-d">100% Como — no Deliverect call. One brand color derives the whole palette; the engine auto-picks readable text so contrast can't be broken.</div>
+            <div class="row"><span class="lbl">Business name<small>logo text for now; image upload later</small></span><input class="name-in" id="inName" value="Brava Kitchen" maxlength="22"></div>
+            <div class="row"><span class="lbl">Brand color<small>everything else is derived</small></span>
+              <span class="swatches" id="swatches">
+                <button class="sw on" data-c="#1F6E4A" style="background:#1F6E4A"></button>
+                <button class="sw" data-c="#8A2D5C" style="background:#8A2D5C"></button>
+                <button class="sw" data-c="#1460A8" style="background:#1460A8"></button>
+                <button class="sw" data-c="#C97B12" style="background:#C97B12"></button>
+                <button class="sw" data-c="#CE3A2A" style="background:#CE3A2A"></button>
+                <button class="sw" data-c="#23272E" style="background:#23272E"></button>
+                <span class="sw-custom" title="Custom color"><input type="color" id="inColor" value="#1F6E4A"></span>
+              </span>
+            </div>
+            <div class="pal" id="pal"></div>
+            <div class="pal-note">Derived palette · <b>WCAG AA contrast auto-managed ✓</b> — merchants can't pick an unreadable combo.</div>
+            <div class="row" style="margin-top:14px"><span class="lbl">Corners</span>
+              <span class="seg" id="segRadius"><button data-r="sharp">Sharp</button><button data-r="soft" class="on">Soft</button><button data-r="round">Round</button></span>
+            </div>
+            <div class="row"><span class="lbl">Preview mode</span>
+              <span class="seg" id="segMode"><button data-m="light" class="on">Light</button><button data-m="dark">Dark</button></span>
+            </div>
+            <div class="row"><span class="lbl">Typeface<small>bundled asset → needs app build</small></span>
+              <span class="seg" id="segFont"><button data-f="Sora" class="on">Modern</button><button data-f="Fraunces">Classic</button><button data-f="Quicksand">Rounded</button></span>
+            </div>
+            <div class="row" style="margin:0"><span></span><span class="tier build">app build — like Toast's font tier</span></div>
+            <div class="wiznav"><button class="wiz-back">← Back</button><button class="wiz-next">Next: Menu →</button></div>
+          </div>
+
+          <!-- 4 · Menu -->
+          <div class="wizstep" id="ws-menu">
+            <div class="wizstep-h"><span class="num">04</span><h2>Menu presentation</h2></div>
+            <div class="wizstep-d">The menu syncs from Deliverect (read-only) — you choose how it <b>looks</b>, never what's in it. Templated layouts render from a server schema, so switching is instant, no rebuild.</div>
+            <div class="tpls">
+              <button class="tpl on" data-tpl="grid"><span class="thumb th-grid"><i></i><i></i><i></i><i></i></span><b>Visual grid</b><span>image-forward</span></button>
+              <button class="tpl" data-tpl="list"><span class="thumb th-list"><i></i><i></i><i></i><i></i></span><b>Classic list</b><span>dense, Wolt-like</span></button>
+              <button class="tpl" data-tpl="hero"><span class="thumb th-hero"><i></i><i></i><i></i></span><b>Hero showcase</b><span>featured item</span></button>
+            </div>
+            <div style="margin-top:14px">
+              <div class="tgl-row"><div class="info"><b>Allergen &amp; dietary badges</b><span>from item data</span></div><span class="src s-dlv">deliverect menu</span><button class="tgl on" data-mod="allergens"></button></div>
+            </div>
+            <div class="wiznav"><button class="wiz-back">← Back</button><button class="wiz-next">Next: Loyalty →</button></div>
+          </div>
+
+          <!-- 5 · Loyalty -->
+          <div class="wizstep" id="ws-loyalty">
+            <div class="wizstep-h"><span class="num">05</span><h2>Loyalty layer</h2></div>
+            <div class="wizstep-d">Como's differentiator: Gifts, Deals &amp; Point Shop applied <b>inline in the basket</b>, styled like the rest of the app — not a post-hoc webview handoff.</div>
+            <div class="tgl-row"><div class="info"><b>Points banner on menu</b><span>balance + tier greeting</span></div><span class="src s-como">como getBenefits</span><button class="tgl on" data-mod="pointsBanner"></button></div>
+            <div class="tgl-row"><div class="info"><b>Rewards at checkout</b><span>gifts · deals · point shop, inline in basket</span></div><span class="src s-como">como → basket/discounts</span><button class="tgl on" data-mod="rewards"></button></div>
+            <div class="wiznav"><button class="wiz-back">← Back</button><button class="wiz-next">Next: Fulfilment →</button></div>
+          </div>
+
+          <!-- 6 · Fulfilment -->
+          <div class="wizstep" id="ws-fulfil">
+            <div class="wizstep-h"><span class="num">06</span><h2>Fulfilment &amp; tip</h2></div>
+            <div class="wizstep-d">Expose the order types Deliverect supports per branch, plus tipping. Payment &amp; legal UI is locked and PCI-safe.</div>
+            <div class="row" style="margin-bottom:8px"><span class="lbl">Order types<small>availability per branch comes from Deliverect</small></span></div>
+            <div style="display:flex;gap:7px;flex-wrap:wrap;margin-bottom:6px">
+              <span class="ff on">Pickup</span><span class="ff on">Delivery</span><span class="ff">Curbside</span><span class="ff">Eat-in</span>
+            </div>
+            <div class="tgl-row" style="margin-top:8px"><div class="info"><b>Tipping at checkout</b><span>preset % chips</span></div><span class="src s-dlv">basket/charges</span><button class="tgl on" data-mod="tips"></button></div>
+            <div class="tgl-row"><div class="info"><b>Live order tracking</b><span>status timeline + push</span></div><span class="src s-dlv">checkout webhooks</span><button class="tgl on" data-mod="tracking"></button></div>
+            <div class="wiznav"><button class="wiz-back">← Back</button><button class="wiz-next">Next: Support →</button></div>
+          </div>
+
+          <!-- 7 · Support -->
+          <div class="wizstep" id="ws-support">
+            <div class="wizstep-h"><span class="num">07</span><h2>Support channel</h2></div>
+            <div class="wizstep-d">Where "Help with my order" sends the member. Tier-1 sits with the merchant; order-routing issues escalate to Como ↔ Deliverect 24/7 (the support model flagged at kickoff).</div>
+            <div class="rlist" id="supList">
+              <button class="ropt on" data-sup="chat"><span class="ic">💬</span><span><b>In-app chat</b><span>attached order context, fastest triage</span></span></button>
+              <button class="ropt" data-sup="whatsapp"><span class="ic">🟢</span><span><b>WhatsApp</b><span>deep-link with order # prefilled</span></span></button>
+              <button class="ropt" data-sup="phone"><span class="ic">📞</span><span><b>Phone</b><span>tap-to-call the selected branch</span></span></button>
+            </div>
+            <div class="wiznav"><button class="wiz-back">← Back</button><button class="wiz-next">Next: Publish →</button></div>
+          </div>
+
+          <!-- 8 · Publish -->
+          <div class="wizstep" id="ws-publish">
+            <div class="wizstep-h"><span class="num">08</span><h2>Review &amp; publish</h2></div>
+            <div class="wizstep-d">A recap of what merchants <b>can't</b> touch — this is what keeps it self-service and unbreakable — then go live.</div>
+            <ul class="locked">
+              <li><b>Menu, prices, item options</b> — Deliverect is the source of truth</li>
+              <li><b>Checkout step order</b> — one tested conversion flow for everyone</li>
+              <li><b>Payment &amp; legal UI</b> — PCI / consent screens are standardized</li>
+              <li><b>Error &amp; empty states</b> — system voice, always actionable</li>
+              <li><b>Contrast floors</b> — theme engine enforces AA automatically</li>
+            </ul>
+            <button class="btn-pub" id="btnPublish2" style="width:100%;margin-top:14px;padding:11px">Publish — go live in member apps</button>
+            <div class="wiznav"><button class="wiz-back">← Back</button><button class="wiz-next">See member journey →</button></div>
+          </div>
+
+          <!-- 9 · Member journey -->
+          <div class="wizstep" id="ws-journey">
+            <div class="wizstep-h"><span class="num">▶</span><h2>Member journey</h2></div>
+            <div class="wizstep-d">What the member sees, end to end. Use the steps under the phone to walk the flow — the panel on the right names exactly which system powers each screen.</div>
+            <div class="jlg"><span class="bdot d-dlv"></span><div><b style="color:var(--txt)">Deliverect · Commerce API</b> — stores, menu, modifiers, basket, checkout, order status</div></div>
+            <div class="jlg"><span class="bdot d-como"></span><div><b style="color:var(--txt)">Como · Loyalty</b> — identity, points, gifts / deals / point-shop, earn</div></div>
+            <div class="jlg"><span class="bdot d-mrc"></span><div><b style="color:var(--txt)">Como Hub · merchant config</b> — brand, layout template, module toggles</div></div>
+            <div class="wiznav"><button class="wiz-back">← Back to builder</button><span></span></div>
+          </div>
+
+        </div>
+      </section>
+
+      <!-- ========== RIGHT: persistent live preview + behind-the-scenes ========== -->
+      <aside class="previewcol">
+        <div class="phone-wrap">
+          <div class="phone"><div class="screen" id="mscreen">
+            <div class="status"><span id="mclock">12:47</span><span>𝗹𝗹 ⦿ ▮</span></div>
+            <div class="scr-body" id="scrBody"></div>
+          </div></div>
+          <nav class="stepper" id="stepper" style="display:none">
+            <button class="step on" data-s="locate"><span class="k">1</span>Locate</button>
+            <button class="step" data-s="menu"><span class="k">2</span>Menu</button>
+            <button class="step" data-s="item"><span class="k">3</span>Item</button>
+            <button class="step" data-s="basket"><span class="k">4</span>Basket</button>
+            <button class="step" data-s="checkout"><span class="k">5</span>Checkout</button>
+            <button class="step" data-s="track"><span class="k">6</span>Track</button>
+            <button class="step" data-s="support"><span class="k">7</span>Support</button>
+          </nav>
+        </div>
+        <div class="behind" id="behindBox"></div>
+        <aside class="rail" id="railWrap" style="display:none">
+          <h4>What powers this screen</h4>
+          <div class="scr-name" id="railScr"></div>
+          <div id="railRows"></div>
+          <div class="rail-flow">
+            <h5>The member flow, end to end</h5>
+            <div class="flow-chips" id="flowChips"></div>
+          </div>
+        </aside>
+      </aside>
+    </div>
+  </div>
+</div>
+
+<div class="toast" id="toast"><span class="ok">✓</span><span id="toastMsg"></span></div>
+<script>
+/* ============ theme engine: one brand color → full palette ============ */
+function hexToHsl(hex){hex=hex.replace('#','');const r=parseInt(hex.substr(0,2),16)/255,g=parseInt(hex.substr(2,2),16)/255,b=parseInt(hex.substr(4,2),16)/255;
+const mx=Math.max(r,g,b),mn=Math.min(r,g,b);let h=0,s=0,l=(mx+mn)/2;
+if(mx!==mn){const d=mx-mn;s=l>0.5?d/(2-mx-mn):d/(mx+mn);
+h=mx===r?((g-b)/d+(g<b?6:0)):mx===g?((b-r)/d+2):((r-g)/d+4);h*=60;}
+return{h,s:s*100,l:l*100};}
+function hslToHex(h,s,l){s/=100;l/=100;const k=n=>(n+h/30)%12,a=s*Math.min(l,1-l);
+const f=n=>{const c=l-a*Math.max(-1,Math.min(k(n)-3,Math.min(9-k(n),1)));return Math.round(255*c).toString(16).padStart(2,'0');};
+return '#'+f(0)+f(8)+f(4);}
+function lum(hex){hex=hex.replace('#','');const v=[0,2,4].map(i=>{let c=parseInt(hex.substr(i,2),16)/255;return c<=0.03928?c/12.92:Math.pow((c+0.055)/1.055,2.4);});
+return 0.2126*v[0]+0.7152*v[1]+0.0722*v[2];}
+function derive(brand,dark){
+  const {h,s,l}=hexToHsl(brand);
+  const onPrimary=lum(brand)>0.42?'#17191C':'#FFFFFF';
+  const press=hslToHex(h,Math.min(s+4,96),Math.max(l-9,7));
+  let t;
+  if(dark){t={bg:hslToHex(h,Math.min(s,18),9),surface:hslToHex(h,Math.min(s,14),14),
+    tint:hslToHex(h,Math.min(s,26),17),text:'#F1F3F5',sub:'#9AA3AC',
+    line:hslToHex(h,10,22),chip:hslToHex(h,Math.min(s,30),20),chipTxt:hslToHex(h,Math.min(s,55),72)};}
+  else{t={bg:hslToHex(h,Math.min(s,24),96.5),surface:'#FFFFFF',
+    tint:hslToHex(h,Math.min(s,38),94),text:'#1B1D21',sub:'#6A7077',
+    line:hslToHex(h,Math.min(s,22),88),chip:hslToHex(h,Math.min(s,40),91),chipTxt:press};}
+  return {primary:brand,press,onPrimary,...t};
+}
+
+/* ============ "Deliverect" mock (what GET /commerce/... returns) ============ */
+const DLV={
+  stores:[
+    {id:'chl_9f21ab',name:'Downtown',addr:'12 Market St',dist:'350 m',eta:'15–20 min',open:true},
+    {id:'chl_4c77de',name:'Riverside',addr:'88 Quay Rd',dist:'1.2 km',eta:'20–30 min',open:true},
+    {id:'chl_b03e51',name:'North Park',addr:'5 Grove Ave',dist:'8.4 km',eta:'—',open:false,opens:'17:00'}
+  ],
+  menu:[
+    {cat:'Signature bowls',items:[
+      {id:'plu_101',e:'🥗',name:'Harissa Chicken Bowl',d:'Charred chicken, freekeh, herbs',p:16.9,al:['sesame','gluten'],pop:true},
+      {id:'plu_102',e:'🍲',name:'Miso Salmon Bowl',d:'Roast salmon, rice, pickles',p:18.5,al:['fish','soy']},
+      {id:'plu_103',e:'🥙',name:'Falafel Green Bowl',d:'Herb falafel, tahini, greens',p:14.2,al:['sesame'],veg:true}]},
+    {cat:'Burgers',items:[
+      {id:'plu_201',e:'🍔',name:'Smash Classic',d:'Double patty, house pickles',p:15.4,al:['gluten','dairy']},
+      {id:'plu_202',e:'🍄',name:'Portobello Stack',d:'Grilled mushroom, aioli',p:13.8,al:['gluten'],veg:true}]},
+    {cat:'Drinks & sides',items:[
+      {id:'plu_301',e:'🍋',name:'Fresh Lemonade',d:'Mint, cold-pressed',p:4.5,al:[]},
+      {id:'plu_302',e:'🍟',name:'Za\u2019atar Fries',d:'Sumac mayo',p:5.9,al:['gluten']}]}
+  ],
+  modifiers:{ /* modifier groups for the detail screen (also Deliverect-owned) */
+    size:{label:'Size',req:true,opts:[{n:'Regular',p:0},{n:'Large',p:2.5}]},
+    extras:{label:'Extras',req:false,opts:[{n:'Avocado',p:2.2},{n:'Feta',p:1.8},{n:'Soft egg',p:1.5}]}
+  }
+};
+/* ============ "Como" mock (loyalty server) ============ */
+const COMO={member:'Maya',pts:240,earnRate:2, /* 2 pts per $ */
+  benefits:[
+    {id:'gift_77',k:'GIFT',t:'Free dessert on us',sub:'Welcome gift',v:0,kind:'free_item'},
+    {id:'deal_12',k:'DEAL',t:'10% off over $30',sub:'Members only',v:.10,kind:'discount_percentage'},
+    {id:'ps_205',k:'POINT SHOP',t:'$5 off — 200 pts',sub:'Redeem points',v:5,cost:200,kind:'discount_amount'}]};
+
+/* ============ state ============ */
+const S={tpl:'grid',brand:'#1F6E4A',dark:false,radius:'soft',font:'Sora',
+  mods:{pointsBanner:true,rewards:true,allergens:true,tips:true,tracking:true},
+  support:'chat',screen:'locate',store:DLV.stores[0],
+  item:DLV.menu[0].items[0],itemSize:0,itemExtras:[],qty:1,
+  basket:[{ref:DLV.menu[0].items[0],mods:['Regular'],qty:1,price:16.9}],
+  applied:null,tip:0,placed:false,name:'Brava Kitchen'};
+S.connected=true;S.provider='deliverect';
+S.locations={chl_9f21ab:true,chl_4c77de:true,chl_b03e51:true};
+
+const $=s=>document.querySelector(s), $$=s=>document.querySelectorAll(s);
+const money=n=>'$'+n.toFixed(2);
+function radiusPx(){return{sharp:'6px',soft:'14px',round:'24px'}[S.radius];}
+
+function applyTheme(){
+  const t=derive(S.brand,S.dark),r=document.documentElement.style;
+  r.setProperty('--m-primary',t.primary);r.setProperty('--m-primary-press',t.press);
+  r.setProperty('--m-on-primary',t.onPrimary);r.setProperty('--m-bg',t.bg);
+  r.setProperty('--m-surface',t.surface);r.setProperty('--m-tint',t.tint);
+  r.setProperty('--m-text',t.text);r.setProperty('--m-sub',t.sub);
+  r.setProperty('--m-line',t.line);r.setProperty('--m-chip',t.chip);
+  r.setProperty('--m-chip-txt',t.chipTxt);
+  r.setProperty('--m-radius',radiusPx());
+  r.setProperty('--m-font',`'${S.font}',sans-serif`);
+  $('#pal').innerHTML=['primary','press','tint','chip','surface','bg'].map(k=>
+    `<span title="${k}" style="background:${t[k==='press'?'press':k]}"></span>`).join('');
+}
+
+/* ============ step 1 · connect ============ */
+function renderConn(){
+  const box=$('#connBox');if(!box)return;const chip=$('#connChip');
+  if(!S.connected){
+    if(chip)chip.style.display='none';
+    box.innerHTML=`
+      <label class="fld-l" style="margin-top:0">Ordering provider</label>
+      <div class="prov"><span class="lg">D</span><div style="flex:1"><b>Deliverect — Headless Commerce</b><span>Commerce API · basket → checkout → POS</span></div><span class="badge" style="border-color:#1F4A3A;color:#6FD5A8">V1</span></div>
+      <label class="fld-l">Account ID</label>
+      <input class="fld" value="668e4aa170efd23c474b2ad1">
+      <label class="fld-l">API key</label>
+      <input class="fld" placeholder="sk_live_…">
+      <button class="btn-conn" id="btnConn">Connect &amp; sync</button>
+      <div class="conn-foot"><span style="font-size:10.5px;color:var(--txt-sub)">Keys from Deliverect → Settings → API. One signed contract = sandbox + production.</span></div>`;
+    $('#btnConn').onclick=()=>{S.connected=true;renderConn();renderLocs();render();toast('Connected · pulled 3 locations, menus & modifiers from Deliverect');};
+  } else {
+    if(chip)chip.style.display='';
+    box.innerHTML=`
+      <div class="conn">
+        <div class="conn-top"><span class="st"></span><b>Deliverect connected</b>&nbsp;<code>accountId 668e…ad1</code></div>
+        <ul>
+          <li>Menus &amp; categories</li><li>Items, photos, prices</li>
+          <li>Modifier groups</li><li>Allergens &amp; tags</li>
+          <li>Fulfilment types</li><li>Hours &amp; 86'ing</li>
+        </ul>
+        <div class="note"><b>Read-only by design.</b> Menu, options &amp; pricing live in Deliverect's back office (same model as Wolt / Uber Eats). Como pulls them via <code style="font-size:10px">GET /commerce/…/menus</code> — zero duplicate menu-building.</div>
+      </div>
+      <div class="conn-foot">
+        <button class="link-btn" id="btnDisc">Change connection</button>
+        <button class="open" style="margin:0" id="btnMgr">Open menu in Deliverect ↗</button>
+      </div>`;
+    $('#btnDisc').onclick=()=>{S.connected=false;renderConn();renderLocs();};
+    $('#btnMgr').onclick=()=>toast('Opens Deliverect back office (menu manager) in a new tab');
+  }
+}
+/* ============ step 2 · locations ============ */
+function renderLocs(){
+  const box=$('#locBox');if(!box)return;
+  if(!S.connected){box.innerHTML=`<div class="conn" style="opacity:.7"><div class="conn-top"><b>Not connected yet</b></div><div class="note">Finish step 1 — connect Deliverect — to pull your branches.</div></div>`;return;}
+  const on=Object.values(S.locations).filter(Boolean).length;
+  box.innerHTML=`<label class="fld-l" style="margin-top:0">Live locations <small style="color:var(--txt-sub)">· ${on}/${DLV.stores.length} on · from Deliverect</small></label>
+    <div class="locs" id="locList">${DLV.stores.map(s=>`<div class="loc ${S.locations[s.id]?'on':''}" data-loc="${s.id}"><span class="cbx">${S.locations[s.id]?'✓':''}</span><div class="li"><b>${s.name}</b><span>${s.addr} · ${s.open?'pickup '+s.eta:'closed · opens '+(s.opens||'')}</span></div><span class="badge">${s.open?'open':'closed'}</span></div>`).join('')}</div>
+    <div class="conn-foot"><span style="font-size:10.5px;color:var(--txt-sub)">Toggle a branch → it appears / disappears in the member's location picker on the right.</span></div>`;
+  $('#locList').querySelectorAll('.loc').forEach(el=>el.onclick=()=>{const id=el.dataset.loc;S.locations[id]=!S.locations[id];renderLocs();if(S.screen==='locate')render();});
+}
+
+/* ============ small helpers for merchant UI ============ */
+const sub=`color:var(--m-sub);font-size:11px`;
+function mHead(title,back){return `<div style="display:flex;align-items:center;gap:10px;padding:6px 14px 10px">
+  ${back?`<button data-go="${back}" style="font-size:18px;color:var(--m-text)">‹</button>`:''}
+  <div style="flex:1"><div style="font-weight:800;font-size:16px;color:var(--m-text);letter-spacing:-.01em">${title}</div></div>
+  <div style="width:30px;height:30px;border-radius:50%;background:var(--m-chip);color:var(--m-chip-txt);display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:800">${COMO.member[0]}</div></div>`;}
+function tile(e,size){return `<div style="width:${size}px;height:${size}px;flex-shrink:0;border-radius:calc(var(--m-radius) - 4px);background:var(--m-tint);display:flex;align-items:center;justify-content:center;font-size:${size*0.52}px">${e}</div>`;}
+function alChips(al,veg){if(!S.mods.allergens)return'';let c=al.map(a=>`<span style="font-size:9px;border:1px solid var(--m-line);color:var(--m-sub);border-radius:99px;padding:1px 6px">${a}</span>`).join(' ');
+if(veg)c=`<span class="m-chip" style="font-size:9px">veg 🌱</span> `+c;return c?`<div style="display:flex;gap:4px;flex-wrap:wrap;margin-top:4px">${c}</div>`:'';}
+function basketTotal(){let st=S.basket.reduce((a,b)=>a+b.price*b.qty,0);
+  let disc=0,ap=S.applied?COMO.benefits.find(b=>b.id===S.applied):null;
+  if(ap){disc=ap.kind==='discount_percentage'?st*ap.v:ap.kind==='discount_amount'?ap.v:0;}
+  const tip=S.mods.tips?st*S.tip:0;return{st,disc,tip,tot:Math.max(st-disc,0)+tip,ap};}
+
+/* ============ screens ============ */
+const SCREENS={
+locate(){
+  return mHead(S.name)+`
+  <div style="margin:2px 14px 12px;padding:11px 13px;border-radius:var(--m-radius);background:var(--m-tint);display:flex;gap:9px;align-items:center">
+    <span style="font-size:16px">📍</span><div><b style="font-size:12px;color:var(--m-text)">Using ${COMO.member}'s location</b>
+    <div style="${sub}">from member profile / device GPS — branches sorted by distance</div></div></div>
+  <div style="padding:0 14px 6px;font-size:12px;font-weight:700;color:var(--m-sub)">CHOOSE A BRANCH</div>
+  ${DLV.stores.filter(st=>S.locations[st.id]!==false).map(st=>`
+  <div class="m-card" style="margin:0 14px 10px;padding:13px;${st.open?'':'opacity:.55'}">
+    <div style="display:flex;justify-content:space-between;align-items:baseline">
+      <b style="font-size:14px;color:var(--m-text)">${S.name} — ${st.name}</b>
+      <span style="font-size:11px;font-weight:700;color:var(--m-chip-txt)">${st.dist}</span></div>
+    <div style="${sub};margin-top:2px">${st.addr} · ${st.open?`pickup ${st.eta}`:`closed · opens ${st.opens}`}</div>
+    ${st.open?`<button class="m-btn" data-store="${st.id}" style="margin-top:10px;padding:10px;font-size:13px">Order here</button>`:''}
+  </div>`).join('')}
+  <div style="padding:2px 18px 20px;${sub};text-align:center">Store list &amp; hours come straight from Deliverect — nothing to configure</div>`;
+},
+menu(){
+  const banner=S.mods.pointsBanner?`<div class="pts-banner"><span class="star">★</span>
+    <div><b>Hi ${COMO.member} — ${COMO.pts} pts</b><span>Gold member · ${S.name} Rewards</span></div></div>`:'';
+  const head=mHead(S.name)+`
+  <div style="padding:0 14px 10px;display:flex;gap:6px;align-items:center">
+    <span style="font-size:11px;color:var(--m-sub)">Pickup ·</span>
+    <button data-go="locate" style="font-size:11px;font-weight:700;color:var(--m-chip-txt)">${S.store.name} ▾</button></div>${banner}`;
+  const cats=DLV.menu;
+  if(S.tpl==='grid'){
+    return head+cats.map(c=>`
+      <div style="padding:4px 14px 8px;font-weight:800;font-size:13.5px;color:var(--m-text)">${c.cat}</div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;padding:0 14px 12px">
+      ${c.items.map(it=>`<button class="m-card" data-item="${it.id}" style="padding:10px;text-align:left">
+        <div style="display:flex;justify-content:center;margin-bottom:8px">${tile(it.e,72)}</div>
+        <b style="font-size:12px;color:var(--m-text);display:block;line-height:1.25">${it.name}</b>
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-top:5px">
+          <span style="font-weight:800;font-size:12.5px;color:var(--m-chip-txt)">${money(it.p)}</span>
+          <span style="width:22px;height:22px;border-radius:50%;background:var(--m-primary);color:var(--m-on-primary);font-size:14px;line-height:22px;text-align:center">+</span></div>
+        ${alChips(it.al,it.veg)}</button>`).join('')}</div>`).join('');
+  }
+  if(S.tpl==='list'){
+    return head+cats.map(c=>`
+      <div style="padding:4px 14px 6px;font-weight:800;font-size:13.5px;color:var(--m-text)">${c.cat}</div>
+      ${c.items.map(it=>`<button class="m-card" data-item="${it.id}" style="display:flex;gap:11px;margin:0 14px 8px;padding:10px;width:calc(100% - 28px);text-align:left;align-items:center">
+        ${tile(it.e,52)}
+        <div style="flex:1;min-width:0"><b style="font-size:12.5px;color:var(--m-text)">${it.name}</b>
+        <div style="${sub};white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${it.d}</div>${alChips(it.al,it.veg)}</div>
+        <b style="font-size:12.5px;color:var(--m-chip-txt)">${money(it.p)}</b></button>`).join('')}`).join('');
+  }
+  /* hero */
+  const pop=cats[0].items[0];
+  return head+`
+  <button class="m-card" data-item="${pop.id}" style="display:block;margin:0 14px 12px;width:calc(100% - 28px);padding:0;overflow:hidden;text-align:left">
+    <div style="height:120px;background:linear-gradient(120deg,var(--m-tint),var(--m-chip));display:flex;align-items:center;justify-content:center;font-size:64px">${pop.e}</div>
+    <div style="padding:11px 13px"><span class="m-chip">Most loved ♥</span>
+      <div style="display:flex;justify-content:space-between;margin-top:6px"><b style="font-size:14px;color:var(--m-text)">${pop.name}</b>
+      <b style="color:var(--m-chip-txt)">${money(pop.p)}</b></div>
+      <div style="${sub}">${pop.d}</div></div></button>
+  <div style="display:flex;gap:7px;overflow-x:auto;padding:0 14px 12px;scrollbar-width:none">
+    ${cats.map((c,i)=>`<span style="white-space:nowrap;font-size:11.5px;font-weight:700;padding:6px 12px;border-radius:99px;${i===0?'background:var(--m-primary);color:var(--m-on-primary)':'background:var(--m-surface);border:1px solid var(--m-line);color:var(--m-sub)'}">${c.cat}</span>`).join('')}</div>
+  ${cats.map(c=>c.items.map(it=>`<button class="m-card" data-item="${it.id}" style="display:flex;gap:11px;margin:0 14px 8px;padding:10px;width:calc(100% - 28px);text-align:left;align-items:center">
+    ${tile(it.e,46)}<div style="flex:1"><b style="font-size:12.5px;color:var(--m-text)">${it.name}</b>${alChips(it.al,it.veg)}</div>
+    <b style="font-size:12.5px;color:var(--m-chip-txt)">${money(it.p)}</b></button>`).join('')).join('')}`;
+},
+item(){
+  const it=S.item,m=DLV.modifiers;
+  const extrasSum=S.itemExtras.reduce((a,i)=>a+m.extras.opts[i].p,0);
+  const price=(it.p+m.size.opts[S.itemSize].p+extrasSum)*S.qty;
+  return mHead('Item','menu')+`
+  <div style="display:flex;justify-content:center;padding:4px 0 10px">${tile(it.e,110)}</div>
+  <div style="padding:0 16px">
+    <div style="display:flex;justify-content:space-between"><b style="font-size:17px;color:var(--m-text)">${it.name}</b><b style="font-size:15px;color:var(--m-chip-txt)">${money(it.p)}</b></div>
+    <div style="${sub};margin-top:2px">${it.d}</div>${alChips(it.al,it.veg)}
+    <div style="margin-top:14px;font-size:12px;font-weight:800;color:var(--m-text)">${m.size.label} <span class="m-chip" style="font-size:9px">required</span></div>
+    ${m.size.opts.map((o,i)=>`<button data-size="${i}" style="display:flex;width:100%;justify-content:space-between;padding:9px 2px;border-bottom:1px solid var(--m-line);color:var(--m-text);font-size:12.5px">
+      <span>${S.itemSize===i?'●':'○'}&nbsp; ${o.n}</span><span style="color:var(--m-sub)">${o.p?'+'+money(o.p):''}</span></button>`).join('')}
+    <div style="margin-top:12px;font-size:12px;font-weight:800;color:var(--m-text)">${m.extras.label}</div>
+    ${m.extras.opts.map((o,i)=>`<button data-extra="${i}" style="display:flex;width:100%;justify-content:space-between;padding:9px 2px;border-bottom:1px solid var(--m-line);color:var(--m-text);font-size:12.5px">
+      <span>${S.itemExtras.includes(i)?'☑':'☐'}&nbsp; ${o.n}</span><span style="color:var(--m-sub)">+${money(o.p)}</span></button>`).join('')}
+    <input placeholder="Notes for the kitchen — e.g. no cilantro, allergy info" style="width:100%;margin-top:12px;border:1px solid var(--m-line);border-radius:calc(var(--m-radius) - 4px);padding:10px;font-size:12px;background:var(--m-surface);color:var(--m-text)">
+    <div style="display:flex;gap:10px;align-items:center;margin:14px 0 16px">
+      <span style="display:flex;border:1px solid var(--m-line);border-radius:99px">
+        <button data-qty="-1" style="padding:8px 13px;color:var(--m-text)">−</button><span style="padding:8px 4px;font-weight:800;color:var(--m-text)">${S.qty}</span><button data-qty="1" style="padding:8px 13px;color:var(--m-text)">+</button></span>
+      <button class="m-btn" id="btnAdd" style="flex:1">Add to basket · ${money(price)}</button>
+    </div></div>`;
+},
+basket(){
+  const {st,disc,tip,tot,ap}=basketTotal();
+  const earn=Math.round((st-disc)*COMO.earnRate);
+  const rewards=!S.mods.rewards?'':`
+  <div style="margin:4px 16px 6px;font-size:12px;font-weight:800;color:var(--m-text)">Your rewards <span style="font-weight:600;color:var(--m-sub)">· ${COMO.pts} pts</span></div>
+  <div style="display:flex;gap:8px;overflow-x:auto;padding:0 16px 6px;scrollbar-width:none">
+    ${COMO.benefits.map(b=>{const on=S.applied===b.id;return `<button data-ben="${b.id}" style="min-width:150px;text-align:left;padding:10px 11px;border-radius:calc(var(--m-radius) - 2px);border:1.5px solid ${on?'var(--m-primary)':'var(--m-line)'};background:${on?'var(--m-tint)':'var(--m-surface)'}">
+      <span class="m-chip" style="font-size:8.5px">${b.k}</span>
+      <b style="display:block;font-size:11.5px;margin-top:4px;color:var(--m-text)">${b.t}</b>
+      <span style="font-size:10px;color:${on?'var(--m-chip-txt)':'var(--m-sub)'};font-weight:${on?'800':'400'}">${on?'✓ applied to basket':b.sub}</span></button>`;}).join('')}</div>
+  <div style="padding:0 16px 8px;font-size:10px;color:var(--m-sub)">One reward per order — applied as a Deliverect basket discount</div>`;
+  return mHead('Basket','menu')+
+  S.basket.map((l,i)=>`<div class="m-card" style="display:flex;gap:10px;align-items:center;margin:0 14px 8px;padding:10px">
+    ${tile(l.ref.e,44)}<div style="flex:1"><b style="font-size:12.5px;color:var(--m-text)">${l.ref.name}</b>
+    <div style="${sub}">${l.mods.join(' · ')}</div></div>
+    <span style="display:flex;align-items:center;border:1px solid var(--m-line);border-radius:99px">
+      <button data-line="${i}" data-d="-1" style="padding:4px 9px;color:var(--m-text)">−</button><b style="font-size:12px;color:var(--m-text)">${l.qty}</b><button data-line="${i}" data-d="1" style="padding:4px 9px;color:var(--m-text)">+</button></span>
+    <b style="font-size:12px;color:var(--m-text);width:44px;text-align:right">${money(l.price*l.qty)}</b></div>`).join('')+
+  `<button data-go="menu" style="margin:0 16px 12px;font-size:11.5px;font-weight:700;color:var(--m-chip-txt)">+ Add more items</button>`
+  +rewards+
+  `<div class="m-card" style="margin:6px 14px 10px;padding:12px 13px;font-size:12px;color:var(--m-text)">
+    <div style="display:flex;justify-content:space-between;padding:2px 0"><span>Subtotal</span><span>${money(st)}</span></div>
+    ${ap?`<div style="display:flex;justify-content:space-between;padding:2px 0;color:var(--m-chip-txt);font-weight:700"><span>${ap.t}</span><span>−${money(disc)}</span></div>`:''}
+    <div style="display:flex;justify-content:space-between;padding:6px 0 0;border-top:1px dashed var(--m-line);margin-top:6px;font-weight:800"><span>Total</span><span>${money(tot-tip)}</span></div>
+    ${S.mods.pointsBanner||S.mods.rewards?`<div style="margin-top:8px;background:var(--m-tint);border-radius:8px;padding:7px 9px;font-size:11px;color:var(--m-chip-txt);font-weight:700">★ This order earns +${earn} pts</div>`:''}
+  </div>
+  <div style="padding:0 14px 18px"><button class="m-btn" data-go="checkout">Go to checkout · ${money(tot-tip)}</button></div>`;
+},
+checkout(){
+  const {st,disc,tip,tot}=basketTotal();
+  return mHead('Checkout','basket')+`
+  <div style="padding:0 16px">
+    <div style="display:flex;background:var(--m-tint);border-radius:99px;padding:3px;margin-bottom:12px">
+      <span style="flex:1;text-align:center;padding:7px;border-radius:99px;background:var(--m-primary);color:var(--m-on-primary);font-size:12px;font-weight:800">Pickup</span>
+      <span style="flex:1;text-align:center;padding:7px;font-size:12px;font-weight:700;color:var(--m-sub)">Delivery</span></div>
+    <div class="m-card" style="padding:11px 13px;margin-bottom:8px;display:flex;justify-content:space-between;align-items:center">
+      <div><b style="font-size:12.5px;color:var(--m-text)">${S.name} — ${S.store.name}</b><div style="${sub}">${S.store.addr} · ready in ${S.store.eta}</div></div>
+      <button data-go="locate" style="font-size:11px;font-weight:800;color:var(--m-chip-txt)">Change</button></div>
+    <div class="m-card" style="padding:11px 13px;margin-bottom:8px;display:flex;justify-content:space-between">
+      <b style="font-size:12.5px;color:var(--m-text)">⏱ ASAP</b><span style="${sub}">or schedule ▾</span></div>
+    ${S.mods.tips?`<div style="font-size:12px;font-weight:800;color:var(--m-text);margin:10px 0 6px">Tip the team</div>
+    <div style="display:flex;gap:7px;margin-bottom:10px">${[0,.05,.1,.15].map(p=>`<button data-tip="${p}" style="flex:1;padding:8px;border-radius:99px;font-size:12px;font-weight:800;border:1.5px solid ${S.tip===p?'var(--m-primary)':'var(--m-line)'};background:${S.tip===p?'var(--m-tint)':'var(--m-surface)'};color:var(--m-text)">${p?Math.round(p*100)+'%':'None'}</button>`).join('')}</div>`:''}
+    <div class="m-card" style="padding:11px 13px;margin-bottom:10px;display:flex;justify-content:space-between;align-items:center;opacity:.92">
+      <b style="font-size:12.5px;color:var(--m-text)">💳 Visa •• 4242</b><span style="${sub}">🔒 standardized payment UI</span></div>
+    <div style="font-size:12px;color:var(--m-text);padding:2px 2px 10px">
+      <div style="display:flex;justify-content:space-between;padding:2px 0"><span>Subtotal</span><span>${money(st)}</span></div>
+      ${disc?`<div style="display:flex;justify-content:space-between;padding:2px 0;color:var(--m-chip-txt);font-weight:700"><span>Reward</span><span>−${money(disc)}</span></div>`:''}
+      ${tip?`<div style="display:flex;justify-content:space-between;padding:2px 0"><span>Tip</span><span>${money(tip)}</span></div>`:''}
+      <div style="display:flex;justify-content:space-between;font-weight:800;padding:6px 0;border-top:1px dashed var(--m-line);margin-top:4px"><span>Total</span><span>${money(tot)}</span></div></div>
+    <button class="m-btn" id="btnPlace">Place order · ${money(tot)}</button>
+    <div style="${sub};text-align:center;padding:10px 6px 18px">Basket is validated with Deliverect before payment — price or availability changes surface here, not after</div>
+  </div>`;
+},
+track(){
+  if(!S.mods.tracking)return mHead('Order','menu')+`<div style="padding:30px 24px;text-align:center;${sub}">Live tracking is off in the builder.<br>Members get an SMS/push confirmation instead.</div>`;
+  const {st,disc}=basketTotal();const earn=Math.round((st-disc)*COMO.earnRate);
+  const steps=[['Order received','Sent to the kitchen POS via Deliverect',true],['In the kitchen','Being prepared',true],['Ready for pickup','We\u2019ll ping you',false],['Picked up','Enjoy!',false]];
+  return mHead('Order #1042','menu')+`
+  <div style="margin:2px 14px 12px;padding:13px;border-radius:var(--m-radius);background:linear-gradient(100deg,var(--m-primary),var(--m-primary-press));color:var(--m-on-primary)">
+    <b style="font-size:14px">Being prepared 👨‍🍳</b><div style="font-size:11px;opacity:.85;margin-top:2px">${S.name} — ${S.store.name} · ready ~12:58</div></div>
+  <div style="padding:0 22px">
+  ${steps.map((s,i)=>`<div style="display:flex;gap:12px">
+    <div style="display:flex;flex-direction:column;align-items:center">
+      <span style="width:13px;height:13px;border-radius:50%;margin-top:3px;background:${s[2]?'var(--m-primary)':'var(--m-surface)'};border:2.5px solid ${s[2]?'var(--m-primary)':'var(--m-line)'};${i===1?'box-shadow:0 0 0 4px var(--m-tint)':''}"></span>
+      ${i<3?`<span style="flex:1;width:2px;background:${s[2]&&steps[i+1][2]?'var(--m-primary)':'var(--m-line)'};min-height:26px"></span>`:''}</div>
+    <div style="padding-bottom:14px"><b style="font-size:12.5px;color:${s[2]?'var(--m-text)':'var(--m-sub)'}">${s[0]}</b><div style="${sub}">${s[1]}</div></div></div>`).join('')}
+  </div>
+  <div class="m-card" style="margin:2px 14px 10px;padding:11px 13px;display:flex;gap:9px;align-items:center">
+    <span style="font-size:16px">★</span><div><b style="font-size:12px;color:var(--m-text)">+${earn} pts on their way</b>
+    <div style="${sub}">added automatically when the order completes</div></div></div>
+  <div style="padding:0 14px 18px"><button data-go="support" style="width:100%;padding:12px;border-radius:calc(var(--m-radius) - 2px);border:1.5px solid var(--m-line);font-size:12.5px;font-weight:800;color:var(--m-text);background:var(--m-surface)">Problem with this order? Get help</button></div>`;
+},
+support(){
+  const ch={chat:['💬','Chat with us','In-app · avg reply 2 min','Start chat'],
+    whatsapp:['🟢','WhatsApp us','Opens WhatsApp with order #1042 prefilled','Open WhatsApp'],
+    phone:['📞','Call the branch',`${S.name} — ${S.store.name}`,'Call now']}[S.support];
+  return mHead('Help','track')+`
+  <div class="m-card" style="margin:2px 14px 10px;padding:14px;text-align:center">
+    <div style="font-size:30px">${ch[0]}</div>
+    <b style="font-size:14px;color:var(--m-text);display:block;margin-top:4px">${ch[1]}</b>
+    <div style="${sub};margin-top:2px">${ch[2]}</div>
+    <button class="m-btn" style="margin-top:11px;padding:11px">${ch[3]}</button></div>
+  <div class="m-card" style="margin:0 14px 10px;padding:5px 13px">
+    ${['Where is my order? → live status attached','Wrong or missing item','Cancel or change my order','Points not added yet'].map(q=>`<div style="display:flex;justify-content:space-between;padding:10px 0;border-bottom:1px solid var(--m-line);font-size:12px;color:var(--m-text)"><span>${q}</span><span style="color:var(--m-sub)">›</span></div>`).join('')}
+    <div style="padding:10px 0;font-size:10.5px;color:var(--m-sub)">Escalations behind the scenes: merchant Tier-1 → Como support → Deliverect 24/7 order-routing</div></div>`;
+}};
+
+/* ============ ownership rail content per screen ============ */
+const RAIL={
+locate:{n:'01 · Locate — member location → nearest branch',rows:[
+  ['dlv','Store list, addresses, hours, prep times','GET /commerce/{accountId}/stores','Branches and open/closed state are live from Deliverect — merchants manage them there once, for every channel.'],
+  ['como','Member identity & saved location','generateMemberToken · member profile','The member is already logged in to the branded app — no re-login inside ordering (kills the webview pain).'],
+  ['mrc','Brand name, colors, template','App Builder config (this panel)','Pure presentation — nothing operational.']]},
+menu:{n:'02 · Menu — categories, items, prices',rows:[
+  ['dlv','Categories, items, photos, prices, allergens, 86\u2019ing','GET /commerce/{accountId}/stores/{channelLinkId}/menus','Menu is scoped to the chosen branch. Item goes out of stock in the POS → disappears here automatically.'],
+  ['como','Points banner & greeting','getBenefits · member balance','Loyalty is a visible layer on the menu, not a separate tab.'],
+  ['mrc','Layout template, card style, badges on/off','Server-driven layout schema','Switching Grid ⇄ List ⇄ Hero is a config change — instant, no app build.']]},
+item:{n:'03 · Item — options, allergies, quantity',rows:[
+  ['dlv','Modifier groups, required/optional, price deltas','menu payload → PATCH /baskets/{id}/items','Size, extras and their prices are Deliverect modifier groups — Como just renders them natively.'],
+  ['dlv','Allergen tags & kitchen notes','item metadata + order note field','Allergy info flows into the order payload to the POS.'],
+  ['mrc','Whether allergen badges show, corner style','Module toggle','Presentation only.']]},
+basket:{n:'04 · Basket — loyalty meets the order',rows:[
+  ['dlv','Basket state, line items, totals','POST /baskets · PATCH /baskets/{id}/items','The basket is a Deliverect object from the first item — validation and pricing stay consistent.'],
+  ['como','Gifts, deals, point-shop redemptions','getBenefits → PATCH /baskets/{id}/discounts','The key move: Como benefits are translated to Deliverect discount types (discount_amount, discount_percentage, free_item…) and applied inline — not post-hoc.'],
+  ['como','Earn preview','earn rules (submitPurchase on completion)','Members see what they\u2019ll earn before paying.']]},
+checkout:{n:'05 · Checkout — fulfillment, tip, pay',rows:[
+  ['dlv','Pickup/delivery, timing, charges, validation','PATCH /baskets/{id}/fulfillment · /charges · POST /baskets/{id}/validate','Validate runs before payment so price/stock surprises never happen after.'],
+  ['dlv','Order creation','POST /commerce/{accountId}/v2/checkouts','Basket becomes an order, routed to the branch POS.'],
+  ['mrc','Tip presets on/off','Module toggle','Payment & legal UI is locked — standardized, PCI-safe.']]},
+track:{n:'06 · Track — status to the door',rows:[
+  ['dlv','Order status timeline','GET /v2/checkouts/{id} + status webhooks','Received → kitchen → ready, pushed from the POS through Deliverect.'],
+  ['como','Points accrual on completion','order webhook → submitPurchase','Loyalty closes the loop automatically — the "points not added" ticket class disappears.'],
+  ['mrc','Tracking module on/off','Module toggle','']]},
+support:{n:'07 · Support — help with context',rows:[
+  ['mrc','Channel choice (chat / WhatsApp / phone)','Builder config','Merchant picks where Tier-1 lands; order # travels with the request.'],
+  ['dlv','Order context attached to the ticket','order id + status','Support sees the same live status the member sees.'],
+  ['como','Member identity on the ticket','member token','No "what\u2019s your email" dance. Escalation path: merchant → Como → Deliverect 24/7.']]}};
+const FLOW=[['locate','Locate'],['menu','Menu'],['item','Item'],['basket','Basket + rewards'],['checkout','Checkout'],['track','Track'],['support','Support']];
+
+/* ============ render ============ */
+function renderRail(){
+  const r=RAIL[S.screen];$('#railScr').textContent=r.n;
+  $('#railRows').innerHTML=r.rows.map(([w,b,c,p])=>`
+    <div class="rail-row"><span class="dot d-${w}"></span>
+    <div><span class="who w-${w}">${{dlv:'Deliverect',como:'Como loyalty',mrc:'Merchant config'}[w]}</span>
+    <b>${b}</b><code>${c}</code>${p?`<p>${p}</p>`:''}</div></div>`).join('');
+  $('#flowChips').innerHTML=FLOW.map(([k,l],i)=>
+    `<span class="fchip ${S.screen===k?'on':''}">${l}</span>${i<FLOW.length-1?'<span class="farrow">→</span>':''}`).join('');
+}
+function render(){
+  applyTheme();
+  $('#scrBody').innerHTML=SCREENS[S.screen]();
+  $$('#stepper .step').forEach(b=>b.classList.toggle('on',b.dataset.s===S.screen));
+  renderRail();
+  wireScreen();
+}
+function go(s){S.screen=s;render();$('#scrBody').scrollTop=0;}
+
+/* ============ in-preview interactions ============ */
+function wireScreen(){
+  const B=$('#scrBody');
+  B.querySelectorAll('[data-go]').forEach(b=>b.onclick=()=>go(b.dataset.go));
+  B.querySelectorAll('[data-store]').forEach(b=>b.onclick=()=>{S.store=DLV.stores.find(x=>x.id===b.dataset.store);go('menu');});
+  B.querySelectorAll('[data-item]').forEach(b=>b.onclick=()=>{
+    S.item=DLV.menu.flatMap(c=>c.items).find(x=>x.id===b.dataset.item);
+    S.itemSize=0;S.itemExtras=[];S.qty=1;go('item');});
+  B.querySelectorAll('[data-size]').forEach(b=>b.onclick=()=>{S.itemSize=+b.dataset.size;render();});
+  B.querySelectorAll('[data-extra]').forEach(b=>b.onclick=()=>{const i=+b.dataset.extra;
+    S.itemExtras=S.itemExtras.includes(i)?S.itemExtras.filter(x=>x!==i):[...S.itemExtras,i];render();});
+  B.querySelectorAll('[data-qty]').forEach(b=>b.onclick=()=>{S.qty=Math.max(1,S.qty+(+b.dataset.qty));render();});
+  const add=B.querySelector('#btnAdd');if(add)add.onclick=()=>{
+    const m=DLV.modifiers,ex=S.itemExtras.map(i=>m.extras.opts[i]);
+    S.basket.push({ref:S.item,qty:S.qty,
+      mods:[m.size.opts[S.itemSize].n,...ex.map(o=>o.n)],
+      price:S.item.p+m.size.opts[S.itemSize].p+ex.reduce((a,o)=>a+o.p,0)});
+    toast('Added to basket — PATCH /baskets/{id}/items');go('basket');};
+  B.querySelectorAll('[data-line]').forEach(b=>b.onclick=()=>{const l=S.basket[+b.dataset.line];
+    l.qty+=+b.dataset.d;if(l.qty<1)S.basket.splice(+b.dataset.line,1);
+    if(!S.basket.length)S.basket.push({ref:DLV.menu[0].items[0],mods:['Regular'],qty:1,price:16.9});render();});
+  B.querySelectorAll('[data-ben]').forEach(b=>b.onclick=()=>{
+    S.applied=S.applied===b.dataset.ben?null:b.dataset.ben;
+    if(S.applied)toast('Reward applied — PATCH /baskets/{id}/discounts');render();});
+  B.querySelectorAll('[data-tip]').forEach(b=>b.onclick=()=>{S.tip=+b.dataset.tip;render();});
+  const pl=B.querySelector('#btnPlace');if(pl)pl.onclick=()=>{toast('Order placed — POST /commerce/{accountId}/v2/checkouts');go('track');};
+}
+
+/* ============ builder controls ============ */
+$$('#stepper .step').forEach(b=>b.onclick=()=>go(b.dataset.s));
+$$('.tpl').forEach(b=>b.onclick=()=>{$$('.tpl').forEach(x=>x.classList.remove('on'));b.classList.add('on');S.tpl=b.dataset.tpl;go('menu');});
+$('#swatches').querySelectorAll('.sw').forEach(b=>b.onclick=()=>{
+  $('#swatches').querySelectorAll('.sw').forEach(x=>x.classList.remove('on'));b.classList.add('on');
+  S.brand=b.dataset.c;$('#inColor').value=b.dataset.c;render();});
+$('#inColor').oninput=e=>{S.brand=e.target.value;$('#swatches').querySelectorAll('.sw').forEach(x=>x.classList.remove('on'));render();};
+$('#inName').oninput=e=>{S.name=e.target.value||'Your Brand';render();};
+function segWire(id,attr,fn){$('#'+id).querySelectorAll('button').forEach(b=>b.onclick=()=>{
+  $('#'+id).querySelectorAll('button').forEach(x=>x.classList.remove('on'));b.classList.add('on');fn(b.dataset[attr]);});}
+segWire('segRadius','r',v=>{S.radius=v;render();});
+segWire('segMode','m',v=>{S.dark=v==='dark';render();});
+segWire('segFont','f',v=>{S.font=v;render();});
+$$('.tgl[data-mod]').forEach(b=>b.onclick=()=>{b.classList.toggle('on');S.mods[b.dataset.mod]=b.classList.contains('on');render();});
+$$('#supList .ropt').forEach(b=>b.onclick=()=>{$$('#supList .ropt').forEach(x=>x.classList.remove('on'));b.classList.add('on');S.support=b.dataset.sup;if(S.screen==='support')render();});
+$('#btnPublish').onclick=()=>toast('Published · live in member apps now — no App Store resubmission');
+
+let tT;function toast(m){$('#toastMsg').textContent=m;$('#toast').classList.add('show');clearTimeout(tT);tT=setTimeout(()=>$('#toast').classList.remove('show'),2600);}
+const now=new Date();$('#mclock').textContent=now.getHours()+':'+String(now.getMinutes()).padStart(2,'0');
+
+/* ============ wizard navigation ============ */
+const WHO={dlv:'Deliverect · Commerce API',como:'Como · Loyalty',mrc:'Como Hub · merchant'};
+const WIZ=[
+ {k:'connect',preview:'locate',behind:[['mrc','Stores the API key (encrypted) & calls Deliverect server-to-server','secrets vault'],['dlv','Validates the account, pulls stores · menus · modifiers','GET /commerce/{accountId}/stores'],['como','Not used yet — loyalty is wired in step 5','—']]},
+ {k:'locations',preview:'locate',behind:[['dlv','Returns each branch: address, hours, prep time, coordinates','GET /commerce/{accountId}/stores'],['mrc','Merchant ticks which branches expose ordering; the rest stay hidden','merchant config (cached)'],['como','—','—']]},
+ {k:'brand',preview:'menu',behind:[['mrc','One brand color → derived tokens, logo, font, corners','App Builder config → SDUI theme'],['dlv','Not touched — branding never leaves Como','—'],['como','—','—']]},
+ {k:'menu',preview:'menu',behind:[['dlv','Categories, items, photos, prices, allergens, 86\'ing — scoped to the branch','GET /commerce/{accountId}/stores/{channelLinkId}/menus'],['mrc','Layout template + card style; menu content is never edited in Como','layout schema (server-driven)'],['como','Points-balance greeting on the menu','getBenefits']]},
+ {k:'loyalty',preview:'basket',behind:[['como','Reads the member\'s gifts, deals, point-shop + earn rules','getBenefits · member wallet'],['dlv','Applies the chosen reward to the live basket as a native discount','PATCH /baskets/{basketId}/discounts · provider:loyalty'],['mrc','Toggles which loyalty blocks show; benefit→discount mapping is automatic','discount_amount · free_item · …']]},
+ {k:'fulfil',preview:'checkout',behind:[['dlv','Fulfilment type, timing, charges, then validation before pay','PATCH /baskets/{id}/fulfillment · /charges · /validate'],['dlv','Basket becomes an order routed to the branch POS','POST /commerce/{accountId}/v2/checkouts'],['mrc','Tip presets on/off; payment & legal UI is locked & PCI-safe','module toggle']]},
+ {k:'support',preview:'support',behind:[['mrc','Merchant picks where Tier-1 help lands','builder config'],['dlv','Live order status + id attach to the ticket','GET /v2/checkouts/{id} + status webhooks'],['como','Member identity travels with the request — no "what\'s your email"','member token']]},
+ {k:'publish',preview:'track',behind:[['mrc','All settings ship as SDUI server config — live in the apps now','config push'],['dlv','No menu resubmission — the menu already lives in Deliverect','—'],['como','Rewards stay live via the loyalty server; no rebuild','—']]},
+ {k:'journey',preview:'locate',journey:true}
+];
+const WIZLABEL={connect:'Connect',locations:'Locations',brand:'Brand',menu:'Menu',loyalty:'Loyalty',fulfil:'Fulfilment',support:'Support',publish:'Publish'};
+let stepIdx=0;
+function buildWiz(){
+  $('#wizbar').innerHTML=WIZ.slice(0,8).map((w,i)=>`${i>0?'<span class="wizsep">›</span>':''}<button class="wiznode" data-w="${w.k}"><span class="num">${i+1}</span>${WIZLABEL[w.k]}</button>`).join('')
+    +`<span class="wizsep">·</span><button class="wiznode" data-w="journey"><span class="num">▶</span>Member journey</button>`;
+  $('#wizbar').querySelectorAll('.wiznode').forEach(b=>b.onclick=()=>goStep(b.dataset.w));
+  $$('.wiz-next').forEach(b=>b.onclick=()=>goStep(WIZ[Math.min(stepIdx+1,WIZ.length-1)].k));
+  $$('.wiz-back').forEach(b=>b.onclick=()=>goStep(WIZ[Math.max(stepIdx-1,0)].k));
+  const bp2=$('#btnPublish2');if(bp2)bp2.onclick=()=>{toast('Published · live in member apps now — no App Store resubmission');goStep('journey');};
+}
+function goStep(k){
+  const i=WIZ.findIndex(w=>w.k===k);if(i<0)return;stepIdx=i;const w=WIZ[i];
+  $$('#nav button[data-w]').forEach(b=>b.classList.toggle('on',b.dataset.w===k));
+  $$('.wiznode').forEach((n,j)=>{n.classList.toggle('on',n.dataset.w===k);n.classList.toggle('done',WIZ.findIndex(x=>x.k===n.dataset.w)<i);});
+  $$('.wizstep').forEach(s=>s.classList.toggle('on',s.id==='ws-'+k));
+  S.screen=w.preview;render();
+  const j=!!w.journey;
+  $('#stepper').style.display=j?'':'none';
+  $('#railWrap').style.display=j?'':'none';
+  $('#behindBox').style.display=j?'none':'';
+  if(!j){
+    $('#behindBox').innerHTML=`<h4>Behind the scenes</h4><div class="bsub">What actually runs on this step</div>`
+      +w.behind.map(([who,txt,ep])=>`<div class="brow"><span class="bdot d-${who}"></span><div style="min-width:0"><span class="bwho w-${who}">${WHO[who]}</span><b>${txt}</b>${ep&&ep!=='—'?`<code>${ep}</code>`:`<code style="opacity:.45">not used this step</code>`}</div></div>`).join('')
+      +(w.k==='publish'?`<div class="bnote"><b>Live now vs. app build:</b> colors, menu, loyalty & content publish instantly (server config). Only brand font / app icon need a store resubmission.</div>`:'');
+  }
+  window.scrollTo({top:0,behavior:'smooth'});
+}
+
+renderConn();renderLocs();buildWiz();
+$$('#nav button[data-w]').forEach(b=>b.onclick=()=>goStep(b.dataset.w));
+goStep('connect');
+</script>
+</body>
+</html>
