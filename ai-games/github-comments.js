@@ -23,7 +23,7 @@
   function escH(s){var d=document.createElement('div');d.textContent=s==null?'':String(s);return d.innerHTML;}
   function cssEsc(v){return window.CSS&&CSS.escape?CSS.escape(String(v)):String(v).replace(/[^a-zA-Z0-9_-]/g,'\\$&');}
   function attrEsc(v){return String(v).replace(/\\/g,'\\\\').replace(/"/g,'\\"');}
-  function ignore(el){return !!(el&&el.closest&&el.closest('#hc-fab,#hc-modal,#hc-highlight,#hc-highlight-label,#hc-pin-layer,.hc-ann-panel,.hc-cbubble,#hc-toast'));}
+  function ignore(el){return !!(el&&el.closest&&el.closest('#hc-fab,#hc-modal,#hc-highlight,#hc-highlight-label,#hc-pin-layer,.hc-ann-panel,.hc-cbubble,.hc-img-modal,#hc-toast'));}
   function visible(el){if(!el||!el.isConnected)return false;var r=el.getBoundingClientRect();var st=getComputedStyle(el);return r.width>0&&r.height>0&&st.display!=='none'&&st.visibility!=='hidden';}
 
   if(addBtn)addBtn.textContent='Add comment';
@@ -42,6 +42,7 @@
 
   document.addEventListener('keydown',function(e){
     if(e.key==='Escape'){
+      if(document.querySelector('.hc-img-modal')){closeImagePreview();return;}
       if(activePanel||activeBubble){closePanels();return;}
       if(mode){exitMode();closePanels();}
     }
@@ -247,6 +248,7 @@
   function closePanels(){
     if(activePanel){activePanel.remove();activePanel=null;}
     if(activeBubble){activeBubble.remove();activeBubble=null;}
+    closeImagePreview();
   }
 
   function addClipboardImages(e,items,previews){
@@ -480,11 +482,23 @@
       btn.className='hc-pin-btn';
       btn.title=(c.name||'Reviewer')+': '+(c.text||'');
       btn.textContent=String(idx+1);
-      btn.addEventListener('click',function(e){e.stopPropagation();openBubble(c,btn);});
+      btn.onclick=function(e){e.preventDefault();e.stopPropagation();openBubble(c,btn);};
+      wrap.onclick=function(e){e.preventDefault();e.stopPropagation();openBubble(c,btn);};
       wrap.appendChild(btn);
       pinLayer.appendChild(wrap);
     });
   }
+
+  pinLayer.addEventListener('click',function(e){
+    var pin=e.target.closest('.hc-pin');
+    if(!pin)return;
+    var btn=pin.querySelector('.hc-pin-btn')||pin;
+    var c=comments.find(function(x){return x.id===pin.dataset.commentId;});
+    if(!c)return;
+    e.preventDefault();
+    e.stopPropagation();
+    openBubble(c,btn);
+  });
 
   function updatePins(){
     updateQueued=false;
@@ -502,16 +516,27 @@
   function scheduleUpdate(){if(updateQueued)return;updateQueued=true;requestAnimationFrame(updatePins);}
 
   function openBubble(c,btn){
-    if(activeBubble){activeBubble.remove();activeBubble=null;return;}
+    if(activeBubble&&activeBubble.dataset.commentId===c.id){activeBubble.remove();activeBubble=null;return;}
+    if(activeBubble){activeBubble.remove();activeBubble=null;}
     var bub=document.createElement('div');
     bub.className='hc-cbubble';
-    var imgs=(c.images||[]).map(function(img,i){return '<a href="'+escH(img.url)+'" target="_blank" rel="noreferrer"><img src="'+escH(img.url)+'" alt="Screenshot '+(i+1)+'"></a>';}).join('');
+    bub.dataset.commentId=c.id;
+    var imgs=(c.images||[]).map(function(img,i){
+      var name=img.name||('Screenshot '+(i+1));
+      return '<button type="button" class="hc-img-thumb" data-img-url="'+escH(img.url)+'" data-img-name="'+escH(name)+'"><img src="'+escH(img.url)+'" alt="Screenshot '+(i+1)+'"></button>';
+    }).join('');
     bub.innerHTML='<div class="hc-cb-name">'+escH(c.name||'Reviewer')+'</div>'
       +(c.target&&c.target.selector?'<div class="hc-cb-ctx">'+escH(c.target.selector)+'</div>':(c.target&&c.target.legacyElement?'<div class="hc-cb-ctx">'+escH(c.target.legacyElement)+'</div>':''))
       +'<div class="hc-cb-text">'+escH(c.text||'')+'</div>'
       +(imgs?'<div class="hc-cb-images">'+imgs+'</div>':'')
       +(c.issueUrl?'<div style="margin-top:10px;font-size:11px"><a style="color:#8fb0ff" target="_blank" rel="noreferrer" href="'+escH(c.issueUrl)+'">Open GitHub issue</a></div>':'');
     document.body.appendChild(bub);
+    bub.querySelectorAll('.hc-img-thumb').forEach(function(thumb){
+      thumb.addEventListener('click',function(e){
+        e.stopPropagation();
+        openImagePreview(thumb.dataset.imgUrl,thumb.dataset.imgName||'Screenshot');
+      });
+    });
     activeBubble=bub;
     var r=btn.getBoundingClientRect();
     var bw=bub.getBoundingClientRect().width||300,bh=bub.getBoundingClientRect().height||100;
@@ -519,6 +544,21 @@
     var bl=r.right+8;if(bl+bw>vw-12)bl=r.left-bw-8;if(bl<12)bl=12;
     var bt=r.top;if(bt+bh>vh-12)bt=vh-bh-12;if(bt<12)bt=12;
     bub.style.left=bl+'px';bub.style.top=bt+'px';
+  }
+
+  function closeImagePreview(){
+    var existing=document.querySelector('.hc-img-modal');
+    if(existing)existing.remove();
+  }
+
+  function openImagePreview(url,name){
+    closeImagePreview();
+    var modal=document.createElement('div');
+    modal.className='hc-img-modal';
+    modal.innerHTML='<div class="hc-img-box"><div class="hc-img-top"><span>'+escH(name||'Screenshot')+'</span><div><a href="'+escH(url)+'" target="_blank" rel="noreferrer">Open original</a> <button class="hc-img-close" type="button" title="Close">x</button></div></div><img src="'+escH(url)+'" alt="'+escH(name||'Screenshot')+'"></div>';
+    document.body.appendChild(modal);
+    modal.addEventListener('click',function(e){if(e.target===modal)closeImagePreview();});
+    modal.querySelector('.hc-img-close').addEventListener('click',closeImagePreview);
   }
 
   function showToast(msg){
@@ -534,7 +574,7 @@
   window.addEventListener('resize',scheduleUpdate);
   new MutationObserver(scheduleUpdate).observe(document.body,{attributes:true,childList:true,subtree:true,attributeFilter:['class','style']});
   document.addEventListener('click',function(e){
-    if(e.target.closest('.hc-pin')||e.target.closest('.hc-ann-panel')||e.target.closest('.hc-cbubble'))return;
+    if(e.target.closest('.hc-pin')||e.target.closest('.hc-ann-panel')||e.target.closest('.hc-cbubble')||e.target.closest('.hc-img-modal'))return;
     closePanels();
   });
   if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',loadComments);else loadComments();
