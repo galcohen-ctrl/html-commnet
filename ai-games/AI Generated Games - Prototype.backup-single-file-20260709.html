@@ -1,0 +1,1363 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>AI-Generated Games — Clickable Prototype</title>
+<style>
+:root{
+  --bg:#f4f6f9; --shell:#ffffff; --ink:#1c2430; --soft:#5b6675; --line:#e4e8ee;
+  --brand:#3b5bdb; --brand-d:#2c47b8; --brand-soft:#edf1fe;
+  --green:#1f9d57; --green-soft:#e7f6ee; --amber:#b7791f; --amber-soft:#fdf3e2;
+  --red:#d6455d; --red-soft:#fdeef0; --graypill:#eef1f5;
+  --sidebar:#141b2d; --sidebar-soft:#9aa6bd;
+  --pp:#e8552f; --pp-soft:#fdeee9; /* pancake brand accent for demo merchant */
+}
+*{box-sizing:border-box}
+body{margin:0;font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;
+  background:var(--bg);color:var(--ink);-webkit-font-smoothing:antialiased}
+button{font-family:inherit;cursor:pointer}
+.hidden{display:none!important}
+
+/* ---------- prototype chrome ---------- */
+.protobar{position:sticky;top:0;z-index:60;background:#0f1626;color:#fff;display:flex;align-items:center;
+  justify-content:center;gap:14px;padding:9px 16px;font-size:12.5px}
+.protobar b{font-size:13px}
+.protobar .seg{display:flex;gap:4px;flex-wrap:wrap;align-items:center}
+.protobar .seg button{background:rgba(255,255,255,.08);color:#cdd5e6;border:1px solid rgba(255,255,255,.12);
+  border-radius:7px;padding:5px 9px;font-size:11.5px;font-weight:600}
+.protobar .seg button.on{background:var(--brand);color:#fff;border-color:var(--brand)}
+.protobar .grp{color:#67718a;font-weight:700;text-transform:uppercase;letter-spacing:.5px;font-size:10px;margin-left:8px}
+.protobar .seg .grp{color:#a4b0cc;font-size:10.5px;background:rgba(255,255,255,.06);padding:3px 8px;border-radius:5px;border:1px solid rgba(255,255,255,.12)}
+
+/* ---------- HUB SHELL ---------- */
+.hub{display:flex;min-height:calc(100vh - 39px)}
+.side{width:220px;flex:none;background:var(--sidebar);color:#fff;padding:18px 12px}
+.side .logo{display:flex;align-items:center;gap:9px;padding:6px 10px 16px;font-weight:700;font-size:15px}
+.side .logo .mk{width:26px;height:26px;border-radius:7px;background:linear-gradient(135deg,#3b5bdb,#6f8bff);
+  display:flex;align-items:center;justify-content:center;font-size:14px}
+.side .grp{color:var(--sidebar-soft);font-size:10px;text-transform:uppercase;letter-spacing:.6px;
+  padding:14px 10px 6px;font-weight:700}
+.side a{display:flex;align-items:center;gap:10px;color:#c7d0e2;text-decoration:none;padding:8px 10px;
+  border-radius:8px;font-size:13px;margin-bottom:1px}
+.side a .ic{width:17px;text-align:center;opacity:.85}
+.side a:hover{background:rgba(255,255,255,.06);color:#fff}
+.side a.active{background:var(--brand);color:#fff}
+.side a.new::after{content:"NEW";margin-left:auto;font-size:9px;background:#2bbd7e;color:#04231a;
+  padding:1px 5px;border-radius:5px;font-weight:800}
+
+.main{flex:1;min-width:0;display:flex;flex-direction:column}
+.topbar{height:54px;background:var(--shell);border-bottom:1px solid var(--line);display:flex;align-items:center;
+  padding:0 22px;gap:12px}
+.crumb{font-size:13px;color:var(--soft)}
+.crumb b{color:var(--ink)}
+.topbar .me{margin-left:auto;display:flex;align-items:center;gap:9px;font-size:12.5px;color:var(--soft)}
+.avatar{width:28px;height:28px;border-radius:50%;background:var(--pp-soft);color:var(--pp);display:flex;
+  align-items:center;justify-content:center;font-weight:700;font-size:12px}
+.content{padding:26px 24px;flex:1}
+.canvas{max-width:1000px;margin:0 auto}
+
+/* generic UI atoms */
+.h1{font-size:20px;font-weight:700;margin:0 0 4px}
+.sub{color:var(--soft);font-size:13.5px;margin:0 0 20px}
+.btn{border:none;border-radius:9px;padding:10px 16px;font-size:13.5px;font-weight:600;background:var(--brand);color:#fff}
+.btn:hover{background:var(--brand-d)}
+.btn.sec{background:var(--shell);color:var(--ink);border:1px solid var(--line)}
+.btn.sec:hover{background:var(--bg)}
+.btn.ghost{background:transparent;color:var(--brand);padding:8px 10px}
+.btn.sm{padding:6px 11px;font-size:12.5px;border-radius:8px}
+.btn.green{background:var(--green)}
+.btn.danger{background:var(--shell);color:var(--red);border:1px solid var(--red-soft)}
+.card{background:var(--shell);border:1px solid var(--line);border-radius:14px;box-shadow:0 1px 2px rgba(20,30,50,.05);}
+.pill{display:inline-flex;align-items:center;gap:5px;padding:3px 10px;border-radius:999px;font-size:11.5px;font-weight:700}
+.p-green{background:var(--green-soft);color:var(--green)}
+.p-amber{background:var(--amber-soft);color:var(--amber)}
+.p-red{background:var(--red-soft);color:var(--red)}
+.p-gray{background:var(--graypill);color:var(--soft)}
+.p-brand{background:var(--brand-soft);color:var(--brand)}
+.dotpulse{width:7px;height:7px;border-radius:50%;background:currentColor;animation:pulse 1s infinite}
+@keyframes pulse{0%,100%{opacity:.35}50%{opacity:1}}
+
+/* empty state */
+.empty{display:flex;flex-direction:column;align-items:center;text-align:center;padding:50px 20px}
+.empty .gicon{width:74px;height:74px;border-radius:20px;background:var(--brand-soft);color:var(--brand);
+  display:flex;align-items:center;justify-content:center;font-size:36px;margin-bottom:18px}
+.empty h2{font-size:22px;margin:0 0 8px}
+.empty p.help{color:var(--soft);font-size:14px;max-width:440px;margin:0 0 22px}
+.urlrow{display:flex;gap:10px;width:100%;max-width:520px}
+.urlrow input{flex:1;border:1.5px solid var(--line);border-radius:10px;padding:12px 14px;font-size:14px}
+.urlrow input:focus{outline:none;border-color:var(--brand)}
+.altlink{margin-top:18px;font-size:13px;color:var(--soft)}
+.altlink button{background:none;border:none;color:var(--brand);font-weight:600;text-decoration:underline;font-size:13px}
+.dropzone{margin-top:16px;width:100%;max-width:520px;border:2px dashed var(--line);border-radius:14px;
+  padding:26px;color:var(--soft);font-size:13px;background:#fbfcfe}
+.dropzone b{color:var(--ink)}
+
+/* modal */
+.modal-bg{position:fixed;inset:0;background:rgba(15,20,35,.55);display:flex;align-items:center;justify-content:center;
+  z-index:80;padding:20px}
+.modal{background:var(--shell);border-radius:16px;max-width:480px;width:100%;padding:24px;box-shadow:0 24px 60px rgba(0,0,0,.3)}
+.modal h3{margin:0 0 12px;font-size:17px}
+.modal .legal{font-size:13px;color:var(--soft);line-height:1.6}
+.modal .legal code{background:var(--graypill);padding:1px 5px;border-radius:5px}
+.modal .acts{display:flex;gap:10px;justify-content:flex-end;margin-top:20px}
+
+/* gallery */
+.scanhead{display:flex;align-items:center;gap:12px;margin-bottom:16px}
+.spinner{width:18px;height:18px;border:2.5px solid var(--brand-soft);border-top-color:var(--brand);border-radius:50%;
+  animation:spin .8s linear infinite}
+@keyframes spin{to{transform:rotate(360deg)}}
+.masonry{column-count:4;column-gap:12px}
+@media(max-width:720px){.masonry{column-count:2}}
+.masonry .tile{break-inside:avoid;margin-bottom:12px;border-radius:12px;border:1px solid var(--line);overflow:hidden;
+  background:var(--shell);opacity:0;transform:translateY(8px);animation:rise .5s forwards;position:relative}
+.tile .remove-btn{position:absolute;top:5px;right:5px;width:20px;height:20px;border-radius:50%;background:rgba(0,0,0,.55);color:#fff;
+  border:none;font-size:11px;cursor:pointer;display:flex;align-items:center;justify-content:center;opacity:0;transition:opacity .15s}
+.tile:hover .remove-btn{opacity:1}
+@keyframes rise{to{opacity:1;transform:none}}
+.tile .swatch{height:70px}
+.tile .cap{font-size:11px;color:var(--soft);padding:7px 9px}
+.tile.logo{padding:18px;text-align:center;font-weight:800;color:var(--pp);font-size:18px}
+.tile.font{padding:14px 12px}
+.tile.font .big{font-size:22px;font-weight:800}
+.tile.img{height:96px;background:#f1d9cf;display:flex;align-items:center;justify-content:center;font-size:34px}
+
+/* games table */
+.tablehead{display:flex;align-items:center;margin-bottom:14px}
+.tablehead .h1{margin:0}
+.tablehead .grow{flex:1}
+.gtable{overflow:hidden}
+.grow-row{border-bottom:1px solid var(--line)}
+.grow-row:last-child{border-bottom:none}
+.grow-main{display:flex;align-items:center;gap:14px;padding:15px 18px}
+.grow-main:hover{background:#fafbfd}
+.gthumb{width:42px;height:42px;border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:21px;flex:none}
+.gname{font-weight:650;font-size:14.5px}
+.gmeta{font-size:12px;color:var(--soft);margin-top:1px}
+.grow-main .right{margin-left:auto;display:flex;align-items:center;gap:10px}
+.chev{color:var(--soft);transition:transform .2s;font-size:12px}
+.grow-row.open .chev{transform:rotate(90deg)}
+.shimmer{background:linear-gradient(100deg,#eef1f6 30%,#f7f9fc 50%,#eef1f6 70%);background-size:200% 100%;
+  animation:sh 1.3s infinite}
+@keyframes sh{to{background-position:-200% 0}}
+.genline{font-size:12px;color:var(--brand);display:flex;align-items:center;gap:7px}
+
+/* expanded config */
+.expand{display:none;padding:4px 18px 22px;background:#fbfcfe;border-top:1px dashed var(--line)}
+.grow-row.open .expand{display:block}
+.field{margin-bottom:15px}
+.field label{display:block;font-size:12.5px;font-weight:700;margin-bottom:5px}
+.field .hint{font-size:11.5px;color:var(--soft);margin-top:4px}
+.field input,.field select{width:100%;border:1.5px solid var(--line);border-radius:9px;padding:9px 11px;font-size:13.5px;background:#fff}
+.field input:focus,.field select:focus{outline:none;border-color:var(--brand)}
+.cfg-acts{display:flex;gap:10px;margin-top:8px}
+
+/* compact field grid (game config card) */
+.field-grid{display:grid;grid-template-columns:1fr 1fr;gap:0 14px}
+.field-grid .field{margin-bottom:14px}
+@media(max-width:640px){.field-grid{grid-template-columns:1fr}}
+
+/* kebab actions menu */
+.kebab-wrap{position:relative}
+.kebab-btn{width:28px;height:28px;border:1px solid var(--line);background:#fff;border-radius:8px;font-size:15px;
+  color:var(--soft);display:flex;align-items:center;justify-content:center;line-height:1}
+.kebab-btn:hover{background:var(--bg)}
+.kebab-menu{position:absolute;top:34px;right:0;background:#fff;border:1px solid var(--line);border-radius:10px;
+  box-shadow:0 8px 24px rgba(20,30,50,.18);z-index:20;min-width:165px;overflow:hidden}
+.kebab-menu button{display:block;width:100%;text-align:left;background:none;border:none;padding:9px 13px;
+  font-size:12.5px;font-weight:600;color:var(--ink);cursor:pointer}
+.kebab-menu button:hover{background:var(--bg)}
+
+/* eligible-members audience summary field */
+.audience-summary{display:flex;justify-content:space-between;align-items:center;gap:8px;border:1.5px solid var(--line);
+  border-radius:9px;padding:9px 11px;font-size:12.5px;cursor:pointer;background:#fff}
+.audience-summary:hover{border-color:var(--brand)}
+.audience-summary .aud-edit{color:var(--brand);font-weight:700;font-size:11.5px;white-space:nowrap}
+
+/* member tag line */
+.tag-line{display:flex;align-items:center;gap:8px;font-size:11.5px;color:var(--soft);margin-top:2px;padding-top:12px;
+  border-top:1px dashed var(--line)}
+.tag-line code{background:var(--graypill);padding:2px 7px;border-radius:6px;font-family:ui-monospace,monospace;color:var(--ink);font-size:11.5px}
+
+/* audience modal — Campaign Center "Apply to Members" pattern */
+.aud-header{background:linear-gradient(100deg,#12c2e9,#1eb8e0);margin:-24px -24px 20px;padding:18px 24px;
+  border-radius:16px 16px 0 0;display:flex;justify-content:space-between;align-items:center}
+.aud-header h3{margin:0;color:#fff;font-size:17px}
+.aud-header button{background:none;border:none;color:#fff;font-size:20px;cursor:pointer;line-height:1;padding:0}
+.radio-row{display:flex;align-items:center;gap:10px;padding:9px 2px;font-size:14px;cursor:pointer}
+.radio-row input{width:16px;height:16px;accent-color:var(--brand)}
+.aud-filterbox{background:var(--bg);border-radius:10px;padding:14px;margin-top:8px}
+.aud-filterbox .lbl{font-size:12px;color:var(--soft);margin-bottom:8px;font-weight:700}
+.aud-row{display:grid;grid-template-columns:1fr 90px 1fr auto;gap:8px;margin-bottom:8px;align-items:center}
+.aud-row select,.aud-row input{border:1px solid var(--line);border-radius:7px;padding:7px 9px;font-size:12.5px;background:#fff;width:100%}
+.aud-remove{background:none;border:none;color:var(--soft);cursor:pointer;font-size:14px;padding:2px}
+.aud-add select{width:100%;border:1px dashed var(--line);border-radius:7px;padding:7px 9px;font-size:12.5px;background:#fff;color:var(--soft)}
+
+/* activation flow — rule cards */
+.act-rule-card{display:flex;align-items:center;gap:10px;padding:12px 14px;margin-bottom:10px}
+.act-rule-card .ic{font-size:18px}
+.act-rule-card .ttl{font-weight:700;font-size:13px}
+.act-rule-card .sub2{font-size:12px;color:var(--soft);margin-top:1px}
+.act-rule-card a{font-size:12.5px;font-weight:700;color:var(--brand);text-decoration:none;white-space:nowrap}
+
+/* phone preview */
+.phone{width:248px;margin:0 auto;border:9px solid #11161f;border-radius:34px;background:#0c0f15;overflow:hidden;
+  box-shadow:0 16px 40px rgba(0,0,0,.25)}
+.phone .notch{height:22px;background:#11161f;border-radius:0 0 12px 12px;width:120px;margin:0 auto}
+.pscreen{height:420px;background:#fff;position:relative;overflow:hidden}
+.preview-toggles{display:flex;gap:5px;justify-content:center;margin-bottom:12px;flex-wrap:wrap}
+.preview-toggles button{font-size:11px;border:1px solid var(--line);background:#fff;border-radius:7px;padding:4px 9px;font-weight:600;color:var(--soft)}
+.preview-toggles button.on{background:var(--brand);color:#fff;border-color:var(--brand)}
+.preview-cap{text-align:center;font-size:11.5px;color:var(--soft);margin-top:10px}
+
+/* game canvas mock (merchant preview + member) */
+.gamewrap{position:absolute;inset:0;background:var(--pp-soft);display:flex;flex-direction:column}
+.gtop{display:flex;justify-content:space-between;align-items:center;padding:10px 12px;font-size:11px;color:var(--pp);font-weight:700}
+.gboard{flex:1;display:grid;grid-template-columns:repeat(4,1fr);gap:7px;padding:12px;align-content:center}
+.gcell{background:#fff;border-radius:9px;display:flex;align-items:center;justify-content:center;font-size:18px;
+  box-shadow:0 1px 3px rgba(0,0,0,.08);aspect-ratio:1}
+.gstate{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;
+  text-align:center;padding:24px;color:#fff}
+.gstate.win{background:linear-gradient(160deg,#1f9d57,#15894a)}
+.gstate.lose{background:linear-gradient(160deg,#e8552f,#c8431f)}
+.gstate.out{background:linear-gradient(160deg,#2c3550,#1a2034)}
+.gstate .em{font-size:46px;margin-bottom:10px}
+.gstate h4{margin:0 0 6px;font-size:18px}
+.gstate p{margin:0 0 16px;font-size:12.5px;opacity:.92}
+.gstate .pbtn{background:#fff;color:#1c2430;border:none;border-radius:10px;padding:9px 16px;font-weight:700;font-size:12.5px;margin:3px}
+.gstate .pbtn.sec{background:rgba(255,255,255,.18);color:#fff}
+.reward-chip{background:rgba(255,255,255,.16);border-radius:10px;padding:8px 12px;font-size:12px;margin-bottom:14px}
+
+/* member device frames */
+.devs{display:flex;gap:40px;flex-wrap:wrap;justify-content:center}
+.homecard{position:absolute;left:14px;right:14px;bottom:80px;background:linear-gradient(135deg,#e8552f,#f07a45);
+  color:#fff;border-radius:16px;padding:16px;box-shadow:0 10px 24px rgba(232,85,47,.4)}
+.homecard .t{font-weight:800;font-size:15px}
+.homecard .d{font-size:11.5px;opacity:.92;margin:3px 0 10px}
+.homecard .cta{background:#fff;color:#c8431f;border:none;border-radius:9px;padding:7px 14px;font-weight:800;font-size:12px}
+.appbg{position:absolute;inset:0;background:#fff;display:flex;flex-direction:column}
+.appbg .ahead{background:var(--pp);color:#fff;padding:14px;font-weight:800;font-size:14px;text-align:center}
+.appbg .abody{flex:1;padding:14px;color:var(--soft);font-size:12px}
+.profrow{display:flex;gap:10px;align-items:center;padding:10px;border:1px solid var(--line);border-radius:12px;margin-bottom:10px}
+.profrow .pic{width:38px;height:38px;border-radius:10px;background:var(--pp-soft);display:flex;align-items:center;justify-content:center;font-size:18px}
+
+/* arena */
+.arena{position:absolute;inset:0;background:#fff;display:flex;flex-direction:column}
+.arena .ah{background:#141b2d;color:#fff;padding:14px;text-align:center;font-weight:800;font-size:14px}
+.arena .alist{flex:1;padding:12px;overflow:auto}
+.acard{display:flex;align-items:center;gap:11px;border:1px solid var(--line);border-radius:13px;padding:11px;margin-bottom:10px}
+.acard:hover{border-color:var(--brand);background:var(--brand-soft)}
+.acard .ai{width:40px;height:40px;border-radius:10px;background:var(--pp-soft);display:flex;align-items:center;justify-content:center;font-size:20px}
+.acard .an{font-weight:700;font-size:13px}
+.acard .ad{font-size:11px;color:var(--soft)}
+.acard .ago{margin-left:auto;color:var(--brand);font-weight:800;font-size:18px}
+
+.note{background:var(--brand-soft);border-left:3px solid var(--brand);border-radius:0 10px 10px 0;padding:11px 14px;
+  font-size:12.5px;color:var(--ink);margin:16px 0}
+.note.warn{background:var(--amber-soft);border-left-color:var(--amber)}
+.flag{position:fixed;bottom:14px;right:14px;background:#0f1626;color:#cdd5e6;font-size:11px;padding:8px 12px;
+  border-radius:9px;z-index:50;max-width:230px;line-height:1.4}
+</style>
+</head>
+<body>
+
+<!-- prototype navigator -->
+<div class="protobar">
+  <b>🎮 AI Games — Clickable Prototype</b>
+  <span class="grp">Merchant (Hub 2)</span>
+  <div class="seg" id="nav">
+    <button data-s="empty" class="on">1·Empty</button>
+    <button data-s="scan">2·Scrape+Gaps</button>
+    <button data-s="config">3·Generate+Config</button>
+    <button data-s="table">4·Games table</button>
+    <span class="grp">Member</span>
+    <button data-s="m-home">5·Home card</button>
+    <button data-s="m-arena">6·Arena</button>
+    <button data-s="m-play">7·Play+states</button>
+  </div>
+</div>
+
+<!-- ============ MERCHANT SHELL ============ -->
+<div class="hub" id="hubshell">
+  <div class="main">
+    <div class="topbar">
+      <div class="crumb">Campaign Center / <b>Games</b></div>
+      <div class="me"><span>Pancake Parlour</span><div class="avatar">PP</div></div>
+    </div>
+    <div class="content">
+      <div class="canvas">
+
+        <!-- 1. EMPTY STATE -->
+        <div class="screen" id="s-empty">
+          <div class="empty">
+            <div class="gicon">🎮</div>
+            <h2>Create games for your members</h2>
+            <p class="help">Enter your website URL and Como will build branded mini-games your members can play to win your rewards.</p>
+            <div class="urlrow">
+              <input id="urlInput" type="text" placeholder="https://krispykreme.fr/" value="https://krispykreme.fr/" />
+              <button class="btn" onclick="openConsent()">Generate games</button>
+            </div>
+            <div class="altlink">No website? <button onclick="toggleDrop()">Upload your brand assets instead</button></div>
+            <div class="dropzone hidden" id="drop">
+              <div style="font-size:26px;margin-bottom:8px">📁</div>
+              <b>Drag &amp; drop files here</b><br/>
+              Logos, fonts, product photos, brand guidelines docs, slides — ZIP or folder.<br/><br/>
+              <button class="btn sec sm" onclick="alert('File picker opens (prototype)')">📂 Browse files</button>
+              <div style="margin-top:8px;font-size:11.5px;color:var(--soft)">or ⌘V paste from clipboard</div>
+            </div>
+          </div>
+          <div class="note">Primary path is the URL (dominant CTA). Upload is the visible-but-secondary fallback for merchants with no usable site.</div>
+        </div>
+
+        <!-- 2. SCRAPE GALLERY + GAP-FILL (merged) -->
+        <div class="screen hidden" id="s-scan">
+          <div class="scanhead">
+            <div class="spinner" id="scanSpin"></div>
+            <div>
+              <div class="h1" style="font-size:17px" id="scanTitle">Reading your brand…</div>
+              <div class="sub" style="margin:0" id="scanSub">Scanning pancakeparlour.com.au · this takes about 2 minutes</div>
+            </div>
+          </div>
+          <div class="card gapfill hidden" id="gapPanel" style="padding:20px;margin-bottom:16px">
+            <div style="display:flex;gap:16px;align-items:center">
+              <div style="font-size:30px">🍔</div>
+              <div style="flex:1">
+                <div style="font-weight:700;font-size:14px">Product images <span class="pill p-amber" id="gapPill" style="margin-left:6px">Missing</span></div>
+                <div class="sub" style="margin:4px 0 0">Used to skin game tiles and rewards. 3–8 images recommended.</div>
+              </div>
+              <button class="btn sec" id="gapUploadBtn" onclick="uploadGapImages()">Upload images</button>
+            </div>
+            <div class="cfg-acts" style="margin-top:16px">
+              <button class="btn ghost" onclick="startGen()">Continue with smart defaults</button>
+              <button class="btn" id="gapGenerateBtn" disabled style="opacity:.5;cursor:not-allowed" onclick="startGen()">Generate my games →</button>
+            </div>
+            <div class="note" style="margin-top:14px" id="gapNote">Add product photos to unlock “Generate my games,” or continue with smart defaults.</div>
+          </div>
+          <div class="masonry" id="masonry"></div>
+        </div>
+
+        <!-- 4. GENERATE + CONFIG (combined: agent stream + rows appear progressively) -->
+        <div class="screen hidden" id="s-config">
+          <div style="display:grid;grid-template-columns:1fr 280px;gap:24px;align-items:start">
+            <div>
+              <!-- Agent stream panel (top) -->
+              <div class="card" style="padding:16px;margin-bottom:14px" id="agentPanel">
+                <div style="display:flex;align-items:center;gap:10px;margin-bottom:10px">
+                  <div class="spinner" id="cfgSpinner"></div>
+                  <span style="font-weight:700;font-size:13.5px;color:var(--brand)" id="agentTitle">Game Designer Agent</span>
+                </div>
+                <div id="designerThoughts" style="font-size:12px;color:var(--soft);line-height:1.6;font-family:ui-monospace,monospace;padding:8px 10px;background:var(--bg);border-radius:9px;max-height:120px;overflow-y:auto"></div>
+              </div>
+              <!-- Games list (rows appear as coders finish) -->
+              <div class="tablehead">
+                <div>
+                  <div class="h1" id="cfgTitle">Generating your games…</div>
+                  <div class="sub" style="margin:2px 0 0" id="cfgSub">Games appear below as the coders finish skinning each one.</div>
+                </div>
+              </div>
+              <div class="card gtable" id="configRows"></div>
+              <div class="note">Each game activates on its own (tag- &amp; status-based). No global "publish" — you turn each game on when it's ready.</div>
+            </div>
+            <div style="position:sticky;top:60px">
+              <div class="preview-toggles" id="cfgPrevToggles">
+                <button class="on" onclick="setCfgPrev('play',this)">Game</button>
+                <button onclick="setCfgPrev('win',this)">Win</button>
+                <button onclick="setCfgPrev('lose',this)">Lose</button>
+                <button onclick="setCfgPrev('out',this)">Out of wins</button>
+                <button onclick="setCfgPrev('arena',this)">Arena</button>
+              </div>
+              <div class="phone"><div class="notch"></div><div class="pscreen" id="cfgPhonePreview"></div></div>
+              <button class="btn sm" style="width:100%;margin-top:10px" onclick="tryGame()">🎮 Try this game</button>
+              <div class="preview-cap">Live preview · click a row to switch game</div>
+            </div>
+          </div>
+        </div>
+
+        <!-- 5. GAMES TABLE -->
+        <div class="screen hidden" id="s-table">
+          <div style="display:grid;grid-template-columns:1fr 280px;gap:24px;align-items:start">
+            <div>
+              <div class="tablehead">
+                <div>
+                  <div class="h1">Games <span class="pill p-amber" style="margin-left:8px">3/3 used</span></div>
+                  <div class="sub" style="margin:2px 0 0">Brand assets last refreshed: 30 Jun 2026</div>
+                </div>
+                <div class="grow"></div>
+                <button class="btn" id="genMoreBtn" onclick="openFakeDoor()">+ Generate More Games</button>
+              </div>
+              <div class="card gtable" id="tableRows"></div>
+            </div>
+            <div style="position:sticky;top:60px">
+              <div class="preview-toggles" id="tblPrevToggles">
+                <button class="on" onclick="setTblPrev('play',this)">Game</button>
+                <button onclick="setTblPrev('win',this)">Win</button>
+                <button onclick="setTblPrev('lose',this)">Lose</button>
+                <button onclick="setTblPrev('out',this)">Out of wins</button>
+                <button onclick="setTblPrev('arena',this)">Arena</button>
+              </div>
+              <div class="phone"><div class="notch"></div><div class="pscreen" id="tblPhonePreview"></div></div>
+              <button class="btn sm" style="width:100%;margin-top:10px" onclick="tryGame()">🎮 Try this game</button>
+              <div class="preview-cap">Preview · click a game row to switch</div>
+            </div>
+          </div>
+        </div>
+
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ============ MEMBER SCREENS ============ -->
+<div id="memberShell" class="hidden">
+  <div class="content"><div class="canvas">
+
+    <!-- 7. HOME CARD -->
+    <div class="screen hidden" id="s-m-home">
+      <div class="h1" style="text-align:center">Member · discovery</div>
+      <p class="sub" style="text-align:center">This is what the member sees in their app/portal when they have a <code>game_*_eligible</code> tag. The home card is the primary discovery surface — it appears inline in the member's loyalty app home screen. Tapping it launches the game directly (1 game) or the Arena chooser (2+ games).</p>
+      <div class="note" style="max-width:600px;margin:0 auto 20px">V1 discovery: home card + push/deep-link from campaigns only. No dedicated Games tab in V1.</div>
+      <div class="devs">
+        <div>
+          <div class="phone"><div class="notch"></div><div class="pscreen">
+            <div class="appbg">
+              <div class="ahead">Pancake Parlour</div>
+              <div class="abody">
+                <div class="profrow"><div class="pic">⭐</div><div><div style="font-weight:700;color:var(--ink)">240 points</div><div>Gold member</div></div></div>
+                <div class="profrow"><div class="pic">🎁</div><div><div style="font-weight:700;color:var(--ink)">2 rewards</div><div>Ready to use</div></div></div>
+              </div>
+            </div>
+            <div class="homecard">
+              <div class="t">🎮 Play &amp; win</div>
+              <div class="d">You've unlocked a game. Beat the score to win a reward.</div>
+              <button class="cta" onclick="memberGo('m-play')">Play now</button>
+            </div>
+          </div></div>
+          <div class="preview-cap">Phoenix app · home card</div>
+        </div>
+        <div>
+          <div class="phone"><div class="notch"></div><div class="pscreen">
+            <div class="appbg">
+              <div class="ahead" style="background:#141b2d">Customer Portal</div>
+              <div class="abody">
+                <div style="text-align:center;padding:20px 0;color:var(--soft);font-size:12px">Same hosting service · iframe/route wrapper · token via query param</div>
+              </div>
+            </div>
+            <div class="homecard" style="background:linear-gradient(135deg,#3b5bdb,#6f8bff);box-shadow:0 10px 24px rgba(59,91,219,.4)">
+              <div class="t">🎮 Play &amp; win</div>
+              <div class="d">One game unlocked for you.</div>
+              <button class="cta" style="color:#2c47b8" onclick="memberGo('m-play')">Play now</button>
+            </div>
+          </div></div>
+          <div class="preview-cap">Customer Portal · web</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- 8. ARENA -->
+    <div class="screen hidden" id="s-m-arena">
+      <div class="h1" style="text-align:center">Member · Games Arena</div>
+      <p class="sub" style="text-align:center">Shown only when the member is eligible for 2+ games. One game = skip arena, launch directly.</p>
+      <div class="devs">
+        <div>
+          <div class="phone"><div class="notch"></div><div class="pscreen">
+            <div class="arena">
+              <div class="ah">🎮 Choose a game</div>
+              <div class="alist">
+                <div class="acard" onclick="memberGo('m-play')"><div class="ai">🥞</div><div><div class="an">Short Stack Panic</div><div class="ad">Win: free kids pancake</div></div><div class="ago">›</div></div>
+                <div class="acard" onclick="memberGo('m-play')"><div class="ai">🍯</div><div><div class="an">Syrup Drizzle Dash</div><div class="ad">Win: 15% off next visit</div></div><div class="ago">›</div></div>
+                <div class="acard" onclick="memberGo('m-play')"><div class="ai">🧠</div><div><div class="an">Parlour Memory Match</div><div class="ad">Win: 200 points</div></div><div class="ago">›</div></div>
+              </div>
+            </div>
+          </div></div>
+          <div class="preview-cap">Eligible for 3 games → arena chooser</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- 9. PLAY + STATES -->
+    <div class="screen hidden" id="s-m-play">
+      <div class="h1" style="text-align:center">Member · gameplay &amp; terminal states</div>
+      <p class="sub" style="text-align:center">Tap the buttons under the phone to preview each state.</p>
+      <div class="preview-toggles" style="max-width:420px;margin:0 auto 16px">
+        <button class="on" onclick="setState('play',this)">Game</button>
+        <button onclick="setState('win',this)">Win (wins left)</button>
+        <button onclick="setState('winfinal',this)">Win (final)</button>
+        <button onclick="setState('lose',this)">Lose</button>
+        <button onclick="setState('out',this)">Out of wins</button>
+      </div>
+      <div class="phone" style="margin-bottom:6px"><div class="notch"></div><div class="pscreen" id="memberGame"></div></div>
+      <div class="preview-cap" id="stateCap">Unlimited plays until you win.</div>
+    </div>
+
+  </div></div>
+</div>
+
+<!-- CONSENT MODAL -->
+<div class="modal-bg hidden" id="consent">
+  <div class="modal">
+    <h3>Generate games</h3>
+    <div class="legal" style="font-size:12.5px;line-height:1.7">
+      By providing your website URL for AI Games, you authorize Como to extract publicly available content (such as logos, branding elements, images, and business information) from that URL to generate and customize the look, feel, and content of your games. This content may be stored for reuse by you with other Como features. To delete any stored content, please contact Como support.
+    </div>
+    <div class="acts">
+      <button class="btn sec" onclick="closeConsent()">Cancel</button>
+      <button class="btn" onclick="authorize()">Continue</button>
+    </div>
+    <div class="note" style="margin:16px 0 0">Statement/disclaimer only — no checkbox needed (legal approved). Consent record (merchant, URL, timestamp, user) written to Hub audit table.</div>
+  </div>
+</div>
+
+<!-- ACTIVATE FLOW MODAL (loader → success with rule links + member tag) -->
+<div class="modal-bg hidden" id="activateFlow">
+  <div class="modal" id="activateFlowBox"></div>
+</div>
+
+<!-- AUDIENCE MODAL (Campaign Center "Apply to Members" pattern) -->
+<div class="modal-bg hidden" id="audienceModal">
+  <div class="modal" style="max-width:560px">
+    <div class="aud-header">
+      <h3>Apply to Members</h3>
+      <button onclick="hide('audienceModal')">✕</button>
+    </div>
+    <div style="font-weight:700;font-size:13px;margin-bottom:2px">This activity applies to:</div>
+    <label class="radio-row"><input type="radio" name="audMode" id="audAll" onchange="setAudMode('all')"> All registered members</label>
+    <label class="radio-row"><input type="radio" name="audMode" id="audSpecific" onchange="setAudMode('specific')"> Specific members</label>
+    <div class="aud-filterbox hidden" id="audFilterBox">
+      <div class="lbl">Member whose</div>
+      <div id="audRows"></div>
+      <div class="aud-add">
+        <select id="audAddSelect" onchange="if(this.value){addAudRowWithAttr(this.value);this.value='';}">
+          <option value="">Select member attribute…</option>
+        </select>
+      </div>
+    </div>
+    <div class="acts">
+      <button class="btn sec" onclick="hide('audienceModal')">Cancel</button>
+      <button class="btn" onclick="saveAudience()">Save</button>
+    </div>
+  </div>
+</div>
+
+<!-- FAKE-DOOR MODAL -->
+<div class="modal-bg hidden" id="fakedoor">
+  <div class="modal">
+    <h3>🎮 Request new games for your brand</h3>
+    <div class="legal" style="margin-bottom:16px">Tell us what kind of games you'd like and what member behavior you want to drive. We'll use this to design new templates.</div>
+    <div class="field"><label>What type of game would you like?</label>
+      <select><option>Quiz / trivia</option><option>Puzzle</option><option>Racing / speed</option><option>Card / matching</option><option>Something cultural / regional</option><option>Other (describe below)</option></select>
+    </div>
+    <div class="field"><label>What member behavior should this game drive?</label>
+      <select><option>Visit more often</option><option>Spend more per visit</option><option>Try new menu items</option><option>Refer friends</option><option>Engage during quiet periods</option></select>
+    </div>
+    <div class="field"><label>Anything else?</label>
+      <input placeholder="Optional — describe your ideal game or audience" />
+    </div>
+    <div class="acts">
+      <button class="btn sec" onclick="hide('fakedoor')">Cancel</button>
+      <button class="btn" onclick="hide('fakedoor');alert('✅ Submitted! We\'ll notify you when new games are available.')">Submit request</button>
+    </div>
+    <div class="note" style="margin:14px 0 0">This captures V2 demand signal: game type preference + behavioral intent.</div>
+  </div>
+</div>
+
+<div class="flag" id="flag">Tip: use the top bar to jump between screens. CTAs are wired to advance the flow.</div>
+
+<script>
+/* ---------- game data ---------- */
+const GAMES=[
+  {id:'g1',name:'Short Stack Panic',emoji:'🥞',desc:'Catch falling pancakes to build the tallest stack',score:75,wins:'1 time',reward:'Free Kids Pancake'},
+  {id:'g2',name:'Syrup Drizzle Dash',emoji:'🍯',desc:'Drizzle syrup while dodging spills',score:50,wins:'3 times',reward:'15% off next visit'},
+  {id:'g3',name:'Parlour Memory Match',emoji:'🧠',desc:'Flip cards to match menu pairs',score:90,wins:'1 time',reward:'200 Club points'},
+];
+const EXTRA=[
+  {id:'g4',name:'Flip or Miss',emoji:'🥏',desc:'Time the pancake flip perfectly',score:60,wins:'1 time',reward:'Free coffee'},
+  {id:'g5',name:'Berry Catch',emoji:'🫐',desc:'Catch berries, avoid the pits',score:40,wins:'3 times',reward:'10% off'},
+  {id:'g6',name:'Maple Run',emoji:'🏃',desc:'Endless runner through the diner',score:120,wins:'1 time',reward:'Free topping'},
+];
+let tableGames=[...GAMES.map(g=>({...g,status:'draft'}))];
+
+/* ---------- screen routing ---------- */
+const navBtns=document.querySelectorAll('#nav button[data-s]');
+function setNav(s){navBtns.forEach(b=>b.classList.toggle('on',b.dataset.s===s));}
+function showScreen(s){
+  const member=s.startsWith('m-');
+  document.getElementById('hubshell').classList.toggle('hidden',member);
+  document.getElementById('memberShell').classList.toggle('hidden',!member);
+  document.querySelectorAll('.screen').forEach(el=>el.classList.add('hidden'));
+  const el=document.getElementById('s-'+s); if(el) el.classList.remove('hidden');
+  setNav(s); window.scrollTo({top:0,behavior:'smooth'});
+}
+function go(s){ if(s==='config'){startGen();return;} if(s==='table'){renderTable();initPersistentPreview('tbl');} showScreen(s); }
+navBtns.forEach(b=>b.addEventListener('click',()=>go(b.dataset.s)));
+
+/* ---------- empty / consent ---------- */
+function toggleDrop(){document.getElementById('drop').classList.toggle('hidden');}
+function openConsent(){document.getElementById('consent').classList.remove('hidden');}
+function closeConsent(){document.getElementById('consent').classList.add('hidden');}
+function hide(id){document.getElementById(id).classList.add('hidden');}
+function authorize(){closeConsent();showScreen('scan');runScan();}
+
+/* ---------- scrape gallery ---------- */
+const TILES=[
+  {t:'logo',html:'PANCAKE<br>PARLOUR'},
+  {t:'swatch',c:'#e8552f',cap:'Primary #e8552f'},
+  {t:'img',e:'🥞'},
+  {t:'swatch',c:'#f5b73d',cap:'Accent #f5b73d'},
+  {t:'font',big:'Aa',cap:'Heading — Poppins'},
+  {t:'img',e:'🍓'},
+  {t:'swatch',c:'#3b2a22',cap:'Text #3b2a22'},
+  {t:'img',e:'☕'},
+  {t:'font',big:'Aa',cap:'Body — Inter'},
+  {t:'swatch',c:'#fdeee9',cap:'Surface #fdeee9'},
+  {t:'img',e:'🧇'},
+  {t:'img',e:'🍯'},
+];
+function runScan(){
+  const m=document.getElementById('masonry');m.innerHTML='';
+  document.getElementById('gapPanel').classList.add('hidden');
+  const gp0=document.getElementById('gapPill');if(gp0){gp0.className='pill p-amber';gp0.textContent='Missing';}
+  const gb0=document.getElementById('gapGenerateBtn');if(gb0){gb0.disabled=true;gb0.style.opacity='.5';gb0.style.cursor='not-allowed';}
+  const gu0=document.getElementById('gapUploadBtn');if(gu0){gu0.disabled=false;gu0.textContent='Upload images';}
+  document.getElementById('scanSpin').classList.remove('hidden');
+  document.getElementById('scanTitle').textContent='Reading your brand…';
+  document.getElementById('scanSub').textContent='Scanning pancakeparlour.com.au · this takes about 2 minutes';
+  let i=0;
+  const iv=setInterval(()=>{
+    if(i>=TILES.length){clearInterval(iv);finishScan();return;}
+    const t=TILES[i];const d=document.createElement('div');d.className='tile '+t.t;d.style.animationDelay='0s';
+    if(t.t==='logo')d.innerHTML=t.html+'<button class="remove-btn" onclick="this.parentElement.remove()">✕</button>';
+    else if(t.t==='swatch')d.innerHTML='<div class="swatch" style="background:'+t.c+'"></div><div class="cap">'+t.cap+'</div><button class="remove-btn" onclick="this.parentElement.remove()">✕</button>';
+    else if(t.t==='font')d.innerHTML='<div class="big">'+t.big+'</div><div class="cap">'+t.cap+'</div><button class="remove-btn" onclick="this.parentElement.remove()">✕</button>';
+    else if(t.t==='img')d.innerHTML='<div class="img">'+t.e+'</div><button class="remove-btn" onclick="this.parentElement.remove()">✕</button>';
+    m.appendChild(d);i++;
+  },230);
+}
+function finishScan(){
+  document.getElementById('scanSpin').classList.add('hidden');
+  document.getElementById('scanTitle').textContent='Found 76 assets · 12 colors · 2 fonts';
+  document.getElementById('scanSub').textContent='Couldn\u2019t pull clean product photos — fill the gap below or continue with smart defaults';
+  document.getElementById('gapPanel').classList.remove('hidden');
+}
+function uploadGapImages(){
+  const btn=document.getElementById('gapUploadBtn');btn.disabled=true;btn.textContent='Uploading…';
+  document.getElementById('scanSpin').classList.remove('hidden');
+  document.getElementById('scanTitle').textContent='Adding your uploaded photos…';
+  document.getElementById('scanSub').textContent='Continuing the brand scan with your product images';
+  const NEW_TILES=[{e:'🍓'},{e:'🥞'},{e:'🧇'}];
+  const m=document.getElementById('masonry');
+  let i=0;
+  const iv=setInterval(()=>{
+    if(i>=NEW_TILES.length){clearInterval(iv);finishGapUpload();return;}
+    const d=document.createElement('div');d.className='tile img';d.style.animationDelay='0s';
+    d.innerHTML='<div class="img">'+NEW_TILES[i].e+'</div><button class="remove-btn" onclick="this.parentElement.remove()">✕</button>';
+    m.insertBefore(d,m.firstChild);
+    i++;
+  },260);
+}
+function finishGapUpload(){
+  document.getElementById('scanSpin').classList.add('hidden');
+  document.getElementById('scanTitle').textContent='Found 79 assets · 12 colors · 2 fonts';
+  document.getElementById('scanSub').textContent='All set — product images added';
+  const gp=document.getElementById('gapPill');gp.className='pill p-green';gp.textContent='✓ Added';
+  const gb=document.getElementById('gapGenerateBtn');gb.disabled=false;gb.style.opacity='';gb.style.cursor='';
+  const gu=document.getElementById('gapUploadBtn');gu.textContent='✓ Images added';
+}
+
+/* ---------- config + table rows ---------- */
+function slugify(str){return str.toLowerCase().replace(/[^a-z0-9]+/g,'_').replace(/^_+|_+$/g,'');}
+function kebabItemsFor(g,ctx){
+  if(g.status==='draft'||g.status==='disabled'){
+    return '<button onclick="event.stopPropagation();closeKebabs();askActivate(\''+g.id+'\',\''+ctx+'\')">▶ Activate</button>'
+         + '<button onclick="event.stopPropagation();closeKebabs();archiveGame(\''+g.id+'\',\''+ctx+'\')">📦 Archive</button>';
+  }
+  if(g.status==='active'){
+    return '<button onclick="event.stopPropagation();closeKebabs();deactivateGame(\''+g.id+'\',\''+ctx+'\')">⏸ Deactivate</button>'
+         + '<button onclick="event.stopPropagation();closeKebabs();archiveGame(\''+g.id+'\',\''+ctx+'\')">📦 Archive</button>';
+  }
+  if(g.status==='archived'){
+    return '<button onclick="event.stopPropagation();closeKebabs();unarchiveGame(\''+g.id+'\',\''+ctx+'\')">↩ Move to Draft</button>';
+  }
+  return '';
+}
+function toggleKebab(key){
+  const menu=document.getElementById('kebab-'+key);
+  const wasOpen=menu&&!menu.classList.contains('hidden');
+  closeKebabs();
+  if(menu&&!wasOpen)menu.classList.remove('hidden');
+}
+function closeKebabs(){document.querySelectorAll('.kebab-menu').forEach(m=>m.classList.add('hidden'));}
+document.addEventListener('click',function(e){ if(!e.target.closest('.kebab-wrap'))closeKebabs(); });
+
+function rowHTML(g,ctx){
+  const statusPill = g.status==='active'?'<span class="pill p-green"><span class="dotpulse"></span>Active</span>'
+    : g.status==='disabled'?'<span class="pill p-red">Disabled</span>'
+    : g.status==='generating'?'<span class="pill p-brand"><span class="dotpulse"></span>Generating…</span>'
+    : g.status==='archived'?'<span class="pill p-gray" style="opacity:.6">📦 Archived</span>'
+    : '<span class="pill p-gray">Draft</span>';
+  const rowOpacity = g.status==='archived'?'opacity:.55;':'';
+  const alwaysOpen = ctx==='cfg';
+  const mainClick = alwaysOpen ? `selectGame('${ctx}','${g.id}')` : `selectGame('${ctx}','${g.id}');toggleRow('${ctx}','${g.id}')`;
+  const key=ctx+'-'+g.id;
+  const tag='game_eligible_'+slugify(g.name);
+  const headerAction = alwaysOpen
+    ? ((g.status==='draft'||g.status==='disabled')?'<button class="btn green sm" onclick="event.stopPropagation();askActivate(\''+g.id+'\',\''+ctx+'\')">▶ Activate</button>':'')
+    : `<div class="kebab-wrap">
+         <button class="kebab-btn" onclick="event.stopPropagation();toggleKebab('${key}')">⋮</button>
+         <div class="kebab-menu hidden" id="kebab-${key}">${kebabItemsFor(g,ctx)}</div>
+       </div>`;
+  return `
+  <div class="grow-row${alwaysOpen?' open':''}" id="row-${ctx}-${g.id}" style="${rowOpacity}">
+    <div class="grow-main" onclick="${mainClick}">
+      <div class="gthumb" style="background:var(--pp-soft)">${g.emoji}</div>
+      <div>
+        <div class="gname">${g.name}</div>
+        <div class="gmeta">${g.desc}</div>
+      </div>
+      <div class="right">${statusPill}${headerAction}${alwaysOpen?'':'<span class="chev">▶</span>'}</div>
+    </div>
+    <div class="expand">
+      <div>
+        <div class="field-grid">
+          <div class="field"><label>Game name</label><input value="${g.name}"/></div>
+          <div class="field"><label>Score to win</label><input value="${g.score}"/>
+            <div class="hint">Higher = harder, fewer wins.</div></div>
+          <div class="field"><label>Wins allowed per member</label>
+            <select><option>1 time</option><option>3 times</option><option>5 times</option><option>10 times</option><option>Unlimited</option></select>
+            <div class="hint">Game disappears for a member after this many wins.</div></div>
+          <div class="field"><label>Total member cap</label>
+            <input type="number" value="" placeholder="No limit" />
+            <div class="hint">Leave empty for unlimited.</div></div>
+          <div class="field"><label>Reward</label>
+            <select><option>${g.reward}</option><option>Free coffee</option><option>200 Club points</option><option>+ Create new benefit…</option></select></div>
+          <div class="field"><label>Eligible members</label>
+            <div class="audience-summary" onclick="event.stopPropagation();openAudience('${ctx}','${g.id}')">
+              <span id="audSummary-${ctx}-${g.id}">All registered members</span>
+              <span class="aud-edit">Edit →</span>
+            </div></div>
+        </div>
+        <div class="tag-line">🏷️ <code>${tag}</code> <span>applied to eligible members · used for analytics</span></div>
+      </div>
+    </div>
+  </div>`;
+}
+function renderConfig(){
+  document.getElementById('configRows').innerHTML=GAMES.map(g=>rowHTML({...g,status:'draft'},'cfg')).join('');
+  GAMES.forEach(g=>updateAudSummary('cfg',g.id));
+}
+function renderTable(){
+  document.getElementById('tableRows').innerHTML=tableGames.map(g=>rowHTML(g,'tbl')).join('');
+  tableGames.forEach(g=>updateAudSummary('tbl',g.id));
+}
+function toggleRow(ctx,id){document.getElementById('row-'+ctx+'-'+id).classList.toggle('open');}
+
+/* ---------- game state mock ---------- */
+function gameStateHTML(state,g){
+  if(state==='play')return `<div class="gamewrap"><div class="gtop"><span>SCORE 0/${g?g.score:75}</span><span>❤❤❤</span></div>
+    <div class="gboard">${Array(8).fill('<div class="gcell">'+(g?g.emoji:'🥞')+'</div>').join('')}</div></div>`;
+  if(state==='win')return `<div class="gstate win"><div class="em">🎉</div><h4>You won!</h4>
+    <div class="reward-chip">🎁 ${g?g.reward:'Free Kids Pancake'}</div>
+    <p>Nice one. You can keep playing to win again.</p>
+    <button class="pbtn">Use my reward</button><button class="pbtn sec">Play again</button></div>`;
+  if(state==='winfinal')return `<div class="gstate win"><div class="em">🏅</div><h4>You won!</h4>
+    <div class="reward-chip">🎁 ${g?g.reward:'Free Kids Pancake'}</div>
+    <p>That's your last play for this game. See you next campaign!</p>
+    <button class="pbtn">Use my reward</button></div>`;
+  if(state==='lose')return `<div class="gstate lose"><div class="em">😅</div><h4>So close!</h4>
+    <p>Try again — unlimited tries until you win.</p>
+    <button class="pbtn">Play again</button><button class="pbtn sec">Back to home</button></div>`;
+  if(state==='out')return `<div class="gstate out"><div class="em">🔒</div><h4>Game over for now</h4>
+    <p>You've won this one. Come back when a new game unlocks.</p>
+    <button class="pbtn">Back to home</button></div>`;
+  if(state==='arena')return `<div class="arena"><div class="ah">🎮 Choose a game</div><div class="alist">
+    <div class="acard"><div class="ai">🥞</div><div><div class="an">Short Stack Panic</div><div class="ad">Win: free kids pancake</div></div><div class="ago">›</div></div>
+    <div class="acard"><div class="ai">🍯</div><div><div class="an">Syrup Drizzle Dash</div><div class="ad">Win: 15% off next visit</div></div><div class="ago">›</div></div>
+    <div class="acard"><div class="ai">🧠</div><div><div class="an">Parlour Memory Match</div><div class="ad">Win: 200 points</div></div><div class="ago">›</div></div>
+    </div></div>`;
+}
+function setPrev(ctx,id,state,btn){
+  const g=[...tableGames,...GAMES].find(x=>x.id===id);
+  document.getElementById('prev-'+ctx+'-'+id).innerHTML=gameStateHTML(state,g);
+  btn.parentElement.querySelectorAll('button').forEach(b=>b.classList.remove('on'));btn.classList.add('on');
+}
+
+/* ---------- eligible-members audience (Campaign Center "Apply to Members" pattern) ---------- */
+const AUD_ATTRS=['First Name','Last Name','Gender','Birthday Month','Birthday month and day','Allow Location Services','App User','Generic Wallet 1 Balance','Generic Wallet 2 Balance','Accumulated Credits','Allow Push','Tag','RFM (Auto Segment)','Days Since Last Visit'];
+let audienceState={};
+let pendingAudience=null;
+function openAudience(ctx,id){
+  pendingAudience={ctx,id};
+  const key=ctx+'_'+id;
+  const st=audienceState[key]||{mode:'all',rows:[{attr:'Last Name',op:'is',val:''}]};
+  document.getElementById('audAll').checked = st.mode==='all';
+  document.getElementById('audSpecific').checked = st.mode==='specific';
+  document.getElementById('audFilterBox').classList.toggle('hidden', st.mode!=='specific');
+  renderAudRows(st.rows);
+  document.getElementById('audienceModal').classList.remove('hidden');
+}
+function setAudMode(mode){
+  document.getElementById('audFilterBox').classList.toggle('hidden', mode!=='specific');
+}
+function renderAudRows(rows){
+  document.getElementById('audRows').innerHTML = rows.map((r,i)=>`
+    <div class="aud-row">
+      <select data-f="attr">${AUD_ATTRS.map(a=>`<option ${a===r.attr?'selected':''}>${a}</option>`).join('')}</select>
+      <select data-f="op">
+        <option ${r.op==='is'?'selected':''}>is</option>
+        <option ${r.op==='is not'?'selected':''}>is not</option>
+        <option ${r.op==='contains'?'selected':''}>contains</option>
+      </select>
+      <input data-f="val" value="${r.val||''}" placeholder="value"/>
+      <button class="aud-remove" onclick="removeAudRow(${i})">✕</button>
+    </div>`).join('');
+}
+function currentAudRows(){
+  return [...document.querySelectorAll('#audRows .aud-row')].map(r=>({
+    attr:r.querySelector('[data-f="attr"]').value,
+    op:r.querySelector('[data-f="op"]').value,
+    val:r.querySelector('[data-f="val"]').value
+  }));
+}
+function addAudRowWithAttr(attr){
+  const rows=currentAudRows();
+  rows.push({attr,op:'is',val:''});
+  renderAudRows(rows);
+}
+function removeAudRow(i){
+  const rows=currentAudRows();
+  rows.splice(i,1);
+  renderAudRows(rows.length?rows:[{attr:'Last Name',op:'is',val:''}]);
+}
+function saveAudience(){
+  const mode=document.getElementById('audSpecific').checked?'specific':'all';
+  const rows=currentAudRows();
+  const key=pendingAudience.ctx+'_'+pendingAudience.id;
+  audienceState[key]={mode,rows};
+  updateAudSummary(pendingAudience.ctx,pendingAudience.id);
+  hide('audienceModal');
+}
+function updateAudSummary(ctx,id){
+  const key=ctx+'_'+id;
+  const st=audienceState[key];
+  const el=document.getElementById('audSummary-'+ctx+'-'+id);
+  if(!el)return;
+  if(!st||st.mode==='all'){el.textContent='All registered members';return;}
+  const first=st.rows[0];
+  let txt = first? (first.attr+' '+first.op+' '+(first.val||'…')) : 'condition set';
+  if(st.rows.length>1) txt += ' +'+(st.rows.length-1)+' more';
+  el.textContent='Specific: '+txt;
+}
+
+/* ---------- activation flow: loader → success (rule links + member tag) ---------- */
+let pending=null;
+function askActivate(id,ctx){
+  pending={id,ctx};
+  const g=[...tableGames,...GAMES].find(x=>x.id===id);
+  document.getElementById('activateFlow').classList.remove('hidden');
+  renderActivateLoading(g);
+  setTimeout(()=>renderActivateSuccess(g),1400);
+}
+function renderActivateLoading(g){
+  document.getElementById('activateFlowBox').innerHTML = `
+    <div style="text-align:center;padding:10px 6px 4px">
+      <div class="spinner" style="margin:0 auto 16px;width:26px;height:26px"></div>
+      <h3 style="margin:0 0 6px">Activating "${g.name}"…</h3>
+      <p style="color:var(--soft);font-size:13px;margin:0">Creating the eligibility rule and reward rule in Campaign Center…</p>
+    </div>`;
+}
+function renderActivateSuccess(g){
+  if(pending.ctx==='cfg'){
+    tableGames=GAMES.map(x=>({...x,status:x.id===pending.id?'active':'draft'}));
+  }else{
+    const gg=tableGames.find(x=>x.id===pending.id); if(gg)gg.status='active';
+  }
+  renderTable();
+  const key=pending.ctx+'_'+pending.id;
+  const st=audienceState[key];
+  const audText = (!st||st.mode==='all') ? 'All registered members'
+    : ('Specific members · '+(st.rows[0]?st.rows[0].attr+' '+st.rows[0].op+' '+(st.rows[0].val||'…'):'condition set'));
+  const tag='game_eligible_'+slugify(g.name);
+  document.getElementById('activateFlowBox').innerHTML = `
+    <h3>✅ "${g.name}" is live</h3>
+    <div class="legal" style="margin-bottom:14px">Two rules were created in Campaign Center, tagged <span class="pill p-brand" style="margin-left:2px">Managed by Games</span>.</div>
+    <div class="card act-rule-card">
+      <div class="ic">🎯</div>
+      <div style="flex:1"><div class="ttl">Eligibility rule</div><div class="sub2">${audText}</div></div>
+      <a href="#" onclick="alert('Opens rule in Campaign Center (prototype)');return false;">View rule →</a>
+    </div>
+    <div class="card act-rule-card">
+      <div class="ic">🎁</div>
+      <div style="flex:1"><div class="ttl">Reward rule</div><div class="sub2">GAME_WIN → ${g.reward}</div></div>
+      <a href="#" onclick="alert('Opens rule in Campaign Center (prototype)');return false;">View rule →</a>
+    </div>
+    <div class="field" style="margin-top:14px">
+      <label>Member tag (for analytics)</label>
+      <div style="background:var(--graypill);border-radius:8px;padding:8px 11px;font-family:ui-monospace,monospace;font-size:12.5px">${tag}</div>
+      <div class="hint">Applied on eligibility, removed on final win. Use to segment or report in analytics.</div>
+    </div>
+    <div class="acts"><button class="btn" onclick="hide('activateFlow');finishActivateFlow()">Done</button></div>`;
+}
+function finishActivateFlow(){
+  if(pending && pending.ctx==='cfg'){ go('table'); }
+  pending=null;
+}
+function deactivateGame(id,ctx){const g=tableGames.find(x=>x.id===id);if(g)g.status='disabled';renderTable();}
+function archiveGame(id,ctx){const g=tableGames.find(x=>x.id===id);if(g)g.status='archived';renderTable();}
+function unarchiveGame(id,ctx){const g=tableGames.find(x=>x.id===id);if(g)g.status='draft';renderTable();}
+
+/* ---------- generate more (lazy rows) ---------- */
+let extraIdx=0;
+function generateMore(){
+  const batch=EXTRA.slice(extraIdx,extraIdx+3).map(g=>({...g,status:'generating'}));
+  if(batch.length===0){openFakeDoor();return;}
+  tableGames=[...tableGames,...batch];extraIdx+=3;renderTable();
+  // simulate streaming completion
+  const lines=['Game Designer picking templates…','Skinning game 1…','Skinning game 2…','Finalizing…'];
+  batch.forEach((b,k)=>{
+    setTimeout(()=>{const g=tableGames.find(x=>x.id===b.id);if(g)g.status='draft';renderTable();
+      if(extraIdx>=EXTRA.length && k===batch.length-1){/* near max */}},1800+k*700);
+  });
+}
+
+/* ---------- gap-fill → generation (combined into config screen) ---------- */
+function startGen(){
+  showScreen('config');
+  // reset config screen to generating state
+  document.getElementById('configRows').innerHTML='';
+  document.getElementById('cfgTitle').textContent='Generating your games…';
+  document.getElementById('cfgSub').textContent='Games appear below as the Game Designer delegates to coders.';
+  document.getElementById('agentPanel').classList.remove('hidden');
+  document.getElementById('cfgSpinner').style.display='';
+  document.getElementById('designerThoughts').innerHTML='';
+  initPersistentPreview('cfg');
+  runGenerating();
+}
+
+/* ---------- generating flow (streams into config screen) ---------- */
+const DESIGNER_THOUGHTS=[
+  'Analyzing brand personality… Pancake Parlour is warm, family-friendly, Australian.',
+  'Menu items detected: pancakes, waffles, berries, syrup, coffee, shakes.',
+  'Best mechanics for food brands: catching, stacking, memory matching.',
+  'Selecting 3 templates from the bank…',
+  '→ Delegating "Short Stack Panic" (catch & stack) to Coder 1…',
+  '→ Delegating "Syrup Drizzle Dash" (dodge & drizzle) to Coder 2…',
+  '→ Delegating "Parlour Memory Match" (card flip) to Coder 3…',
+];
+function runGenerating(){
+  const dt=document.getElementById('designerThoughts'); dt.innerHTML='';
+  let di=0;
+  const dIv=setInterval(()=>{
+    if(di>=DESIGNER_THOUGHTS.length){clearInterval(dIv);finishGenerating();return;}
+    dt.innerHTML+='<div style="margin-bottom:3px">› '+DESIGNER_THOUGHTS[di]+'</div>';
+    dt.scrollTop=dt.scrollHeight;
+    // When designer delegates a game (lines 4,5,6), add a generating row
+    if(di===4) addGenRow(GAMES[0]);
+    if(di===5) addGenRow(GAMES[1]);
+    if(di===6) addGenRow(GAMES[2]);
+    di++;
+  },500);
+}
+function addGenRow(g){
+  const rows=document.getElementById('configRows');
+  const row=document.createElement('div');row.className='grow-row';row.id='genrow-'+g.id;
+  row.innerHTML=`<div class="grow-main" style="opacity:.7">
+    <div class="gthumb shimmer" style="background:var(--brand-soft)">${g.emoji}</div>
+    <div><div class="gname">${g.name}</div><div class="genline"><div class="dotpulse" style="color:var(--brand)"></div> Coder skinning…</div></div>
+    <div class="right"><span class="pill p-brand"><span class="dotpulse"></span>Generating…</span></div>
+  </div>`;
+  rows.appendChild(row);
+}
+function finishGenerating(){
+  // After a brief pause, replace generating rows with real config rows
+  setTimeout(()=>{
+    document.getElementById('cfgSpinner').style.display='none';
+    document.getElementById('agentTitle').textContent='✅ Game Designer done — 3 games ready';
+    document.getElementById('cfgTitle').textContent='Your games are ready 🎉';
+    document.getElementById('cfgSub').textContent='Configure each game, preview it on the right, then activate.';
+    renderConfig();
+    initPersistentPreview('cfg');
+  },800);
+}
+
+/* ---------- persistent phone preview ---------- */
+let selectedGameId='g1';
+const ALL_GAMES=[...GAMES,...EXTRA];
+function selectGame(ctx,id){
+  selectedGameId=id;
+  const target=ctx==='cfg'?'cfgPhonePreview':'tblPhonePreview';
+  const g=[...tableGames,...GAMES,...EXTRA].find(x=>x.id===id);
+  if(g && document.getElementById(target)) document.getElementById(target).innerHTML=gameStateHTML('play',g);
+}
+function setCfgPrev(state,btn){
+  const g=[...GAMES,...EXTRA].find(x=>x.id===selectedGameId)||GAMES[0];
+  document.getElementById('cfgPhonePreview').innerHTML=gameStateHTML(state,g);
+  btn.parentElement.querySelectorAll('button').forEach(b=>b.classList.remove('on'));btn.classList.add('on');
+}
+function setTblPrev(state,btn){
+  const g=[...tableGames,...EXTRA].find(x=>x.id===selectedGameId)||tableGames[0];
+  document.getElementById('tblPhonePreview').innerHTML=gameStateHTML(state,g);
+  btn.parentElement.querySelectorAll('button').forEach(b=>b.classList.remove('on'));btn.classList.add('on');
+}
+function initPersistentPreview(ctx){
+  const target=ctx==='cfg'?'cfgPhonePreview':'tblPhonePreview';
+  const g=GAMES[0];selectedGameId=g.id;
+  if(document.getElementById(target)) document.getElementById(target).innerHTML=gameStateHTML('play',g);
+}
+
+/* ---------- fake door ---------- */
+function openFakeDoor(){document.getElementById('fakedoor').classList.remove('hidden');}
+
+/* ---------- try game (interactive mini-game in phone frame) ---------- */
+function tryGame(){
+  const g=[...ALL_GAMES].find(x=>x.id===selectedGameId)||GAMES[0];
+  const targets=['cfgPhonePreview','tblPhonePreview'];
+  const target=targets.find(t=>document.getElementById(t)&&document.getElementById(t).closest('.screen:not(.hidden)'));
+  const el=document.getElementById(target||'cfgPhonePreview');
+  if(!el)return;
+  let score=0;const needed=g.score;
+  el.innerHTML=`<div class="gamewrap" id="tryGameWrap">
+    <div class="gtop"><span id="tryScore">SCORE ${score}/${needed}</span><span>❤❤❤</span></div>
+    <div class="gboard" id="tryBoard" style="cursor:pointer">${Array(8).fill('<div class="gcell" style="transition:transform .1s">'+g.emoji+'</div>').join('')}</div>
+  </div>`;
+  const board=document.getElementById('tryBoard');
+  board.querySelectorAll('.gcell').forEach(cell=>{
+    cell.addEventListener('click',function(){
+      cell.style.transform='scale(1.3)';
+      setTimeout(()=>cell.style.transform='',150);
+      score+=Math.floor(needed/6);
+      document.getElementById('tryScore').textContent='SCORE '+Math.min(score,needed)+'/'+needed;
+      if(score>=needed){
+        el.innerHTML=gameStateHTML('win',g);
+      }
+    });
+  });
+}
+
+/* ---------- member screens ---------- */
+function memberGo(s){showScreen(s);if(s==='m-play')renderMemberGame('play');}
+function renderMemberGame(state){document.getElementById('memberGame').innerHTML=gameStateHTML(state,GAMES[0]);}
+function setState(state,btn){
+  renderMemberGame(state);
+  btn.parentElement.querySelectorAll('button').forEach(b=>b.classList.remove('on'));btn.classList.add('on');
+  const caps={play:'Unlimited plays until you win.',win:'GAME_WIN → CC reward rule grants the reward · member stays tagged.',
+    winfinal:'Final allowed win → member is untagged · game leaves their surfaces.',
+    lose:'Play count +1 (analytics only) · no gating.',out:'Member already won max times · untagged.'};
+  document.getElementById('stateCap').textContent=caps[state];
+}
+
+/* init */
+document.getElementById('audAddSelect').innerHTML = '<option value="">Select member attribute…</option>' + AUD_ATTRS.map(a=>`<option>${a}</option>`).join('');
+showScreen('empty');
+setTimeout(()=>document.getElementById('flag').style.display='none',9000);
+</script>
+
+<!-- ═══ Comment Widget v2 — no prompt(), Copilot Annotation style ═══ -->
+<style>
+#hc-fab{position:fixed;bottom:20px;right:20px;z-index:100000;display:flex;flex-direction:column;align-items:flex-end;gap:8px}
+#hc-add-btn{padding:10px 18px;background:#2c3e8f;color:#fff;border:none;border-radius:24px;cursor:pointer;font-size:13px;font-weight:700;box-shadow:0 2px 10px rgba(44,62,143,.35);transition:background .15s;font-family:-apple-system,sans-serif}
+#hc-add-btn.hc-on{background:#c43d4b}
+#hc-refresh-btn{padding:6px 14px;background:rgba(255,255,255,.95);color:#2c3e8f;border:1.5px solid #c3d0f8;border-radius:24px;cursor:pointer;font-size:12px;font-weight:600;font-family:-apple-system,sans-serif}
+body.hc-mode,body.hc-mode *{cursor:url("data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' width='32' height='32'><text y='24' font-size='24'>💬</text></svg>") 4 28,auto!important}
+/* Hover highlight overlay (DevTools-style inspect) */
+#hc-highlight{position:absolute;pointer-events:none;z-index:99980;border:2px solid #6366f1;background:rgba(99,102,241,.08);border-radius:3px;transition:all .06s ease-out;display:none}
+#hc-highlight-label{position:absolute;pointer-events:none;z-index:99981;background:#6366f1;color:#fff;font-size:10.5px;font-weight:700;font-family:"SF Mono",ui-monospace,monospace;padding:2px 6px;border-radius:3px;white-space:nowrap;display:none}
+.hc-pin{position:absolute;z-index:99990}
+.hc-pin-btn{width:28px;height:28px;background:#c43d4b;color:#fff;border:none;border-radius:50%;cursor:pointer;font-size:12px;font-weight:800;font-family:-apple-system,sans-serif;box-shadow:0 2px 8px rgba(0,0,0,.3);transition:transform .15s;display:flex;align-items:center;justify-content:center;padding:0}
+.hc-pin-btn:hover{transform:scale(1.2)}
+#hc-modal{display:none;position:fixed;inset:0;background:rgba(0,0,0,.5);z-index:999999;align-items:center;justify-content:center}
+#hc-modal.open{display:flex}
+#hc-modal-box{background:#fff;border-radius:12px;padding:24px;max-width:400px;width:90%;box-shadow:0 8px 32px rgba(0,0,0,.2);font-family:-apple-system,sans-serif}
+#hc-modal-box h3{margin:0 0 8px;font-size:15px;color:#1a202c}
+#hc-modal-box p{margin:0 0 14px;font-size:13px;color:#555;line-height:1.5}
+#hc-modal-box code{background:#f0f2f7;padding:2px 5px;border-radius:4px;font-size:12px}
+#hc-modal-box input{width:100%;padding:9px 11px;border:1.5px solid #e2e8f0;border-radius:7px;font-size:13px;box-sizing:border-box;margin-bottom:8px;font-family:inherit}
+#hc-modal-box input:focus{outline:none;border-color:#2c3e8f}
+.hc-modal-btns{display:flex;gap:8px;justify-content:flex-end;margin-top:8px}
+.hc-btn-s{padding:7px 14px;background:#f7f8fa;border:1.5px solid #e2e8f0;border-radius:7px;cursor:pointer;font-size:13px;font-weight:600;font-family:inherit}
+.hc-btn-p{padding:7px 14px;background:#2c3e8f;color:#fff;border:none;border-radius:7px;cursor:pointer;font-size:13px;font-weight:700;font-family:inherit}
+.hc-ann-panel{position:fixed;width:min(300px,calc(100vw - 24px));border:1px solid rgba(255,255,255,.1);border-radius:8px;background:#1f1f1f;color:#f7fafc;box-shadow:0 16px 34px rgba(7,13,25,.4);z-index:99995;font-family:-apple-system,sans-serif}
+.hc-ann-sec{padding:10px;border-bottom:1px solid rgba(255,255,255,.08)}
+.hc-ann-foot{padding:10px;display:flex;align-items:center;justify-content:flex-end;gap:8px}
+.hc-ctx-card{background:rgba(12,17,24,.72);border:1px solid rgba(255,255,255,.1);border-radius:6px;padding:7px 9px;font-size:12px;color:rgba(247,250,252,.8);font-family:"SF Mono",monospace;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.hc-ctx-sub{font-size:11px;color:rgba(247,250,252,.45);margin-top:5px;font-style:italic;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.hc-ann-ta{width:100%;min-height:76px;padding:9px 10px;background:rgba(12,17,24,.72);border:1px solid rgba(255,255,255,.12);border-radius:6px;color:#f7fafc;font-size:13px;font-family:-apple-system,sans-serif;resize:vertical;box-sizing:border-box}
+.hc-ann-ta:focus{outline:none;border-color:#4a7fff}
+.hc-ann-ta.err{border-color:#c43d4b}
+.hc-ann-btn{padding:6px 12px;border-radius:5px;font-size:12px;font-weight:600;cursor:pointer;font-family:inherit;border:1px solid rgba(255,255,255,.14)}
+.hc-ann-cancel{background:transparent;color:rgba(247,250,252,.8)}
+.hc-ann-save{background:linear-gradient(135deg,#4a7fff,#2c5fe0);border-color:#2c5fe0;color:#fff}
+.hc-cbubble{position:fixed;width:min(260px,calc(100vw - 24px));background:#1f1f1f;border:1px solid rgba(255,255,255,.1);border-radius:8px;padding:12px;z-index:99994;font-family:-apple-system,sans-serif;box-shadow:0 8px 24px rgba(0,0,0,.4)}
+.hc-cb-name{font-size:11px;font-weight:700;color:#4a7fff;margin-bottom:3px}
+.hc-cb-ctx{font-size:10.5px;color:rgba(247,250,252,.45);margin-bottom:6px;font-style:italic;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.hc-cb-text{font-size:13px;color:#f7fafc;line-height:1.45}
+#hc-toast{position:fixed;bottom:80px;right:20px;background:#1f1f1f;color:#f7fafc;padding:10px 16px;border-radius:8px;font-size:13px;font-family:-apple-system,sans-serif;box-shadow:0 4px 16px rgba(0,0,0,.3);z-index:100001;pointer-events:none}
+</style>
+<div id="hc-fab">
+  <button id="hc-refresh-btn">↺ Refresh</button>
+  <button id="hc-add-btn">� Add comment</button>
+</div>
+<div id="hc-highlight"></div>
+<div id="hc-highlight-label"></div>
+<div id="hc-modal">
+  <div id="hc-modal-box">
+    <h3>🔑 One-time GitHub setup</h3>
+    <p>Please paste the password Gal sent you over Slack.</p>
+    <input id="hc-tok" type="password" placeholder="Paste token here (stays in your browser only)"/>
+    <input id="hc-nam" type="text" placeholder="Your name (e.g. Gal, Roy, Kobi)"/>
+    <div class="hc-modal-btns">
+      <button class="hc-btn-s" id="hc-cancel">Cancel</button>
+      <button class="hc-btn-p" id="hc-save">Save &amp; continue</button>
+    </div>
+  </div>
+</div>
+<script>(function(){
+  var REPO='galcohen-ctrl/html-commnet',PAGE='prototype',activePanel=null;
+  function gTok(){return localStorage.getItem('hc_tok')||'';}
+  function sTok(t){localStorage.setItem('hc_tok',t.trim());}
+  function gName(){return localStorage.getItem('hc_name')||'Reviewer';}
+  function escH(s){var d=document.createElement('div');d.textContent=s;return d.innerHTML;}
+  var mode=false;
+  var addBtn=document.getElementById('hc-add-btn');
+  var refreshBtn=document.getElementById('hc-refresh-btn');
+  var modal=document.getElementById('hc-modal');
+
+  document.getElementById('hc-cancel').onclick=function(){modal.classList.remove('open');};
+  document.getElementById('hc-save').onclick=function(){
+    var t=document.getElementById('hc-tok').value.trim();
+    var n=document.getElementById('hc-nam').value.trim();
+    if(!t){showToast('Please paste your GitHub token first.');return;}
+    sTok(t);if(n)localStorage.setItem('hc_name',n);
+    modal.classList.remove('open');enterMode();
+  };
+
+  function enterMode(){mode=true;addBtn.textContent='💬 Click to comment';addBtn.classList.add('hc-on');document.body.classList.add('hc-mode');}
+  function exitMode(){mode=false;addBtn.textContent='💬 Add comment';addBtn.classList.remove('hc-on');document.body.classList.remove('hc-mode');hideHighlight();}
+
+  /* Escape key exits pin mode */
+  document.addEventListener('keydown',function(e){
+    if(e.key==='Escape'){
+      if(activePanel){closePanels();return;}
+      if(mode){exitMode();closePanels();}
+    }
+  });
+
+  /* Hover highlight (DevTools inspect style) */
+  var hl=document.getElementById('hc-highlight');
+  var hlLabel=document.getElementById('hc-highlight-label');
+  var lastHovered=null;
+
+  function showHighlight(el){
+    if(!el||el===document.body||el===document.documentElement)return hideHighlight();
+    if(el===lastHovered)return;
+    lastHovered=el;
+    var r=el.getBoundingClientRect();
+    hl.style.left=(r.left+window.scrollX)+'px';
+    hl.style.top=(r.top+window.scrollY)+'px';
+    hl.style.width=r.width+'px';
+    hl.style.height=r.height+'px';
+    hl.style.display='block';
+    /* Label */
+    var tag=el.tagName.toLowerCase();
+    var id=el.id?'#'+el.id:'';
+    var cls=el.className&&typeof el.className==='string'?'.'+el.className.trim().split(/\s+/).slice(0,2).join('.'):'';
+    hlLabel.textContent=tag+id+cls;
+    hlLabel.style.left=(r.left+window.scrollX)+'px';
+    hlLabel.style.top=(r.top+window.scrollY-18)+'px';
+    if(r.top<20)hlLabel.style.top=(r.bottom+window.scrollY+4)+'px';
+    hlLabel.style.display='block';
+  }
+  function hideHighlight(){hl.style.display='none';hlLabel.style.display='none';lastHovered=null;}
+
+  document.addEventListener('mousemove',function(e){
+    if(!mode)return;
+    if(e.target.closest('#hc-fab')||e.target.closest('#hc-modal')){hideHighlight();return;}
+    var el=document.elementFromPoint(e.clientX,e.clientY);
+    if(el&&(el.id==='hc-highlight'||el.id==='hc-highlight-label'))el=null;
+    if(el)showHighlight(el);
+  });
+
+  addBtn.addEventListener('click',function(e){
+    e.stopPropagation();
+    if(mode){exitMode();closePanels();return;}
+    if(!gTok()){modal.classList.add('open');return;}
+    enterMode();
+  });
+
+  /* Get the currently visible screen id (e.g. "empty","scan","config") */
+  function currentScreen(){
+    var s=document.querySelector('.screen:not(.hidden)');
+    return s?s.id.replace('s-',''):'unknown';
+  }
+
+  document.addEventListener('click',function(e){
+    if(!mode)return;
+    if(e.target.closest('#hc-fab')||e.target.closest('#hc-modal'))return;
+    e.preventDefault();e.stopImmediatePropagation();
+    exitMode();
+    hideHighlight();
+    var cx=e.clientX,cy=e.clientY;
+    var px=Math.round(e.pageX),py=Math.round(e.pageY);
+    var screen=currentScreen();
+    var selector='',ctx='';
+    try{
+      var el=document.elementFromPoint(cx,cy);
+      if(el){
+        var tag=el.tagName.toLowerCase();
+        var idStr=el.id?'#'+el.id:'';
+        var clsStr=el.className&&typeof el.className==='string'?'.'+el.className.trim().split(/\s+/).slice(0,2).join('.'):'';
+        selector=tag+(idStr||clsStr).slice(0,30);
+        var nearest=el.closest('h1,h2,h3,h4,h5,td,th,li,p,button,label');
+        ctx=((nearest||el).textContent||'').trim().slice(0,80);
+      }
+    }catch(_){}
+    showAnnotationPanel(cx,cy,px,py,selector,ctx,screen);
+  });
+
+  function showAnnotationPanel(cx,cy,px,py,selector,ctx,screen){
+    closePanels();
+    var panel=document.createElement('div');
+    panel.className='hc-ann-panel';
+    panel.innerHTML=[
+      '<div class="hc-ann-sec">',
+      selector?'<div class="hc-ctx-card">'+escH(selector)+'</div>':'',
+      ctx?'<div class="hc-ctx-sub">\u201c'+escH(ctx.slice(0,60))+'\u201d</div>':'',
+      '</div>',
+      '<div class="hc-ann-sec"><textarea class="hc-ann-ta" placeholder="Describe the issue or suggestion..."></textarea></div>',
+      '<div class="hc-ann-foot">',
+      '<button class="hc-ann-btn hc-ann-cancel">Cancel</button>',
+      '<button class="hc-ann-btn hc-ann-save">Save</button>',
+      '</div>'
+    ].join('');
+    document.body.appendChild(panel);
+    posPanel(panel,cx,cy);
+    panel.querySelector('.hc-ann-ta').focus();
+    activePanel=panel;
+    panel.querySelector('.hc-ann-cancel').addEventListener('click',closePanels);
+    panel.querySelector('.hc-ann-save').addEventListener('click',function(){
+      var txt=panel.querySelector('.hc-ann-ta').value.trim();
+      if(!txt){panel.querySelector('.hc-ann-ta').classList.add('err');return;}
+      closePanels();
+      var num=document.querySelectorAll('.hc-pin').length+1;
+      renderPin(px,py,txt,gName(),selector,ctx,num,screen);
+      postPin(px,py,txt,gName(),selector,ctx,num,screen);
+    });
+    panel.querySelector('.hc-ann-ta').addEventListener('keydown',function(e){
+      if((e.ctrlKey||e.metaKey)&&e.key==='Enter'){panel.querySelector('.hc-ann-save').click();}
+    });
+  }
+
+  function posPanel(panel,cx,cy){
+    var vw=window.innerWidth,vh=window.innerHeight,g=12,pw=300;
+    var left=cx+16;if(left+pw>vw-g)left=cx-pw-16;if(left<g)left=g;
+    var top=cy;if(top+220>vh-g)top=vh-220-g;if(top<g)top=g;
+    panel.style.left=left+'px';panel.style.top=top+'px';
+  }
+
+  function closePanels(){
+    if(activePanel){activePanel.remove();activePanel=null;}
+    document.querySelectorAll('.hc-cbubble').forEach(function(b){b.remove();});
+  }
+
+  function renderPin(px,py,text,name,selector,ctx,num,screen){
+    var wrap=document.createElement('div');
+    wrap.className='hc-pin';
+    wrap.style.left=(px-14)+'px';
+    wrap.style.top=(py-14)+'px';
+    wrap.style.position='absolute';
+    wrap.dataset.screen=screen||'unknown';
+    var btn=document.createElement('button');
+    btn.className='hc-pin-btn';
+    btn.title=name+': '+text;
+    btn.textContent=String(num);
+    btn.addEventListener('click',function(e){
+      e.stopPropagation();
+      var existing=document.querySelector('.hc-cbubble');
+      if(existing){existing.remove();return;}
+      var bub=document.createElement('div');
+      bub.className='hc-cbubble';
+      bub.innerHTML='<div class="hc-cb-name">'+escH(name)+'</div>'+(selector?'<div class="hc-cb-ctx">'+escH(selector)+'</div>':'')+'<div class="hc-cb-text">'+escH(text)+'</div>';
+      document.body.appendChild(bub);
+      var r=btn.getBoundingClientRect();
+      var bw=bub.getBoundingClientRect().width||260,bh=bub.getBoundingClientRect().height||80;
+      var vw=window.innerWidth,vh=window.innerHeight;
+      var bl=r.right+8;if(bl+bw>vw-12)bl=r.left-bw-8;if(bl<12)bl=12;
+      var bt=r.top;if(bt+bh>vh-12)bt=vh-bh-12;if(bt<12)bt=12;
+      bub.style.left=bl+'px';bub.style.top=bt+'px';
+    });
+    wrap.appendChild(btn);
+    document.body.appendChild(wrap);
+  }
+
+  function postPin(px,py,text,name,selector,ctx,num,screen){
+    fetch('https://api.github.com/repos/'+REPO+'/issues',{
+      method:'POST',
+      headers:{'Authorization':'token '+gTok(),'Accept':'application/vnd.github.v3+json','Content-Type':'application/json'},
+      body:JSON.stringify({
+        title:'['+PAGE.toUpperCase()+'] #'+num+': '+text.slice(0,60),
+        body:'**Page**: '+PAGE+'\n**Screen**: '+screen+'\n**Name**: '+name+'\n**Comment**: '+text+'\n**Element**: '+selector+'\n**Context**: '+ctx+'\n**Coordinates**: x='+px+', y='+py+'\n**Viewport**: '+window.innerWidth+'x'+window.innerHeight+'\n**DocSize**: '+document.body.scrollWidth+'x'+document.body.scrollHeight
+      })
+    }).then(function(r){
+      if(r.status===401){localStorage.removeItem('hc_tok');showToast('Token rejected — click Add pin again to re-enter.');}
+      else if(!r.ok){showToast('Pin saved locally but GitHub sync failed ('+r.status+').');}
+      else{showToast('Pin #'+num+' saved \u2713');}
+    }).catch(function(){showToast('Pin saved locally — no network.');});
+  }
+
+  function loadComments(){
+    var hdrs={'Accept':'application/vnd.github.v3+json'};
+    if(gTok())hdrs['Authorization']='token '+gTok();
+    fetch('https://api.github.com/repos/'+REPO+'/issues?state=open&per_page=100',{headers:hdrs})
+    .then(function(r){
+      if(!r.ok){showToast('Could not load pins (HTTP '+r.status+'). Try again later.');return Promise.reject(r.status);}
+      return r.json();
+    })
+    .then(function(issues){
+      if(!issues||!Array.isArray(issues))return;
+      /* Only clear pins if we got a valid response */
+      document.querySelectorAll('.hc-pin').forEach(function(p){p.remove();});
+      issues.filter(function(i){return i.title.indexOf('['+PAGE.toUpperCase()+']')===0;})
+      .reverse().forEach(function(issue,i){
+        var b=issue.body||'';
+        var xM=b.match(/\*\*Coordinates\*\*: x=(\d+)/),yM=b.match(/y=(\d+)/);
+        var nm=b.match(/\*\*Name\*\*: (.+)/),tm=b.match(/\*\*Comment\*\*: (.+)/);
+        var sm=b.match(/\*\*Element\*\*: (.*)/),cm=b.match(/\*\*Context\*\*: (.*)/);
+        var scr=b.match(/\*\*Screen\*\*: (.*)/);
+        var screenVal=scr?scr[1].trim():'unknown';
+        if(xM&&yM)renderPin(parseInt(xM[1]),parseInt(yM[1]),tm?tm[1]:'',nm?nm[1]:'?',sm?sm[1]:'',cm?cm[1]:'',i+1,screenVal);
+      });
+      syncPinVisibility();
+    }).catch(function(err){console.warn('Could not load pins:',err);});
+  }
+
+  function showToast(msg){
+    var t=document.getElementById('hc-toast');
+    if(t)t.remove();
+    t=document.createElement('div');t.id='hc-toast';t.textContent=msg;
+    document.body.appendChild(t);
+    setTimeout(function(){if(t.parentNode)t.remove();},3000);
+  }
+
+  refreshBtn.addEventListener('click',loadComments);
+
+  /* Show/hide pins based on which prototype screen is active */
+  function syncPinVisibility(){
+    var cur=currentScreen();
+    document.querySelectorAll('.hc-pin').forEach(function(p){
+      var show=(p.dataset.screen===cur||p.dataset.screen==='unknown');
+      p.style.display=show?'':'none';
+    });
+  }
+  /* Observe screen changes via MutationObserver on class changes */
+  var screens=document.querySelectorAll('.screen');
+  if(screens.length){
+    var obs=new MutationObserver(syncPinVisibility);
+    screens.forEach(function(s){obs.observe(s,{attributes:true,attributeFilter:['class']});});
+  }
+
+  document.addEventListener('click',function(e){
+    if(e.target.closest('.hc-pin')||e.target.closest('.hc-ann-panel')||e.target.closest('.hc-cbubble'))return;
+    closePanels();
+  });
+  if(document.readyState==='loading'){document.addEventListener('DOMContentLoaded',loadComments);}else{loadComments();}
+})();</script>
+</body>
+</html>
