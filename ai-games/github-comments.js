@@ -510,10 +510,32 @@
       pin.style.top=pos.y+'px';
       pin.style.display=pos.visible?'':'none';
     });
-    if(activeBubble){activeBubble.remove();activeBubble=null;}
+    if(activeBubble){
+      var id=activeBubble.dataset.commentId;
+      var pin=id?document.querySelector('.hc-pin[data-comment-id="'+attrEsc(id)+'"]'):null;
+      if(!pin||pin.style.display==='none'){
+        activeBubble.remove();activeBubble=null;
+      }else{
+        positionBubble(activeBubble,pin.querySelector('.hc-pin-btn')||pin);
+      }
+    }
   }
 
   function scheduleUpdate(){if(updateQueued)return;updateQueued=true;requestAnimationFrame(updatePins);}
+
+  function isOverlayNode(n){
+    if(!n||n.nodeType!==1||!n.closest)return false;
+    return !!n.closest('#hc-pin-layer,#hc-fab,#hc-modal,.hc-cbubble,.hc-ann-panel,.hc-img-modal,#hc-toast,#hc-highlight,#hc-highlight-label');
+  }
+
+  function positionBubble(bub,btn){
+    var r=btn.getBoundingClientRect();
+    var bw=bub.getBoundingClientRect().width||300,bh=bub.getBoundingClientRect().height||100;
+    var vw=window.innerWidth,vh=window.innerHeight;
+    var bl=r.right+8;if(bl+bw>vw-12)bl=r.left-bw-8;if(bl<12)bl=12;
+    var bt=r.top;if(bt+bh>vh-12)bt=vh-bh-12;if(bt<12)bt=12;
+    bub.style.left=bl+'px';bub.style.top=bt+'px';
+  }
 
   function openBubble(c,btn){
     if(activeBubble&&activeBubble.dataset.commentId===c.id){activeBubble.remove();activeBubble=null;return;}
@@ -538,12 +560,7 @@
       });
     });
     activeBubble=bub;
-    var r=btn.getBoundingClientRect();
-    var bw=bub.getBoundingClientRect().width||300,bh=bub.getBoundingClientRect().height||100;
-    var vw=window.innerWidth,vh=window.innerHeight;
-    var bl=r.right+8;if(bl+bw>vw-12)bl=r.left-bw-8;if(bl<12)bl=12;
-    var bt=r.top;if(bt+bh>vh-12)bt=vh-bh-12;if(bt<12)bt=12;
-    bub.style.left=bl+'px';bub.style.top=bt+'px';
+    positionBubble(bub,btn);
   }
 
   function closeImagePreview(){
@@ -572,7 +589,18 @@
   refreshBtn.addEventListener('click',loadComments);
   document.addEventListener('scroll',scheduleUpdate,true);
   window.addEventListener('resize',scheduleUpdate);
-  new MutationObserver(scheduleUpdate).observe(document.body,{attributes:true,childList:true,subtree:true,attributeFilter:['class','style']});
+  new MutationObserver(function(muts){
+    for(var i=0;i<muts.length;i++){
+      var m=muts[i];
+      if(isOverlayNode(m.target))continue;
+      if(m.type==='attributes'){scheduleUpdate();return;}
+      var added=m.addedNodes,removed=m.removedNodes;
+      var relevant=false;
+      for(var j=0;j<added.length;j++){if(!isOverlayNode(added[j])){relevant=true;break;}}
+      if(!relevant)for(var k=0;k<removed.length;k++){if(!isOverlayNode(removed[k])){relevant=true;break;}}
+      if(relevant){scheduleUpdate();return;}
+    }
+  }).observe(document.body,{attributes:true,childList:true,subtree:true,attributeFilter:['class','style']});
   document.addEventListener('click',function(e){
     if(e.target.closest('.hc-pin')||e.target.closest('.hc-ann-panel')||e.target.closest('.hc-cbubble')||e.target.closest('.hc-img-modal'))return;
     closePanels();
