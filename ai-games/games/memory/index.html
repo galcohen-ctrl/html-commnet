@@ -1,0 +1,151 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <title>Pasta Pairing</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Barlow:wght@400;600;700;800&display=swap" rel="stylesheet">
+  <style>
+    * { box-sizing: border-box; }
+    html, body { min-height: 100%; }
+    body { margin: 0; background: var(--ink); color: var(--ink); font-family: var(--body-font); }
+    button { font: inherit; }
+    .game { width: min(var(--game-width), 100%); min-height: 100vh; margin: auto; background: var(--paper); padding: max(18px, env(safe-area-inset-top)) 16px 24px; position: relative; overflow: hidden; }
+    .game::before { content: ''; position: absolute; width: 500px; height: 500px; border: 42px solid var(--cream); border-radius: 50%; top: -355px; right: -250px; pointer-events: none; }
+    .topbar, .intro, .board, .hud { position: relative; z-index: 1; }
+    .topbar { display: flex; justify-content: space-between; align-items: center; min-height: 42px; }
+    .brand-logo { width: 116px; max-height: 34px; object-fit: contain; object-position: left; }
+    .kitchen-stamp { color: var(--brand); font-size: 11px; font-weight: 800; letter-spacing: .12em; border: 1px solid var(--brand); padding: 5px 7px; border-radius: var(--tile-radius); }
+    .intro { padding: 42px 4px 18px; }
+    .eyebrow { color: var(--brand); font-size: 12px; font-weight: 800; letter-spacing: .13em; text-transform: uppercase; margin: 0 0 9px; }
+    h1 { margin: 0; max-width: 520px; font-family: var(--headline-font); font-size: clamp(42px, 12vw, 70px); line-height: .87; letter-spacing: 0; color: var(--ink); }
+    .intro-copy { max-width: 430px; margin: 18px 0 24px; font-size: 17px; line-height: 1.38; }
+    .primary-button { border: 0; border-radius: var(--radius); padding: 14px 20px; min-height: 50px; background: var(--brand); color: #fff; font-weight: 800; cursor: pointer; box-shadow: 0 8px 0 var(--brand-dark), 0 12px 20px var(--shadow); transition: transform .12s ease, box-shadow .12s ease; }
+    .primary-button:hover { transform: translateY(-2px); }
+    .primary-button:active { transform: translateY(5px); box-shadow: 0 3px 0 var(--brand-dark); }
+    .gameplay { display: none; }
+    .gameplay.is-active { display: block; }
+    .hud { display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px; margin: 2px 0 16px; }
+    .stat { background: #fff; border: 1px solid var(--cream); border-radius: var(--tile-radius); padding: 9px 10px; box-shadow: 0 4px 10px var(--shadow); }
+    .stat b { display: block; color: var(--brand); font-size: 19px; line-height: 1; }
+    .stat span { display: block; margin-top: 4px; color: var(--ink); font-size: 10px; font-weight: 800; letter-spacing: .08em; text-transform: uppercase; }
+    .board { display: grid; grid-template-columns: repeat(var(--board-columns), 1fr); gap: var(--card-gap); padding-bottom: 16px; }
+    .card { aspect-ratio: 1 / 1.12; border: 0; padding: 0; background: transparent; cursor: pointer; perspective: 800px; -webkit-tap-highlight-color: transparent; }
+    .card-inner { display: block; position: relative; width: 100%; height: 100%; transform-style: preserve-3d; transition: transform .42s cubic-bezier(.2,.75,.2,1); }
+    .card.is-open .card-inner, .card.is-matched .card-inner { transform: rotateY(180deg); }
+    .card-face { position: absolute; inset: 0; overflow: hidden; border-radius: var(--tile-radius); backface-visibility: hidden; box-shadow: 0 5px 12px var(--shadow); }
+    .card-back { display: grid; place-items: center; background: var(--brand); color: #fff; border: 2px solid var(--brand-dark); font-family: var(--headline-font); font-size: clamp(28px, 9vw, 42px); }
+    .card-back::after { content: ''; width: 48%; aspect-ratio: 1; position: absolute; border: 1px solid rgba(255,255,255,.65); border-radius: 50%; }
+    .card-front { transform: rotateY(180deg); background: var(--cream); }
+    .card-front img { width: 100%; height: 100%; object-fit: cover; display: block; }
+    .card-front span { position: absolute; inset: auto 0 0; padding: 6px; color: #fff; background: rgba(33,37,41,.72); font-size: 11px; font-weight: 700; line-height: 1.05; text-align: left; }
+    .card.is-matched .card-face { box-shadow: 0 0 0 3px var(--green), 0 6px 12px var(--shadow); }
+    .result { display: none; position: absolute; z-index: 4; inset: 0; padding: 24px; align-items: center; justify-content: center; background: rgba(33,37,41,.82); }
+    .result.is-visible { display: flex; }
+    .result-panel { width: min(390px, 100%); padding: 27px; text-align: center; background: var(--paper); border-radius: var(--radius); box-shadow: 0 20px 50px var(--shadow); }
+    .result-panel img { width: 116px; height: 36px; object-fit: contain; margin-bottom: 22px; }
+    .result-panel h2 { margin: 0 0 10px; color: var(--brand); font-family: var(--headline-font); font-size: 42px; line-height: .95; }
+    .result-panel p { margin: 0 0 24px; line-height: 1.45; }
+    .score-line { color: var(--blue); font-weight: 800; font-size: 20px; margin: -10px 0 20px !important; }
+    @media (max-width: 430px) { .game { padding-left: 12px; padding-right: 12px; } .intro { padding-top: 30px; } .hud { grid-template-columns: repeat(2, 1fr); } .card-front span { display: none; } }
+  </style>
+</head>
+<body>
+  <main class="game">
+    <header class="topbar"><img class="brand-logo" id="logo" alt="Vapiano"><span class="kitchen-stamp">FRESH PLAY</span></header>
+    <section class="intro" id="intro">
+      <p class="eyebrow" id="eyebrow"></p><h1 id="title"></h1><p class="intro-copy" id="introCopy"></p><button class="primary-button" id="startButton"></button>
+    </section>
+    <section class="gameplay" id="gameplay" aria-live="polite">
+      <div class="hud">
+        <div class="stat"><b id="moves">0</b><span id="movesLabel"></span></div>
+        <div class="stat"><b id="pairs">0/0</b><span id="pairsLabel"></span></div>
+        <div class="stat"><b id="time">0:00</b><span id="timeLabel"></span></div>
+        <div class="stat"><b id="score">0</b><span id="scoreLabel"></span></div>
+      </div>
+      <div class="board" id="board"></div>
+    </section>
+    <section class="result" id="result" aria-modal="true" role="dialog">
+      <div class="result-panel"><img id="resultLogo" alt="Vapiano"><h2 id="winTitle"></h2><p id="winMessage"></p><p class="score-line" id="scoreLine"></p><button class="primary-button" id="restartButton"></button></div>
+    </section>
+  </main>
+  <script src="../shared/theme-runtime.js"></script>
+  <script>
+    let theme, openCards = [], moves = 0, found = 0, score = 0, timeLeft = 0, timer, locked = false, active = false;
+    const $ = id => document.getElementById(id);
+    const send = message => window.parent.postMessage(message, '*');
+    const shuffle = items => { const copy = [...items]; for (let i = copy.length - 1; i > 0; i--) { const j = Math.floor(Math.random() * (i + 1)); [copy[i], copy[j]] = [copy[j], copy[i]]; } return copy; };
+    const formatTime = seconds => `${Math.floor(seconds / 60)}:${String(seconds % 60).padStart(2, '0')}`;
+
+    function writeCopy() {
+      const { content, assets, gameplay } = theme;
+      $('logo').src = assets.logo; $('resultLogo').src = assets.logo;
+      $('eyebrow').textContent = content.eyebrow; $('title').textContent = content.title; $('introCopy').textContent = content.intro;
+      $('startButton').textContent = content.startLabel; $('restartButton').textContent = content.restartLabel;
+      $('movesLabel').textContent = content.movesLabel; $('pairsLabel').textContent = content.pairsLabel; $('timeLabel').textContent = content.timeLabel; $('scoreLabel').textContent = content.scoreLabel;
+      document.documentElement.style.setProperty('--board-columns', gameplay.columnsDesktop);
+      $('pairs').textContent = `0/${assets.cards.length}`;
+    }
+
+    function buildBoard() {
+      const cards = shuffle([...theme.assets.cards, ...theme.assets.cards]);
+      const board = $('board'); board.innerHTML = '';
+      cards.forEach((item, index) => {
+        const card = document.createElement('button');
+        card.className = 'card'; card.dataset.id = item.id; card.setAttribute('aria-label', 'Turn over a menu card');
+        card.innerHTML = `<span class="card-inner"><span class="card-face card-back">${theme.content.cardBackLabel}</span><span class="card-face card-front"><img src="${item.image}" alt="${item.label}"><span>${item.label}</span></span></span>`;
+        card.addEventListener('click', () => reveal(card));
+        card.style.animation = `deal .28s ease ${index * 25}ms both`;
+        board.append(card);
+      });
+    }
+
+    function updateHud() {
+      $('moves').textContent = moves; $('pairs').textContent = `${found}/${theme.assets.cards.length}`; $('score').textContent = `${Math.min(score, theme.gameplay.scoreTarget)}/${theme.gameplay.scoreTarget}`;
+      $('time').textContent = formatTime(timeLeft);
+    }
+
+    function reveal(card) {
+      if (!active || locked || card.classList.contains('is-open') || card.classList.contains('is-matched')) return;
+      card.classList.add('is-open'); openCards.push(card);
+      if (openCards.length < 2) return;
+      moves++; updateHud(); locked = true;
+      const [first, second] = openCards;
+      if (first.dataset.id === second.dataset.id) {
+        window.setTimeout(() => {
+          first.classList.replace('is-open', 'is-matched'); second.classList.replace('is-open', 'is-matched');
+          if (!active) return;
+          found++; score += theme.gameplay.scorePerPair; openCards = []; locked = false; updateHud(); send({ type: 'SCORE_UPDATE', score, timestamp: Date.now() });
+          if (found === theme.assets.cards.length) endGame('win');
+        }, theme.gameplay.matchDelayMs);
+      } else {
+        score = Math.max(0, score - theme.gameplay.movePenalty);
+        updateHud();
+        window.setTimeout(() => { if (!active) return; first.classList.remove('is-open'); second.classList.remove('is-open'); openCards = []; locked = false; }, theme.gameplay.mismatchDelayMs);
+      }
+    }
+
+    function start() {
+      clearInterval(timer); moves = found = score = 0; timeLeft = theme.gameplay.timeLimitSeconds; openCards = []; locked = false; active = true;
+      $('intro').hidden = true; $('gameplay').classList.add('is-active'); $('result').classList.remove('is-visible'); buildBoard(); updateHud();
+      timer = setInterval(() => { if (!active) return; timeLeft--; updateHud(); if (timeLeft <= 0) endGame('lose'); }, 1000); send({ type: 'GAME_STARTED', timestamp: Date.now() });
+    }
+
+    function endGame(reason) {
+      if (!active) return; active = false; clearInterval(timer); const seconds = theme.gameplay.timeLimitSeconds - timeLeft;
+      if (reason === 'win') { score += timeLeft * theme.gameplay.timeBonusPerSecond; $('winTitle').textContent = theme.content.winTitle; $('winMessage').textContent = theme.content.winMessage.replace('{moves}', moves).replace('{time}', seconds); }
+      else { $('winTitle').textContent = theme.content.loseTitle; $('winMessage').textContent = theme.content.loseMessage.replace('{pairs}', found).replace('{total}', theme.assets.cards.length); }
+      $('scoreLine').textContent = `${score} points`;
+      $('result').classList.add('is-visible'); send({ type: 'GAME_OVER', finalScore: score, reason, timestamp: Date.now() });
+    }
+
+    function handleResize() { document.documentElement.style.setProperty('--board-columns', innerWidth < 460 ? theme.gameplay.columnsMobile : theme.gameplay.columnsDesktop); }
+    window.addEventListener('resize', handleResize);
+    $('startButton').addEventListener('click', start); $('restartButton').addEventListener('click', start);
+    window.addEventListener('message', event => { if (event.data?.type === 'PAUSE') active = false; if (event.data?.type === 'RESUME' && !$('result').classList.contains('is-visible')) active = true; });
+    GameTheme.loadTheme('theme.json').then(data => { theme = data; writeCopy(); handleResize(); send({ type: 'GAME_READY' }); }).catch(error => { $('introCopy').textContent = error.message; });
+  </script>
+</body>
+</html>

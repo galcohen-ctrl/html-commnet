@@ -1,8 +1,14 @@
 /* ---------- game data ---------- */
+/* g1-g3 are real, playable HTML5 games (see games/<slug>/) rather than mocked boards.
+   playUrl is what loads in the live phone preview iframe; themeUrl points at that
+   game's own theme.json, which is the single source of truth for in-game copy
+   (content.title, meta.pageTitle). Saving the "Game name" field patches that file
+   via POST /api/game-theme so the live game reflects the merchant's rename. */
+const ARENA_URL='games/index.html';
 const GAMES=[
-  {id:'g1',name:'Short Stack Panic',emoji:'🥞',desc:'Catch falling pancakes to build the tallest stack',score:75,wins:'1 time',reward:'Free Kids Pancake'},
-  {id:'g2',name:'Syrup Drizzle Dash',emoji:'🍯',desc:'Drizzle syrup while dodging spills',score:50,wins:'3 times',reward:'15% off next visit'},
-  {id:'g3',name:'Parlour Memory Match',emoji:'🧠',desc:'Flip cards to match menu pairs',score:90,wins:'1 time',reward:'200 Club points'},
+  {id:'g1',name:'Vapiano Loop',emoji:'🐍',desc:'Wrapping snake — slide off any edge and reappear on the other side',score:200,wins:'1 time',reward:'Free Kids Pancake',playUrl:'games/snake/index.html',themeUrl:'games/snake/theme.json',slug:'snake'},
+  {id:'g2',name:'Pasta Pairing',emoji:'🍝',desc:'Flip cards to match every menu pair before time runs out',score:600,wins:'3 times',reward:'15% off next visit',playUrl:'games/memory/index.html',themeUrl:'games/memory/theme.json',slug:'memory'},
+  {id:'g3',name:'Menu Tower',emoji:'🗼',desc:'Auto-bounce climber — steer the chef over real menu-photo platforms',score:1000,wins:'1 time',reward:'200 Club points',playUrl:'games/tower-jump/index.html',themeUrl:'games/tower-jump/theme.json',slug:'tower-jump'},
 ];
 const EXTRA=[
   {id:'g4',name:'Flip or Miss',emoji:'🥏',desc:'Time the pancake flip perfectly',score:60,wins:'1 time',reward:'Free coffee'},
@@ -10,6 +16,58 @@ const EXTRA=[
   {id:'g6',name:'Maple Run',emoji:'🏃',desc:'Endless runner through the diner',score:120,wins:'1 time',reward:'Free topping'},
 ];
 let tableGames=[...GAMES.map(g=>({...g,status:'draft'}))];
+
+/* ---------- gifts (Campaign Center "Send Benefit" pattern) ---------- */
+const GIFTS=[
+  {id:'gift1',emoji:'🥞',name:'Free Kids Pancake'},
+  {id:'gift2',emoji:'🍯',name:'15% off next visit'},
+  {id:'gift3',emoji:'⭐',name:'200 Club points'},
+  {id:'gift4',emoji:'☕',name:'Free coffee'},
+  {id:'gift5',emoji:'🧇',name:'Free topping'},
+  {id:'gift6',emoji:'🫐',name:'10% off'},
+];
+function jsStr(s){return String(s).replace(/\\/g,'\\\\').replace(/'/g,"\\'");}
+function benefitListHTML(ctx,id,filter,current){
+  const f=(filter||'').toLowerCase();
+  const items=GIFTS.filter(g=>g.name.toLowerCase().includes(f));
+  if(items.length===0) return '<div style="padding:10px 4px;font-size:12px;color:var(--soft)">No gifts match "'+escH(filter)+'"</div>';
+  return items.map(g=>`<div class="benefit-row${g.name===current?' sel':''}" onclick="selectBenefit('${ctx}','${id}','${jsStr(g.name)}')">
+    <div class="benefit-thumb">${g.emoji}</div><div class="benefit-name">${escH(g.name)}</div>
+  </div>`).join('');
+}
+function escH(s){const d=document.createElement('div');d.textContent=s==null?'':String(s);return d.innerHTML;}
+function toggleBenefitPicker(ctx,id){
+  const panel=document.getElementById('benefitPanel-'+ctx+'-'+id);
+  if(!panel)return;
+  const wasHidden=panel.classList.contains('hidden');
+  closeBenefitPickers();
+  if(wasHidden){
+    panel.classList.remove('hidden');
+    const input=panel.querySelector('.benefit-search input');
+    if(input){input.value='';filterBenefitList(ctx,id,'');input.focus();}
+  }
+}
+function closeBenefitPickers(){
+  document.querySelectorAll('.benefit-panel').forEach(p=>p.classList.add('hidden'));
+}
+function filterBenefitList(ctx,id,val){
+  const list=document.getElementById('benefitList-'+ctx+'-'+id);
+  if(list) list.innerHTML=benefitListHTML(ctx,id,val,null);
+}
+function selectBenefit(ctx,id,name){
+  const label=document.getElementById('benefitLabel-'+ctx+'-'+id);
+  if(label) label.textContent=name;
+  closeBenefitPickers();
+  markConfigDirty(ctx,id);
+}
+function markConfigDirty(ctx,id){
+  const btn=document.getElementById('saveFooterBtn-'+ctx+'-'+id);
+  if(btn) btn.classList.remove('hidden');
+}
+function createGiftPlaceholder(){
+  alert('This will open the Create Gift page (prototype)');
+}
+document.addEventListener('click',function(e){ if(!e.target.closest('.benefit-picker'))closeBenefitPickers(); });
 
 /* ---------- screen routing ---------- */
 const navBtns=document.querySelectorAll('#nav button[data-s]');
@@ -22,7 +80,7 @@ function showScreen(s){
   const el=document.getElementById('s-'+s); if(el) el.classList.remove('hidden');
   setNav(s); window.scrollTo({top:0,behavior:'smooth'});
 }
-function go(s){ if(s==='config'){startGen();return;} if(s==='table'){renderTable();initPersistentPreview('tbl');} showScreen(s); }
+function go(s){ if(s==='config'){startGen();return;} showScreen(s); }
 navBtns.forEach(b=>b.addEventListener('click',()=>go(b.dataset.s)));
 
 /* ---------- empty / consent ---------- */
@@ -32,81 +90,126 @@ function closeConsent(){document.getElementById('consent').classList.add('hidden
 function hide(id){document.getElementById(id).classList.add('hidden');}
 function authorize(){closeConsent();showScreen('scan');runScan();}
 
+/* ---------- drag & drop hover feedback ---------- */
+(function(){
+  const zone=document.getElementById('drop');
+  const icon=document.getElementById('dropIcon');
+  const label=document.getElementById('dropLabel');
+  const help=document.getElementById('dropHelp');
+  let dragDepth=0;
+  function setActive(on){
+    zone.classList.toggle('drag-active',on);
+    icon.textContent=on?'📥':'📁';
+    label.textContent=on?'Release to upload…':'Drag & drop files here';
+    help.style.visibility=on?'hidden':'visible';
+  }
+  zone.addEventListener('dragenter',e=>{e.preventDefault();dragDepth++;setActive(true);});
+  zone.addEventListener('dragover',e=>{e.preventDefault();});
+  zone.addEventListener('dragleave',e=>{e.preventDefault();dragDepth=Math.max(0,dragDepth-1);if(dragDepth===0)setActive(false);});
+  zone.addEventListener('drop',e=>{
+    e.preventDefault();dragDepth=0;setActive(false);
+    const n=e.dataTransfer&&e.dataTransfer.files?e.dataTransfer.files.length:0;
+    if(n>0)alert(n+' file'+(n===1?'':'s')+' ready to upload (prototype)');
+  });
+})();
+
 /* ---------- scrape gallery ---------- */
+/* Real assets scraped from vapiano.com.au (loya-play-agent crawl output), symlinked
+   into this folder as brand-assets/. Colors/fonts match brand-assets/../DESIGN.md
+   (Vapiano Australia design tokens) and the theme.json files the real games use. */
 const TILES=[
-  {t:'logo',html:'PANCAKE<br>PARLOUR'},
-  {t:'swatch',c:'#e8552f',cap:'Primary #e8552f'},
-  {t:'img',e:'🥞'},
-  {t:'swatch',c:'#f5b73d',cap:'Accent #f5b73d'},
-  {t:'font',big:'Aa',cap:'Heading — Poppins'},
-  {t:'img',e:'🍓'},
-  {t:'swatch',c:'#3b2a22',cap:'Text #3b2a22'},
-  {t:'img',e:'☕'},
-  {t:'font',big:'Aa',cap:'Body — Inter'},
-  {t:'swatch',c:'#fdeee9',cap:'Surface #fdeee9'},
-  {t:'img',e:'🧇'},
-  {t:'img',e:'🍯'},
+  {t:'logo',src:'brand-assets/icons/site/logo.svg'},
+  {t:'swatch',c:'#ed1b3b',cap:'Primary #ed1b3b'},
+  {t:'photo',src:'brand-assets/images/Classic Margherita_Pizza.jpg',cap:'Classic Margherita'},
+  {t:'swatch',c:'#1a73e8',cap:'Secondary #1a73e8'},
+  {t:'font',big:'Aa',cap:'Headline — Okkult',style:"font-family:Georgia,'Times New Roman',serif"},
+  {t:'photo',src:'brand-assets/images/Burrata.jpg',cap:'Burrata'},
+  {t:'swatch',c:'#212529',cap:'Ink #212529'},
+  {t:'photo',src:'brand-assets/images/Tiramisu.jpg',cap:'Tiramisu'},
+  {t:'font',big:'Aa',cap:'Body — Barlow',style:'font-family:Barlow,sans-serif'},
+  {t:'swatch',c:'#f25f75',cap:'Primary light #f25f75'},
+  {t:'photo',src:'brand-assets/images/Rocket and Parmesan Salad.jpg',cap:'Rocket & Parmesan'},
+  {t:'photo',src:'brand-assets/images/chef character 1024x894.png',cap:'Chef mascot'},
+  {t:'photo',src:'brand-assets/images/pasta_people.png',cap:'Pasta People'},
+  {t:'icon',src:'brand-assets/images/vegan option.png',cap:'Vegan icon'},
 ];
+function tileHTML(t){
+  const removeBtn='<button class="remove-btn" onclick="this.parentElement.remove()">✕</button>';
+  if(t.t==='logo')return `<div class="fill"><img src="${encodeURI(t.src)}" alt="Vapiano Australia logo"/></div>${removeBtn}`;
+  if(t.t==='swatch')return `<div class="fill" style="background:${t.c}"></div><div class="cap">${escH(t.cap)}</div>${removeBtn}`;
+  if(t.t==='font')return `<div class="fill" style="${t.style||''}">${t.big}</div><div class="cap">${escH(t.cap)}</div>${removeBtn}`;
+  // 'icon' and 'photo' (default) both show a real image filling the tile, styled differently in CSS
+  return `<div class="fill"><img src="${encodeURI(t.src)}" alt="${escH(t.cap||'')}"/></div><div class="cap">${escH(t.cap||'')}</div>${removeBtn}`;
+}
 function runScan(){
   const m=document.getElementById('masonry');m.innerHTML='';
-  document.getElementById('gapPanel').classList.add('hidden');
-  const gp0=document.getElementById('gapPill');if(gp0){gp0.className='pill p-amber';gp0.textContent='Missing';}
-  const gb0=document.getElementById('gapGenerateBtn');if(gb0){gb0.disabled=true;gb0.style.opacity='.5';gb0.style.cursor='not-allowed';}
-  const gu0=document.getElementById('gapUploadBtn');if(gu0){gu0.disabled=false;gu0.textContent='Upload images';}
+  document.getElementById('scanActions').classList.add('hidden');
+  const au0=document.getElementById('addAssetsBtn');if(au0){au0.disabled=false;au0.textContent='Add more assets';}
   document.getElementById('scanSpin').classList.remove('hidden');
   document.getElementById('scanTitle').textContent='Reading your brand…';
-  document.getElementById('scanSub').textContent='Scanning pancakeparlour.com.au · this takes about 2 minutes';
+  document.getElementById('scanSub').textContent='Scanning vapiano.com.au · this takes about 2 minutes';
   let i=0;
   const iv=setInterval(()=>{
     if(i>=TILES.length){clearInterval(iv);finishScan();return;}
     const t=TILES[i];const d=document.createElement('div');d.className='tile '+t.t;d.style.animationDelay='0s';
-    if(t.t==='logo')d.innerHTML=t.html+'<button class="remove-btn" onclick="this.parentElement.remove()">✕</button>';
-    else if(t.t==='swatch')d.innerHTML='<div class="swatch" style="background:'+t.c+'"></div><div class="cap">'+t.cap+'</div><button class="remove-btn" onclick="this.parentElement.remove()">✕</button>';
-    else if(t.t==='font')d.innerHTML='<div class="big">'+t.big+'</div><div class="cap">'+t.cap+'</div><button class="remove-btn" onclick="this.parentElement.remove()">✕</button>';
-    else if(t.t==='img')d.innerHTML='<div class="img">'+t.e+'</div><button class="remove-btn" onclick="this.parentElement.remove()">✕</button>';
+    d.innerHTML=tileHTML(t);
     m.appendChild(d);i++;
-  },230);
+  },340);
 }
 function finishScan(){
   document.getElementById('scanSpin').classList.add('hidden');
-  document.getElementById('scanTitle').textContent='Found 76 assets · 12 colors · 2 fonts';
-  document.getElementById('scanSub').textContent='Couldn\u2019t pull clean product photos — fill the gap below or continue with smart defaults';
-  document.getElementById('gapPanel').classList.remove('hidden');
+  document.getElementById('scanTitle').textContent='Review your brand assets';
+  document.getElementById('scanSub').textContent='We found your brand colors, fonts, and icons. You can generate games now using these assets, or upload specific product photos to personalize them further.';
+  document.getElementById('scanActions').classList.remove('hidden');
 }
 function uploadGapImages(){
-  const btn=document.getElementById('gapUploadBtn');btn.disabled=true;btn.textContent='Uploading…';
+  document.getElementById('gapFileInput').click();
+}
+function handleGapFileSelected(){
+  const input=document.getElementById('gapFileInput');
+  if(!input.files||!input.files.length)return;
+  const btn=document.getElementById('addAssetsBtn');btn.disabled=true;btn.textContent='Uploading…';
   document.getElementById('scanSpin').classList.remove('hidden');
   document.getElementById('scanTitle').textContent='Adding your uploaded photos…';
   document.getElementById('scanSub').textContent='Continuing the brand scan with your product images';
-  const NEW_TILES=[{e:'🍓'},{e:'🥞'},{e:'🧇'}];
+  const NEW_TILES=[
+    {t:'photo',src:'brand-assets/images/Focaccia.jpg',cap:'Focaccia'},
+    {t:'photo',src:'brand-assets/images/Spaghetti Bolognese.jpg',cap:'Spaghetti Bolognese'},
+    {t:'photo',src:'brand-assets/images/Fusilli Bascilico.jpg',cap:'Fusilli Basilico'},
+  ];
   const m=document.getElementById('masonry');
   let i=0;
   const iv=setInterval(()=>{
     if(i>=NEW_TILES.length){clearInterval(iv);finishGapUpload();return;}
-    const d=document.createElement('div');d.className='tile img';d.style.animationDelay='0s';
-    d.innerHTML='<div class="img">'+NEW_TILES[i].e+'</div><button class="remove-btn" onclick="this.parentElement.remove()">✕</button>';
+    const t=NEW_TILES[i];const d=document.createElement('div');d.className='tile '+t.t;d.style.animationDelay='0s';
+    d.innerHTML=tileHTML(t);
     m.insertBefore(d,m.firstChild);
     i++;
-  },260);
+  },380);
 }
+
 function finishGapUpload(){
   document.getElementById('scanSpin').classList.add('hidden');
-  document.getElementById('scanTitle').textContent='Found 79 assets · 12 colors · 2 fonts';
-  document.getElementById('scanSub').textContent='All set — product images added';
-  const gp=document.getElementById('gapPill');gp.className='pill p-green';gp.textContent='✓ Added';
-  const gb=document.getElementById('gapGenerateBtn');gb.disabled=false;gb.style.opacity='';gb.style.cursor='';
-  const gu=document.getElementById('gapUploadBtn');gu.textContent='✓ Images added';
+  document.getElementById('scanTitle').textContent='Review your brand assets';
+  document.getElementById('scanSub').textContent='Nice — your product photos are in. Generate games whenever you’re ready.';
+  document.getElementById('scanActions').classList.remove('hidden');
+  const btn=document.getElementById('addAssetsBtn');btn.disabled=false;btn.textContent='✓ Assets added';
 }
 
 /* ---------- config + table rows ---------- */
 function slugify(str){return str.toLowerCase().replace(/[^a-z0-9]+/g,'_').replace(/^_+|_+$/g,'');}
 function kebabItemsFor(g,ctx){
-  if(g.status==='draft'||g.status==='disabled'){
-    return '<button onclick="event.stopPropagation();closeKebabs();askActivate(\''+g.id+'\',\''+ctx+'\')">▶ Activate</button>'
+  if(g.status==='draft'){
+    return '<button onclick="event.stopPropagation();closeKebabs();askSaveConfig(\''+g.id+'\',\''+ctx+'\')">Save configuration</button>'
+         + '<button onclick="event.stopPropagation();closeKebabs();archiveGame(\''+g.id+'\',\''+ctx+'\')">📦 Archive</button>';
+  }
+  if(g.status==='ready'||g.status==='disabled'){
+    return '<button onclick="event.stopPropagation();closeKebabs();askActivate(\''+g.id+'\',\''+ctx+'\')">Turn on game</button>'
          + '<button onclick="event.stopPropagation();closeKebabs();archiveGame(\''+g.id+'\',\''+ctx+'\')">📦 Archive</button>';
   }
   if(g.status==='active'){
-    return '<button onclick="event.stopPropagation();closeKebabs();deactivateGame(\''+g.id+'\',\''+ctx+'\')">⏸ Deactivate</button>'
+    return '<button onclick="event.stopPropagation();closeKebabs();showCampaignHandoff(\''+g.id+'\',\''+ctx+'\')">Use in Campaign</button>'
+         + '<button onclick="event.stopPropagation();closeKebabs();askPauseGame(\''+g.id+'\',\''+ctx+'\')">⏸ Pause game</button>'
          + '<button onclick="event.stopPropagation();closeKebabs();archiveGame(\''+g.id+'\',\''+ctx+'\')">📦 Archive</button>';
   }
   if(g.status==='archived'){
@@ -124,8 +227,9 @@ function closeKebabs(){document.querySelectorAll('.kebab-menu').forEach(m=>m.cla
 document.addEventListener('click',function(e){ if(!e.target.closest('.kebab-wrap'))closeKebabs(); });
 
 function rowHTML(g,ctx){
-  const statusPill = g.status==='active'?'<span class="pill p-green"><span class="dotpulse"></span>Active</span>'
-    : g.status==='disabled'?'<span class="pill p-red">Disabled</span>'
+  const statusPill = g.status==='active'?'<span class="pill p-green"><span class="dotpulse"></span>On</span>'
+    : g.status==='ready'?'<span class="pill p-brand">Ready</span>'
+    : g.status==='disabled'?'<span class="pill p-amber">Paused</span>'
     : g.status==='generating'?'<span class="pill p-brand"><span class="dotpulse"></span>Generating…</span>'
     : g.status==='archived'?'<span class="pill p-gray" style="opacity:.6">📦 Archived</span>'
     : '<span class="pill p-gray">Draft</span>';
@@ -133,9 +237,15 @@ function rowHTML(g,ctx){
   const alwaysOpen = ctx==='cfg';
   const mainClick = alwaysOpen ? `selectGame('${ctx}','${g.id}')` : `selectGame('${ctx}','${g.id}');toggleRow('${ctx}','${g.id}')`;
   const key=ctx+'-'+g.id;
-  const tag='game_eligible_'+slugify(g.name);
   const headerAction = alwaysOpen
-    ? ((g.status==='draft'||g.status==='disabled')?'<button class="btn green sm" onclick="event.stopPropagation();askActivate(\''+g.id+'\',\''+ctx+'\')">▶ Activate</button>':'')
+    ? (g.status==='draft'
+        ? '<button class="btn sec sm" onclick="event.stopPropagation();askSaveConfig(\''+g.id+'\',\''+ctx+'\')">Save configuration</button>'
+        : g.status==='ready'||g.status==='disabled'
+          ? '<button class="btn green sm" onclick="event.stopPropagation();askActivate(\''+g.id+'\',\''+ctx+'\')">Turn on game</button>'
+          : g.status==='active'
+            ? '<button class="btn sm" onclick="event.stopPropagation();showCampaignHandoff(\''+g.id+'\',\''+ctx+'\')">Use in Campaign</button>'
+              + '<button class="btn sec sm" onclick="event.stopPropagation();askPauseGame(\''+g.id+'\',\''+ctx+'\')">Pause</button>'
+            : '')
     : `<div class="kebab-wrap">
          <button class="kebab-btn" onclick="event.stopPropagation();toggleKebab('${key}')">⋮</button>
          <div class="kebab-menu hidden" id="kebab-${key}">${kebabItemsFor(g,ctx)}</div>
@@ -153,61 +263,155 @@ function rowHTML(g,ctx){
     <div class="expand">
       <div>
         <div class="field-grid">
-          <div class="field"><label>Game name</label><input value="${g.name}"/></div>
-          <div class="field"><label>Score to win</label><input value="${g.score}"/>
+          <div class="field"><label>Game name</label><input id="gameName-${ctx}-${g.id}" value="${g.name}" oninput="markConfigDirty('${ctx}','${g.id}')"/></div>
+          <div class="field"><label>Score to win</label><input id="gameScore-${ctx}-${g.id}" type="number" min="1" value="${g.score}" oninput="markConfigDirty('${ctx}','${g.id}')"/>
             <div class="hint">Higher = harder, fewer wins.</div></div>
           <div class="field"><label>Wins allowed per member</label>
-            <select><option>1 time</option><option>3 times</option><option>5 times</option><option>10 times</option><option>Unlimited</option></select>
+            <select id="gameWins-${ctx}-${g.id}" onchange="markConfigDirty('${ctx}','${g.id}')">${['1 time','3 times','5 times','10 times','Unlimited'].map(v=>`<option ${v===g.wins?'selected':''}>${v}</option>`).join('')}</select>
             <div class="hint">Game disappears for a member after this many wins.</div></div>
-          <div class="field"><label>Total member cap</label>
-            <input type="number" value="" placeholder="No limit" />
-            <div class="hint">Leave empty for unlimited.</div></div>
-          <div class="field"><label>Reward</label>
-            <select><option>${g.reward}</option><option>Free coffee</option><option>200 Club points</option><option>+ Create new benefit…</option></select></div>
-          <div class="field"><label>Eligible members</label>
-            <div class="audience-summary" onclick="event.stopPropagation();openAudience('${ctx}','${g.id}')">
-              <span id="audSummary-${ctx}-${g.id}">All registered members</span>
-              <span class="aud-edit">Edit →</span>
+          <div class="field"><label>Total Gifts available</label>
+            <input id="gameCap-${ctx}-${g.id}" type="number" min="1" value="${g.totalCap||''}" placeholder="No limit" oninput="markConfigDirty('${ctx}','${g.id}')" />
+            <div class="hint">Shared across all Members. Leave empty for unlimited.</div></div>
+          <div class="field"><label>Gift</label>
+            <div class="benefit-picker" id="benefit-${ctx}-${g.id}">
+              <button type="button" class="benefit-trigger" onclick="event.stopPropagation();toggleBenefitPicker('${ctx}','${g.id}')">
+                <span id="benefitLabel-${ctx}-${g.id}">${g.reward}</span>
+                <span class="benefit-chev">▾</span>
+              </button>
+              <div class="benefit-panel hidden" id="benefitPanel-${ctx}-${g.id}" onclick="event.stopPropagation()">
+                <div class="benefit-search"><input type="text" placeholder="Search" oninput="filterBenefitList('${ctx}','${g.id}',this.value)"/><span class="bsearch-ic">🔍</span></div>
+                <div class="benefit-filters"><span>Type <b>All ▾</b></span><span>Status <b>Activated ▾</b></span></div>
+                <div class="benefit-listhead"><span>Gifts</span><a href="#" onclick="event.preventDefault();createGiftPlaceholder()">Create Gift</a></div>
+                <div class="benefit-list" id="benefitList-${ctx}-${g.id}">${benefitListHTML(ctx,g.id,'',g.reward)}</div>
+              </div>
             </div></div>
         </div>
-        <div class="tag-line">🏷️ <code>${tag}</code> <span>applied to eligible members · used for analytics</span></div>
+        <div class="game-config-footer">
+          <div class="game-config-scope"><b>Game configuration</b><span>Member targeting and messages are set later in Campaign Center.</span></div>
+          ${g.status==='draft'||g.status==='ready'?'':g.status==='active'
+            ?`<button class="btn sm hidden" id="saveFooterBtn-${ctx}-${g.id}" onclick="event.stopPropagation();askSaveConfig('${g.id}','${ctx}')">Save changes</button>`
+            :`<button class="btn sec sm" onclick="event.stopPropagation();askSaveConfig('${g.id}','${ctx}')">Save changes</button>`}
+        </div>
       </div>
     </div>
   </div>`;
 }
 function renderConfig(){
-  document.getElementById('configRows').innerHTML=GAMES.map(g=>rowHTML({...g,status:'draft'},'cfg')).join('');
-  GAMES.forEach(g=>updateAudSummary('cfg',g.id));
+  document.getElementById('configRows').innerHTML=tableGames.map(g=>rowHTML(g,'cfg')).join('');
 }
 function renderTable(){
-  document.getElementById('tableRows').innerHTML=tableGames.map(g=>rowHTML(g,'tbl')).join('');
-  tableGames.forEach(g=>updateAudSummary('tbl',g.id));
+  renderConfig();
 }
 function toggleRow(ctx,id){document.getElementById('row-'+ctx+'-'+id).classList.toggle('open');}
 
 /* ---------- game state mock ---------- */
+/* The Arena is the real games/index.html (the standalone project's own menu page),
+   not a mocked list — it's what a member sees when eligible for 2+ games, and its
+   game cards are real <a> links, so navigating it inside the iframe genuinely opens
+   the chosen game. 'play' with no game selected falls back to Arena since there's
+   nothing specific to preview yet.
+
+   The real games are designed mobile-first for a real phone viewport (fonts, the
+   d-pad, HUD numbers etc. all use CSS clamp() minimums tuned for ~390px width) —
+   loading them directly into our much narrower phone-preview box made everything
+   look oversized/"zoomed in" and pushed controls (like the d-pad) out of view.
+   liveFrameHTML() instead renders each game at a fixed logical viewport
+   (LIVE_VW×LIVE_VH, iPhone-14-Pro-ish) inside a wrapper div, and fitLiveFrames()
+   (driven by a MutationObserver so it runs after every re-render, wherever the
+   preview lives) uniformly scales that wrapper down with a CSS transform to fit
+   whatever phone screen currently contains it — the same trick browser dev tools
+   use for device previews. */
+const LIVE_VW=393,LIVE_VH=852;
+function liveFrameHTML(gameId,playUrl,title){
+  return `<div class="live-frame-wrap" data-mount="1" style="width:${LIVE_VW}px;height:${LIVE_VH}px">
+    <iframe class="live-game-frame" id="livePreviewFrame" data-game-id="${gameId}" src="${playUrl}" title="${escH(title)} live preview" allow="autoplay"></iframe>
+  </div>`;
+}
+function fitLiveFrames(){
+  document.querySelectorAll('.live-frame-wrap[data-mount="1"]').forEach(wrap=>{
+    const host=wrap.parentElement;
+    if(!host||!host.clientWidth)return;
+    wrap.style.transform='scale('+(host.clientWidth/LIVE_VW)+')';
+    wrap.removeAttribute('data-mount');
+  });
+}
+new MutationObserver(fitLiveFrames).observe(document.body,{childList:true,subtree:true});
+function arenaFrameHTML(){
+  return liveFrameHTML('arena',ARENA_URL,'Games arena');
+}
 function gameStateHTML(state,g){
-  if(state==='play')return `<div class="gamewrap"><div class="gtop"><span>SCORE 0/${g?g.score:75}</span><span>❤❤❤</span></div>
-    <div class="gboard">${Array(8).fill('<div class="gcell">'+(g?g.emoji:'🥞')+'</div>').join('')}</div></div>`;
+  if(state==='play'){
+    if(!g)return arenaFrameHTML();
+    return g.playUrl
+      ? liveFrameHTML(g.id,g.playUrl,g.name)
+      : `<div class="gamewrap"><div class="gtop"><span>SCORE 0/${g.score}</span><span>❤❤❤</span></div>
+    <div class="gboard">${Array(8).fill('<div class="gcell">'+g.emoji+'</div>').join('')}</div></div>`;
+  }
   if(state==='win')return `<div class="gstate win"><div class="em">🎉</div><h4>You won!</h4>
     <div class="reward-chip">🎁 ${g?g.reward:'Free Kids Pancake'}</div>
     <p>Nice one. You can keep playing to win again.</p>
-    <button class="pbtn">Use my reward</button><button class="pbtn sec">Play again</button></div>`;
+    <button class="pbtn" onclick="resetLivePreview()">Play again</button></div>`;
   if(state==='winfinal')return `<div class="gstate win"><div class="em">🏅</div><h4>You won!</h4>
     <div class="reward-chip">🎁 ${g?g.reward:'Free Kids Pancake'}</div>
     <p>That's your last play for this game. See you next campaign!</p>
     <button class="pbtn">Use my reward</button></div>`;
   if(state==='lose')return `<div class="gstate lose"><div class="em">😅</div><h4>So close!</h4>
     <p>Try again — unlimited tries until you win.</p>
-    <button class="pbtn">Play again</button><button class="pbtn sec">Back to home</button></div>`;
+    <button class="pbtn" onclick="resetLivePreview()">Play again</button><button class="pbtn sec">Back to home</button></div>`;
   if(state==='out')return `<div class="gstate out"><div class="em">🔒</div><h4>Game over for now</h4>
     <p>You've won this one. Come back when a new game unlocks.</p>
     <button class="pbtn">Back to home</button></div>`;
-  if(state==='arena')return `<div class="arena"><div class="ah">🎮 Choose a game</div><div class="alist">
-    <div class="acard"><div class="ai">🥞</div><div><div class="an">Short Stack Panic</div><div class="ad">Win: free kids pancake</div></div><div class="ago">›</div></div>
-    <div class="acard"><div class="ai">🍯</div><div><div class="an">Syrup Drizzle Dash</div><div class="ad">Win: 15% off next visit</div></div><div class="ago">›</div></div>
-    <div class="acard"><div class="ai">🧠</div><div><div class="an">Parlour Memory Match</div><div class="ad">Win: 200 points</div></div><div class="ago">›</div></div>
-    </div></div>`;
+  if(state==='arena')return arenaFrameHTML();
+}
+/* Real games post GAME_OVER (reason 'win'|'self-collision'|'timeout' etc.) to the
+   parent frame once a round ends. The live phone preview listens for that message
+   and swaps the iframe out for Como's own branded win/lose screen — which is what
+   shows the merchant's actually-configured Gift, since the game itself has no idea
+   what Gift was picked in Hub. This mirrors how a real game host would intercept
+   GAME_OVER before the member ever sees the game's own generic completion screen.
+   The game is identified by the iframe's CURRENT location rather than the id it was
+   given at load time, because navigating the real Arena page inside the iframe
+   (its game cards are plain <a href> links) changes location without changing the
+   iframe element's src attribute or dataset. */
+window.addEventListener('message',function(e){
+  const data=e.data||{};
+  if(data.type!=='GAME_OVER')return;
+  const frame=document.getElementById('livePreviewFrame');
+  if(!frame||frame.contentWindow!==e.source)return;
+  let slug=null;
+  try{ const path=frame.contentWindow.location.pathname; const m=path.match(/\/games\/([^/]+)\//); slug=m?m[1]:null; }catch(err){ /* cross-origin, shouldn't happen locally */ }
+  const pool=[...tableGames,...GAMES,...EXTRA];
+  const g=(slug&&pool.find(x=>x.slug===slug))||pool.find(x=>x.id===frame.dataset.gameId);
+  if(!g)return;
+  selectedGameId=g.id; // so "Play again" resumes this specific game, not the Arena
+  const container=frame.parentElement.parentElement; // .live-frame-wrap -> .pscreen
+  const phone=container?container.parentElement:null; // .phone
+  const toggles=phone&&phone.parentElement?phone.parentElement.querySelector('.preview-toggles'):null;
+  const state=data.reason==='win'?'win':'lose';
+  container.innerHTML=gameStateHTML(state,g);
+  if(toggles){
+    toggles.querySelectorAll('button').forEach(b=>b.classList.remove('on'));
+    const match=[...toggles.querySelectorAll('button')].find(b=>b.textContent.trim().toLowerCase()===state);
+    if(match)match.classList.add('on');
+  }
+});
+function setActiveToggle(toggleId,label){
+  const toggles=document.getElementById(toggleId);
+  if(!toggles)return;
+  toggles.querySelectorAll('button').forEach(b=>b.classList.remove('on'));
+  const match=[...toggles.querySelectorAll('button')].find(b=>b.textContent.trim()===label);
+  if(match)match.classList.add('on');
+}
+function resetLivePreview(){
+  const cfgPrev=document.getElementById('cfgPhonePreview');
+  if(!cfgPrev)return;
+  if(selectedGameId){
+    const g=[...tableGames,...GAMES,...EXTRA].find(x=>x.id===selectedGameId)||GAMES[0];
+    cfgPrev.innerHTML=gameStateHTML('play',g);
+    setActiveToggle('cfgPrevToggles','Game');
+  }else{
+    showPreviewArena('cfg');
+  }
 }
 function setPrev(ctx,id,state,btn){
   const g=[...tableGames,...GAMES].find(x=>x.id===id);
@@ -215,78 +419,72 @@ function setPrev(ctx,id,state,btn){
   btn.parentElement.querySelectorAll('button').forEach(b=>b.classList.remove('on'));btn.classList.add('on');
 }
 
-/* ---------- eligible-members audience (Campaign Center "Apply to Members" pattern) ---------- */
-const AUD_ATTRS=['First Name','Last Name','Gender','Birthday Month','Birthday month and day','Allow Location Services','App User','Generic Wallet 1 Balance','Generic Wallet 2 Balance','Accumulated Credits','Allow Push','Tag','RFM (Auto Segment)','Days Since Last Visit'];
-let audienceState={};
-let pendingAudience=null;
-function openAudience(ctx,id){
-  pendingAudience={ctx,id};
-  const key=ctx+'_'+id;
-  const st=audienceState[key]||{mode:'all',rows:[{attr:'Last Name',op:'is',val:''}]};
-  document.getElementById('audAll').checked = st.mode==='all';
-  document.getElementById('audSpecific').checked = st.mode==='specific';
-  document.getElementById('audFilterBox').classList.toggle('hidden', st.mode!=='specific');
-  renderAudRows(st.rows);
-  document.getElementById('audienceModal').classList.remove('hidden');
-}
-function setAudMode(mode){
-  document.getElementById('audFilterBox').classList.toggle('hidden', mode!=='specific');
-}
-function renderAudRows(rows){
-  document.getElementById('audRows').innerHTML = rows.map((r,i)=>`
-    <div class="aud-row">
-      <select data-f="attr">${AUD_ATTRS.map(a=>`<option ${a===r.attr?'selected':''}>${a}</option>`).join('')}</select>
-      <select data-f="op">
-        <option ${r.op==='is'?'selected':''}>is</option>
-        <option ${r.op==='is not'?'selected':''}>is not</option>
-        <option ${r.op==='contains'?'selected':''}>contains</option>
-      </select>
-      <input data-f="val" value="${r.val||''}" placeholder="value"/>
-      <button class="aud-remove" onclick="removeAudRow(${i})">✕</button>
-    </div>`).join('');
-}
-function currentAudRows(){
-  return [...document.querySelectorAll('#audRows .aud-row')].map(r=>({
-    attr:r.querySelector('[data-f="attr"]').value,
-    op:r.querySelector('[data-f="op"]').value,
-    val:r.querySelector('[data-f="val"]').value
-  }));
-}
-function addAudRowWithAttr(attr){
-  const rows=currentAudRows();
-  rows.push({attr,op:'is',val:''});
-  renderAudRows(rows);
-}
-function removeAudRow(i){
-  const rows=currentAudRows();
-  rows.splice(i,1);
-  renderAudRows(rows.length?rows:[{attr:'Last Name',op:'is',val:''}]);
-}
-function saveAudience(){
-  const mode=document.getElementById('audSpecific').checked?'specific':'all';
-  const rows=currentAudRows();
-  const key=pendingAudience.ctx+'_'+pendingAudience.id;
-  audienceState[key]={mode,rows};
-  updateAudSummary(pendingAudience.ctx,pendingAudience.id);
-  hide('audienceModal');
-}
-function updateAudSummary(ctx,id){
-  const key=ctx+'_'+id;
-  const st=audienceState[key];
-  const el=document.getElementById('audSummary-'+ctx+'-'+id);
-  if(!el)return;
-  if(!st||st.mode==='all'){el.textContent='All registered members';return;}
-  const first=st.rows[0];
-  let txt = first? (first.attr+' '+first.op+' '+(first.val||'…')) : 'condition set';
-  if(st.rows.length>1) txt += ' +'+(st.rows.length-1)+' more';
-  el.textContent='Specific: '+txt;
-}
-
-/* ---------- activation flow: loader → success (rule links + member tag) ---------- */
+/* ---------- save → turn on → Campaign distribution ---------- */
 let pending=null;
+function gameById(id){return tableGames.find(g=>g.id===id)||GAMES.find(g=>g.id===id);}
+function gameTag(g){return 'game_eligible_'+g.id;}
+function gameDeepLink(g){return 'https://games.como.com/play/'+g.id;}
+function askSaveConfig(id,ctx){
+  const g=gameById(id);if(!g)return;
+  pending={id,ctx,action:'save'};
+  if(g.status!=='active'){
+    saveConfigValues(g,ctx);
+    if(g.status==='draft')g.status='ready';
+    renderConfig();
+    pending=null;
+    return;
+  }
+  document.getElementById('activateFlow').classList.remove('hidden');
+  document.getElementById('activateFlowBox').innerHTML=`
+    <h3>Apply changes to this live game?</h3>
+    <div class="legal">The updated configuration will affect all existing and future eligible Members.</div>
+    <div class="acts"><button class="btn sec" onclick="closeLifecycleModal()">Cancel</button><button class="btn" onclick="confirmSaveConfig()">Apply changes</button></div>`;
+}
+function saveConfigValues(g,ctx){
+  const name=document.getElementById('gameName-'+ctx+'-'+g.id);
+  const score=document.getElementById('gameScore-'+ctx+'-'+g.id);
+  const wins=document.getElementById('gameWins-'+ctx+'-'+g.id);
+  const cap=document.getElementById('gameCap-'+ctx+'-'+g.id);
+  const reward=document.getElementById('benefitLabel-'+ctx+'-'+g.id);
+  if(name&&name.value.trim())g.name=name.value.trim();
+  if(score&&Number(score.value)>0)g.score=Number(score.value);
+  if(wins)g.wins=wins.value;
+  if(cap)g.totalCap=cap.value;
+  if(reward)g.reward=reward.textContent.trim();
+  if(g.themeUrl)syncGameTheme(g);
+}
+function syncGameTheme(g){
+  fetch('/api/game-theme',{method:'POST',headers:{'Content-Type':'application/json'},
+    body:JSON.stringify({themeUrl:g.themeUrl,title:g.name,scoreTarget:g.score})})
+    .then(()=>{ refreshLivePreviewFor(g.id); })
+    .catch(()=>{ /* local-mode write API is best-effort in the prototype */ });
+}
+/* Saving re-writes the real theme.json, but the currently-open iframe already has
+   the OLD file loaded — reloading it takes a moment, so this shows a short
+   "Applying changes…" spinner first rather than silently swapping the game out. */
+function refreshLivePreviewFor(gameId){
+  const frame=document.getElementById('livePreviewFrame');
+  if(!frame||frame.dataset.gameId!==gameId)return;
+  const cfgPrev=document.getElementById('cfgPhonePreview');
+  if(!cfgPrev)return;
+  cfgPrev.innerHTML='<div class="preview-loading"><div class="spinner"></div><div>Applying changes…</div></div>';
+  setTimeout(()=>{
+    const g=[...tableGames,...GAMES,...EXTRA].find(x=>x.id===gameId);
+    if(g)cfgPrev.innerHTML=gameStateHTML('play',g);
+  },2000);
+}
+function confirmSaveConfig(){
+  if(!pending)return;
+  const g=gameById(pending.id);if(!g)return;
+  saveConfigValues(g,pending.ctx);
+  renderConfig();
+  closeLifecycleModal();
+}
 function askActivate(id,ctx){
   pending={id,ctx};
-  const g=[...tableGames,...GAMES].find(x=>x.id===id);
+  const g=gameById(id);
+  if(!g)return;
+  saveConfigValues(g,ctx);
   document.getElementById('activateFlow').classList.remove('hidden');
   renderActivateLoading(g);
   setTimeout(()=>renderActivateSuccess(g),1400);
@@ -295,47 +493,77 @@ function renderActivateLoading(g){
   document.getElementById('activateFlowBox').innerHTML = `
     <div style="text-align:center;padding:10px 6px 4px">
       <div class="spinner" style="margin:0 auto 16px;width:26px;height:26px"></div>
-      <h3 style="margin:0 0 6px">Activating "${g.name}"…</h3>
-      <p style="color:var(--soft);font-size:13px;margin:0">Creating the eligibility rule and reward rule in Campaign Center…</p>
+      <h3 style="margin:0 0 6px">Turning on "${g.name}"…</h3>
+      <p style="color:var(--soft);font-size:13px;margin:0">Preparing game access and automatic Gift delivery…</p>
     </div>`;
 }
 function renderActivateSuccess(g){
-  if(pending.ctx==='cfg'){
-    tableGames=GAMES.map(x=>({...x,status:x.id===pending.id?'active':'draft'}));
-  }else{
-    const gg=tableGames.find(x=>x.id===pending.id); if(gg)gg.status='active';
-  }
-  renderTable();
-  const key=pending.ctx+'_'+pending.id;
-  const st=audienceState[key];
-  const audText = (!st||st.mode==='all') ? 'All registered members'
-    : ('Specific members · '+(st.rows[0]?st.rows[0].attr+' '+st.rows[0].op+' '+(st.rows[0].val||'…'):'condition set'));
-  const tag='game_eligible_'+slugify(g.name);
-  document.getElementById('activateFlowBox').innerHTML = `
-    <h3>✅ "${g.name}" is live</h3>
-    <div class="legal" style="margin-bottom:14px">Two rules were created in Campaign Center, tagged <span class="pill p-brand" style="margin-left:2px">Managed by Games</span>.</div>
-    <div class="card act-rule-card">
-      <div class="ic">🎯</div>
-      <div style="flex:1"><div class="ttl">Eligibility rule</div><div class="sub2">${audText}</div></div>
-      <a href="#" onclick="alert('Opens rule in Campaign Center (prototype)');return false;">View rule →</a>
-    </div>
-    <div class="card act-rule-card">
-      <div class="ic">🎁</div>
-      <div style="flex:1"><div class="ttl">Reward rule</div><div class="sub2">GAME_WIN → ${g.reward}</div></div>
-      <a href="#" onclick="alert('Opens rule in Campaign Center (prototype)');return false;">View rule →</a>
-    </div>
-    <div class="field" style="margin-top:14px">
-      <label>Member tag (for analytics)</label>
-      <div style="background:var(--graypill);border-radius:8px;padding:8px 11px;font-family:ui-monospace,monospace;font-size:12.5px">${tag}</div>
-      <div class="hint">Applied on eligibility, removed on final win. Use to segment or report in analytics.</div>
-    </div>
-    <div class="acts"><button class="btn" onclick="hide('activateFlow');finishActivateFlow()">Done</button></div>`;
+  g.status='active';
+  renderConfig();
+  renderCampaignHandoff(g,true);
 }
-function finishActivateFlow(){
-  if(pending && pending.ctx==='cfg'){ go('table'); }
-  pending=null;
+function showCampaignHandoff(id,ctx){
+  const g=gameById(id);if(!g)return;
+  pending={id,ctx,action:'campaign'};
+  document.getElementById('activateFlow').classList.remove('hidden');
+  renderCampaignHandoff(g,false);
 }
-function deactivateGame(id,ctx){const g=tableGames.find(x=>x.id===id);if(g)g.status='disabled';renderTable();}
+function renderCampaignHandoff(g,justActivated){
+  const tag=gameTag(g);const link=gameDeepLink(g);
+  const winLimit=g.wins.replace(' time',' win').replace(' times',' wins');
+  const accessCopy=g.wins==='Unlimited'
+    ? 'Because wins are unlimited, the Member keeps access while the game remains On and they remain eligible.'
+    : `When the Member reaches ${winLimit}, they are automatically untagged and lose access to the game.`;
+  document.getElementById('activateFlowBox').innerHTML=`
+    <div class="launch-state"><span class="launch-dot"></span><b>On</b><span>Waiting for distribution</span></div>
+    <h3>${justActivated?'“'+g.name+'” is ready to share':'Share “'+g.name+'” with Members'}</h3>
+    <div class="legal">Finish these two steps in Campaign Center to choose who gets the game and how they receive it.</div>
+    <div class="campaign-kit">
+      <div class="campaign-kit-title">Set up your Campaign</div>
+      <div class="campaign-step">
+        <div class="step-number">1</div>
+        <div class="step-content">
+          <b>Choose the Members who should get the game</b>
+          <p>Define your audience in Campaign Center. For example: Members who spent over $100 in the last 3 months. Add this tag to make the game visible only to those Members:</p>
+          <div class="setup-value"><code>${tag}</code><button onclick="copyCampaignValue('${tag}','Eligibility tag')">Copy tag</button></div>
+        </div>
+      </div>
+      <div class="campaign-step">
+        <div class="step-number">2</div>
+        <div class="step-content">
+          <b>Send those Members the game link</b>
+          <p>Add an email, SMS, or push activity after the tag step, and include this link in the message:</p>
+          <div class="setup-value"><code>${link}</code><button onclick="copyCampaignValue('${link}','Game link')">Copy link</button></div>
+        </div>
+      </div>
+    </div>
+    <div class="automatic-logic"><span class="automatic-icon">✓</span><div><b>Como handles the rest</b><span>After each accepted win, the Member automatically receives ${g.reward}. ${accessCopy}</span></div></div>
+    <div class="acts"><button class="btn sec" onclick="closeLifecycleModal()">Done</button><button class="btn" onclick="openCampaignCenter()">Open Campaign Center</button></div>`;
+}
+function askPauseGame(id,ctx){
+  const g=gameById(id);if(!g)return;
+  pending={id,ctx,action:'pause'};
+  document.getElementById('activateFlow').classList.remove('hidden');
+  document.getElementById('activateFlowBox').innerHTML=`
+    <h3>Pause “${g.name}”?</h3>
+    <div class="impact-list">
+      <div><b>Access stops immediately</b><span>The Games backend blocks every load, even when a Member still has the eligibility tag.</span></div>
+      <div><b>Progress and tags are kept</b><span>Recorded wins are not reset and no bulk untagging runs.</span></div>
+      <div><b>Campaigns are not paused</b><span>Stop the marketing Campaign separately if you do not want it to keep sending the game link.</span></div>
+    </div>
+    <div class="acts"><button class="btn sec" onclick="closeLifecycleModal()">Cancel</button><button class="btn danger" onclick="confirmPauseGame()">Pause game</button></div>`;
+}
+function confirmPauseGame(){
+  if(!pending)return;const g=gameById(pending.id);if(g)g.status='disabled';renderConfig();closeLifecycleModal();
+}
+function copyCampaignValue(value,label){
+  if(navigator.clipboard&&navigator.clipboard.writeText)navigator.clipboard.writeText(value);
+  alert(label+' copied (prototype)');
+}
+function openCampaignCenter(){alert('Opens Campaign Center in a new tab with the setup checklist kept available here (prototype)');}
+function closeLifecycleModal(){hide('activateFlow');pending=null;}
+function finishActivateFlow(){closeLifecycleModal();}
+function deactivateGame(id,ctx){askPauseGame(id,ctx);}
 function archiveGame(id,ctx){const g=tableGames.find(x=>x.id===id);if(g)g.status='archived';renderTable();}
 function unarchiveGame(id,ctx){const g=tableGames.find(x=>x.id===id);if(g)g.status='draft';renderTable();}
 
@@ -357,25 +585,28 @@ function generateMore(){
 function startGen(){
   showScreen('config');
   // reset config screen to generating state
+  tableGames=[...GAMES.map(g=>({...g,status:'draft'}))];
   document.getElementById('configRows').innerHTML='';
   document.getElementById('cfgTitle').textContent='Generating your games…';
   document.getElementById('cfgSub').textContent='Games appear below as the Game Designer delegates to coders.';
+  document.getElementById('agentPanel').classList.remove('collapsed');
   document.getElementById('agentPanel').classList.remove('hidden');
+  document.getElementById('genMoreBtn').classList.add('hidden');
   document.getElementById('cfgSpinner').style.display='';
   document.getElementById('designerThoughts').innerHTML='';
-  initPersistentPreview('cfg');
+  showPreviewLoading('cfg');
   runGenerating();
 }
 
 /* ---------- generating flow (streams into config screen) ---------- */
 const DESIGNER_THOUGHTS=[
-  'Analyzing brand personality… Pancake Parlour is warm, family-friendly, Australian.',
-  'Menu items detected: pancakes, waffles, berries, syrup, coffee, shakes.',
-  'Best mechanics for food brands: catching, stacking, memory matching.',
+  'Analyzing brand personality… Vapiano Australia is bold, Italian, and menu-driven.',
+  'Menu items detected: pizza, pasta, burrata, tiramisu, olives, focaccia.',
+  'Best mechanics for an Italian menu: wrapping snake, memory matching, platform climbing.',
   'Selecting 3 templates from the bank…',
-  '→ Delegating "Short Stack Panic" (catch & stack) to Coder 1…',
-  '→ Delegating "Syrup Drizzle Dash" (dodge & drizzle) to Coder 2…',
-  '→ Delegating "Parlour Memory Match" (card flip) to Coder 3…',
+  '→ Delegating "Vapiano Loop" (wrapping snake) to Coder 1…',
+  '→ Delegating "Pasta Pairing" (memory match) to Coder 2…',
+  '→ Delegating "Menu Tower" (platform jumper) to Coder 3…',
 ];
 function runGenerating(){
   const dt=document.getElementById('designerThoughts'); dt.innerHTML='';
@@ -389,7 +620,7 @@ function runGenerating(){
     if(di===5) addGenRow(GAMES[1]);
     if(di===6) addGenRow(GAMES[2]);
     di++;
-  },500);
+  },1900);
 }
 function addGenRow(g){
   const rows=document.getElementById('configRows');
@@ -408,22 +639,30 @@ function finishGenerating(){
     document.getElementById('agentTitle').textContent='✅ Game Designer done — 3 games ready';
     document.getElementById('cfgTitle').textContent='Your games are ready 🎉';
     document.getElementById('cfgSub').textContent='Configure each game, preview it on the right, then activate.';
+    document.getElementById('genMoreBtn').classList.remove('hidden');
     renderConfig();
-    initPersistentPreview('cfg');
+    showPreviewArena('cfg');
+    // gently collapse the agent stream now that it's done
+    setTimeout(()=>{document.getElementById('agentPanel').classList.add('collapsed');},1200);
   },800);
+}
+function toggleAgentPanel(){
+  document.getElementById('agentPanel').classList.toggle('collapsed');
 }
 
 /* ---------- persistent phone preview ---------- */
-let selectedGameId='g1';
-const ALL_GAMES=[...GAMES,...EXTRA];
+/* selectedGameId is null until the merchant picks a specific game row (or a real
+   GAME_OVER message identifies one) — until then the preview shows the real Arena. */
+let selectedGameId=null;
 function selectGame(ctx,id){
   selectedGameId=id;
   const target=ctx==='cfg'?'cfgPhonePreview':'tblPhonePreview';
   const g=[...tableGames,...GAMES,...EXTRA].find(x=>x.id===id);
   if(g && document.getElementById(target)) document.getElementById(target).innerHTML=gameStateHTML('play',g);
+  if(ctx==='cfg')setActiveToggle('cfgPrevToggles','Game');
 }
 function setCfgPrev(state,btn){
-  const g=[...GAMES,...EXTRA].find(x=>x.id===selectedGameId)||GAMES[0];
+  const g=selectedGameId?[...tableGames,...GAMES,...EXTRA].find(x=>x.id===selectedGameId):null;
   document.getElementById('cfgPhonePreview').innerHTML=gameStateHTML(state,g);
   btn.parentElement.querySelectorAll('button').forEach(b=>b.classList.remove('on'));btn.classList.add('on');
 }
@@ -432,39 +671,33 @@ function setTblPrev(state,btn){
   document.getElementById('tblPhonePreview').innerHTML=gameStateHTML(state,g);
   btn.parentElement.querySelectorAll('button').forEach(b=>b.classList.remove('on'));btn.classList.add('on');
 }
-function initPersistentPreview(ctx){
+/* Shown only while the Game Designer / coders are generating — there's nothing
+   playable yet, so the preview should not imply otherwise. */
+function showPreviewLoading(ctx){
   const target=ctx==='cfg'?'cfgPhonePreview':'tblPhonePreview';
-  const g=GAMES[0];selectedGameId=g.id;
-  if(document.getElementById(target)) document.getElementById(target).innerHTML=gameStateHTML('play',g);
+  const el=document.getElementById(target);
+  if(!el)return;
+  selectedGameId=null;
+  el.innerHTML='<div class="preview-loading"><div class="spinner"></div><div>Generating your games…</div></div>';
+}
+/* Default preview once games are ready: the real Arena (games/index.html), matching
+   what a member sees when eligible for 2+ games. Selecting a specific row switches
+   away from this to that game's own live preview (see selectGame). */
+function showPreviewArena(ctx){
+  const target=ctx==='cfg'?'cfgPhonePreview':'tblPhonePreview';
+  const el=document.getElementById(target);
+  if(!el)return;
+  selectedGameId=null;
+  el.innerHTML=gameStateHTML('arena');
+  if(ctx==='cfg')setActiveToggle('cfgPrevToggles','Arena');
 }
 
 /* ---------- fake door ---------- */
 function openFakeDoor(){document.getElementById('fakedoor').classList.remove('hidden');}
 
-/* ---------- try game (interactive mini-game in phone frame) ---------- */
+/* ---------- try game (restart the live iframe / return from a win-lose preview) ---------- */
 function tryGame(){
-  const g=[...ALL_GAMES].find(x=>x.id===selectedGameId)||GAMES[0];
-  const targets=['cfgPhonePreview','tblPhonePreview'];
-  const target=targets.find(t=>document.getElementById(t)&&document.getElementById(t).closest('.screen:not(.hidden)'));
-  const el=document.getElementById(target||'cfgPhonePreview');
-  if(!el)return;
-  let score=0;const needed=g.score;
-  el.innerHTML=`<div class="gamewrap" id="tryGameWrap">
-    <div class="gtop"><span id="tryScore">SCORE ${score}/${needed}</span><span>❤❤❤</span></div>
-    <div class="gboard" id="tryBoard" style="cursor:pointer">${Array(8).fill('<div class="gcell" style="transition:transform .1s">'+g.emoji+'</div>').join('')}</div>
-  </div>`;
-  const board=document.getElementById('tryBoard');
-  board.querySelectorAll('.gcell').forEach(cell=>{
-    cell.addEventListener('click',function(){
-      cell.style.transform='scale(1.3)';
-      setTimeout(()=>cell.style.transform='',150);
-      score+=Math.floor(needed/6);
-      document.getElementById('tryScore').textContent='SCORE '+Math.min(score,needed)+'/'+needed;
-      if(score>=needed){
-        el.innerHTML=gameStateHTML('win',g);
-      }
-    });
-  });
+  resetLivePreview();
 }
 
 /* ---------- member screens ---------- */
@@ -480,6 +713,5 @@ function setState(state,btn){
 }
 
 /* init */
-document.getElementById('audAddSelect').innerHTML = '<option value="">Select member attribute…</option>' + AUD_ATTRS.map(a=>`<option>${a}</option>`).join('');
 showScreen('empty');
 setTimeout(()=>document.getElementById('flag').style.display='none',9000);

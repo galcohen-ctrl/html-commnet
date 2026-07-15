@@ -3,24 +3,23 @@
 <head>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-<title>AI-Generated Games — Clickable Prototype</title>
-<link rel="stylesheet" href="styles.css" />
+<title>AI-Generated Games</title>
+<link rel="stylesheet" href="styles.css?v=20260715i" />
 </head>
 <body>
 
 <!-- prototype navigator -->
 <div class="protobar">
-  <b>🎮 AI Games — Clickable Prototype</b>
+  <b>🎮 AI Games</b>
   <span class="grp">Merchant (Hub 2)</span>
   <div class="seg" id="nav">
     <button data-s="empty" class="on">1·Empty</button>
     <button data-s="scan">2·Scrape+Gaps</button>
-    <button data-s="config">3·Generate+Config</button>
-    <button data-s="table">4·Games table</button>
+    <button data-s="config">3·Generate+Games</button>
     <span class="grp">Member</span>
-    <button data-s="m-home">5·Home card</button>
-    <button data-s="m-arena">6·Arena</button>
-    <button data-s="m-play">7·Play+states</button>
+    <button data-s="m-home">4·Home card</button>
+    <button data-s="m-arena">5·Arena</button>
+    <button data-s="m-play">6·Play+states</button>
   </div>
 </div>
 
@@ -36,23 +35,22 @@
         <!-- 1. EMPTY STATE -->
         <div class="screen" id="s-empty">
           <div class="empty">
-            <div class="gicon">🎮</div>
+            <div class="gicon"><svg viewBox="0 0 260 260" width="36" height="36" fill="currentColor" xmlns="http://www.w3.org/2000/svg"><path d="M253.53,158.485c-12.44-45.94-46.84-76.72-76.94-68.8c-11.54,3.17-29.87,10.86-43,11.54c0,0,0-14.26,0-14.93c0-13.13-10.63-23.77-23.53-23.77H75.43c-8.37,0-14.93-6.79-14.93-15.16s6.78-15.16,14.93-15.16h49.34c4.75,0,8.6-3.85,8.6-8.6L133.394,2h-8.641l0.017,13.005c0,8.6-0.46,8.6-8.6,8.6H75.43c-13.12,0-23.53,10.63-23.53,23.76s10.63,23.76,23.53,23.76h34.4c8.37,0,14.94,6.79,14.94,15.17c0,0.67,0,15.16,0,15.16c-12.9-0.91-31.01-8.6-42.32-11.77c-29.88-8.15-63.82,22.86-76.04,69.02C3.391,170.111,2,181.379,2,192c0,32,13.599,58.732,36.09,64.695c2.949,0.812,5.941,1.296,8.952,1.297C67.067,258,87.075,243.325,101,219.585c8.83,1.81,18.33,2.94,28.07,2.94c9.95,0,19.46-1.81,28.51-3.62c14.058,23.629,34.085,38.055,54.136,38.067c3.157,0.002,6.584-0.141,9.684-0.947C251.5,248.095,265.98,204.195,253.53,158.485z M90.35,162.335c-0.2,2.11-1.74,3.64-3.86,3.82c-0.14,0.01-0.28,0.02-0.42,0.02h-17.2v17.2c0,2.26-1.81,4.3-4.3,4.3c-0.14,0-0.28-0.01-0.42-0.02c-1.95-0.22-3.64-1.91-3.86-3.86c-0.01-0.14-0.02-0.28-0.02-0.42v-17.2h-17.2c-2.26,0-4.3-1.81-4.3-4.3c0-0.14,0.01-0.28,0.02-0.42c0.2-2.12,1.9-3.66,3.86-3.86c0.14-0.01,0.28-0.02,0.42-0.02h17.2v-17.2c0-0.14,0.01-0.28,0.02-0.42c0.18-2.13,1.73-3.68,3.86-3.86c0.14-0.01,0.28-0.02,0.42-0.02c0.16,0,0.31,0.01,0.46,0.02c0.07,0.01,0.14,0.02,0.21,0.03c0.101,0.014,0.196,0.042,0.294,0.063c-0.032-0.008-0.061-0.014-0.094-0.023c0.1,0.01,0.2,0.04,0.3,0.07c0.27,0.07,0.53,0.17,0.77,0.3c0.1,0.05,0.2,0.1,0.29,0.16c0.09,0.05,0.18,0.11,0.27,0.17c0.12,0.09,0.23,0.18,0.33,0.27c0.09,0.08,0.17,0.16,0.25,0.24c0.09,0.09,0.17,0.18,0.24,0.27c0.18,0.22,0.34,0.45,0.47,0.7c0.09,0.18,0.17,0.36,0.24,0.55c0.05,0.11,0.08,0.22,0.11,0.34c0.04,0.12,0.07,0.24,0.09,0.36s0.04,0.24,0.05,0.36c0.01,0.14,0.02,0.28,0.02,0.42v17.2h17.2c0.14,0,0.28,0.01,0.42,0.02c1.95,0.22,3.64,1.91,3.86,3.86c0.01,0.14,0.02,0.28,0.02,0.42C90.37,162.035,90.36,162.185,90.35,162.335z M172,197c-7.732,0-14-6.268-14-14s6.268-14,14-14s14,6.268,14,14S179.732,197,172,197z M172,159c-7.732,0-14-6.268-14-14s6.268-14,14-14s14,6.268,14,14S179.732,159,172,159z M210,206c-7.732,0-14-6.268-14-14s6.268-14,14-14s14,6.268,14,14S217.732,206,210,206z M210,167c-7.732,0-14-6.268-14-14s6.268-14,14-14s14,6.268,14,14S217.732,167,210,167z"/></svg></div>
             <h2>Create games for your members</h2>
             <p class="help">Enter your website URL and Como will build branded mini-games your members can play to win your rewards.</p>
             <div class="urlrow">
-              <input id="urlInput" type="text" placeholder="https://krispykreme.fr/" value="https://krispykreme.fr/" />
+              <input id="urlInput" type="text" placeholder="Enter your website URL (e.g., brand.com)" />
               <button class="btn" onclick="openConsent()">Generate games</button>
             </div>
             <div class="altlink">No website? <button onclick="toggleDrop()">Upload your brand assets instead</button></div>
             <div class="dropzone hidden" id="drop">
-              <div style="font-size:26px;margin-bottom:8px">📁</div>
-              <b>Drag &amp; drop files here</b><br/>
-              Logos, fonts, product photos, brand guidelines docs, slides — ZIP or folder.<br/><br/>
+              <div style="font-size:26px;margin-bottom:8px" id="dropIcon">📁</div>
+              <b id="dropLabel">Drag &amp; drop files here</b><br/>
+              <span id="dropHelp">Logos, fonts, product photos, brand guidelines docs, slides — ZIP or folder.</span><br/><br/>
               <button class="btn sec sm" onclick="alert('File picker opens (prototype)')">📂 Browse files</button>
-              <div style="margin-top:8px;font-size:11.5px;color:var(--soft)">or ⌘V paste from clipboard</div>
+              <div style="margin-top:8px;font-size:11.5px;color:var(--soft)"></div>
             </div>
           </div>
-          <div class="note">Primary path is the URL (dominant CTA). Upload is the visible-but-secondary fallback for merchants with no usable site.</div>
         </div>
 
         <!-- 2. SCRAPE GALLERY + GAP-FILL (merged) -->
@@ -61,48 +59,41 @@
             <div class="spinner" id="scanSpin"></div>
             <div>
               <div class="h1" style="font-size:17px" id="scanTitle">Reading your brand…</div>
-              <div class="sub" style="margin:0" id="scanSub">Scanning pancakeparlour.com.au · this takes about 2 minutes</div>
+              <div class="sub" style="margin:0" id="scanSub">Scanning vapiano.com.au · this takes about 2 minutes</div>
             </div>
           </div>
-          <div class="card gapfill hidden" id="gapPanel" style="padding:20px;margin-bottom:16px">
-            <div style="display:flex;gap:16px;align-items:center">
-              <div style="font-size:30px">🍔</div>
-              <div style="flex:1">
-                <div style="font-weight:700;font-size:14px">Product images <span class="pill p-amber" id="gapPill" style="margin-left:6px">Missing</span></div>
-                <div class="sub" style="margin:4px 0 0">Used to skin game tiles and rewards. 3–8 images recommended.</div>
-              </div>
-              <button class="btn sec" id="gapUploadBtn" onclick="uploadGapImages()">Upload images</button>
-            </div>
-            <div class="cfg-acts" style="margin-top:16px">
-              <button class="btn ghost" onclick="startGen()">Continue with smart defaults</button>
-              <button class="btn" id="gapGenerateBtn" disabled style="opacity:.5;cursor:not-allowed" onclick="startGen()">Generate my games →</button>
-            </div>
-            <div class="note" style="margin-top:14px" id="gapNote">Add product photos to unlock “Generate my games,” or continue with smart defaults.</div>
+          <div class="cfg-acts hidden" id="scanActions" style="margin:0 0 20px">
+            <button class="btn" id="genGamesBtn" onclick="startGen()">Generate games →</button>
+            <button class="btn sec" id="addAssetsBtn" onclick="uploadGapImages()">Add more assets</button>
+            <input type="file" id="gapFileInput" accept="image/*" multiple style="display:none" onchange="handleGapFileSelected()"/>
           </div>
           <div class="masonry" id="masonry"></div>
         </div>
 
-        <!-- 4. GENERATE + CONFIG (combined: agent stream + rows appear progressively) -->
+        <!-- 3. GENERATE + GAMES (combined: agent stream + rows appear progressively, then becomes the games list) -->
         <div class="screen hidden" id="s-config">
-          <div style="display:grid;grid-template-columns:1fr 280px;gap:24px;align-items:start">
+          <div style="display:grid;grid-template-columns:1fr 410px;gap:24px;align-items:start">
             <div>
-              <!-- Agent stream panel (top) -->
+              <!-- Agent stream panel (top, collapsible) -->
               <div class="card" style="padding:16px;margin-bottom:14px" id="agentPanel">
-                <div style="display:flex;align-items:center;gap:10px;margin-bottom:10px">
+                <div style="display:flex;align-items:center;gap:10px;margin-bottom:10px;cursor:pointer" onclick="toggleAgentPanel()">
                   <div class="spinner" id="cfgSpinner"></div>
                   <span style="font-weight:700;font-size:13.5px;color:var(--brand)" id="agentTitle">Game Designer Agent</span>
+                  <span style="flex:1"></span>
+                  <span class="agent-chev" id="agentChev">▾</span>
                 </div>
-                <div id="designerThoughts" style="font-size:12px;color:var(--soft);line-height:1.6;font-family:ui-monospace,monospace;padding:8px 10px;background:var(--bg);border-radius:9px;max-height:120px;overflow-y:auto"></div>
+                <div id="designerThoughts" class="agent-thoughts"></div>
               </div>
-              <!-- Games list (rows appear as coders finish) -->
+              <!-- Games list (rows appear as coders finish, stays here after generation) -->
               <div class="tablehead">
                 <div>
                   <div class="h1" id="cfgTitle">Generating your games…</div>
                   <div class="sub" style="margin:2px 0 0" id="cfgSub">Games appear below as the coders finish skinning each one.</div>
                 </div>
+                <div class="grow"></div>
+                <button class="btn hidden" id="genMoreBtn" onclick="openFakeDoor()">+ Generate More Games</button>
               </div>
               <div class="card gtable" id="configRows"></div>
-              <div class="note">Each game activates on its own (tag- &amp; status-based). No global "publish" — you turn each game on when it's ready.</div>
             </div>
             <div style="position:sticky;top:60px">
               <div class="preview-toggles" id="cfgPrevToggles">
@@ -113,37 +104,8 @@
                 <button onclick="setCfgPrev('arena',this)">Arena</button>
               </div>
               <div class="phone"><div class="notch"></div><div class="pscreen" id="cfgPhonePreview"></div></div>
-              <button class="btn sm" style="width:100%;margin-top:10px" onclick="tryGame()">🎮 Try this game</button>
+              <button class="btn sm" style="width:100%;margin-top:10px" onclick="tryGame()">🔁 Restart game</button>
               <div class="preview-cap">Live preview · click a row to switch game</div>
-            </div>
-          </div>
-        </div>
-
-        <!-- 5. GAMES TABLE -->
-        <div class="screen hidden" id="s-table">
-          <div style="display:grid;grid-template-columns:1fr 280px;gap:24px;align-items:start">
-            <div>
-              <div class="tablehead">
-                <div>
-                  <div class="h1">Games <span class="pill p-amber" style="margin-left:8px">3/3 used</span></div>
-                  <div class="sub" style="margin:2px 0 0">Brand assets last refreshed: 30 Jun 2026</div>
-                </div>
-                <div class="grow"></div>
-                <button class="btn" id="genMoreBtn" onclick="openFakeDoor()">+ Generate More Games</button>
-              </div>
-              <div class="card gtable" id="tableRows"></div>
-            </div>
-            <div style="position:sticky;top:60px">
-              <div class="preview-toggles" id="tblPrevToggles">
-                <button class="on" onclick="setTblPrev('play',this)">Game</button>
-                <button onclick="setTblPrev('win',this)">Win</button>
-                <button onclick="setTblPrev('lose',this)">Lose</button>
-                <button onclick="setTblPrev('out',this)">Out of wins</button>
-                <button onclick="setTblPrev('arena',this)">Arena</button>
-              </div>
-              <div class="phone"><div class="notch"></div><div class="pscreen" id="tblPhonePreview"></div></div>
-              <button class="btn sm" style="width:100%;margin-top:10px" onclick="tryGame()">🎮 Try this game</button>
-              <div class="preview-cap">Preview · click a game row to switch</div>
             </div>
           </div>
         </div>
@@ -166,7 +128,7 @@
         <div>
           <div class="phone"><div class="notch"></div><div class="pscreen">
             <div class="appbg">
-              <div class="ahead">Pancake Parlour</div>
+              <div class="ahead">Vapiano Australia</div>
               <div class="abody">
                 <div class="profrow"><div class="pic">⭐</div><div><div style="font-weight:700;color:var(--ink)">240 points</div><div>Gold member</div></div></div>
                 <div class="profrow"><div class="pic">🎁</div><div><div style="font-weight:700;color:var(--ink)">2 rewards</div><div>Ready to use</div></div></div>
@@ -178,7 +140,7 @@
               <button class="cta" onclick="memberGo('m-play')">Play now</button>
             </div>
           </div></div>
-          <div class="preview-cap">Phoenix app · home card</div>
+          <div class="preview-cap">Mobile app · home card</div>
         </div>
         <div>
           <div class="phone"><div class="notch"></div><div class="pscreen">
@@ -209,9 +171,9 @@
             <div class="arena">
               <div class="ah">🎮 Choose a game</div>
               <div class="alist">
-                <div class="acard" onclick="memberGo('m-play')"><div class="ai">🥞</div><div><div class="an">Short Stack Panic</div><div class="ad">Win: free kids pancake</div></div><div class="ago">›</div></div>
-                <div class="acard" onclick="memberGo('m-play')"><div class="ai">🍯</div><div><div class="an">Syrup Drizzle Dash</div><div class="ad">Win: 15% off next visit</div></div><div class="ago">›</div></div>
-                <div class="acard" onclick="memberGo('m-play')"><div class="ai">🧠</div><div><div class="an">Parlour Memory Match</div><div class="ad">Win: 200 points</div></div><div class="ago">›</div></div>
+                <div class="acard" onclick="memberGo('m-play')"><div class="ai">🐍</div><div><div class="an">Vapiano Loop</div><div class="ad">Win: free kids pancake</div></div><div class="ago">›</div></div>
+                <div class="acard" onclick="memberGo('m-play')"><div class="ai">🍝</div><div><div class="an">Pasta Pairing</div><div class="ad">Win: 15% off next visit</div></div><div class="ago">›</div></div>
+                <div class="acard" onclick="memberGo('m-play')"><div class="ai">🗼</div><div><div class="an">Menu Tower</div><div class="ad">Win: 200 points</div></div><div class="ago">›</div></div>
               </div>
             </div>
           </div></div>
@@ -249,39 +211,12 @@
       <button class="btn sec" onclick="closeConsent()">Cancel</button>
       <button class="btn" onclick="authorize()">Continue</button>
     </div>
-    <div class="note" style="margin:16px 0 0">Statement/disclaimer only — no checkbox needed (legal approved). Consent record (merchant, URL, timestamp, user) written to Hub audit table.</div>
   </div>
 </div>
 
-<!-- ACTIVATE FLOW MODAL (loader → success with rule links + member tag) -->
+<!-- GAME LIFECYCLE MODAL (save → turn on → Campaign distribution) -->
 <div class="modal-bg hidden" id="activateFlow">
-  <div class="modal" id="activateFlowBox"></div>
-</div>
-
-<!-- AUDIENCE MODAL (Campaign Center "Apply to Members" pattern) -->
-<div class="modal-bg hidden" id="audienceModal">
-  <div class="modal" style="max-width:560px">
-    <div class="aud-header">
-      <h3>Apply to Members</h3>
-      <button onclick="hide('audienceModal')">✕</button>
-    </div>
-    <div style="font-weight:700;font-size:13px;margin-bottom:2px">This activity applies to:</div>
-    <label class="radio-row"><input type="radio" name="audMode" id="audAll" onchange="setAudMode('all')"> All registered members</label>
-    <label class="radio-row"><input type="radio" name="audMode" id="audSpecific" onchange="setAudMode('specific')"> Specific members</label>
-    <div class="aud-filterbox hidden" id="audFilterBox">
-      <div class="lbl">Member whose</div>
-      <div id="audRows"></div>
-      <div class="aud-add">
-        <select id="audAddSelect" onchange="if(this.value){addAudRowWithAttr(this.value);this.value='';}">
-          <option value="">Select member attribute…</option>
-        </select>
-      </div>
-    </div>
-    <div class="acts">
-      <button class="btn sec" onclick="hide('audienceModal')">Cancel</button>
-      <button class="btn" onclick="saveAudience()">Save</button>
-    </div>
-  </div>
+  <div class="modal" id="activateFlowBox" style="max-width:640px"></div>
 </div>
 
 <!-- FAKE-DOOR MODAL -->
@@ -302,13 +237,12 @@
       <button class="btn sec" onclick="hide('fakedoor')">Cancel</button>
       <button class="btn" onclick="hide('fakedoor');alert('✅ Submitted! We\'ll notify you when new games are available.')">Submit request</button>
     </div>
-    <div class="note" style="margin:14px 0 0">This captures V2 demand signal: game type preference + behavioral intent.</div>
   </div>
 </div>
 
 <div class="flag" id="flag">Tip: use the top bar to jump between screens. CTAs are wired to advance the flow.</div>
 
-<script src="prototype.js"></script>
+<script src="prototype.js?v=20260715k"></script>
 
 <!-- GitHub-backed inline comments overlay -->
 <link rel="stylesheet" href="comment-overlay.css" />
@@ -330,6 +264,6 @@
     </div>
   </div>
 </div>
-<script src="github-comments.js?v=20260713d"></script>
+<script src="github-comments.js?v=20260714d"></script>
 </body>
 </html>

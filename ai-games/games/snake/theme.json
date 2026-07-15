@@ -1,0 +1,89 @@
+{
+  "meta": {
+    "gameId": "vapiano-loop",
+    "pageTitle": "Vapiano Loop | Vapiano Australia",
+    "brand": "Vapiano Australia",
+    "source": "loya-play-agent/output/vapiano"
+  },
+  "agentHints": {
+    "purpose": "A restaurant-themed snake game with a deliberate wrap-around edge mechanic.",
+    "safeToChange": [
+      "css",
+      "content",
+      "assets.food",
+      "gameplay"
+    ],
+    "wrapRule": "Do not remove edge wrapping. A snake that exits left appears on the right; the same applies to all four edges.",
+    "foodRule": "Food uses emoji because it remains crisp at every canvas size. Replace label, emoji, and points together.",
+    "goalRule": "The run is a win only when score reaches or exceeds gameplay.scoreTarget. Keep the visible score formatted as current/target.",
+    "cssRule": "Values in css are exposed directly as CSS custom properties. Canvas colours read the same properties from JavaScript."
+  },
+  "css": {
+    "--brand": "#ed1b3b",
+    "--brand-dark": "#a51229",
+    "--ink": "#212529",
+    "--paper": "#fdf7ee",
+    "--field": "#16372b",
+    "--field-grid": "rgba(255,255,255,0.08)",
+    "--snake-head": "#ed1b3b",
+    "--snake-body": "#f5c242",
+    "--ui-text": "#ffffff",
+    "--success": "#73cf8f",
+    "--shadow": "rgba(0,0,0,0.28)",
+    "--radius": "10px",
+    "--headline-font": "Georgia, 'Times New Roman', serif",
+    "--body-font": "Barlow, sans-serif",
+    "--game-width": "520px"
+  },
+  "content": {
+    "eyebrow": "Vapiano Australia presents",
+    "title": "Vapiano Loop",
+    "intro": "Snack your way around the kitchen. Slide off any edge and reappear on the other side.",
+    "startLabel": "Start cooking",
+    "restartLabel": "Cook again",
+    "scoreLabel": "Score",
+    "bestLabel": "Best",
+    "wrapLabel": "WALLS WRAP",
+    "overTitle": "Service paused.",
+    "overMessage": "You plated {score} of {target} points. Avoid your own pasta trail next round.",
+    "winTitle": "Order complete.",
+    "winMessage": "You plated {score} points and hit the {target}-point goal."
+  },
+  "assets": {
+    "logo": "../logo.svg",
+    "food": [
+      {
+        "label": "Margherita",
+        "emoji": "🍕",
+        "points": 10
+      },
+      {
+        "label": "Pasta",
+        "emoji": "🍝",
+        "points": 10
+      },
+      {
+        "label": "Burrata",
+        "emoji": "🧀",
+        "points": 15
+      },
+      {
+        "label": "Tiramisu",
+        "emoji": "🍰",
+        "points": 20
+      },
+      {
+        "label": "Olives",
+        "emoji": "🫒",
+        "points": 15
+      }
+    ]
+  },
+  "gameplay": {
+    "columns": 18,
+    "rows": 18,
+    "tickMs": 135,
+    "initialLength": 3,
+    "scoreTarget": 300
+  }
+}

@@ -1,0 +1,96 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <title>Vapiano Loop</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Barlow:wght@400;600;700;800&display=swap" rel="stylesheet">
+  <style>
+    * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+    body { min-height: 100vh; margin: 0; padding: max(14px, env(safe-area-inset-top)) 12px 18px; background: var(--ink); color: var(--ui-text); font-family: var(--body-font); display: grid; place-items: center; touch-action: none; }
+    .shell { width: min(var(--game-width), 100%); position: relative; }
+    .masthead { display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; }
+    .masthead img { width: 107px; height: 32px; object-fit: contain; filter: brightness(0) invert(1); }
+    .wrap-note { padding: 6px 8px; border: 1px solid var(--brand); border-radius: var(--radius); color: var(--ui-text); font-size: 10px; font-weight: 800; letter-spacing: .09em; }
+    .headline { display: flex; justify-content: space-between; align-items: end; margin: 0 0 11px; }
+    .headline p { margin: 0 0 4px; color: var(--paper); font-size: 11px; font-weight: 800; letter-spacing: .11em; text-transform: uppercase; }
+    h1 { margin: 0; font-family: var(--headline-font); color: var(--paper); font-size: clamp(36px, 9vw, 52px); line-height: .88; letter-spacing: 0; }
+    .score { text-align: right; } .score b { display: block; color: var(--brand); font-size: 28px; line-height: .85; } .score span { color: var(--paper); font-size: 10px; font-weight: 800; letter-spacing: .08em; text-transform: uppercase; }
+    .field-wrap { border: 3px solid var(--brand); border-radius: var(--radius); overflow: hidden; box-shadow: 0 12px 28px var(--shadow); background: var(--field); position: relative; }
+    canvas { display: block; width: 100%; aspect-ratio: 1; }
+    .overlay { position: absolute; inset: 0; z-index: 2; display: grid; place-items: center; padding: 22px; text-align: center; background: rgba(33,37,41,.86); }
+    .overlay.hidden { display: none; }
+    .overlay-card { max-width: 320px; }
+    .overlay .eyebrow { margin: 0 0 7px; color: var(--brand); font-size: 11px; font-weight: 800; letter-spacing: .12em; text-transform: uppercase; }
+    .overlay h2 { margin: 0 0 13px; color: var(--paper); font-family: var(--headline-font); font-size: 46px; line-height: .9; }
+    .overlay p { color: var(--paper); line-height: 1.4; margin: 0 0 22px; }
+    .primary { border: 0; border-radius: var(--radius); padding: 13px 18px; background: var(--brand); color: #fff; font-weight: 800; cursor: pointer; box-shadow: 0 6px 0 var(--brand-dark); }
+    .primary:active { transform: translateY(4px); box-shadow: 0 2px 0 var(--brand-dark); }
+    .bottom { display: flex; justify-content: space-between; align-items: center; color: var(--paper); margin-top: 10px; }
+    .bottom span { font-size: 12px; } .bottom b { color: var(--success); }
+    .dpad { width: 188px; margin: 16px auto 0; display: grid; grid-template: repeat(2, 48px) / repeat(3, 1fr); gap: 7px; }
+    .control { border: 1px solid rgba(255,255,255,.24); border-radius: var(--radius); color: var(--ui-text); background: rgba(255,255,255,.1); font-size: 21px; cursor: pointer; }
+    .control:active { background: var(--brand); transform: scale(.96); } .up { grid-column: 2; } .left { grid-column: 1; grid-row: 2; } .down { grid-column: 2; grid-row: 2; } .right { grid-column: 3; grid-row: 2; }
+    @media (min-width: 700px) { .dpad { display: none; } }
+  </style>
+</head>
+<body>
+  <main class="shell">
+    <header class="masthead"><img id="logo" alt="Vapiano"><span class="wrap-note" id="wrapLabel"></span></header>
+    <div class="headline"><div><p id="eyebrow"></p><h1 id="title"></h1></div><div class="score"><b id="score">0</b><span id="scoreLabel"></span></div></div>
+    <div class="field-wrap" id="fieldWrap">
+      <canvas id="canvas" aria-label="Vapiano Loop game board"></canvas>
+      <section class="overlay" id="overlay" role="dialog" aria-modal="true"><div class="overlay-card"><p class="eyebrow" id="overlayEyebrow"></p><h2 id="overlayTitle"></h2><p id="overlayMessage"></p><button class="primary" id="playButton"></button></div></section>
+    </div>
+    <footer class="bottom"><span><span id="bestLabel"></span>: <b id="best">0</b></span><span>Arrow keys or swipe</span></footer>
+    <div class="dpad" aria-label="Movement controls"><button class="control up" data-dir="up" aria-label="Move up">↑</button><button class="control left" data-dir="left" aria-label="Move left">←</button><button class="control down" data-dir="down" aria-label="Move down">↓</button><button class="control right" data-dir="right" aria-label="Move right">→</button></div>
+  </main>
+  <script src="../shared/theme-runtime.js"></script>
+  <script>
+    const canvas = document.getElementById('canvas'), ctx = canvas.getContext('2d'), $ = id => document.getElementById(id);
+    const send = message => window.parent.postMessage(message, '*');
+    let theme, snake, dir, nextDir, food, score = 0, running = false, loop, cell = 20, touchStart;
+    let best = Number(localStorage.getItem('vapiano-loop-best') || 0);
+    const dirs = { up: { x: 0, y: -1 }, down: { x: 0, y: 1 }, left: { x: -1, y: 0 }, right: { x: 1, y: 0 } };
+    const css = name => getComputedStyle(document.documentElement).getPropertyValue(name).trim();
+
+    function writeCopy() {
+      const { content, assets } = theme;
+      $('logo').src = assets.logo; $('wrapLabel').textContent = content.wrapLabel; $('eyebrow').textContent = content.eyebrow;
+      $('title').textContent = content.title; $('scoreLabel').textContent = content.scoreLabel; $('bestLabel').textContent = content.bestLabel; $('best').textContent = best;
+      $('overlayEyebrow').textContent = content.eyebrow; $('overlayTitle').textContent = content.title; $('overlayMessage').textContent = content.intro; $('playButton').textContent = content.startLabel;
+      resizeCanvas();
+    }
+    function resizeCanvas() { const size = Math.floor(Math.min($('fieldWrap').clientWidth, innerHeight * .68)); canvas.width = canvas.height = Math.max(270, size); cell = canvas.width / theme.gameplay.columns; draw(); }
+    function updateScore() { $('score').textContent = `${Math.min(score, theme.gameplay.scoreTarget)}/${theme.gameplay.scoreTarget}`; }
+    function reset() { const { columns, rows, initialLength } = theme.gameplay; const middle = { x: Math.floor(columns / 2), y: Math.floor(rows / 2) }; snake = Array.from({ length: initialLength }, (_, i) => ({ x: middle.x - i, y: middle.y })); dir = { x: 1, y: 0 }; nextDir = { ...dir }; score = 0; updateScore(); placeFood(); }
+    function placeFood() { const pool = theme.assets.food; do { food = { x: Math.floor(Math.random() * theme.gameplay.columns), y: Math.floor(Math.random() * theme.gameplay.rows), item: pool[Math.floor(Math.random() * pool.length)] }; } while (snake.some(part => part.x === food.x && part.y === food.y)); }
+    function begin() { reset(); running = true; $('overlay').classList.add('hidden'); clearInterval(loop); loop = setInterval(tick, theme.gameplay.tickMs); send({ type: 'GAME_STARTED', timestamp: Date.now() }); draw(); }
+    function tick() {
+      dir = { ...nextDir }; const cols = theme.gameplay.columns, rows = theme.gameplay.rows;
+      const head = { x: (snake[0].x + dir.x + cols) % cols, y: (snake[0].y + dir.y + rows) % rows };
+      if (snake.some(part => part.x === head.x && part.y === head.y)) return finish();
+      snake.unshift(head);
+      if (head.x === food.x && head.y === food.y) { score += food.item.points; updateScore(); send({ type: 'SCORE_UPDATE', score, timestamp: Date.now() }); if (score >= theme.gameplay.scoreTarget) return finish('win'); placeFood(); } else snake.pop();
+      draw();
+    }
+    function finish(reason = 'lose') { running = false; clearInterval(loop); best = Math.max(best, score); localStorage.setItem('vapiano-loop-best', best); $('best').textContent = best; const won = reason === 'win'; $('overlayTitle').textContent = won ? theme.content.winTitle : theme.content.overTitle; $('overlayMessage').textContent = (won ? theme.content.winMessage : theme.content.overMessage).replace('{score}', score).replace('{target}', theme.gameplay.scoreTarget); $('playButton').textContent = theme.content.restartLabel; $('overlay').classList.remove('hidden'); send({ type: 'GAME_OVER', finalScore: score, reason: won ? 'win' : 'self-collision', timestamp: Date.now() }); }
+    function roundRect(x, y, w, h, r) { ctx.beginPath(); ctx.roundRect(x, y, w, h, r); }
+    function draw() {
+      if (!theme) return; const { columns, rows } = theme.gameplay; ctx.fillStyle = css('--field'); ctx.fillRect(0, 0, canvas.width, canvas.height);
+      ctx.strokeStyle = css('--field-grid'); ctx.lineWidth = 1; for (let i = 1; i < columns; i++) { ctx.beginPath(); ctx.moveTo(i * cell, 0); ctx.lineTo(i * cell, canvas.height); ctx.stroke(); } for (let i = 1; i < rows; i++) { ctx.beginPath(); ctx.moveTo(0, i * cell); ctx.lineTo(canvas.width, i * cell); ctx.stroke(); }
+      if (food) { ctx.font = `${cell * .82}px serif`; ctx.textAlign = 'center'; ctx.textBaseline = 'middle'; ctx.fillText(food.item.emoji, (food.x + .5) * cell, (food.y + .54) * cell); }
+      if (snake) snake.forEach((part, index) => { ctx.fillStyle = index === 0 ? css('--snake-head') : css('--snake-body'); const pad = index === 0 ? 1.5 : 3; roundRect(part.x * cell + pad, part.y * cell + pad, cell - pad * 2, cell - pad * 2, cell * .22); ctx.fill(); if (index === 0) { ctx.fillStyle = css('--paper'); const ex = dir.x ? cell * .68 : cell * .33; const ey = dir.y ? cell * .68 : cell * .33; ctx.beginPath(); ctx.arc(part.x * cell + ex, part.y * cell + ey, Math.max(1.5, cell * .07), 0, Math.PI * 2); ctx.fill(); } });
+    }
+    function setDirection(name) { const candidate = dirs[name]; if (!candidate || (candidate.x === -dir.x && candidate.y === -dir.y)) return; nextDir = candidate; }
+    document.addEventListener('keydown', event => { const key = event.key.toLowerCase(); const map = { arrowup: 'up', w: 'up', arrowdown: 'down', s: 'down', arrowleft: 'left', a: 'left', arrowright: 'right', d: 'right' }; if (map[key]) { event.preventDefault(); setDirection(map[key]); } });
+    document.querySelectorAll('[data-dir]').forEach(button => button.addEventListener('pointerdown', () => setDirection(button.dataset.dir)));
+    canvas.addEventListener('pointerdown', event => { touchStart = { x: event.clientX, y: event.clientY }; });
+    canvas.addEventListener('pointerup', event => { if (!touchStart) return; const dx = event.clientX - touchStart.x, dy = event.clientY - touchStart.y; if (Math.max(Math.abs(dx), Math.abs(dy)) > 18) setDirection(Math.abs(dx) > Math.abs(dy) ? (dx > 0 ? 'right' : 'left') : (dy > 0 ? 'down' : 'up')); touchStart = null; });
+    $('playButton').addEventListener('click', begin); window.addEventListener('resize', resizeCanvas); window.addEventListener('message', event => { if (event.data?.type === 'PAUSE') { running = false; } if (event.data?.type === 'RESUME' && $('overlay').classList.contains('hidden')) running = true; });
+    GameTheme.loadTheme('theme.json').then(data => { theme = data; writeCopy(); reset(); draw(); send({ type: 'GAME_READY' }); }).catch(error => { $('overlayMessage').textContent = error.message; });
+  </script>
+</body>
+</html>

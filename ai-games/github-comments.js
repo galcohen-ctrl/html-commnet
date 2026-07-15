@@ -5,7 +5,6 @@
   var DATA_BRANCH='data';
   var ASSET_DIR='comment-assets/ai-generated-games';
   var STORAGE_MODE=(new URLSearchParams(location.search).get('mode')==='local')?'local':'github';
-  var LOCAL_KEY='hc_local_comments_'+PROJECT;
   var comments=[];
   var mode=false;
   var activePanel=null;
@@ -22,13 +21,11 @@
   if(STORAGE_MODE==='local'){
     var badge=document.createElement('div');
     badge.id='hc-mode-badge';
-    badge.textContent='LOCAL MODE (not shared with teammates)';
-    badge.style.cssText='position:fixed;top:10px;left:50%;transform:translateX(-50%);z-index:100001;background:#ff9800;color:#1a1a1a;font:600 12px/1.4 -apple-system,sans-serif;padding:4px 12px;border-radius:0 0 8px 8px;box-shadow:0 2px 6px rgba(0,0,0,.25)';
+    badge.textContent='LOCAL MODE';
+    badge.style.cssText='position:fixed;top:10px;left:10px;z-index:100001;background:#ff9800;color:#1a1a1a;font:600 12px/1.4 -apple-system,sans-serif;padding:4px 12px;border-radius:8px;box-shadow:0 2px 6px rgba(0,0,0,.25)';
     document.body.appendChild(badge);
   }
 
-  function gLocal(){try{return JSON.parse(localStorage.getItem(LOCAL_KEY)||'[]');}catch(_){return [];}}
-  function sLocal(list){localStorage.setItem(LOCAL_KEY,JSON.stringify(list));}
   function gTok(){return localStorage.getItem('hc_tok')||'';}
   function sTok(t){localStorage.setItem('hc_tok',t.trim());}
   function gName(){return localStorage.getItem('hc_name')||'Reviewer';}
@@ -400,20 +397,29 @@
   }
 
   function saveLocalComment(meta,pendingImages){
-    return Promise.all(pendingImages.map(function(item,i){
-      return fileToBase64(item.file).then(function(content){
+    meta.images=[];
+    return fetch('/api/local-comments',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(meta)})
+    .then(function(r){if(!r.ok)throw new Error('Local save failed (is local-comment-server.py running?)');return r.json();})
+    .then(function(saved){
+      var i=0;
+      function next(){
+        if(i>=pendingImages.length)return saved;
+        var item=pendingImages[i];i++;
         var type=item.file.type||'image/png';
-        return {path:'',url:'data:'+type+';base64,'+content,name:item.file.name||('screenshot-'+(i+1)+'.'+extFor(type)),type:type};
-      });
-    })).then(function(images){
-      meta.images=images;
-      meta.local=true;
-      meta.id='local-'+Date.now()+'-'+Math.round(Math.random()*1e4);
-      var list=gLocal();
-      list.push(meta);
-      sLocal(list);
-      return normalizeLocalComment(meta);
-    });
+        return fileToBase64(item.file).then(function(content){
+          return fetch('/api/local-comments/'+saved.id+'/image',{
+            method:'POST',
+            headers:{'Content-Type':'application/json'},
+            body:JSON.stringify({type:type,contentBase64:content,index:i,name:item.file.name||('screenshot-'+i)})
+          });
+        }).then(function(r){
+          if(!r.ok)throw new Error('Local screenshot upload failed');
+          return r.json();
+        }).then(function(img){saved.images.push(img);return next();});
+      }
+      return next();
+    })
+    .then(normalizeLocalComment);
   }
 
   function normalizeLocalComment(meta){
@@ -433,7 +439,7 @@
   }
 
   function removeLocalComment(id){
-    sLocal(gLocal().filter(function(m){return m.id!==id;}));
+    return fetch('/api/local-comments/'+id,{method:'DELETE'}).catch(function(err){console.warn('Could not delete local comment:',err);});
   }
 
   function fetchIssuesPage(page,acc){
@@ -451,9 +457,17 @@
 
   function loadComments(){
     if(STORAGE_MODE==='local'){
-      comments=gLocal().map(normalizeLocalComment).reverse();
-      renderPins();
-      showToast(comments.length?'Loaded '+comments.length+' local comment'+(comments.length===1?'':'s'):'No local comments yet');
+      fetch('local-comments/comments.json?t='+Date.now())
+      .then(function(r){if(!r.ok)throw new Error('HTTP '+r.status);return r.json();})
+      .then(function(items){
+        comments=(items||[]).map(normalizeLocalComment).reverse();
+        renderPins();
+        showToast(comments.length?'Loaded '+comments.length+' local comment'+(comments.length===1?'':'s'):'No local comments yet');
+      })
+      .catch(function(err){
+        console.warn('Could not load local comments:',err);
+        showToast('Local comment server not running — start local-comment-server.py');
+      });
       return;
     }
     fetchIssuesPage(1,[])

@@ -1,0 +1,83 @@
+{
+  "meta": {
+    "gameId": "vapiano-menu-tower",
+    "pageTitle": "Menu Tower | Vapiano Australia",
+    "brand": "Vapiano Australia",
+    "source": "loya-play-agent/output/vapiano"
+  },
+  "agentHints": {
+    "purpose": "An automatic-bounce tower climber that makes merchant menu photography part of the level design.",
+    "safeToChange": ["css", "content", "assets.platformImages", "gameplay"],
+    "platformRule": "Every platformImages entry must be a flat food image, ideally a food close-up. The game crops them using object-fit cover into each platform.",
+    "backgroundRule": "backgroundImage is static, deliberately blurred, and covered with a light blue glass tint. Use a warm restaurant or lifestyle image, not another menu tile.",
+    "movementRule": "The player wraps through the left/right walls. Each automatic platform bounce restores one mid-air jump; Space or a tap on the playfield consumes it. Score progress is displayed as current/scoreTarget.",
+    "chefRule": "chefImage may be a transparent character illustration. When absent, the game renders a simple branded fallback character.",
+    "cssRule": "Values in css are exposed directly as CSS custom properties. The canvas reads matching colour variables from JavaScript."
+  },
+  "css": {
+    "--brand": "#ed1b3b",
+    "--brand-dark": "#a51229",
+    "--ink": "#212529",
+    "--paper": "#fdf7ee",
+    "--sky": "#1a73e8",
+    "--sky-deep": "#1053aa",
+    "--glass-tint": "#1269b8",
+    "--glass-tint-opacity": "0.28",
+    "--backdrop-opacity": "0.88",
+    "--backdrop-blur": "8px",
+    "--cream": "#fff2d5",
+    "--line": "rgba(255,255,255,0.18)",
+    "--success": "#168352",
+    "--ui-text": "#ffffff",
+    "--shadow": "rgba(0,0,0,0.25)",
+    "--radius": "10px",
+    "--headline-font": "Georgia, 'Times New Roman', serif",
+    "--body-font": "Barlow, sans-serif",
+    "--game-width": "440px"
+  },
+  "content": {
+    "eyebrow": "Vapiano Australia presents",
+    "title": "MENU TOWER",
+    "intro": "The kitchen is stacked. Steer the chef over real menu tiles and climb as high as you can.",
+    "startLabel": "Open the kitchen",
+    "restartLabel": "Climb again",
+    "scoreLabel": "Score",
+    "heightLabel": "Height",
+    "bestLabel": "Best",
+    "winTitle": "Tower complete.",
+    "winMessage": "You reached the {target}-point goal and climbed {height} levels.",
+    "overTitle": "That order slipped.",
+    "overMessage": "You scored {score} points and climbed {height} levels. The next platform is always higher."
+  },
+  "assets": {
+    "logo": "../logo.svg",
+    "chefImage": "../chef.png",
+    "backgroundImage": "../tower-background.jpg",
+    "platformImages": [
+      "../pizza.jpg",
+      "../pasta.jpg",
+      "../tiramisu.jpg",
+      "../burrata.jpg",
+      "../salad.jpg",
+      "../focaccia.jpg",
+      "../carbonara.jpg",
+      "../meatlovers.jpg"
+    ]
+  },
+  "gameplay": {
+    "canvasWidth": 400,
+    "canvasHeight": 620,
+    "gravity": 0.31,
+    "jumpVelocity": -8.8,
+    "moveSpeed": 4.1,
+    "airJumps": 1,
+    "scorePerLanding": 20,
+    "scoreTarget": 1000,
+    "platformHeight": 44,
+    "platformMinWidth": 94,
+    "platformMaxWidth": 142,
+    "platformGapMin": 74,
+    "platformGapMax": 100,
+    "scrollTriggerY": 225
+  }
+}

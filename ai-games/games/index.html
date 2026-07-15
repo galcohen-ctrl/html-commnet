@@ -1,0 +1,35 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Vapiano Play</title>
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Barlow:wght@400;600;700;800&display=swap');
+    * { box-sizing: border-box; }
+    body { margin: 0; min-height: 100vh; background: #212529; color: #fff; font-family: Barlow, sans-serif; display: grid; place-items: center; padding: 24px; }
+    main { width: min(920px, 100%); }
+    img { width: 156px; max-width: 46vw; height: auto; filter: brightness(0) invert(1); }
+    h1 { font-size: clamp(42px, 8vw, 80px); margin: 16px 0 6px; letter-spacing: 0; }
+    p { color: #e5e3df; margin: 0 0 28px; font-size: 18px; }
+    nav { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; }
+    a { min-height: 180px; text-decoration: none; background: #fff; color: #212529; padding: 20px; display: flex; flex-direction: column; justify-content: end; border-radius: 8px; border-top: 8px solid #ed1b3b; transition: transform .18s ease; }
+    a:hover { transform: translateY(-5px); }
+    strong { color: #ed1b3b; font-size: 30px; }
+    span { font-size: 16px; margin-top: 4px; }
+    @media (max-width: 620px) { nav { grid-template-columns: 1fr; } a { min-height: 130px; } }
+  </style>
+</head>
+<body>
+  <main>
+    <img src="logo.svg" alt="Vapiano">
+    <h1>Play with your food.</h1>
+    <p></p>
+    <nav>
+      <a href="memory/"><strong>Pasta Pairing</strong><span>Memory game</span></a>
+      <a href="snake/"><strong>Vapiano Loop</strong><span>Wrapping snake</span></a>
+      <a href="tower-jump/"><strong>Menu Tower</strong><span>Photo-platform jumper</span></a>
+    </nav>
+  </main>
+</body>
+</html>

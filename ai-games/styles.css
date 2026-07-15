@@ -4,7 +4,7 @@
   --green:#1f9d57; --green-soft:#e7f6ee; --amber:#b7791f; --amber-soft:#fdf3e2;
   --red:#d6455d; --red-soft:#fdeef0; --graypill:#eef1f5;
   --sidebar:#141b2d; --sidebar-soft:#9aa6bd;
-  --pp:#e8552f; --pp-soft:#fdeee9; /* pancake brand accent for demo merchant */
+  --pp:#ed1b3b; --pp-soft:#fdeaec; /* Vapiano Australia brand accent for demo merchant */
 }
 *{box-sizing:border-box}
 body{margin:0;font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;
@@ -48,7 +48,7 @@ button{font-family:inherit;cursor:pointer}
 .avatar{width:28px;height:28px;border-radius:50%;background:var(--pp-soft);color:var(--pp);display:flex;
   align-items:center;justify-content:center;font-weight:700;font-size:12px}
 .content{padding:26px 24px;flex:1}
-.canvas{max-width:1000px;margin:0 auto}
+.canvas{max-width:1150px;margin:0 auto}
 
 /* generic UI atoms */
 .h1{font-size:20px;font-weight:700;margin:0 0 4px}
@@ -61,6 +61,7 @@ button{font-family:inherit;cursor:pointer}
 .btn.sm{padding:6px 11px;font-size:12.5px;border-radius:8px}
 .btn.green{background:var(--green)}
 .btn.danger{background:var(--shell);color:var(--red);border:1px solid var(--red-soft)}
+.btn:disabled{opacity:.4;cursor:not-allowed;pointer-events:none}
 .card{background:var(--shell);border:1px solid var(--line);border-radius:14px;box-shadow:0 1px 2px rgba(20,30,50,.05);}
 .pill{display:inline-flex;align-items:center;gap:5px;padding:3px 10px;border-radius:999px;font-size:11.5px;font-weight:700}
 .p-green{background:var(--green-soft);color:var(--green)}
@@ -83,7 +84,8 @@ button{font-family:inherit;cursor:pointer}
 .altlink{margin-top:18px;font-size:13px;color:var(--soft)}
 .altlink button{background:none;border:none;color:var(--brand);font-weight:600;text-decoration:underline;font-size:13px}
 .dropzone{margin-top:16px;width:100%;max-width:520px;border:2px dashed var(--line);border-radius:14px;
-  padding:26px;color:var(--soft);font-size:13px;background:#fbfcfe}
+  padding:26px;color:var(--soft);font-size:13px;background:#fbfcfe;transition:border-color .15s,background .15s}
+.dropzone.drag-active{border-color:var(--brand);border-style:solid;background:var(--brand-soft)}
 .dropzone b{color:var(--ink)}
 
 /* modal */
@@ -100,28 +102,46 @@ button{font-family:inherit;cursor:pointer}
 .spinner{width:18px;height:18px;border:2.5px solid var(--brand-soft);border-top-color:var(--brand);border-radius:50%;
   animation:spin .8s linear infinite}
 @keyframes spin{to{transform:rotate(360deg)}}
-.masonry{column-count:4;column-gap:12px}
-@media(max-width:720px){.masonry{column-count:2}}
-.masonry .tile{break-inside:avoid;margin-bottom:12px;border-radius:12px;border:1px solid var(--line);overflow:hidden;
-  background:var(--shell);opacity:0;transform:translateY(8px);animation:rise .5s forwards;position:relative}
+.masonry{display:grid;grid-template-columns:repeat(4,1fr);gap:12px}
+@media(max-width:720px){.masonry{grid-template-columns:repeat(2,1fr)}}
+.masonry .tile{border-radius:12px;border:1px solid var(--line);overflow:hidden;
+  background:var(--shell);opacity:0;transform:translateY(8px);animation:rise .5s forwards;position:relative;
+  height:148px;display:flex;flex-direction:column}
 .tile .remove-btn{position:absolute;top:5px;right:5px;width:20px;height:20px;border-radius:50%;background:rgba(0,0,0,.55);color:#fff;
   border:none;font-size:11px;cursor:pointer;display:flex;align-items:center;justify-content:center;opacity:0;transition:opacity .15s}
 .tile:hover .remove-btn{opacity:1}
 @keyframes rise{to{opacity:1;transform:none}}
-.tile .swatch{height:70px}
-.tile .cap{font-size:11px;color:var(--soft);padding:7px 9px}
-.tile.logo{padding:18px;text-align:center;font-weight:800;color:var(--pp);font-size:18px}
-.tile.font{padding:14px 12px}
-.tile.font .big{font-size:22px;font-weight:800}
-.tile.img{height:96px;background:#f1d9cf;display:flex;align-items:center;justify-content:center;font-size:34px}
+/* every tile type fills the same fixed-size box: a flexible .fill area on top
+   (image / color swatch / font sample) plus an optional fixed-height .cap caption
+   below, so all tiles line up at the same width and height regardless of content */
+.tile .fill{flex:1;min-height:0;position:relative}
+.tile .cap{flex:none;font-size:11px;color:var(--soft);padding:7px 9px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.tile .fill img{display:block;width:100%;height:100%;object-fit:cover}
+.tile.logo .fill{display:flex;align-items:center;justify-content:center;padding:14px}
+.tile.logo .fill img{width:auto;height:auto;max-width:80%;max-height:100%;object-fit:contain}
+.tile.font .fill{display:flex;align-items:center;padding:0 14px;font-size:22px;font-weight:800}
+.tile.icon .fill{background:#fff;display:flex;align-items:center;justify-content:center;padding:16px}
+.tile.icon .fill img{width:auto;height:auto;max-width:100%;max-height:100%;object-fit:contain}
+
+/* collapsible agent stream panel */
+.agent-thoughts{font-size:12px;color:var(--soft);line-height:1.6;font-family:ui-monospace,monospace;
+  padding:8px 10px;background:var(--bg);border-radius:9px;max-height:120px;overflow-y:auto}
+#agentPanel .agent-chev{color:var(--soft);font-size:26px;line-height:1;flex:none;transition:transform .3s ease}
+#agentPanel.collapsed .agent-chev{transform:rotate(-90deg)}
+#agentPanel #designerThoughts{transition:max-height .5s ease, opacity .4s ease, padding .4s ease, margin-top .4s ease}
+#agentPanel.collapsed #designerThoughts{max-height:0;opacity:0;padding-top:0;padding-bottom:0;overflow:hidden;pointer-events:none}
 
 /* games table */
 .tablehead{display:flex;align-items:center;margin-bottom:14px}
 .tablehead .h1{margin:0}
 .tablehead .grow{flex:1}
-.gtable{overflow:hidden}
-.grow-row{border-bottom:1px solid var(--line)}
-.grow-row:last-child{border-bottom:none}
+.gtable{overflow:visible;background:none;border:none;box-shadow:none}
+.grow-row{background:var(--shell);border:1px solid var(--line);border-radius:12px;box-shadow:0 2px 8px rgba(20,30,50,.06);
+  margin-bottom:12px;overflow:hidden;position:relative}
+/* expanded rows can host the Gift dropdown (position:absolute), which needs to
+   overlay the row below rather than being clipped by this row's own overflow:hidden */
+.grow-row.open{overflow:visible}
+.grow-row:last-child{margin-bottom:0}
 .grow-main{display:flex;align-items:center;gap:14px;padding:15px 18px}
 .grow-main:hover{background:#fafbfd}
 .gthumb{width:42px;height:42px;border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:21px;flex:none}
@@ -136,7 +156,7 @@ button{font-family:inherit;cursor:pointer}
 .genline{font-size:12px;color:var(--brand);display:flex;align-items:center;gap:7px}
 
 /* expanded config */
-.expand{display:none;padding:4px 18px 22px;background:#fbfcfe;border-top:1px dashed var(--line)}
+.expand{display:none;padding:4px 18px 22px;background:#fbfcfe;border-top:1px dashed var(--line);border-radius:0 0 12px 12px}
 .grow-row.open .expand{display:block}
 .field{margin-bottom:15px}
 .field label{display:block;font-size:12.5px;font-weight:700;margin-bottom:5px}
@@ -149,6 +169,36 @@ button{font-family:inherit;cursor:pointer}
 .field-grid{display:grid;grid-template-columns:1fr 1fr;gap:0 14px}
 .field-grid .field{margin-bottom:14px}
 @media(max-width:640px){.field-grid{grid-template-columns:1fr}}
+.game-config-footer{display:flex;align-items:center;justify-content:space-between;gap:18px;padding-top:14px;border-top:1px dashed var(--line)}
+.game-config-scope{display:flex;flex-direction:column;gap:2px;font-size:12px}
+.game-config-scope b{font-size:12.5px}
+.game-config-scope span{color:var(--soft)}
+
+/* benefit picker (mirrors Campaign Center "Send Benefit" gift picker) */
+.benefit-picker{position:relative}
+.benefit-trigger{width:100%;display:flex;align-items:center;justify-content:space-between;gap:8px;
+  border:1.5px solid var(--line);border-radius:9px;padding:9px 11px;font-size:13.5px;background:#fff;color:var(--ink);text-align:left}
+.benefit-trigger:hover{border-color:var(--brand)}
+.benefit-chev{color:var(--soft);font-size:10px}
+.benefit-panel{position:absolute;top:calc(100% + 6px);left:0;width:290px;max-width:min(290px,80vw);
+  background:var(--shell);border:1px solid var(--line);border-radius:12px;box-shadow:0 14px 34px rgba(20,30,50,.2);
+  padding:12px;z-index:60}
+.benefit-search{position:relative;margin-bottom:10px}
+.benefit-search input{width:100%;border:1px solid var(--line);border-radius:8px;padding:7px 30px 7px 10px;font-size:12.5px}
+.benefit-search input:focus{outline:none;border-color:var(--brand)}
+.benefit-search .bsearch-ic{position:absolute;right:9px;top:50%;transform:translateY(-50%);font-size:11px;color:var(--soft)}
+.benefit-filters{display:flex;gap:14px;font-size:11.5px;color:var(--soft);margin-bottom:10px;padding-bottom:10px;border-bottom:1px solid var(--line)}
+.benefit-filters b{color:var(--brand);font-weight:700}
+.benefit-listhead{display:flex;align-items:center;justify-content:space-between;font-size:11px;font-weight:700;
+  color:var(--soft);text-transform:uppercase;letter-spacing:.4px;margin-bottom:6px}
+.benefit-listhead a{color:var(--brand);text-decoration:none;font-weight:700;text-transform:none;font-size:12.5px}
+.benefit-list{max-height:180px;overflow-y:auto}
+.benefit-row{display:flex;align-items:center;gap:10px;padding:7px 6px;border-radius:8px;cursor:pointer}
+.benefit-row:hover{background:var(--bg)}
+.benefit-row.sel{background:var(--brand-soft)}
+.benefit-thumb{width:30px;height:30px;border-radius:7px;background:var(--brand-soft);display:flex;align-items:center;
+  justify-content:center;font-size:15px;flex:none}
+.benefit-name{font-size:13px;font-weight:600;color:var(--ink)}
 
 /* kebab actions menu */
 .kebab-wrap{position:relative}
@@ -161,43 +211,60 @@ button{font-family:inherit;cursor:pointer}
   font-size:12.5px;font-weight:600;color:var(--ink);cursor:pointer}
 .kebab-menu button:hover{background:var(--bg)}
 
-/* eligible-members audience summary field */
-.audience-summary{display:flex;justify-content:space-between;align-items:center;gap:8px;border:1.5px solid var(--line);
-  border-radius:9px;padding:9px 11px;font-size:12.5px;cursor:pointer;background:#fff}
-.audience-summary:hover{border-color:var(--brand)}
-.audience-summary .aud-edit{color:var(--brand);font-weight:700;font-size:11.5px;white-space:nowrap}
-
-/* member tag line */
-.tag-line{display:flex;align-items:center;gap:8px;font-size:11.5px;color:var(--soft);margin-top:2px;padding-top:12px;
-  border-top:1px dashed var(--line)}
-.tag-line code{background:var(--graypill);padding:2px 7px;border-radius:6px;font-family:ui-monospace,monospace;color:var(--ink);font-size:11.5px}
-
-/* audience modal — Campaign Center "Apply to Members" pattern */
-.aud-header{background:linear-gradient(100deg,#12c2e9,#1eb8e0);margin:-24px -24px 20px;padding:18px 24px;
-  border-radius:16px 16px 0 0;display:flex;justify-content:space-between;align-items:center}
-.aud-header h3{margin:0;color:#fff;font-size:17px}
-.aud-header button{background:none;border:none;color:#fff;font-size:20px;cursor:pointer;line-height:1;padding:0}
-.radio-row{display:flex;align-items:center;gap:10px;padding:9px 2px;font-size:14px;cursor:pointer}
-.radio-row input{width:16px;height:16px;accent-color:var(--brand)}
-.aud-filterbox{background:var(--bg);border-radius:10px;padding:14px;margin-top:8px}
-.aud-filterbox .lbl{font-size:12px;color:var(--soft);margin-bottom:8px;font-weight:700}
-.aud-row{display:grid;grid-template-columns:1fr 90px 1fr auto;gap:8px;margin-bottom:8px;align-items:center}
-.aud-row select,.aud-row input{border:1px solid var(--line);border-radius:7px;padding:7px 9px;font-size:12.5px;background:#fff;width:100%}
-.aud-remove{background:none;border:none;color:var(--soft);cursor:pointer;font-size:14px;padding:2px}
-.aud-add select{width:100%;border:1px dashed var(--line);border-radius:7px;padding:7px 9px;font-size:12.5px;background:#fff;color:var(--soft)}
-
-/* activation flow — rule cards */
-.act-rule-card{display:flex;align-items:center;gap:10px;padding:12px 14px;margin-bottom:10px}
-.act-rule-card .ic{font-size:18px}
-.act-rule-card .ttl{font-weight:700;font-size:13px}
-.act-rule-card .sub2{font-size:12px;color:var(--soft);margin-top:1px}
-.act-rule-card a{font-size:12.5px;font-weight:700;color:var(--brand);text-decoration:none;white-space:nowrap}
+/* game lifecycle and Campaign handoff */
+.impact-list{display:grid;gap:9px;margin:16px 0}
+.impact-list>div{display:flex;flex-direction:column;gap:2px;padding:10px 12px;background:var(--bg);border-radius:8px;font-size:12.5px}
+.impact-list span{color:var(--soft);line-height:1.45}
+.success-mark{width:42px;height:42px;border-radius:50%;display:flex;align-items:center;justify-content:center;background:var(--green-soft);color:var(--green);font-size:22px;font-weight:800;margin-bottom:14px}
+.launch-state{display:flex;align-items:center;gap:7px;font-size:12px;margin-bottom:14px;color:var(--soft)}
+.launch-state b{color:var(--green)}
+.launch-dot{width:8px;height:8px;border-radius:50%;background:var(--green);box-shadow:0 0 0 4px var(--green-soft)}
+.campaign-kit{margin-top:18px;padding:16px;background:var(--brand-soft);border:1px solid #dbe2fb;border-radius:10px}
+.campaign-kit-title{font-size:15px;font-weight:750;margin-bottom:14px;color:var(--ink)}
+.campaign-step{display:grid;grid-template-columns:30px minmax(0,1fr);gap:11px;padding:13px;background:var(--shell);border:1px solid var(--line);border-radius:9px;margin-bottom:10px}
+.step-number{width:28px;height:28px;border-radius:50%;display:flex;align-items:center;justify-content:center;background:var(--brand);color:#fff;font-size:13px;font-weight:800}
+.step-content b{display:block;font-size:13.5px;margin:2px 0 4px}
+.step-content p{font-size:12px;color:var(--soft);line-height:1.45;margin:0 0 9px}
+.setup-value{display:flex;align-items:center;justify-content:space-between;gap:12px;background:var(--bg);border:1px solid var(--line);border-radius:7px;padding:8px 9px}
+.setup-value code{font-size:12px;color:var(--ink);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.setup-value button{border:none;background:transparent;color:var(--brand);font-weight:700;font-size:12px;padding:6px}
+.automatic-logic{display:flex;align-items:flex-start;gap:10px;margin-top:12px;padding:11px 12px;background:var(--green-soft);border-radius:9px}
+.automatic-icon{width:23px;height:23px;border-radius:50%;display:flex;align-items:center;justify-content:center;flex:none;background:var(--green);color:#fff;font-size:12px;font-weight:800}
+.automatic-logic div{display:flex;flex-direction:column;gap:2px}
+.automatic-logic b{font-size:12.5px;color:var(--green)}
+.automatic-logic div span{font-size:11.5px;color:var(--soft);line-height:1.45}
+@media(max-width:760px){
+  .protobar{justify-content:flex-start;overflow-x:auto}
+  .content{padding:20px 14px}
+  #s-config>div{grid-template-columns:minmax(0,1fr)!important}
+  #s-config>div>div[style*="position:sticky"]{position:static!important}
+  .grow-main{align-items:flex-start;flex-wrap:wrap}
+  .grow-main .right{width:100%;margin-left:56px;justify-content:flex-start;flex-wrap:wrap}
+}
+@media(max-width:640px){.game-config-footer,.setup-value{align-items:flex-start;flex-direction:column}.setup-value button{padding-left:0}.campaign-step{grid-template-columns:1fr}.step-number{margin-bottom:2px}}
 
 /* phone preview */
 .phone{width:248px;margin:0 auto;border:9px solid #11161f;border-radius:34px;background:#0c0f15;overflow:hidden;
   box-shadow:0 16px 40px rgba(0,0,0,.25)}
 .phone .notch{height:22px;background:#11161f;border-radius:0 0 12px 12px;width:120px;margin:0 auto}
 .pscreen{height:420px;background:#fff;position:relative;overflow:hidden}
+/* the config-screen preview hosts a real, playable game in an iframe, so it gets a
+   roomier viewport than the static mockup phones used elsewhere in the prototype —
+   sized to line up with the LIVE_VW/LIVE_VH virtual viewport in prototype.js so the
+   scaled-down game fills the screen with minimal letterboxing */
+#s-config .phone{width:360px}
+#s-config .pscreen{height:780px}
+/* Real games are designed mobile-first for a ~390px-wide phone (fonts/dpad/hud use
+   min-size clamps tuned for that width). Embedding them directly at our smaller
+   phone-preview width made everything look oversized/cramped ("zoomed in") and
+   pushed controls out of view. .live-frame-wrap renders the game at its real virtual
+   viewport size, then prototype.js scales the whole wrapper down uniformly to fit
+   whatever phone screen it's placed in — like a device-toolbar preview. */
+.live-frame-wrap{position:absolute;top:0;left:0;transform-origin:top left}
+.live-game-frame{display:block;width:100%;height:100%;border:0;background:#000}
+.preview-loading{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;
+  gap:12px;background:#fff;color:var(--soft);font-size:12.5px;font-weight:600}
+.preview-loading .spinner{width:26px;height:26px}
 .preview-toggles{display:flex;gap:5px;justify-content:center;margin-bottom:12px;flex-wrap:wrap}
 .preview-toggles button{font-size:11px;border:1px solid var(--line);background:#fff;border-radius:7px;padding:4px 9px;font-weight:600;color:var(--soft)}
 .preview-toggles button.on{background:var(--brand);color:#fff;border-color:var(--brand)}

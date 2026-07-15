@@ -1,0 +1,99 @@
+{
+  "meta": {
+    "gameId": "vapiano-pasta-pairing",
+    "pageTitle": "Pasta Pairing | Vapiano Australia",
+    "brand": "Vapiano Australia",
+    "source": "loya-play-agent/output/vapiano"
+  },
+  "agentHints": {
+    "purpose": "A fast visual memory game for a restaurant loyalty experience.",
+    "safeToChange": [
+      "css",
+      "content",
+      "assets.cards",
+      "gameplay"
+    ],
+    "imageRule": "Use six or more square-ish food images from the merchant crawl. Every card needs an id, label, and image path.",
+    "cssRule": "Values in css are exposed directly as CSS custom properties. Keep high contrast between --ink and --paper.",
+    "gameRule": "The countdown is a loss condition. A round is won only after every pair is matched before timeLimitSeconds reaches zero. Score progress is displayed as current/scoreTarget.",
+    "doNotChange": "Keep card ids unique. The HTML duplicates and shuffles the cards automatically."
+  },
+  "css": {
+    "--brand": "#ed1b3b",
+    "--brand-dark": "#a51229",
+    "--ink": "#212529",
+    "--paper": "#fdf7ee",
+    "--cream": "#e5e3df",
+    "--blue": "#1a73e8",
+    "--green": "#168352",
+    "--shadow": "rgba(33, 37, 41, 0.22)",
+    "--radius": "10px",
+    "--tile-radius": "8px",
+    "--headline-font": "Georgia, 'Times New Roman', serif",
+    "--body-font": "Barlow, sans-serif",
+    "--game-width": "640px",
+    "--card-gap": "10px"
+  },
+  "content": {
+    "eyebrow": "Vapiano Australia presents",
+    "title": "Pasta Pairing",
+    "intro": "Turn over the menu, find every matching pair, and keep your moves deliciously low.",
+    "startLabel": "Set the table",
+    "restartLabel": "Play another round",
+    "movesLabel": "Moves",
+    "pairsLabel": "Pairs",
+    "timeLabel": "Time left",
+    "scoreLabel": "Score",
+    "winTitle": "Bellissimo.",
+    "winMessage": "You matched the full menu in {moves} moves and {time} seconds.",
+    "loseTitle": "The kitchen closed.",
+    "loseMessage": "Time is up. You matched {pairs} of {total} menu pairs.",
+    "cardBackLabel": "V"
+  },
+  "assets": {
+    "logo": "../logo.svg",
+    "cards": [
+      {
+        "id": "pizza",
+        "label": "Classic Margherita",
+        "image": "../pizza.jpg"
+      },
+      {
+        "id": "pasta",
+        "label": "Spaghetti Bolognese",
+        "image": "../pasta.jpg"
+      },
+      {
+        "id": "tiramisu",
+        "label": "Tiramisu",
+        "image": "../tiramisu.jpg"
+      },
+      {
+        "id": "burrata",
+        "label": "Burrata",
+        "image": "../burrata.jpg"
+      },
+      {
+        "id": "salad",
+        "label": "Rocket and Parmesan",
+        "image": "../salad.jpg"
+      },
+      {
+        "id": "carbonara",
+        "label": "Carbonara",
+        "image": "../carbonara.jpg"
+      }
+    ]
+  },
+  "gameplay": {
+    "columnsDesktop": 4,
+    "columnsMobile": 3,
+    "matchDelayMs": 540,
+    "mismatchDelayMs": 780,
+    "scorePerPair": 100,
+    "scoreTarget": 601,
+    "movePenalty": 5,
+    "timeLimitSeconds": 60,
+    "timeBonusPerSecond": 5
+  }
+}
