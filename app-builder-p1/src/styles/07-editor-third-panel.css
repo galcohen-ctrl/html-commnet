@@ -1,0 +1,40 @@
+  /* ============================================================
+     THIRD PANEL (L3) — deep drill (individual card editor)
+     ============================================================ */
+  .l3-panel {
+    background: var(--panel);
+    border-left: 1px solid var(--line);
+    box-shadow: -10px 0 24px -18px rgba(20,20,40,.35);
+    overflow: hidden;
+    display: flex; flex-direction: column;
+    min-width: 0;
+  }
+  .l3-inner {
+    flex: 1;
+    padding: 20px 18px;
+    overflow-y: auto;
+    overflow-x: hidden;
+    min-width: 340px;          /* keep content laid out at full width so it doesn't reflow while the column is collapsing */
+    opacity: 0;
+    transition: opacity .16s ease;
+  }
+  body.l3-open .l3-inner { opacity: 1; }
+  .l3-inner::-webkit-scrollbar { width: 8px; }
+  .l3-inner::-webkit-scrollbar-thumb { background: #e0e0ea; border-radius: 8px; }
+  /* Tiny "you are here" kicker at the top of the third panel */
+  .l3-kicker {
+    display: flex; align-items: center; gap: 6px;
+    font-size: 10px; text-transform: uppercase; letter-spacing: .6px;
+    color: var(--como); font-weight: 800;
+    margin-bottom: 12px;
+  }
+  .l3-kicker::before {
+    content: ""; width: 6px; height: 6px; border-radius: 50%;
+    background: var(--como);
+  }
+  /* Active card row in the level-2 list while its editor is open in L3 */
+  .pc-item.l3-active {
+    background: var(--como-soft);
+    box-shadow: inset 3px 0 0 var(--como);
+  }
+  .pc-item.l3-active .pc-item-name { color: var(--como); font-weight: 700; }

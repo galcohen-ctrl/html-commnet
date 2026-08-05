@@ -1,0 +1,195 @@
+  /* ============================================================
+     SETUP WIZARD (full-screen onboarding, shown on load)
+     ============================================================ */
+  .setup-wizard {
+    position: fixed; inset: 0;
+    z-index: 400;
+    display: flex; flex-direction: column;
+    background: var(--panel);
+    opacity: 1;
+    transition: opacity .45s ease;
+  }
+  .setup-wizard.sw-closing {
+    opacity: 0;
+    pointer-events: none;
+  }
+  .sw-topbar {
+    height: 60px; flex: none;
+    display: flex; align-items: center; justify-content: space-between;
+    padding: 0 26px;
+    border-bottom: 1px solid var(--line);
+  }
+  .sw-brand { display: flex; align-items: center; gap: 10px; font-size: 15px; color: var(--ink); font-weight: 500; }
+  .sw-brand b { font-weight: 800; }
+  .sw-brand-logo {
+    width: 28px; height: 28px; border-radius: 8px;
+    background: linear-gradient(135deg, var(--como), #a855f7);
+    display: grid; place-items: center; color: #fff; font-size: 14px;
+  }
+  .sw-skip {
+    background: transparent; border: none; cursor: pointer;
+    color: var(--muted); font-weight: 600; font-size: 13px;
+    padding: 8px 12px; border-radius: 8px; transition: background .15s, color .15s;
+  }
+  .sw-skip:hover { background: #f4f4f8; color: var(--ink); }
+
+  .sw-body { flex: 1; display: grid; grid-template-columns: 556px 1fr; min-height: 0; }
+
+  /* Left: steps — same width as the editor's sidebar (216) + config panel (340),
+     so only this side changes on the way into the editor */
+  .sw-left {
+    display: flex; flex-direction: column;
+    padding: 40px 40px 24px;
+    overflow-y: auto; min-width: 0;
+  }
+  .sw-progress { display: flex; gap: 8px; margin-bottom: 32px; }
+  .sw-progress .p-dot {
+    height: 5px; width: 46px; border-radius: 3px;
+    background: var(--line); transition: background .3s ease;
+  }
+  .sw-progress .p-dot.done { background: #c9b4f5; }
+  .sw-progress .p-dot.now { background: var(--como); }
+
+  .sw-steps { flex: 1; }
+  .sw-step { animation: swStepIn .35s cubic-bezier(0.2, 0.8, 0.2, 1); max-width: 580px; }
+  @keyframes swStepIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: none; } }
+  .sw-kicker {
+    font-size: 11.5px; font-weight: 800; letter-spacing: .09em;
+    text-transform: uppercase; color: var(--como); margin-bottom: 10px;
+  }
+  .sw-title { font-size: 29px; font-weight: 800; letter-spacing: -.025em; line-height: 1.15; margin-bottom: 8px; color: var(--ink); }
+  .sw-sub { font-size: 15px; color: var(--muted); margin-bottom: 28px; line-height: 1.5; }
+
+  /* Goal cards (step 1) */
+  .sw-goal-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
+  .sw-goal-card {
+    text-align: left; background: var(--panel);
+    border: 2px solid var(--line); border-radius: 16px;
+    padding: 20px 18px; cursor: pointer;
+    transition: border-color .18s, box-shadow .18s, transform .18s;
+    display: flex; flex-direction: column; gap: 10px;
+  }
+  .sw-goal-card:hover { border-color: #cfc3ea; box-shadow: var(--shadow); transform: translateY(-2px); }
+  .sw-goal-card.selected { border-color: var(--como); box-shadow: 0 0 0 4px var(--como-soft); }
+  .sw-goal-ic {
+    width: 44px; height: 44px; border-radius: 12px;
+    background: var(--como-soft); color: var(--como);
+    display: grid; place-items: center; flex: none;
+  }
+  .sw-goal-ic svg { width: 24px; height: 24px; }
+  .sw-goal-card.selected .sw-goal-ic { background: var(--como); color: #fff; }
+  .sw-goal-name { font-size: 16px; font-weight: 700; color: var(--ink); }
+  .sw-goal-desc { font-size: 13px; color: var(--muted); line-height: 1.45; }
+  .sw-goal-tags { display: flex; flex-wrap: wrap; gap: 5px; margin-top: 2px; }
+  .sw-goal-tag { font-size: 10.5px; font-weight: 600; color: var(--como); background: var(--como-soft); padding: 3px 8px; border-radius: 100px; }
+  .sw-blank-link {
+    margin-top: 18px;
+    display: inline-flex; align-items: center; gap: 9px;
+    background: var(--panel); border: 1.5px solid var(--line); cursor: pointer;
+    color: var(--muted); font-size: 13px; font-weight: 600;
+    padding: 10px 16px; border-radius: 10px;
+    transition: border-color .15s, background .15s, color .15s;
+  }
+  .sw-blank-link::before {
+    content: ""; width: 15px; height: 15px; border-radius: 4px; flex: none;
+    border: 1.5px dashed currentColor;
+  }
+  .sw-blank-link:hover { border-color: #bdb9cc; color: var(--ink); }
+  .sw-blank-link.selected {
+    border-color: var(--como); background: var(--como-soft); color: var(--como);
+  }
+  .sw-blank-link.selected::before { border-style: solid; background: var(--como); }
+
+  /* Business step */
+  .sw-block { margin-bottom: 26px; }
+  .sw-label { display: block; font-size: 13px; font-weight: 600; margin-bottom: 8px; color: var(--ink); }
+  .sw-input {
+    width: 100%; font-size: 17px; font-weight: 600;
+    padding: 13px 16px; border: 1.5px solid var(--line);
+    border-radius: 12px; background: var(--panel); color: var(--ink);
+    transition: border-color .15s, box-shadow .15s; box-sizing: border-box;
+  }
+  .sw-input:focus { outline: none; border-color: var(--como); box-shadow: 0 0 0 4px var(--como-soft); }
+  .sw-input::placeholder { color: #a7a5b5; font-weight: 400; }
+  .sw-chip-row { display: flex; flex-wrap: wrap; gap: 8px; }
+  .sw-chip {
+    padding: 8px 15px; border: 1.5px solid var(--line); border-radius: 100px;
+    font-size: 13px; font-weight: 500; color: var(--muted);
+    background: var(--panel); cursor: pointer; transition: all .15s;
+  }
+  .sw-chip:hover { border-color: #bdb9cc; color: var(--ink); }
+  .sw-chip.selected { background: var(--como); border-color: var(--como); color: #fff; font-weight: 600; }
+
+  /* Brand step */
+  .sw-swatch-row { display: flex; gap: 10px; align-items: center; flex-wrap: wrap; }
+  .sw-swatch {
+    width: 38px; height: 38px; border-radius: 50%; cursor: pointer;
+    border: 2.5px solid transparent;
+    box-shadow: inset 0 0 0 2px rgba(255,255,255,.9), var(--shadow-sm);
+    transition: transform .15s, box-shadow .15s; position: relative;
+  }
+  .sw-swatch:hover { transform: scale(1.1); }
+  .sw-swatch.selected { box-shadow: inset 0 0 0 3px #fff, 0 0 0 2.5px var(--ink); }
+  .sw-swatch-custom {
+    width: 38px; height: 38px; border-radius: 50%;
+    border: 1.5px dashed #b0adc0; display: grid; place-items: center;
+    position: relative; overflow: hidden; background: var(--panel); cursor: pointer;
+  }
+  .sw-swatch-custom svg { width: 15px; height: 15px; stroke: var(--muted); stroke-width: 2; fill: none; }
+  .sw-swatch-custom input { position: absolute; inset: 0; opacity: 0; cursor: pointer; }
+  .sw-logo-drop {
+    display: flex; align-items: center; gap: 16px;
+    border: 1.5px dashed #b0adc0; border-radius: 14px; padding: 14px 18px;
+    cursor: pointer; transition: border-color .15s, background .15s;
+  }
+  .sw-logo-drop:hover, .sw-logo-drop.dragover { border-color: var(--como); background: var(--como-soft); }
+  .sw-logo-prev {
+    width: 52px; height: 52px; border-radius: 12px; flex: none;
+    background: conic-gradient(#f0eef6 0 25%, #fff 0 50%, #f0eef6 0 75%, #fff 0) 0 0/16px 16px;
+    border: 1px solid var(--line); display: grid; place-items: center; overflow: hidden;
+  }
+  .sw-logo-prev img { width: 100%; height: 100%; object-fit: contain; }
+  .sw-logo-prev svg { width: 20px; height: 20px; stroke: var(--muted); stroke-width: 1.8; fill: none; }
+  .sw-logo-text b { display: block; font-size: 13.5px; font-weight: 600; color: var(--ink); }
+  .sw-logo-text span { font-size: 12px; color: var(--muted); }
+  .sw-logo-remove { margin-left: auto; font-size: 12.5px; font-weight: 600; color: #dc2626; padding: 6px 10px; border-radius: 7px; background: none; border: none; cursor: pointer; }
+  .sw-logo-remove:hover { background: #fdecec; }
+
+  /* Footer */
+  .sw-footer {
+    display: flex; align-items: center; justify-content: space-between;
+    padding-top: 22px; max-width: 580px;
+  }
+  .sw-back {
+    background: none; border: none; cursor: pointer;
+    color: var(--muted); font-weight: 600; font-size: 14px;
+    padding: 10px 14px; border-radius: 9px; transition: background .15s, color .15s;
+  }
+  .sw-back:hover { background: #f4f4f8; color: var(--ink); }
+  .sw-next {
+    background: var(--como); color: #fff; border: none; cursor: pointer;
+    font-weight: 700; font-size: 14.5px; padding: 12px 26px; border-radius: 10px;
+    transition: background .18s, transform .12s, box-shadow .18s;
+    box-shadow: 0 6px 16px -6px rgba(109,40,217,.6);
+  }
+  .sw-next:hover { background: #5b1eb5; }
+  .sw-next:active { transform: scale(.97); }
+  .sw-next:disabled { opacity: .4; cursor: not-allowed; box-shadow: none; }
+
+  /* Right: live phone preview — mirrors the editor's .preview-area exactly (same
+     grey canvas, same size + top-aligned position) so the phone doesn't shift or
+     re-tint when the wizard hands off to the editor */
+  .sw-preview {
+    min-width: 0; position: relative;
+    display: flex; flex-direction: column; align-items: center; justify-content: flex-start;
+    padding: 40px 20px 60px;
+    overflow-y: auto;
+    border-left: 1px solid var(--line);
+    background: #ebecf0;
+    background-image:
+      radial-gradient(circle at 20% 30%, rgba(109,40,217,.04) 0%, transparent 40%),
+      radial-gradient(circle at 80% 70%, rgba(168,85,247,.04) 0%, transparent 40%);
+  }
+  .sw-preview-inner { display: flex; flex-direction: column; align-items: center; }
+  .sw-phone-slot { display: flex; align-items: flex-start; justify-content: center; }
+  .sw-preview-cap { margin-top: 16px; font-size: 12.5px; font-weight: 500; color: var(--muted); text-align: center; }

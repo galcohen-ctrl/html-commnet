@@ -1,0 +1,704 @@
+  .config-panel {
+    background: var(--panel);
+    border-right: 1px solid var(--line);
+    overflow-y: auto;
+    padding: 20px 18px;
+    display: flex; flex-direction: column;
+  }
+  /* cp-page is toggled to display:flex by JS; the tip block sticks to the panel bottom */
+  .cp-page { flex: 1 1 auto; flex-direction: column; min-height: 0; }
+  #cp-home .cp-master:not(.hide), #cp-rewards .cp-master:not(.hide) { display: flex; flex-direction: column; flex: 1 1 auto; }
+  #cp-home .cp-master > .cp-info, #cp-rewards .cp-master > .cp-info { margin-top: auto; }
+  .config-panel h3.cp-head {
+    margin: 0 0 4px;
+    font-size: 11px;
+    text-transform: uppercase;
+    letter-spacing: .6px;
+    color: var(--muted);
+    font-weight: 700;
+  }
+  .config-panel .cp-page-title {
+    font-size: 20px; font-weight: 700; letter-spacing: -.4px; margin: 0 0 4px;
+  }
+  .config-panel .cp-page-sub {
+    font-size: 12px; color: var(--muted); margin: 0 0 16px; line-height: 1.55;
+  }
+
+  .cp-section {
+    border: 1px solid var(--line);
+    border-radius: 11px;
+    background: #fff;
+    margin-bottom: 8px;
+    overflow: hidden;
+  }
+  /* Section holding the + Add widget dropdown must not clip the open menu */
+  .cp-section:has(.cp-add-widget-menu) { overflow: visible; }
+  .cp-section .cp-head-row {
+    padding: 11px 14px;
+    font-weight: 650; font-size: 13px;
+    display: flex; align-items: center; cursor: pointer;
+    background: #fafafe;
+    border-bottom: 1px solid transparent;
+    user-select: none;
+  }
+  .cp-section .cp-head-row .chev {
+    margin-left: auto; color: #c7c7d4; font-size: 12px;
+    transition: transform .15s;
+  }
+  .cp-section.open .cp-head-row { border-bottom-color: var(--line); }
+  .cp-section.open .cp-head-row .chev { transform: rotate(90deg); }
+  .cp-section .cp-body { display: none; padding: 10px 14px 12px; }
+  .cp-section.open .cp-body { display: block; }
+
+  .cp-item {
+    display: flex; align-items: center; gap: 10px;
+    border: 1px solid var(--line);
+    border-radius: 9px;
+    padding: 9px 11px;
+    margin-bottom: 6px;
+    font-size: 12.5px; font-weight: 600;
+    background: #fff;
+    cursor: pointer;
+    transition: all .12s;
+  }
+  .cp-item:hover { border-color: var(--como); }
+  .cp-item.highlight { border-color: var(--como); background: var(--como-soft); }
+  .cp-item .handle { color: #c7c7d4; font-size: 14px; cursor: grab; }
+  .cp-item .name { flex: 1; }
+  .cp-item .tag { font-size: 10px; color: var(--muted); background: #f4f4fa; padding: 2px 7px; border-radius: 999px; font-weight: 700; }
+  .cp-item .tag.new { color: var(--ok); background: var(--ok-soft); }
+  .cp-item .chev { color: #c7c7d4; }
+  .cp-add {
+    display: flex; align-items: center; justify-content: center; gap: 4px;
+    margin-top: 6px; padding: 8px;
+    border: 1.5px dashed var(--line);
+    border-radius: 9px;
+    font-size: 12.5px; font-weight: 650; color: var(--como);
+    background: transparent; cursor: pointer; width: 100%;
+  }
+  .cp-add:hover { border-color: var(--como); background: var(--como-soft); }
+
+  .cp-field { display: flex; flex-direction: column; gap: 5px; margin-bottom: 12px; position: relative; }
+  .cp-field label {
+    font-size: 11px; font-weight: 700; color: var(--muted);
+    text-transform: uppercase; letter-spacing: .4px;
+  }
+  .cp-field .input {
+    border: 1px solid var(--line); border-radius: 8px;
+    padding: 8px 10px; font-size: 12.5px; background: #fafafe; color: var(--ink);
+  }
+  .cp-radio-group { display: flex; gap: 6px; flex-wrap: wrap; }
+  .cp-radio {
+    flex: 1; min-width: 60px;
+    text-align: center; padding: 7px 8px;
+    border: 1px solid var(--line); border-radius: 7px;
+    font-size: 11.5px; font-weight: 650;
+    cursor: pointer; background: #fff; color: var(--muted);
+    transition: all .12s;
+  }
+  .cp-radio.active { border-color: var(--como); color: var(--como); background: var(--como-soft); }
+
+  /* ---------- Compact on/off switch, used inline in a drill header ---------- */
+  .cp-header-switch {
+    margin-left: auto; flex: none; gap: 2px;
+    border: 1px solid var(--line); border-radius: 8px; padding: 2px;
+    background: #fff;
+  }
+  .cp-header-switch .cp-radio {
+    flex: none; min-width: 0; border: none; border-radius: 6px;
+    padding: 5px 9px; font-size: 10.5px;
+  }
+  .cp-header-switch .cp-radio.active { background: var(--ink); color: #fff; }
+
+  .cp-toggle-row {
+    display: flex; align-items: center; justify-content: space-between;
+    padding: 9px 0;
+    font-size: 12.5px;
+    border-top: 1px solid var(--line-soft);
+  }
+  .cp-toggle-row:first-child { border-top: none; padding-top: 4px; }
+  .cp-toggle-row .lbl { font-weight: 600; }
+
+  /* ---------- Social icon row: toggle reveals an indented URL input below it ---------- */
+  .cp-social-item { border-top: 1px solid var(--line-soft); }
+  .cp-social-item:first-child { border-top: none; }
+  .cp-social-item .cp-toggle-row { border-top: none; padding-bottom: 6px; }
+  .cp-social-item:first-child .cp-toggle-row { padding-top: 4px; }
+  .cp-social-link { display: none; padding: 0 0 10px 20px; }
+  .cp-social-item.on .cp-social-link { display: block; }
+  .toggle {
+    width: 32px; height: 18px; border-radius: 999px;
+    background: #d4d4dd; position: relative; cursor: pointer;
+    transition: background .15s;
+    flex: none;
+  }
+  .toggle::after {
+    content: ""; width: 14px; height: 14px; border-radius: 50%;
+    background: #fff; position: absolute; top: 2px; left: 2px;
+    transition: left .15s;
+    box-shadow: 0 1px 2px rgba(0,0,0,.15);
+  }
+  .toggle.on { background: var(--como); }
+  .toggle.on::after { left: 16px; }
+
+  .cp-info {
+    margin-top: 12px; padding: 10px 12px;
+    background: #eff6ff; border: 1px solid #bfdbfe;
+    border-radius: 9px; font-size: 11.5px; color: #1e40af; line-height: 1.5;
+  }
+  .cp-info b { font-weight: 700; }
+
+  /* ---------- Drill-in detail view (Toast pattern) ---------- */
+  .cp-master, .cp-detail { animation: cpSlide .22s ease; }
+  .cp-master.hide { display: none; }
+  .cp-detail { display: none; }
+  .cp-detail.show { display: block; }
+  @keyframes cpSlide { from { opacity: 0; transform: translateX(6px); } to { opacity: 1; transform: none; } }
+  .cp-detail-header {
+    display: flex; align-items: center; gap: 4px;
+    padding: 2px 0 14px;
+    margin-bottom: 12px;
+    border-bottom: 1px solid var(--line);
+  }
+  .cp-back {
+    border: none; background: transparent; cursor: pointer;
+    color: var(--como); font-size: 15px; font-weight: 700;
+    padding: 6px 10px; border-radius: 8px;
+    display: flex; align-items: center; gap: 2px;
+  }
+  .cp-back:hover { background: var(--como-soft); }
+  .cp-detail-title {
+    font-size: 18px; font-weight: 700; letter-spacing: -.3px;
+  }
+  .cp-detail-sub {
+    font-size: 12px; color: var(--muted); margin: -6px 0 14px; line-height: 1.5;
+  }
+
+  /* ---------- Upload zone ---------- */
+  .cp-upload-zone {
+    border: 1.5px dashed #cfcfe0;
+    border-radius: 11px; padding: 18px 12px;
+    text-align: center; background: #fafafe;
+    cursor: pointer;
+    transition: border-color .15s, background .15s;
+  }
+  .cp-upload-zone:hover { border-color: var(--como); background: var(--como-soft); }
+  .cp-upload-btn {
+    display: inline-flex; align-items: center; gap: 5px;
+    background: transparent; color: var(--como);
+    border: 1px solid var(--como);
+    border-radius: 8px; padding: 7px 14px;
+    font-size: 12px; font-weight: 700; cursor: pointer;
+    margin-bottom: 8px;
+  }
+  .cp-upload-hint { font-size: 11.5px; color: var(--muted); margin-bottom: 4px; }
+  .cp-upload-error { font-size: 10.5px; color: #b91c1c; margin-top: 8px; }
+  .cp-upload-note { font-size: 10.5px; color: var(--muted); margin-top: 10px; }
+  .cp-upload-preview {
+    display: flex; align-items: center; gap: 10px;
+    padding: 8px 10px; border: 1px solid var(--line);
+    border-radius: 9px; background: #fff; margin-top: 8px;
+  }
+  .cp-upload-preview .thumb {
+    width: 36px; height: 36px; border-radius: 7px;
+    background: linear-gradient(135deg, #2a2438, #4a3d63);
+    display: grid; place-items: center; color: #fff; font-weight: 800; font-size: 12px;
+  }
+  .cp-upload-preview .info { flex: 1; }
+  .cp-upload-preview .name { font-size: 11.5px; font-weight: 650; }
+  .cp-upload-preview .size { font-size: 10px; color: var(--muted); }
+  .cp-upload-preview .rm {
+    background: transparent; border: none; color: var(--muted);
+    font-size: 14px; cursor: pointer; padding: 4px;
+  }
+
+  /* ---------- Slider ---------- */
+  .cp-slider-row { display: flex; align-items: center; gap: 10px; padding: 4px 0; }
+  .cp-slider {
+    flex: 1;
+    -webkit-appearance: none; appearance: none;
+    height: 4px; background: var(--line); border-radius: 999px;
+    outline: none;
+  }
+  .cp-slider::-webkit-slider-thumb {
+    -webkit-appearance: none; appearance: none;
+    width: 16px; height: 16px; border-radius: 50%;
+    background: var(--como); cursor: pointer;
+    box-shadow: 0 1px 3px rgba(0,0,0,.15);
+  }
+  .cp-slider::-moz-range-thumb {
+    width: 16px; height: 16px; border-radius: 50%;
+    background: var(--como); cursor: pointer; border: none;
+  }
+  .cp-slider-val { font-size: 12px; font-weight: 700; color: var(--como); min-width: 44px; text-align: right; }
+
+  /* ---------- Color picker ---------- */
+  .cp-color-row {
+    display: flex; align-items: center; gap: 10px;
+    padding: 9px 10px; border: 1px solid var(--line); border-radius: 9px;
+    background: #fff; margin-bottom: 6px;
+  }
+  .cp-color-swatch {
+    width: 30px; height: 30px; border-radius: 7px;
+    border: 1px solid var(--line); cursor: pointer;
+    overflow: hidden; position: relative;
+    flex: none;
+  }
+  .cp-color-swatch input[type="color"] {
+    position: absolute; inset: -4px; opacity: 0; cursor: pointer; border: none;
+    width: calc(100% + 8px); height: calc(100% + 8px);
+  }
+  .cp-color-info { flex: 1; }
+  .cp-color-label { font-size: 12px; font-weight: 650; }
+  .cp-color-value { font-size: 10.5px; color: var(--muted); font-family: 'SF Mono', Menlo, monospace; margin-top: 1px; }
+  /* Editable HEX field beside every color swatch */
+  .cp-color-hex {
+    margin-top: 2px; width: 92px;
+    border: 1px solid var(--line); border-radius: 6px;
+    padding: 3px 7px; font-size: 10.5px; font-weight: 600;
+    color: var(--ink); background: #fafafe;
+    font-family: 'SF Mono', Menlo, monospace; text-transform: uppercase;
+  }
+  .cp-color-hex:focus { outline: none; border-color: var(--como); box-shadow: 0 0 0 2px var(--como-soft); }
+
+  /* Segmented control (Solid / Gradient) */
+  .cp-seg {
+    display: inline-flex; gap: 2px; padding: 2px;
+    background: #f4f4fa; border: 1px solid var(--line); border-radius: 8px;
+    margin-bottom: 8px;
+  }
+  .cp-seg-btn {
+    border: none; background: transparent; cursor: pointer;
+    font-size: 11.5px; font-weight: 650; color: var(--muted);
+    padding: 5px 12px; border-radius: 6px; font-family: inherit;
+  }
+  .cp-seg-btn.active { background: #fff; color: var(--ink); box-shadow: 0 1px 2px rgba(0,0,0,.08); }
+  .cp-mini-label { font-size: 11px; font-weight: 700; color: var(--muted); min-width: 48px; }
+
+  /* Google-Docs-style grid size picker popover */
+  .grid-picker {
+    position: absolute; z-index: 500;
+    background: #fff; border: 1px solid var(--line); border-radius: 10px;
+    box-shadow: 0 10px 30px rgba(0,0,0,.18); padding: 10px;
+  }
+  .grid-picker-grid { display: grid; gap: 3px; }
+  .grid-picker-cell {
+    width: 16px; height: 16px; border-radius: 3px;
+    border: 1px solid var(--line); background: #fafafe;
+  }
+  .grid-picker-cell.on { background: var(--como-soft); border-color: var(--como); }
+  .grid-picker-label { text-align: center; font-size: 11px; font-weight: 700; color: var(--ink); margin-top: 8px; }
+
+  /* + Add widget button + menu */
+  .cp-add-widget-wrap { position: relative; margin-top: 8px; }
+  .cp-add-widget-btn {
+    display: flex; align-items: center; justify-content: center; gap: 4px;
+    width: 100%; padding: 9px;
+    border: 1.5px dashed var(--line); border-radius: 9px;
+    font-size: 12.5px; font-weight: 650; color: var(--como);
+    background: transparent; cursor: pointer; font-family: inherit;
+  }
+  .cp-add-widget-btn:hover { border-color: var(--como); background: var(--como-soft); }
+  .cp-add-widget-menu {
+    display: none; position: absolute; left: 0; right: 0; top: calc(100% + 4px);
+    background: #fff; border: 1px solid var(--line); border-radius: 10px;
+    box-shadow: 0 10px 26px rgba(0,0,0,.16); padding: 5px; z-index: 60;
+  }
+  .cp-add-widget-menu.open { display: block; }
+  .cp-add-widget-menu button {
+    display: flex; align-items: center; gap: 9px; width: 100%;
+    border: none; background: transparent; cursor: pointer;
+    padding: 9px 10px; border-radius: 7px; font-size: 12.5px; font-weight: 600;
+    color: var(--ink); text-align: left; font-family: inherit;
+  }
+  .cp-add-widget-menu button:hover { background: var(--como-soft); color: var(--como); }
+  .cp-add-widget-menu button .aw-ic { width: 18px; text-align: center; flex: none; color: var(--como); }
+
+  /* ---------- Promo Cards item list (config panel) ---------- */
+  .pc-count {
+    display: inline-flex; align-items: center; justify-content: center;
+    min-width: 18px; height: 18px; border-radius: 999px;
+    background: var(--como-soft); color: var(--como);
+    font-size: 10.5px; font-weight: 700; padding: 0 5px;
+    margin-left: 6px;
+  }
+  .pc-items-list { display: flex; flex-direction: column; gap: 4px; }
+  .pc-item {
+    display: flex; gap: 8px; align-items: center;
+    border: 1px solid var(--line); border-radius: 10px;
+    padding: 9px 10px; background: #fff;
+    cursor: pointer; transition: border-color .12s;
+  }
+  .pc-item:hover { border-color: var(--como); }
+  .pc-item .handle { color: #c7c7d4; font-size: 14px; cursor: grab; flex: none; }
+  .pc-item-name { flex: 1; min-width: 0; font-size: 12.5px; font-weight: 600; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .pc-vis, .pc-del {
+    width: 26px; height: 26px; border-radius: 6px; border: none;
+    background: transparent; cursor: pointer; display: grid; place-items: center;
+    color: var(--muted); transition: background .1s, color .1s;
+  }
+  .pc-vis:hover { background: var(--como-soft); color: var(--como); }
+  .pc-del:hover { background: #fef2f2; color: #dc2626; }
+  .pc-vis svg, .pc-del svg { width: 15px; height: 15px; }
+  .pc-vis:not(.on) { opacity: .4; }
+  .pc-item-chev { color: #c7c7d4; font-size: 14px; flex: none; }
+  .pc-add-btn {
+    width: 100%; margin-top: 8px; padding: 10px;
+    border: 1.5px dashed var(--como); border-radius: 10px;
+    background: transparent; color: var(--como);
+    font-size: 12.5px; font-weight: 600; cursor: pointer;
+    transition: background .12s;
+  }
+  .pc-add-btn:hover { background: var(--como-soft); }
+
+  /* ---------- Promo Cards sub-drill (individual card editor) ---------- */
+  .cp-select {
+    width: 100%; border: 1px solid var(--line); border-radius: 8px;
+    padding: 8px 10px; font-size: 12.5px; background: #fff; color: var(--ink);
+    font-family: inherit; cursor: pointer;
+    transition: border-color .12s;
+  }
+  .cp-select:focus { outline: none; border-color: var(--como); box-shadow: 0 0 0 3px var(--como-soft); }
+  .pc-edit-image-zone {
+    border: 1.5px dashed var(--line); border-radius: 10px;
+    padding: 16px; text-align: center; cursor: pointer;
+    transition: border-color .15s, background .15s;
+    position: relative; min-height: 80px;
+    display: flex; align-items: center; justify-content: center;
+  }
+  .pc-edit-image-zone:hover { border-color: var(--como); background: var(--como-soft); }
+  .pc-edit-image-zone.has-image { padding: 8px; border-style: solid; }
+  .pc-edit-image-preview {
+    max-width: 100%; max-height: 120px; border-radius: 8px; object-fit: cover;
+  }
+  .pc-edit-image-empty { display: flex; flex-direction: column; align-items: center; gap: 6px; }
+  .pc-upload-prompt { display: flex; align-items: center; gap: 6px; color: var(--muted); font-size: 12px; }
+  .pc-upload-prompt svg { width: 20px; height: 20px; }
+  .pc-upload-hint { font-size: 10.5px; color: var(--muted); opacity: .7; }
+  .pc-edit-image-remove {
+    display: block; margin-top: 6px; border: none; background: transparent;
+    color: #dc2626; font-size: 11.5px; font-weight: 600; cursor: pointer;
+    padding: 4px 0;
+  }
+  .pc-edit-image-remove:hover { text-decoration: underline; }
+
+  /* ---------- Editable text input ---------- */
+  .cp-input-text {
+    width: 100%; border: 1px solid var(--line); border-radius: 8px;
+    padding: 8px 10px; font-size: 12.5px; background: #fff; color: var(--ink);
+    font-family: inherit;
+    transition: border-color .12s, box-shadow .12s;
+  }
+  .cp-input-text:focus { outline: none; border-color: var(--como); box-shadow: 0 0 0 3px var(--como-soft); }
+  .cp-textarea { min-height: 60px; resize: vertical; }
+
+  /* ---------- Rich (contenteditable) text input with inline variable tokens ---------- */
+  .cp-input-rich { cursor: text; white-space: pre-wrap; word-break: break-word; }
+  .cp-input-rich:empty::before { content: attr(data-placeholder); color: var(--muted); }
+  .var-token {
+    display: inline-block; background: var(--como-soft); color: var(--como);
+    padding: 1px 6px; border-radius: 999px; font-weight: 700; font-size: .92em;
+    white-space: nowrap; user-select: none;
+  }
+
+  /* ---------- Font picker ---------- */
+  .cp-font-card {
+    border: 1px solid var(--line); border-radius: 11px;
+    padding: 14px; background: #fff; margin-bottom: 8px;
+    cursor: pointer; transition: border-color .12s;
+  }
+  .cp-font-card:hover { border-color: var(--como); }
+  .cp-font-card.active { border-color: var(--como); background: var(--como-soft); }
+  .cp-font-card .fname { font-size: 20px; font-weight: 700; margin-bottom: 3px; }
+  .cp-font-card .fdesc { font-size: 11px; color: var(--muted); line-height: 1.5; }
+
+  /* ---------- Hidden slot utility ---------- */
+  .hidden-slot { display: none !important; }
+
+  /* ---------- Empty canvas (blank home state) ---------- */
+  .empty-canvas {
+    padding: 50px 20px 30px; text-align: center;
+    color: var(--p-text);
+  }
+  .empty-canvas .ec-graphic {
+    width: 68px; height: 68px; margin: 0 auto 16px;
+    border-radius: 20px;
+    background: linear-gradient(135deg, var(--p-accent) 0%, #a855f7 100%);
+    display: grid; place-items: center;
+    box-shadow: 0 12px 32px rgba(109,40,217,.25);
+    opacity: .9;
+  }
+  .empty-canvas .ec-graphic svg { width: 32px; height: 32px; color: #fff; }
+  .empty-canvas .ec-title { font-size: 15px; font-weight: 700; margin-bottom: 6px; letter-spacing: -.2px; }
+  .empty-canvas .ec-sub { font-size: 11.5px; color: var(--p-text-muted); line-height: 1.55; max-width: 220px; margin: 0 auto 18px; }
+  .empty-canvas .ec-hint {
+    display: inline-flex; align-items: center; gap: 6px;
+    background: var(--p-panel-2); color: var(--p-text-muted);
+    padding: 6px 12px; border-radius: 999px;
+    font-size: 10.5px; font-weight: 650;
+    border: 1px solid var(--p-border);
+    cursor: pointer; transition: border-color .15s, color .15s;
+  }
+  .empty-canvas .ec-hint:hover { border-color: var(--p-accent); color: var(--p-accent); }
+  body.tpl-blank .app-top-header .brand-mark:not(.has-logo) {
+    background: #f0f0f6 !important; color: #a3a3b0 !important;
+    box-shadow: none !important;
+    border: 1.5px dashed #d4d4de;
+    font-weight: 700 !important;
+  }
+
+  /* ---------- Widget picker row (Home config, Toast-style) ---------- */
+  .cp-widget-row {
+    display: flex; align-items: center; gap: 8px;
+    border: 1px solid var(--line);
+    border-radius: 11px;
+    padding: 8px 10px 8px 12px;
+    margin-bottom: 6px;
+    background: #fff;
+    font-size: 13px; font-weight: 600;
+    transition: all .15s;
+  }
+  .cp-widget-row:hover { border-color: #c7bfe3; }
+  .cp-widget-row.on {
+    border-color: var(--como);
+    background: linear-gradient(90deg, var(--como-soft) 0%, #fff 70%);
+    box-shadow: 0 1px 3px rgba(109,40,217,.08);
+  }
+  .cp-widget-row .handle { color: #c7c7d4; cursor: grab; opacity: 0; transition: opacity .12s; font-size: 14px; }
+  .cp-widget-row.on .handle { opacity: 1; }
+  .cp-widget-row .w-name {
+    flex: 1;
+    cursor: pointer;
+    color: var(--ink);
+    transition: color .12s;
+  }
+  .cp-widget-row.off .w-name {
+    color: #7a7686;
+    cursor: default;
+    pointer-events: none;
+  }
+
+  /* Compact icon-only add/added toggle */
+  .cp-widget-row .toggle {
+    width: 34px; height: 34px;
+    min-width: 0;
+    border-radius: 9px;
+    background: #f7f6fb;
+    border: 1px solid #e4e2ee;
+    color: var(--como);
+    padding: 0;
+    display: inline-flex; align-items: center; justify-content: center;
+    transition: all .15s;
+    flex: none;
+    line-height: 1;
+  }
+  .cp-widget-row .toggle::before,
+  .cp-widget-row .toggle::after { content: none !important; display: none !important; }
+  .cp-widget-row .toggle svg { width: 16px; height: 16px; }
+  .cp-widget-row .toggle .i-check { display: none; }
+  .cp-widget-row .toggle:hover {
+    background: var(--como-soft);
+    border-color: var(--como);
+    transform: scale(1.06);
+  }
+  .cp-widget-row .toggle:active { transform: scale(0.96); }
+  .cp-widget-row .toggle.on {
+    background: var(--como);
+    border-color: var(--como);
+    color: #fff;
+    box-shadow: 0 2px 6px rgba(109,40,217,.28);
+  }
+  .cp-widget-row .toggle.on:hover { background: #5b1eb5; border-color: #5b1eb5; }
+  .cp-widget-row .toggle.on .i-plus { display: none; }
+  .cp-widget-row .toggle.on .i-check { display: block; }
+
+  /* Edit pencil icon (disabled when row is off) */
+  .w-edit-icon {
+    width: 34px; height: 34px;
+    border-radius: 9px;
+    background: transparent;
+    border: 1px solid transparent;
+    color: #a3a3b0;
+    padding: 0;
+    cursor: pointer;
+    display: inline-flex; align-items: center; justify-content: center;
+    transition: all .15s;
+    flex: none;
+  }
+  .w-edit-icon svg { width: 15px; height: 15px; }
+  .w-edit-icon:hover {
+    background: var(--como-soft);
+    color: var(--como);
+    border-color: #e4e2ee;
+  }
+  .cp-widget-row.off .w-edit-icon {
+    opacity: .3;
+    pointer-events: none;
+    cursor: not-allowed;
+  }
+  .cp-widget-row.on .w-edit-icon { color: var(--como); }
+  /* Remove (delete) icon on dynamically-added widgets */
+  .w-del:hover { color: #dc2626 !important; background: #fee2e2 !important; border-color: #fecaca !important; }
+
+  /* Logo drill: preview area (checkerboard for transparent PNGs) */
+  .cp-logo-preview {
+    border: 1.5px dashed #d6d6de;
+    border-radius: 11px;
+    padding: 16px;
+    text-align: center;
+    background-color: #fafafe;
+    background-image:
+      linear-gradient(45deg, #e8e8ee 25%, transparent 25%),
+      linear-gradient(-45deg, #e8e8ee 25%, transparent 25%),
+      linear-gradient(45deg, transparent 75%, #e8e8ee 75%),
+      linear-gradient(-45deg, transparent 75%, #e8e8ee 75%);
+    background-size: 14px 14px;
+    background-position: 0 0, 0 7px, 7px -7px, -7px 0;
+    min-height: 130px;
+    display: flex; align-items: center; justify-content: center;
+    margin-bottom: 12px;
+    position: relative;
+    overflow: hidden;
+  }
+  .cp-logo-preview img {
+    max-width: 100%; max-height: 100px;
+    object-fit: contain;
+  }
+  .cp-logo-preview-empty {
+    color: var(--muted); text-align: center;
+    background: rgba(255,255,255,.65);
+    padding: 10px 14px; border-radius: 8px;
+    backdrop-filter: blur(3px);
+  }
+  .cp-logo-preview-empty .ic { font-size: 26px; opacity: .55; margin-bottom: 4px; }
+  .cp-logo-preview-empty .lbl { font-size: 11.5px; font-weight: 650; color: var(--ink); }
+  .cp-logo-preview-empty .sub { font-size: 10.5px; margin-top: 2px; color: var(--muted); }
+  .cp-logo-clear {
+    position: absolute; top: 8px; right: 8px;
+    background: rgba(20,20,40,.75); color: #fff;
+    border: none; border-radius: 6px;
+    padding: 5px 10px; font-size: 10.5px; font-weight: 700;
+    cursor: pointer;
+    display: none;
+  }
+  .cp-logo-clear:hover { background: rgba(20,20,40,.9); }
+
+  .cp-upload-zone.drag-over {
+    border-color: var(--como);
+    background: var(--como-soft);
+    transform: scale(1.01);
+  }
+
+  .cp-legal-note {
+    font-size: 10.5px; color: var(--muted);
+    line-height: 1.55;
+    margin: 10px 0 6px; padding: 0 2px;
+  }
+  .cp-legal-note a { color: var(--como); text-decoration: none; }
+  .cp-legal-note a:hover { text-decoration: underline; }
+
+  /* Uploaded logo overrides theme !important placeholder styling */
+  .brand-mark.has-logo {
+    background-color: transparent !important;
+    border: none !important;
+    color: transparent !important;
+    background-size: cover !important;
+    background-position: center !important;
+    background-repeat: no-repeat !important;
+    box-shadow: none !important;
+  }
+
+  /* ---------- Font library list (Branding → Fonts) ---------- */
+  .cp-font-search {
+    width: 100%; border: 1px solid var(--line); border-radius: 8px;
+    padding: 8px 10px 8px 30px; font-size: 12.5px;
+    background: #fff url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='14' height='14' viewBox='0 0 20 20' fill='none' stroke='%238a8798' stroke-width='2' stroke-linecap='round'><circle cx='9' cy='9' r='6'/><path d='M14 14l4 4'/></svg>") no-repeat left 9px center;
+    margin-bottom: 8px;
+  }
+  .cp-font-search:focus { outline: none; border-color: var(--como); }
+
+  .cp-font-list {
+    max-height: 260px; overflow-y: auto;
+    border: 1px solid var(--line); border-radius: 10px;
+    background: #fff;
+  }
+  .cp-font-item {
+    padding: 11px 12px;
+    border-bottom: 1px solid var(--line-soft);
+    cursor: pointer;
+    display: flex; align-items: center; justify-content: space-between; gap: 10px;
+    transition: background .12s;
+  }
+  .cp-font-item:last-child { border-bottom: none; }
+  .cp-font-item:hover { background: var(--como-soft); }
+  .cp-font-item.active { background: var(--como-soft); box-shadow: inset 3px 0 0 var(--como); }
+  .cp-font-item .fname { font-size: 15px; font-weight: 500; color: var(--ink); line-height: 1.2; }
+  .cp-font-item .fsub { font-size: 10px; color: var(--muted); font-weight: 600; text-transform: uppercase; letter-spacing: .4px; white-space: nowrap; }
+  .cp-font-item.active .fsub { color: var(--como); }
+
+  /* ---------- Icon style radios (Branding → Icons) ---------- */
+  .cp-icon-style-preview {
+    display: flex; gap: 12px; padding: 12px;
+    background: #fafafe; border: 1px solid var(--line); border-radius: 10px;
+    justify-content: center; margin-bottom: 10px;
+  }
+  .cp-icon-style-preview svg {
+    width: 22px; height: 22px; color: var(--como);
+    transition: stroke-width .15s, fill .15s, fill-opacity .15s;
+  }
+
+  /* Global icon style — affects nav icons on the phone + sidebar */
+  body[data-icon-style="outline"] .nav-item svg,
+  body[data-icon-style="outline"] .side-item .side-ic svg {
+    stroke-width: 1.8; fill: none;
+  }
+  body[data-icon-style="solid"] .nav-item svg,
+  body[data-icon-style="solid"] .side-item .side-ic svg {
+    stroke-width: 2.4; fill: currentColor; fill-opacity: .22;
+  }
+  body[data-icon-style="duotone"] .nav-item svg,
+  body[data-icon-style="duotone"] .side-item .side-ic svg {
+    stroke-width: 1.3; fill: currentColor; fill-opacity: .38;
+  }
+  body[data-icon-style="outline"] .cp-icon-style-preview svg { stroke-width: 1.8; fill: none; }
+  body[data-icon-style="solid"]   .cp-icon-style-preview svg { stroke-width: 2.4; fill: currentColor; fill-opacity: .22; }
+  body[data-icon-style="duotone"] .cp-icon-style-preview svg { stroke-width: 1.3; fill: currentColor; fill-opacity: .38; }
+
+  /* ---------- Widget row drag-reorder animations ---------- */
+  .cp-widget-row { will-change: transform; }
+  .cp-widget-row.dragging {
+    z-index: 50; position: relative;
+    box-shadow: 0 12px 32px rgba(20,20,40,.18), 0 4px 12px rgba(20,20,40,.08);
+    background: #fff;
+    cursor: grabbing;
+  }
+  .cp-widget-row.dragging * { pointer-events: none; }
+  .cp-widget-row .handle:hover { cursor: grab; color: var(--como); }
+  .cp-widget-row.on .handle { opacity: 1; }
+
+  /* Section note text (inside sections) */
+  .cp-section-note {
+    font-size: 11px; color: var(--muted); line-height: 1.55;
+    padding: 8px 2px 2px;
+  }
+
+  /* Nested sub-header inside a section (e.g. Position / Overlay inside Logo) */
+  .cp-subhead {
+    font-size: 10.5px; text-transform: uppercase; letter-spacing: .6px;
+    color: var(--muted); font-weight: 700;
+    margin: 14px 0 6px; padding: 0 2px;
+  }
+  .cp-subhead:first-of-type { margin-top: 4px; }
+
+  .cp-hint-inline { font-size: 11.5px; color: var(--muted); line-height: 1.5; padding: 6px 4px 0; }
+
+  /* ---------- Delivery / Pickup switcher (Menu) ---------- */
+  .menu-dp {
+    display: flex; gap: 6px; margin-bottom: 12px;
+  }
+  .menu-dp .dp-tab {
+    flex: 1; text-align: center; padding: 8px;
+    border-radius: 999px; font-size: 10.5px; font-weight: 700;
+    background: var(--p-panel-2); color: var(--p-text-muted); cursor: pointer;
+  }
+  .menu-dp .dp-tab.active { background: var(--p-text); color: var(--p-bg); }

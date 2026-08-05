@@ -1,0 +1,46 @@
+      <!-- Drill: Profile (merged: greeting + stats row, per prototype review Jul 8) -->
+      <div class="cp-detail" data-detail="profile">
+        <div class="cp-detail-header">
+          <button class="cp-back">‹</button>
+          <div class="cp-detail-title">Profile Widget</div>
+          <div class="cp-radio-group cp-header-switch">
+            <div class="cp-radio active" data-bind-radio="member-state" data-value="loggedin">Logged in</div>
+            <div class="cp-radio" data-bind-radio="member-state" data-value="guest">Guest</div>
+          </div>
+        </div>
+        <div class="cp-section open" data-state-section="loggedin">
+          <div class="cp-head-row">Copy <span class="chev">›</span></div>
+          <div class="cp-body">
+            <div class="cp-field">
+              <label>Greeting text</label>
+              <div class="cp-input-text cp-input-rich" contenteditable="true" data-bind-text=".greet-row .hello" data-vars="true">Hey Welcome, Obaidul!</div>
+            </div>
+            <div class="cp-hint">Use <code>{firstName}</code>, <code>{lastName}</code>, <code>{phone}</code>, <code>{dob}</code>, <code>{tier}</code> to personalize. Type <b>@</b> to insert a member variable.</div>
+          </div>
+        </div>
+        <div class="cp-section open" data-state-section="guest">
+          <div class="cp-head-row">Guest content <span class="chev">›</span></div>
+          <div class="cp-body">
+            <div class="cp-field"><label>Title</label><input class="cp-input-text" data-bind-text=".guest-state .g-title" value="Welcome!" /></div>
+            <div class="cp-field"><label>Subheading</label><input class="cp-input-text" data-bind-text=".guest-state .g-sub" value="Log in to see your points &amp; rewards" /></div>
+            <div class="cp-section-note">No member variables here — there's no member to populate them with yet.</div>
+          </div>
+        </div>
+        <div class="cp-section open" data-state-section="loggedin">
+          <div class="cp-head-row">Stats row <span class="chev">›</span></div>
+          <div class="cp-body">
+            <div class="cp-toggle-row"><span class="lbl">Points</span><span class="toggle on" data-bind=".stat-tile[data-stat='points']"></span></div>
+            <div class="cp-toggle-row"><span class="lbl">Credit</span><span class="toggle on" data-bind=".stat-tile[data-stat='credit']"></span></div>
+            <div class="cp-toggle-row"><span class="lbl">Gift Lists</span><span class="toggle on" data-bind=".stat-tile[data-stat='gifts']"></span></div>
+            <div class="cp-toggle-row"><span class="lbl">Punch Cards</span><span class="toggle on" data-bind=".stat-tile[data-stat='cards']"></span></div>
+
+            <div class="cp-subhead">Style</div>
+            <div class="cp-radio-group">
+              <div class="cp-radio active" data-bind-radio="stats-wrapper" data-value="rounded">Rounded</div>
+              <div class="cp-radio" data-bind-radio="stats-wrapper" data-value="square">Square</div>
+              <div class="cp-radio" data-bind-radio="stats-wrapper" data-value="none">None</div>
+            </div>
+            <div class="cp-toggle-row"><span class="lbl">Show icons</span><span class="toggle on" data-bind=".stat-tile .stat-icon"></span></div>
+          </div>
+        </div>
+      </div>

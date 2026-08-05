@@ -1,0 +1,4 @@
+  @media (max-width: 960px) {
+    .sw-body { grid-template-columns: 1fr; }
+    .sw-preview { display: none; }
+  }

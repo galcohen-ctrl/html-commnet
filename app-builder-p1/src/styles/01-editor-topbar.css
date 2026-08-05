@@ -1,0 +1,155 @@
+  /* ============================================================
+     TOP BAR (Toast-style)
+     ============================================================ */
+  .topbar {
+    height: 60px;
+    background: var(--panel);
+    border-bottom: 1px solid var(--line);
+    display: flex; align-items: center; gap: 14px;
+    padding: 0 18px;
+    flex: none;
+    position: relative;
+    z-index: 100;
+  }
+  .brand { display: flex; align-items: center; gap: 10px; }
+  .brand-logo {
+    width: 30px; height: 30px; border-radius: 9px;
+    background: linear-gradient(135deg, var(--como), #a855f7);
+    display: grid; place-items: center;
+    color: #fff; font-weight: 800; font-size: 13px;
+  }
+  .brand-name { font-weight: 700; font-size: 14px; letter-spacing: -.2px; }
+  .brand-sub { font-size: 10.5px; color: var(--muted); margin-top: 1px; }
+
+  .page-select {
+    display: flex; align-items: center; gap: 8px;
+    margin-left: 16px;
+  }
+  .page-select .lbl { font-size: 10.5px; text-transform: uppercase; color: var(--muted); font-weight: 700; letter-spacing: .5px; }
+  .page-select select {
+    appearance: none;
+    border: 1.5px solid var(--como);
+    border-radius: 9px;
+    padding: 7px 32px 7px 12px;
+    font-weight: 650; font-size: 13px;
+    background: #fff url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='10' height='7' viewBox='0 0 10 7'><path d='M1 1l4 4 4-4' stroke='%236d28d9' stroke-width='1.5' fill='none' stroke-linecap='round'/></svg>") right 10px center no-repeat;
+    color: var(--como);
+    cursor: pointer;
+    min-width: 130px;
+  }
+  .seg {
+    display: flex; align-items: center; gap: 2px;
+    border: 1px solid var(--line);
+    border-radius: 9px; padding: 3px;
+    background: #fff;
+  }
+  .seg button {
+    border: none; background: transparent;
+    padding: 5px 11px; border-radius: 6px;
+    font-size: 12px; font-weight: 650; color: var(--muted);
+    cursor: pointer; transition: all .15s;
+  }
+  .seg button.active { background: var(--ink); color: #fff; }
+
+  .top-spacer { flex: 1; }
+
+  .save-btn {
+    border: none; border-radius: 9px;
+    padding: 8px 16px; font-weight: 650; font-size: 13px;
+    background: var(--como); color: #fff;
+    cursor: pointer; transition: opacity .15s;
+  }
+  .save-btn.disabled { background: #e6e6ee; color: #a3a3b0; cursor: not-allowed; }
+  .close-btn {
+    border: 1px solid var(--line); background: #fff;
+    width: 34px; height: 34px; border-radius: 8px;
+    color: var(--muted); font-size: 16px; cursor: pointer;
+    display: grid; place-items: center;
+  }
+
+  /* ---------- Preset dropdown (top bar) ---------- */
+  .preset-dropdown { position: relative; }
+  .preset-btn {
+    display: flex; align-items: center; gap: 7px;
+    border: 1px solid var(--line); background: #fff;
+    border-radius: 9px; padding: 7px 12px;
+    font-size: 12.5px; font-weight: 650; color: var(--ink);
+    cursor: pointer; transition: border-color .15s;
+  }
+  .preset-btn:hover { border-color: var(--como); }
+  .preset-btn svg { flex: none; width: 15px; height: 15px; }
+  .preset-btn .chev-ic { width: 10px; height: 6px; color: var(--muted); transition: transform .15s; }
+  .preset-dropdown.open .preset-btn .chev-ic { transform: rotate(180deg); }
+  .preset-menu {
+    position: absolute; top: calc(100% + 6px); right: 0;
+    min-width: 180px;
+    background: #fff; border: 1px solid var(--line); border-radius: 10px;
+    box-shadow: 0 12px 28px rgba(0,0,0,.14);
+    padding: 6px; z-index: 150;
+    opacity: 0; pointer-events: none; transform: translateY(-4px);
+    transition: opacity .15s, transform .15s;
+  }
+  .preset-dropdown.open .preset-menu { opacity: 1; pointer-events: auto; transform: none; }
+  .preset-menu-item {
+    display: block; width: 100%; text-align: left;
+    border: none; background: transparent; border-radius: 7px;
+    padding: 8px 10px; font-size: 12.5px; font-weight: 600; color: var(--ink);
+    cursor: pointer;
+  }
+  .preset-menu-item:hover { background: var(--como-soft); }
+  .preset-menu-item.active { color: var(--como); background: var(--como-soft); }
+
+  /* ---------- Demo-only: simulate published state ---------- */
+  .demo-toggle {
+    border: 1px dashed var(--line); background: #fff; color: var(--muted);
+    border-radius: 8px; padding: 6px 10px;
+    font-size: 11.5px; font-weight: 650; cursor: pointer;
+  }
+  .demo-toggle:hover { border-color: var(--como); color: var(--como); }
+  .demo-toggle.active { border-style: solid; border-color: var(--como); color: var(--como); background: var(--como-soft); }
+  .preset-dropdown.disabled .preset-btn { opacity: .45; cursor: not-allowed; pointer-events: none; }
+
+  /* ---------- Confirm-before-switch modal ---------- */
+  .confirm-overlay {
+    position: fixed; inset: 0; background: rgba(15,13,23,.45);
+    display: flex; align-items: center; justify-content: center;
+    z-index: 500; opacity: 0; pointer-events: none; transition: opacity .15s;
+  }
+  .confirm-overlay.open { opacity: 1; pointer-events: auto; }
+  .confirm-box {
+    width: 340px; background: #fff; border-radius: 14px;
+    padding: 20px; box-shadow: 0 20px 50px rgba(0,0,0,.25);
+  }
+  .confirm-title { font-size: 15px; font-weight: 750; margin-bottom: 8px; }
+  .confirm-body { font-size: 12.5px; color: var(--muted); line-height: 1.5; margin-bottom: 18px; }
+  .confirm-actions { display: flex; justify-content: flex-end; gap: 8px; }
+  .confirm-cancel {
+    border: 1px solid var(--line); background: #fff; color: var(--ink);
+    border-radius: 8px; padding: 8px 14px; font-size: 12.5px; font-weight: 650; cursor: pointer;
+  }
+  .confirm-ok {
+    border: none; background: var(--como); color: #fff;
+    border-radius: 8px; padding: 8px 14px; font-size: 12.5px; font-weight: 650; cursor: pointer;
+  }
+
+  /* ---------- Config hint text + @ variable dropdown ---------- */
+  .cp-hint { font-size: 11px; color: var(--muted); line-height: 1.5; margin-top: -6px; margin-bottom: 14px; }
+  .cp-hint code { background: var(--como-soft); color: var(--como); padding: 1px 4px; border-radius: 4px; font-size: 10.5px; }
+  .var-dropdown {
+    position: absolute; top: 100%; left: 0; right: 0; margin-top: 4px;
+    background: #fff; border: 1px solid var(--line); border-radius: 9px;
+    box-shadow: 0 10px 24px rgba(0,0,0,.16); z-index: 60;
+    padding: 4px; max-height: 180px; overflow-y: auto;
+  }
+  .var-dropdown-item {
+    padding: 7px 9px; font-size: 12px; font-weight: 600; color: var(--ink);
+    border-radius: 6px; cursor: pointer;
+  }
+  .var-dropdown-item:hover, .var-dropdown-item.active { background: var(--como-soft); color: var(--como); }
+  .var-dropdown-empty { padding: 8px 9px; font-size: 11.5px; color: var(--muted); font-style: italic; }
+
+  /* ---------- Sub-menu (drill-in) breadcrumb indicator ---------- */
+  .cp-crumb {
+    font-size: 10px; text-transform: uppercase; letter-spacing: .6px;
+    color: var(--como); font-weight: 700; margin-bottom: 6px;
+  }

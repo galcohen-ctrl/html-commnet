@@ -1,0 +1,27 @@
+{
+  "name": "app-builder-p1-review",
+  "private": true,
+  "version": "1.0.0",
+  "type": "module",
+  "scripts": {
+    "dev": "vite --host 127.0.0.1",
+    "comments": "python3 local-comment-server.py",
+    "comments:pull": "node scripts/pull-github-comments.mjs",
+    "dev:local": "concurrently --kill-others \"npm run comments\" \"npm run dev -- --open /html-commnet/app-builder-p1/?mode=local\"",
+    "build": "vite build",
+    "preview": "vite preview --host 127.0.0.1",
+    "preview:local": "concurrently --kill-others \"npm run comments\" \"npm run preview -- --open /html-commnet/app-builder-p1/?mode=local\""
+  },
+  "dependencies": {
+    "react": "^19.2.8",
+    "react-dom": "^19.2.8"
+  },
+  "devDependencies": {
+    "@vitejs/plugin-react": "^6.0.5",
+    "concurrently": "^9.2.1",
+    "vite": "^8.2.0"
+  },
+  "engines": {
+    "node": "^20.19.0 || >=22.12.0"
+  }
+}

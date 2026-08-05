@@ -1,0 +1,101 @@
+      <!-- Drill: Promo Cards — Featured (instance 1) -->
+      <div class="cp-detail" data-detail="promo-cards">
+        <div class="cp-detail-header">
+          <button class="cp-back">‹</button>
+          <div class="cp-detail-title">Promo Cards — Featured</div>
+        </div>
+
+        <!-- Your cards — item list -->
+        <div class="cp-section open">
+          <div class="cp-head-row">Your cards <span class="pc-count">3</span> <span class="chev">›</span></div>
+          <div class="cp-body">
+            <div class="pc-items-list" id="pc-items-list">
+              <div class="pc-item" data-pc-idx="0">
+                <span class="handle">⠿</span>
+                <span class="pc-item-name">Black Angus Special</span>
+                <button class="pc-vis on" title="Toggle visibility">
+                  <svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"><path d="M1 10s3.5-6 9-6 9 6 9 6-3.5 6-9 6-9-6-9-6z"/><circle cx="10" cy="10" r="3"/></svg>
+                </button>
+                <button class="pc-del" title="Delete card">
+                  <svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"><path d="M4 6h12M8 6V4h4v2M6 6v10a1 1 0 001 1h6a1 1 0 001-1V6"/></svg>
+                </button>
+                <span class="pc-item-chev">›</span>
+              </div>
+              <div class="pc-item" data-pc-idx="1">
+                <span class="handle">⠿</span>
+                <span class="pc-item-name">Artisan Chocolate</span>
+                <button class="pc-vis on" title="Toggle visibility">
+                  <svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"><path d="M1 10s3.5-6 9-6 9 6 9 6-3.5 6-9 6-9-6-9-6z"/><circle cx="10" cy="10" r="3"/></svg>
+                </button>
+                <button class="pc-del" title="Delete card">
+                  <svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"><path d="M4 6h12M8 6V4h4v2M6 6v10a1 1 0 001 1h6a1 1 0 001-1V6"/></svg>
+                </button>
+                <span class="pc-item-chev">›</span>
+              </div>
+              <div class="pc-item" data-pc-idx="2">
+                <span class="handle">⠿</span>
+                <span class="pc-item-name">Premium Sushi Night</span>
+                <button class="pc-vis on" title="Toggle visibility">
+                  <svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"><path d="M1 10s3.5-6 9-6 9 6 9 6-3.5 6-9 6-9-6-9-6z"/><circle cx="10" cy="10" r="3"/></svg>
+                </button>
+                <button class="pc-del" title="Delete card">
+                  <svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"><path d="M4 6h12M8 6V4h4v2M6 6v10a1 1 0 001 1h6a1 1 0 001-1V6"/></svg>
+                </button>
+                <span class="pc-item-chev">›</span>
+              </div>
+            </div>
+            <button class="pc-add-btn" id="pc-add-btn">+ Add card</button>
+          </div>
+        </div>
+
+        <!-- Presentation — widget-level style (applies to all cards) -->
+        <div class="cp-section open">
+          <div class="cp-head-row">Presentation <span class="chev">›</span></div>
+          <div class="cp-body">
+            <div class="cp-field">
+              <label>Display</label>
+              <div class="cp-radio-group">
+                <div class="cp-radio active" data-bind-radio="pc-display" data-value="carousel">Carousel</div>
+                <div class="cp-radio" data-bind-radio="pc-display" data-value="stack">Stack</div>
+                <div class="cp-radio" data-bind-radio="pc-display" data-value="grid">Grid</div>
+              </div>
+            </div>
+            <div class="cp-field">
+              <label>Image</label>
+              <div class="cp-radio-group">
+                <div class="cp-radio active" data-bind-radio="pc-image-size" data-value="cover">Cover</div>
+                <div class="cp-radio" data-bind-radio="pc-image-size" data-value="beside">Beside</div>
+                <div class="cp-radio" data-bind-radio="pc-image-size" data-value="behind">Behind</div>
+              </div>
+            </div>
+            <div class="cp-field">
+              <label>Button</label>
+              <div class="cp-radio-group">
+                <div class="cp-radio active" data-bind-radio="pc-cta-style" data-value="filled">Filled</div>
+                <div class="cp-radio" data-bind-radio="pc-cta-style" data-value="outline">Outline</div>
+                <div class="cp-radio" data-bind-radio="pc-cta-style" data-value="link">Link</div>
+                <div class="cp-radio" data-bind-radio="pc-cta-style" data-value="none">None</div>
+              </div>
+            </div>
+            <div class="cp-field">
+              <label>Corners</label>
+              <div class="cp-radio-group">
+                <div class="cp-radio" data-bind-radio="pc-corners" data-value="sharp">Sharp</div>
+                <div class="cp-radio active" data-bind-radio="pc-corners" data-value="rounded">Rounded</div>
+              </div>
+            </div>
+            <div class="cp-field">
+              <label>Card background</label>
+              <div class="cp-color-row compact">
+                <div class="cp-color-swatch" style="background:var(--p-panel);">
+                  <input type="color" value="#1a1728" id="pc-bg-color" />
+                </div>
+                <div class="cp-color-info">
+                  <div class="cp-color-label">Card background</div>
+                  <input class="cp-color-hex" value="#1A1728" spellcheck="false" maxlength="9" />
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>

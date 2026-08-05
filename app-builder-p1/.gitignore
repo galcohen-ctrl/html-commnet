@@ -1,2 +1,6 @@
 __pycache__/
 local-comments/
+review-comments/
+node_modules/
+dist/
+.vite/

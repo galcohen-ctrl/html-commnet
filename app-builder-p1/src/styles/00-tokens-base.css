@@ -1,0 +1,84 @@
+  :root {
+    --bg: #f4f5f7;
+    --panel: #ffffff;
+    --ink: #1d1d28;
+    --muted: #6b6b7b;
+    --line: #e6e6ee;
+    --line-soft: #f0f0f6;
+    --como: #6d28d9;
+    --como-soft: #f1ebfd;
+    --ok: #16a34a;
+    --ok-soft: #ecfdf3;
+    --radius: 14px;
+    --shadow-sm: 0 1px 2px rgba(20,20,40,.06);
+    --shadow: 0 1px 2px rgba(20,20,40,.06), 0 8px 24px rgba(20,20,40,.06);
+  }
+
+  /* Phone theme — Blank (default — clean white starter) */
+  body.tpl-blank {
+    --p-bg: #ffffff;
+    --p-panel: #ffffff;
+    --p-panel-2: #f5f5f8;
+    --p-text: #1d1d28;
+    --p-text-muted: #8a8798;
+    --p-accent: #6d28d9;
+    --p-accent-2: #5b1eb5;
+    --p-danger: #dc2626;
+    --p-border: #eaeaf1;
+    --p-card-grad: linear-gradient(160deg, #ffffff 0%, #f5f5f8 100%);
+    --p-hero-grad: linear-gradient(135deg, #6d28d9 0%, #a855f7 100%);
+    --p-nav-bg: #ffffff;
+  }
+
+  /* Phone theme — Template 2 (Fine Dining · Velvet Bistro) */
+  body.tpl-2 {
+    --p-bg: #0f0d17;
+    --p-panel: #1a1728;
+    --p-panel-2: #221e34;
+    --p-text: #ffffff;
+    --p-text-muted: #9c98ac;
+    --p-accent: #d4a648;
+    --p-accent-2: #b8892e;
+    --p-danger: #ef4444;
+    --p-border: rgba(255,255,255,.08);
+    --p-card-grad: linear-gradient(160deg, #2a2438 0%, #1a1728 100%);
+    --p-hero-grad: linear-gradient(135deg, #3a2f52 0%, #6d28d9 100%);
+    --p-nav-bg: #14111f;
+  }
+  /* Phone theme — Template 3 (Café · QR Code layout) */
+  body.tpl-3 {
+    --p-bg: #faf7f0;
+    --p-panel: #ffffff;
+    --p-panel-2: #f5f0e4;
+    --p-text: #2a2418;
+    --p-text-muted: #7c7362;
+    --p-accent: #d97706;
+    --p-accent-2: #b45309;
+    --p-danger: #dc2626;
+    --p-border: rgba(0,0,0,.08);
+    --p-card-grad: linear-gradient(160deg, #ffffff 0%, #f5f0e4 100%);
+    --p-hero-grad: linear-gradient(135deg, #92400e 0%, #d97706 100%);
+    --p-nav-bg: #ffffff;
+  }
+
+  * { box-sizing: border-box; }
+  html, body { margin: 0; height: 100%; overflow: hidden; }
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, "SF Pro Display", "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+    background: var(--bg);
+    color: var(--ink);
+    -webkit-font-smoothing: antialiased;
+    display: flex;
+    flex-direction: column;
+  }
+  /* React mounts the editor inside #root. Keep that mount as the viewport-sized
+     flex shell so the workspace can shrink and its child panels can scroll. */
+  #root {
+    width: 100%;
+    height: 100%;
+    min-height: 0;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+  }
+  button { font-family: inherit; }

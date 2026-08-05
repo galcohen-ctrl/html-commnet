@@ -1,0 +1,44 @@
+        <!-- ============ MODALS ============ -->
+
+        <!-- QR Modal -->
+        <div class="phone-modal" data-modal="qr">
+          <div class="modal-sheet" style="text-align:center;">
+            <button class="modal-close" onclick="closeModal()">✕</button>
+            <div class="qr-title">Identify yourself with this code</div>
+            <div class="qr-box"><div class="qr-pattern"></div></div>
+            <div class="qr-id">7133</div>
+            <button class="qr-ok-btn" onclick="closeModal()">OK</button>
+          </div>
+        </div>
+
+        <!-- Order History Modal (empty state) -->
+        <div class="phone-modal" data-modal="orders">
+          <div class="modal-sheet">
+            <button class="modal-close" onclick="closeModal()">✕</button>
+            <div class="empty-state">
+              <div class="e-ic">📦</div>
+              <div class="e-title">No orders yet</div>
+              <div class="e-sub">Your recent orders will show up here once you place one.</div>
+              <button class="e-btn" onclick="closeModal()">Reload</button>
+            </div>
+          </div>
+        </div>
+
+        <!-- Referral Modal -->
+        <div class="phone-modal" data-modal="referral">
+          <div class="modal-sheet">
+            <button class="modal-close" onclick="closeModal()">✕</button>
+            <div style="padding: 6px 0 12px; text-align:center;">
+              <div style="font-size:38px; margin-bottom:8px;">🎁</div>
+              <div style="font-size:14px; font-weight:800; color:var(--p-text); margin-bottom:6px;">Invite Friends, Earn Rewards</div>
+              <div style="font-size:11px; color:var(--p-text-muted); line-height:1.5; margin-bottom:16px;">
+                Give a friend 50 bonus points on sign-up. You get 100 when they place their first order.
+              </div>
+              <div style="background:var(--p-panel-2); border-radius:10px; padding:12px; margin-bottom:12px; text-align:left;">
+                <div style="font-size:9.5px; color:var(--p-text-muted); text-transform:uppercase; letter-spacing:.6px; margin-bottom:4px;">Your referral link</div>
+                <div style="font-size:11px; color:var(--p-text); font-family:'SF Mono', Menlo, monospace;">como.app/r/obaidul-h</div>
+              </div>
+              <button class="qr-ok-btn" onclick="closeModal()">Share link</button>
+            </div>
+          </div>
+        </div>
