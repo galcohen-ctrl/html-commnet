@@ -2,9 +2,20 @@
     background: var(--panel);
     border-right: 1px solid var(--line);
     overflow-y: auto;
+    min-height: 0;
+    scrollbar-gutter: stable;
+    overscroll-behavior: contain;
     padding: 20px 18px;
     display: flex; flex-direction: column;
   }
+  .config-panel::-webkit-scrollbar { width: 8px; }
+  .config-panel::-webkit-scrollbar-track { background: transparent; }
+  .config-panel::-webkit-scrollbar-thumb {
+    background: #d8d8e3;
+    border: 2px solid var(--panel);
+    border-radius: 999px;
+  }
+  .config-panel::-webkit-scrollbar-thumb:hover { background: #bdbdca; }
   /* cp-page is toggled to display:flex by JS; the tip block sticks to the panel bottom */
   .cp-page { flex: 1 1 auto; flex-direction: column; min-height: 0; }
   #cp-home .cp-master:not(.hide), #cp-rewards .cp-master:not(.hide) { display: flex; flex-direction: column; flex: 1 1 auto; }

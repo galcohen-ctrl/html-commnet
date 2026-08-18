@@ -5,6 +5,7 @@ import LevelThreePanel from './components/LevelThreePanel';
 import PhonePreview from './components/PhonePreview';
 import SetupWizard from './components/SetupWizard';
 import Sidebar from './components/Sidebar';
+import SettingsModal from './components/SettingsModal';
 import TopBar from './components/TopBar';
 import { installCommentAnchors } from './app/installCommentAnchors';
 
@@ -47,6 +48,7 @@ export default function App() {
         <PhonePreview />
       </div>
       <EditorOverlays />
+      <SettingsModal />
     </>
   );
 }

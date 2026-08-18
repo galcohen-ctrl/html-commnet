@@ -1,0 +1,197 @@
+<div class="sm-pane" data-sm-pane="business-profile"
+     data-sm-title="Business profile"
+     data-sm-sub="The real-world details behind the app — used on your store listing, receipts and the Locations screen."
+     data-sm-primary="Save changes">
+
+  <div class="sm-section">
+    <div class="sm-section-label">Legal entity</div>
+    <div class="sm-field">
+      <label class="sm-label" for="sm-legal-name">Registered business name</label>
+      <input class="sm-input" id="sm-legal-name" type="text" value="Velvet Bistro Hospitality Ltd.">
+      <div class="sm-hint">Must match the name on your App Store and Google Play developer account.</div>
+    </div>
+    <div class="sm-row2">
+      <div class="sm-field">
+        <label class="sm-label" for="sm-biz-type">Business type</label>
+        <select class="sm-select" id="sm-biz-type">
+          <option>Restaurant · Full service</option>
+          <option>Restaurant · Quick service</option>
+          <option>Café &amp; bakery</option>
+          <option>Bar &amp; nightlife</option>
+          <option>Retail</option>
+        </select>
+      </div>
+      <div class="sm-field">
+        <label class="sm-label" for="sm-biz-tax">Tax / VAT ID</label>
+        <input class="sm-input" id="sm-biz-tax" type="text" value="GB 421 8830 55">
+      </div>
+    </div>
+  </div>
+
+  <div class="sm-section">
+    <div class="sm-section-label">Contact</div>
+    <div class="sm-row2">
+      <div class="sm-field">
+        <label class="sm-label" for="sm-biz-phone">Public phone</label>
+        <input class="sm-input" id="sm-biz-phone" type="tel" value="+1 (212) 555-0148">
+      </div>
+      <div class="sm-field">
+        <label class="sm-label" for="sm-biz-site">Website</label>
+        <input class="sm-input" id="sm-biz-site" type="url" value="https://velvetbistro.com">
+      </div>
+    </div>
+    <div class="sm-field">
+      <label class="sm-label" for="sm-biz-addr">Head office address</label>
+      <input class="sm-input" id="sm-biz-addr" type="text" value="12 Market St, New York, NY 10002">
+    </div>
+  </div>
+
+  <div class="sm-section">
+    <div class="sm-section-label">In the app</div>
+    <div class="sm-toggle-row">
+      <div class="sm-toggle-text">
+        <div class="sm-toggle-name">Show business address on the More screen</div>
+        <div class="sm-toggle-desc">Members can tap it to open directions in their maps app.</div>
+      </div>
+      <span class="toggle on"></span>
+    </div>
+    <div class="sm-toggle-row">
+      <div class="sm-toggle-text">
+        <div class="sm-toggle-name">Show phone number</div>
+        <div class="sm-toggle-desc">Adds a “Call us” row next to your support links.</div>
+      </div>
+      <span class="toggle on"></span>
+    </div>
+  </div>
+</div>
+
+<div class="sm-pane" data-sm-pane="team"
+     data-sm-title="Team &amp; access"
+     data-sm-sub="Who can open this workspace and what they’re allowed to change."
+     data-sm-primary="Save changes">
+
+  <div class="sm-section">
+    <div class="sm-list-head">
+      <div class="sm-section-label" style="margin:0">4 people · 1 pending invite</div>
+      <button class="sm-list-action" type="button">Invite teammate</button>
+    </div>
+    <div class="sm-rows">
+      <div class="sm-rows-row">
+        <div class="sm-avatar-sq">GC</div>
+        <div class="sm-rows-text">
+          <div class="sm-rows-name">Gal Cohen <span class="sm-status ok">You</span></div>
+          <div class="sm-rows-sub">owner@bravakitchen.com</div>
+        </div>
+        <select class="sm-select"><option>Owner</option></select>
+      </div>
+      <div class="sm-rows-row">
+        <div class="sm-avatar-sq">RK</div>
+        <div class="sm-rows-text">
+          <div class="sm-rows-name">Roy Koren</div>
+          <div class="sm-rows-sub">roy@velvetbistro.com</div>
+        </div>
+        <select class="sm-select"><option>Admin</option><option>Editor</option><option>Viewer</option></select>
+      </div>
+      <div class="sm-rows-row">
+        <div class="sm-avatar-sq">BH</div>
+        <div class="sm-rows-text">
+          <div class="sm-rows-name">Bhav Halai</div>
+          <div class="sm-rows-sub">design@velvetbistro.com</div>
+        </div>
+        <select class="sm-select"><option>Editor</option><option>Admin</option><option>Viewer</option></select>
+      </div>
+      <div class="sm-rows-row">
+        <div class="sm-avatar-sq" style="background:#ececf2;color:#85859a">?</div>
+        <div class="sm-rows-text">
+          <div class="sm-rows-name">nina@velvetbistro.com <span class="sm-status warn">Invited</span></div>
+          <div class="sm-rows-sub">Invite sent 2 days ago · expires in 5 days</div>
+        </div>
+        <button class="sm-banner-btn" type="button">Resend</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="sm-section">
+    <div class="sm-section-label">Access rules</div>
+    <div class="sm-toggle-row">
+      <div class="sm-toggle-text">
+        <div class="sm-toggle-name">Require two-factor authentication</div>
+        <div class="sm-toggle-desc">Everyone with Admin or Owner access must set up 2FA before their next sign-in.</div>
+      </div>
+      <span class="toggle on"></span>
+    </div>
+    <div class="sm-toggle-row">
+      <div class="sm-toggle-text">
+        <div class="sm-toggle-name">Editors can publish to the stores</div>
+        <div class="sm-toggle-desc">When off, only Admins and the Owner can submit a build for review.</div>
+      </div>
+      <span class="toggle"></span>
+    </div>
+  </div>
+</div>
+
+<div class="sm-pane" data-sm-pane="billing"
+     data-sm-title="Billing &amp; plan"
+     data-sm-sub="Your subscription, usage this cycle and where invoices are sent."
+     data-sm-primary="Save changes">
+
+  <div class="sm-section">
+    <div class="sm-plan">
+      <div class="sm-plan-top">
+        <div style="flex:1;min-width:0">
+          <div class="sm-plan-name">Growth</div>
+          <div class="sm-plan-price">$249 / month · renews 1 September 2026</div>
+        </div>
+        <button class="sm-banner-btn" type="button">Change plan</button>
+      </div>
+      <div class="sm-meter">
+        <div class="sm-meter-head"><span class="k">Active members</span><span class="v">7,420 of 10,000</span></div>
+        <div class="sm-meter-bar"><div class="sm-meter-fill" style="width:74%"></div></div>
+      </div>
+      <div class="sm-meter">
+        <div class="sm-meter-head"><span class="k">Push notifications this month</span><span class="v">18,300 of 50,000</span></div>
+        <div class="sm-meter-bar"><div class="sm-meter-fill" style="width:37%"></div></div>
+      </div>
+      <div class="sm-meter">
+        <div class="sm-meter-head"><span class="k">Marketing emails</span><span class="v">2,500 of 2,500</span></div>
+        <div class="sm-meter-bar"><div class="sm-meter-fill" style="width:100%"></div></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="sm-section">
+    <div class="sm-section-label">Payment method</div>
+    <div class="sm-rows">
+      <div class="sm-rows-row">
+        <div class="sm-logo" style="background:#1d1d28">VI</div>
+        <div class="sm-rows-text">
+          <div class="sm-rows-name">Visa ending 4482</div>
+          <div class="sm-rows-sub">Expires 09 / 2028 · billed to accounts@velvetbistro.com</div>
+        </div>
+        <button class="sm-banner-btn" type="button">Update</button>
+      </div>
+    </div>
+    <div class="sm-field" style="margin-top:16px">
+      <label class="sm-label" for="sm-invoice-mail">Send invoices to</label>
+      <input class="sm-input" id="sm-invoice-mail" type="email" value="accounts@velvetbistro.com">
+    </div>
+  </div>
+
+  <div class="sm-section">
+    <div class="sm-section-label">Recent invoices</div>
+    <div class="sm-rows">
+      <div class="sm-rows-row">
+        <div class="sm-rows-text"><div class="sm-rows-name">August 2026</div><div class="sm-rows-sub">$249.00 · paid 1 Aug 2026</div></div>
+        <span class="sm-status ok">Paid</span>
+      </div>
+      <div class="sm-rows-row">
+        <div class="sm-rows-text"><div class="sm-rows-name">July 2026</div><div class="sm-rows-sub">$249.00 · paid 1 Jul 2026</div></div>
+        <span class="sm-status ok">Paid</span>
+      </div>
+      <div class="sm-rows-row">
+        <div class="sm-rows-text"><div class="sm-rows-name">June 2026</div><div class="sm-rows-sub">$249.00 · paid 1 Jun 2026</div></div>
+        <span class="sm-status ok">Paid</span>
+      </div>
+    </div>
+  </div>
+</div>

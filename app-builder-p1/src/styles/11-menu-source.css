@@ -1,0 +1,444 @@
+/* ============================================================
+   MENU SOURCE — config-panel screens for the menu building flow
+   ============================================================ */
+
+.ms-screen { display: none; flex-direction: column; flex: 1 1 auto; min-height: 0; }
+.ms-screen.active { display: flex; animation: cpSlide .22s ease; }
+
+.ms-kicker {
+  display: flex; align-items: center; gap: 8px;
+  font-size: 10px; letter-spacing: .9px; text-transform: uppercase;
+  font-weight: 800; color: var(--muted);
+  margin-bottom: 8px;
+}
+.ms-kicker.accent { color: var(--como); }
+.ms-kicker-link {
+  margin-left: auto;
+  background: none; border: none; font: inherit;
+  font-size: 10px; letter-spacing: .5px; text-transform: uppercase; font-weight: 800;
+  color: var(--como); cursor: pointer; padding: 0;
+}
+.ms-kicker-link:hover { text-decoration: underline; }
+
+.ms-title { font-size: 21px; font-weight: 800; letter-spacing: -.5px; line-height: 1.2; }
+.ms-sub { font-size: 12.5px; color: var(--muted); line-height: 1.55; margin-top: 8px; }
+.ms-block { margin-top: 20px; }
+.ms-label {
+  display: flex; align-items: center; gap: 6px;
+  font-size: 12.5px; font-weight: 750; margin-bottom: 8px;
+}
+.ms-section-label {
+  display: flex; align-items: center; gap: 8px;
+  font-size: 10px; letter-spacing: .9px; text-transform: uppercase;
+  font-weight: 800; color: var(--muted);
+  margin: 22px 0 10px;
+}
+.ms-section-label .ms-inline-action {
+  margin-left: auto; text-transform: none; letter-spacing: 0; font-size: 12px;
+}
+
+/* ---------- Approach / option cards ---------- */
+.ms-options { display: flex; flex-direction: column; gap: 10px; margin-top: 18px; }
+.ms-option {
+  display: flex; align-items: flex-start; gap: 12px;
+  border: 1px solid var(--line); border-radius: 13px;
+  background: var(--panel);
+  padding: 14px;
+  cursor: pointer; text-align: left;
+  font: inherit; color: var(--ink);
+  transition: border-color .14s, background .14s, box-shadow .14s;
+}
+.ms-option:hover { border-color: #cfc3ee; }
+.ms-option.on {
+  border-color: var(--como); background: #faf7ff;
+  box-shadow: 0 0 0 1px rgba(109, 40, 217, .22);
+}
+.ms-option-ic {
+  width: 34px; height: 34px; border-radius: 10px; flex: none;
+  background: var(--como-soft); color: var(--como);
+  display: grid; place-items: center;
+}
+.ms-option.on .ms-option-ic { background: var(--como); color: #fff; }
+.ms-option-ic svg { width: 17px; height: 17px; }
+.ms-option-text { flex: 1; min-width: 0; }
+.ms-option-name {
+  display: flex; align-items: center; gap: 8px; flex-wrap: wrap;
+  font-size: 13.5px; font-weight: 800; letter-spacing: -.2px;
+}
+.ms-option-desc { font-size: 12px; color: var(--muted); line-height: 1.5; margin-top: 5px; }
+.ms-radio {
+  width: 18px; height: 18px; border-radius: 50%; flex: none;
+  border: 1.8px solid #d3d3de; margin-top: 2px;
+  display: grid; place-items: center;
+}
+.ms-option.on .ms-radio { border-color: var(--como); }
+.ms-option.on .ms-radio::after {
+  content: ""; width: 10px; height: 10px; border-radius: 50%; background: var(--como);
+}
+.ms-option .ms-chev { width: 16px; height: 16px; color: #b6b6c6; flex: none; margin-top: 4px; }
+.ms-option.disabled { cursor: default; opacity: .72; background: var(--bg); }
+.ms-option.disabled:hover { border-color: var(--line); }
+
+.ms-badge {
+  font-size: 10px; font-weight: 800; padding: 3px 8px; border-radius: 999px;
+  background: var(--como-soft); color: var(--como);
+  letter-spacing: .1px;
+}
+.ms-badge.soon { background: #fdf3e3; color: #b87816; display: inline-flex; align-items: center; gap: 5px; }
+.ms-badge.soon::before { content: ""; width: 5px; height: 5px; border-radius: 50%; background: currentColor; }
+
+/* Stacked "build method" cards with their own CTA */
+.ms-card {
+  border: 1px solid var(--line); border-radius: 13px;
+  background: var(--panel); padding: 15px;
+}
+.ms-card + .ms-card { margin-top: 11px; }
+.ms-card.featured { border-color: var(--como); background: #faf7ff; box-shadow: 0 0 0 1px rgba(109, 40, 217, .2); }
+.ms-card.muted { background: var(--bg); }
+.ms-card-head { display: flex; align-items: center; gap: 11px; }
+.ms-card-title { display: flex; align-items: center; gap: 9px; font-size: 14px; font-weight: 800; letter-spacing: -.25px; flex-wrap: wrap; }
+.ms-card-desc { font-size: 12px; color: var(--muted); line-height: 1.55; margin-top: 10px; }
+.ms-chips { display: flex; flex-wrap: wrap; gap: 7px; margin-top: 11px; }
+.ms-chip-static {
+  font-size: 11px; font-weight: 700; color: var(--muted);
+  background: var(--bg); border-radius: 7px; padding: 5px 10px;
+}
+.ms-card.muted .ms-card-head,
+.ms-card.muted .ms-card-desc { filter: blur(.35px); opacity: .8; }
+
+/* ---------- Buttons ---------- */
+.ms-btn {
+  display: flex; align-items: center; justify-content: center; gap: 8px;
+  width: 100%; border: none; border-radius: 10px;
+  padding: 11px 16px; margin-top: 13px;
+  font: inherit; font-size: 13px; font-weight: 750;
+  background: var(--como); color: #fff; cursor: pointer;
+  transition: background .12s, transform .08s;
+}
+.ms-btn:hover { background: #5d22c8; }
+.ms-btn:active { transform: translateY(1px); }
+.ms-btn svg { width: 15px; height: 15px; }
+.ms-btn.ghost { background: var(--panel); color: var(--ink); border: 1px solid var(--line); }
+.ms-btn.ghost:hover { border-color: #c9c9d8; background: var(--panel); }
+.ms-btn.soft { background: var(--como-soft); color: var(--como); }
+.ms-btn.soft:hover { background: #e8dffb; }
+.ms-btn:disabled { background: #ececf2; color: #a3a3b4; cursor: default; }
+.ms-btn.small { width: auto; padding: 8px 13px; font-size: 12px; margin-top: 0; }
+
+.ms-inline-action {
+  background: none; border: none; font: inherit;
+  font-size: 12.5px; font-weight: 750; color: var(--como);
+  cursor: pointer; padding: 0;
+}
+.ms-inline-action:hover { text-decoration: underline; }
+.ms-inline-action.ok { color: var(--ok); }
+
+/* ---------- Fields ---------- */
+.ms-input, .ms-textarea, .ms-select {
+  width: 100%; display: block;
+  border: 1px solid var(--line); border-radius: 10px;
+  padding: 10px 12px;
+  font: inherit; font-size: 13px; color: var(--ink);
+  background: var(--panel); outline: none;
+  transition: border-color .12s, box-shadow .12s;
+}
+.ms-textarea { resize: vertical; min-height: 66px; line-height: 1.5; }
+.ms-input:focus, .ms-textarea:focus, .ms-select:focus {
+  border-color: var(--como); box-shadow: 0 0 0 3px rgba(109, 40, 217, .12);
+}
+.ms-input-icon { position: relative; }
+.ms-input-icon svg { position: absolute; left: 12px; top: 50%; transform: translateY(-50%); width: 15px; height: 15px; color: var(--muted); }
+.ms-input-icon .ms-input { padding-left: 34px; }
+.ms-hint {
+  display: flex; align-items: flex-start; gap: 7px;
+  font-size: 11.5px; color: var(--muted); line-height: 1.5; margin-top: 8px;
+}
+.ms-hint svg { width: 14px; height: 14px; flex: none; margin-top: 1px; }
+.ms-row2 { display: grid; grid-template-columns: 1fr 1fr; gap: 11px; }
+
+.ms-status {
+  display: flex; align-items: center; gap: 8px;
+  font-size: 12px; font-weight: 750; color: var(--ok);
+  margin-top: 11px;
+}
+.ms-status svg { width: 15px; height: 15px; flex: none; }
+.ms-status.hidden { display: none; }
+
+/* Info dot reuses the settings-modal tooltip look, scaled for the panel */
+.ms-info {
+  width: 14px; height: 14px; flex: none;
+  border-radius: 50%; border: 1.3px solid #b9b9c8; color: #8b8b9c;
+  font-size: 9px; font-weight: 800; line-height: 1;
+  display: grid; place-items: center; cursor: help;
+  position: relative; background: none; padding: 0; font-family: inherit;
+}
+.ms-info::after {
+  content: attr(data-tip);
+  position: absolute; left: 50%; bottom: calc(100% + 8px);
+  transform: translateX(-50%);
+  width: 218px; padding: 10px 12px;
+  background: #1d1a2b; color: #edebf6;
+  border-radius: 9px; font-size: 11.5px; font-weight: 500; line-height: 1.45;
+  letter-spacing: 0; text-align: left; text-transform: none;
+  opacity: 0; pointer-events: none; transition: opacity .13s;
+  z-index: 40;
+}
+.ms-info:hover::after { opacity: 1; }
+
+/* ---------- Toggle card ---------- */
+.ms-toggle-card { border: 1px solid var(--line); border-radius: 13px; padding: 2px 14px; }
+.ms-toggle-row {
+  display: flex; align-items: flex-start; gap: 14px;
+  padding: 13px 0;
+  border-top: 1px solid var(--line-soft);
+}
+.ms-toggle-row:first-child { border-top: none; }
+.ms-toggle-text { flex: 1; min-width: 0; }
+.ms-toggle-name { display: flex; align-items: center; gap: 6px; font-size: 12.5px; font-weight: 750; }
+.ms-toggle-desc { font-size: 11.5px; color: var(--muted); line-height: 1.5; margin-top: 4px; }
+
+/* ---------- Upload ---------- */
+.ms-drop {
+  border: 1.5px dashed var(--como); border-radius: 13px;
+  background: #f9f6ff;
+  padding: 26px 18px; text-align: center;
+  cursor: pointer;
+  transition: background .14s;
+}
+.ms-drop:hover { background: #f4eeff; }
+.ms-drop svg { width: 30px; height: 30px; color: var(--como); }
+.ms-drop-title { font-size: 13.5px; font-weight: 800; margin-top: 11px; }
+.ms-drop-sub { font-size: 11.5px; color: var(--muted); margin-top: 5px; }
+.ms-drop .ms-btn { width: auto; display: inline-flex; margin-top: 14px; }
+
+.ms-file {
+  display: flex; align-items: center; gap: 12px;
+  border: 1px solid #bfe3cf; border-radius: 12px;
+  background: #f6fcf9;
+  padding: 11px 12px; margin-top: 14px;
+}
+.ms-file-thumb {
+  width: 40px; height: 40px; border-radius: 9px; flex: none;
+  background: #fde8ec; color: #c7355a;
+  display: grid; place-items: center; font-size: 10px; font-weight: 800;
+}
+.ms-file-text { flex: 1; min-width: 0; }
+.ms-file-name { font-size: 12.5px; font-weight: 750; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.ms-file-meta { display: flex; align-items: center; gap: 5px; font-size: 11px; color: var(--ok); font-weight: 650; margin-top: 3px; }
+.ms-file-meta svg { width: 12px; height: 12px; }
+.ms-file-rm {
+  background: none; border: none; color: var(--muted); cursor: pointer;
+  width: 28px; height: 28px; border-radius: 7px; display: grid; place-items: center; flex: none;
+}
+.ms-file-rm:hover { background: #fdf2f5; color: var(--danger, #c7355a); }
+.ms-file-rm svg { width: 15px; height: 15px; }
+
+.ms-image-row {
+  display: flex; align-items: center; gap: 12px;
+  border: 1px solid var(--line); border-radius: 12px; padding: 11px 12px;
+}
+.ms-image-thumb { width: 62px; height: 42px; border-radius: 8px; flex: none; background-size: cover; background-position: center; }
+.ms-image-text { flex: 1; min-width: 0; }
+.ms-image-name { font-size: 12.5px; font-weight: 750; }
+.ms-image-meta { font-size: 11px; color: var(--muted); margin-top: 3px; }
+
+.ms-hero {
+  position: relative; height: 118px; border-radius: 12px; overflow: hidden;
+  background-size: cover; background-position: center;
+  margin-top: 4px;
+}
+.ms-hero.empty {
+  border: 1.5px dashed var(--line);
+  background: var(--bg);
+  color: var(--muted);
+}
+.ms-hero-empty {
+  height: 100%; display: flex; flex-direction: column;
+  align-items: center; justify-content: center; gap: 8px;
+  font-size: 11.5px; font-weight: 700;
+}
+.ms-hero-empty svg { width: 19px; height: 19px; }
+.ms-hero-file {
+  position: absolute; left: 10px; bottom: 10px;
+  border-radius: 7px; padding: 5px 9px;
+  background: rgba(20,18,32,.78); color: #fff;
+  font-size: 10.5px; font-weight: 700;
+}
+.ms-title-input {
+  width: 100%; border: 0; border-bottom: 2px solid var(--como);
+  padding: 0 0 3px; outline: 0; background: transparent;
+  color: var(--ink); font: inherit; font-weight: inherit; letter-spacing: inherit;
+}
+.ms-hero-btn {
+  position: absolute; right: 10px; bottom: 10px;
+  background: rgba(20, 18, 32, .82); color: #fff;
+  border: none; border-radius: 8px; padding: 6px 12px;
+  font: inherit; font-size: 11.5px; font-weight: 700; cursor: pointer;
+}
+.ms-hero-btn:hover { background: rgba(20, 18, 32, .95); }
+
+/* ---------- Note ---------- */
+.ms-note {
+  display: flex; gap: 9px; align-items: flex-start;
+  border-radius: 11px; padding: 11px 12px; margin-top: 14px;
+  font-size: 11.5px; line-height: 1.55;
+  background: #eef4fe; color: #35558c;
+}
+.ms-note svg { width: 15px; height: 15px; flex: none; margin-top: 1px; }
+
+/* ---------- Connected provider banner ---------- */
+.ms-connected {
+  display: flex; align-items: center; gap: 11px;
+  border: 1px solid #bfe3cf; border-radius: 12px;
+  background: #f6fcf9; padding: 12px;
+  margin-top: 18px;
+}
+.ms-connected-logo {
+  width: 32px; height: 32px; border-radius: 9px; flex: none;
+  display: grid; place-items: center; color: #fff; font-weight: 800; font-size: 12px;
+}
+.ms-connected-text { flex: 1; min-width: 0; }
+.ms-connected-name { font-size: 13px; font-weight: 800; letter-spacing: -.2px; }
+.ms-connected-state { display: flex; align-items: center; gap: 5px; font-size: 11.5px; font-weight: 700; color: var(--ok); margin-top: 3px; }
+.ms-connected-state svg { width: 12px; height: 12px; }
+
+/* ---------- Layout picker ---------- */
+.ms-layouts { display: grid; grid-template-columns: repeat(3, 1fr); gap: 9px; }
+.ms-layout {
+  border: 1px solid var(--line); border-radius: 11px;
+  background: var(--panel); padding: 12px 6px;
+  display: flex; flex-direction: column; align-items: center; gap: 8px;
+  font: inherit; font-size: 11px; font-weight: 750; color: var(--ink);
+  cursor: pointer;
+  transition: border-color .12s, background .12s;
+}
+.ms-layout svg { width: 20px; height: 20px; color: var(--muted); }
+.ms-layout:hover { border-color: #cfc3ee; }
+.ms-layout.on { border-color: var(--como); background: #faf7ff; color: var(--como); }
+.ms-layout.on svg { color: var(--como); }
+
+.ms-swatches { display: flex; align-items: center; gap: 10px; margin-top: 4px; }
+.ms-swatch {
+  width: 26px; height: 26px; border-radius: 50%; cursor: pointer;
+  border: 2px solid transparent; box-shadow: inset 0 0 0 1.5px rgba(0, 0, 0, .07);
+  transition: transform .1s;
+}
+.ms-swatch:hover { transform: scale(1.1); }
+.ms-swatch.on { border-color: var(--ink); }
+
+/* ---------- Sortable list rows (categories / items) ---------- */
+.ms-list { display: flex; flex-direction: column; gap: 8px; }
+.ms-row {
+  display: flex; align-items: center; gap: 10px;
+  border: 1px solid var(--line); border-radius: 12px;
+  background: var(--panel); padding: 10px 11px;
+  cursor: pointer;
+  transition: border-color .12s, background .12s, box-shadow .12s;
+}
+.ms-row:hover { border-color: #cfc3ee; }
+.ms-row.on { border-color: var(--como); background: #faf7ff; box-shadow: inset 3px 0 0 var(--como); }
+.ms-row.dragging { box-shadow: 0 12px 26px -8px rgba(20, 20, 40, .3); z-index: 4; }
+.ms-handle {
+  width: 16px; flex: none; cursor: grab; color: #c2c2d0;
+  display: grid; place-items: center;
+}
+.ms-handle:active { cursor: grabbing; }
+.ms-handle svg { width: 13px; height: 13px; }
+.ms-row-thumb { width: 34px; height: 34px; border-radius: 9px; flex: none; background-size: cover; background-position: center; display: grid; place-items: center; color: rgba(255,255,255,.9); }
+.ms-row-thumb svg { width: 15px; height: 15px; }
+.ms-row-text { flex: 1; min-width: 0; }
+.ms-row-name { display: flex; align-items: center; gap: 7px; font-size: 13px; font-weight: 750; }
+.ms-row-name input {
+  border: 1px solid var(--como); border-radius: 6px; padding: 3px 6px;
+  font: inherit; font-size: 13px; font-weight: 750; width: 100%; outline: none;
+}
+.ms-row-meta { font-size: 11px; color: var(--muted); margin-top: 3px; }
+.ms-row-chev { width: 15px; height: 15px; color: #bfbfcd; flex: none; }
+.ms-tag-mini {
+  font-size: 9.5px; font-weight: 800; padding: 2px 7px; border-radius: 999px;
+  background: var(--como-soft); color: var(--como);
+}
+.ms-tag-mini.veg { background: #e6f7ef; color: #18875a; }
+.ms-tag-mini.off { background: #ececf2; color: #85859a; }
+.ms-row.is-off .ms-row-name,
+.ms-row.is-off .ms-row-meta { opacity: .5; }
+.ms-row-del {
+  background: none; border: none; color: #c2c2d0; cursor: pointer;
+  width: 24px; height: 24px; border-radius: 6px; display: grid; place-items: center; flex: none;
+}
+.ms-row-del:hover { background: #fdf2f5; color: var(--danger, #c7355a); }
+.ms-row-del svg { width: 14px; height: 14px; }
+
+.ms-add-row {
+  display: flex; align-items: center; justify-content: center; gap: 8px;
+  width: 100%; border: 1px dashed #d2d2e0; border-radius: 12px;
+  background: transparent; padding: 11px;
+  font: inherit; font-size: 12.5px; font-weight: 750; color: var(--como);
+  cursor: pointer; margin-top: 9px;
+  transition: border-color .12s, background .12s;
+}
+.ms-add-row:hover { border-color: var(--como); background: #faf7ff; }
+.ms-add-row svg { width: 14px; height: 14px; }
+
+.ms-back {
+  display: flex; align-items: center; gap: 6px;
+  background: none; border: none; padding: 0; margin-bottom: 12px;
+  font: inherit; font-size: 12.5px; font-weight: 700; color: var(--muted);
+  cursor: pointer;
+}
+.ms-back:hover { color: var(--ink); }
+.ms-back svg { width: 14px; height: 14px; }
+
+.ms-title-row { display: flex; align-items: center; gap: 9px; }
+.ms-title-row .ms-title { flex: 1; min-width: 0; }
+.ms-icon-btn {
+  width: 30px; height: 30px; border-radius: 8px; flex: none;
+  background: var(--bg); border: none; color: var(--muted);
+  display: grid; place-items: center; cursor: pointer;
+}
+.ms-icon-btn:hover { background: #e8e8f0; color: var(--ink); }
+.ms-icon-btn svg { width: 15px; height: 15px; }
+
+.ms-tip {
+  font-size: 11.5px; color: var(--muted); line-height: 1.5;
+  margin-top: 12px;
+}
+
+.ms-help {
+  display: inline-flex; align-items: center; gap: 7px;
+  background: none; border: none; padding: 0;
+  margin-top: auto; padding-top: 22px;
+  font: inherit; font-size: 12px; font-weight: 700; color: var(--como);
+  cursor: pointer; align-self: flex-start;
+}
+.ms-help svg { width: 14px; height: 14px; }
+.ms-help:hover { text-decoration: underline; }
+
+/* ---------- Item editor in the third panel ---------- */
+.ms-item-editor .ms-editor-head {
+  display: flex; align-items: center; gap: 10px;
+  padding-bottom: 14px; margin-bottom: 16px;
+  border-bottom: 1px solid var(--line);
+}
+.ms-item-editor .ms-editor-title { flex: 1; min-width: 0; font-size: 17px; font-weight: 800; letter-spacing: -.35px; }
+.ms-avail { display: flex; align-items: center; gap: 8px; flex: none; font-size: 11.5px; font-weight: 700; color: var(--muted); }
+.ms-seg { display: flex; gap: 4px; background: var(--bg); border-radius: 10px; padding: 4px; }
+.ms-seg-btn {
+  flex: 1; display: flex; align-items: center; justify-content: center; gap: 6px;
+  border: none; background: transparent; border-radius: 7px; padding: 7px 4px;
+  font: inherit; font-size: 11.5px; font-weight: 700; color: var(--muted); cursor: pointer;
+}
+.ms-seg-btn svg { width: 13px; height: 13px; }
+.ms-seg-btn.on { background: var(--panel); color: var(--ink); box-shadow: var(--shadow-sm); }
+.ms-tags { display: flex; flex-wrap: wrap; gap: 7px; }
+.ms-tag {
+  display: inline-flex; align-items: center; gap: 5px;
+  border: 1px solid var(--line); border-radius: 999px;
+  background: var(--panel); padding: 5px 11px;
+  font: inherit; font-size: 11.5px; font-weight: 700; color: var(--ink); cursor: pointer;
+}
+.ms-tag svg { width: 12px; height: 12px; opacity: 0; }
+.ms-tag.on { background: var(--como-soft); border-color: transparent; color: var(--como); }
+.ms-tag.on svg { opacity: 1; }
+.ms-tag.add { border-style: dashed; color: var(--muted); }
+.ms-tag.add svg { opacity: 1; }

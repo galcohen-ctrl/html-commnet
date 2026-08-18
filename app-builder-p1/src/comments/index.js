@@ -37,8 +37,10 @@ export function initComments(options = {}) {
   const dispose = () => {
     if (disposed) return;
     disposed = true;
-    root.unmount();
     mountNode.remove();
+    // A parent React root may be reconciling during Vite HMR. Remove the
+    // overlay immediately, then tear down its nested root after that pass.
+    queueMicrotask(() => root.unmount());
   };
   mountNode.__hcDispose = dispose;
   return dispose;

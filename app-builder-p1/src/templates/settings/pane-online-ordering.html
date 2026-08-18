@@ -1,0 +1,270 @@
+<div class="sm-pane" data-sm-pane="online-ordering" id="sm-oo-pane"
+     data-sm-title="Online ordering"
+     data-sm-sub="Connect an ordering provider so members can order from your menu inside the app."
+     data-sm-primary="Continue">
+
+  <!-- ---------- Step 1 · pick a provider ---------- -->
+  <div class="sm-oo-step active" data-oo-step="chooser"
+       data-sm-title="Online ordering"
+       data-sm-sub="Connect an ordering provider so members can order from your menu inside the app. Como stays headless — your provider owns the menu and prices."
+       data-sm-primary="Continue">
+
+    <div class="sm-steps" data-oo-stepper="1"></div>
+
+    <div class="sm-field">
+      <div class="sm-label">Ordering provider
+        <button class="sm-info" type="button" data-tip="Como reads your live menu from this provider. Prices, availability and checkout all stay on their side.">i</button>
+      </div>
+      <div class="sm-combo" id="sm-provider-combo">
+        <button class="sm-combo-btn" type="button" id="sm-provider-btn">
+          <span class="ph" data-provider-placeholder>Select a provider</span>
+          <span class="sm-logo" data-provider-logo hidden></span>
+          <span class="sel-text" data-provider-selected hidden>
+            <span class="sel-name"></span>
+            <span class="sel-desc"></span>
+          </span>
+          <svg class="caret" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M6 9l6 6 6-6"/></svg>
+        </button>
+        <div class="sm-combo-list" id="sm-provider-list"><!-- rendered by settingsModal.js --></div>
+      </div>
+      <div class="sm-hint">Don’t see your provider? Como connects to any Deliverect-supported ordering backend.</div>
+    </div>
+  </div>
+
+  <!-- ---------- Step 2 · credentials ---------- -->
+  <div class="sm-oo-step" data-oo-step="keys"
+       data-sm-title="Online ordering"
+       data-sm-sub="Connect an ordering provider so members can order from your menu inside the app. Como stays headless — your provider owns the menu and prices."
+       data-sm-primary="Connect &amp; sync">
+
+    <div class="sm-steps" data-oo-stepper="1"></div>
+
+    <div class="sm-banner" style="margin-bottom:22px">
+      <span class="sm-logo" data-keys-logo>D</span>
+      <div class="sm-banner-text">
+        <div class="sm-banner-title" data-keys-name>Deliverect — Headless Commerce</div>
+        <div class="sm-banner-sub" data-keys-desc>Commerce API · menu, basket, checkout, POS sync</div>
+      </div>
+      <button class="sm-banner-action" type="button" id="sm-provider-change">Change</button>
+    </div>
+
+    <div class="sm-field">
+      <div class="sm-label">Account ID
+        <button class="sm-info" type="button" data-tip="Found in your provider dashboard under Settings → Account. It identifies which brand Como pulls menus from.">i</button>
+      </div>
+      <input class="sm-input" id="sm-oo-account" type="text" value="668e4aa170efd23c474b2ad1">
+    </div>
+
+    <div class="sm-field">
+      <div class="sm-label">Production API key
+        <button class="sm-info" type="button" data-tip="Use a Production key, not a sandbox one — sandbox menus won’t appear for real members.">i</button>
+      </div>
+      <div class="sm-input-wrap">
+        <input class="sm-input" id="sm-oo-key" type="password" value="sk_live_9f2k7Qx3Lp8v">
+        <button class="sm-reveal" type="button" id="sm-oo-key-reveal" title="Show key">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M2 12s3.5-7 10-7 10 7 10 7-3.5 7-10 7-10-7-10-7z"/><circle cx="12" cy="12" r="3"/></svg>
+        </button>
+      </div>
+      <div class="sm-hint">Create a Production key in Deliverect → Settings → API. We store it encrypted and never expose it in your app.</div>
+    </div>
+
+    <div class="sm-note" style="margin-top:22px">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2.5l8 3v6c0 5-3.4 8.6-8 10-4.6-1.4-8-5-8-10v-6z"/></svg>
+      <span>One signed contract covers sandbox + production. Keys are encrypted at rest and used only to sync your menu and orders.</span>
+    </div>
+  </div>
+
+  <!-- ---------- Step 3 · syncing ---------- -->
+  <div class="sm-oo-step" data-oo-step="syncing"
+       data-sm-title="Online ordering"
+       data-sm-sub="Connect an ordering provider so members can order from your menu inside the app. Como stays headless — your provider owns the menu and prices."
+       data-sm-primary="Connecting…"
+       data-sm-primary-busy="true">
+
+    <div class="sm-steps" data-oo-stepper="1"></div>
+
+    <div class="sm-sync">
+      <div class="sm-spinner"></div>
+      <div class="sm-sync-title">Syncing with <span data-sync-provider>Deliverect</span></div>
+      <p class="sm-sync-sub">Pulling your menu, modifiers and locations. This usually takes a few seconds.</p>
+      <div class="sm-sync-list" id="sm-sync-list">
+        <div class="sm-sync-row" data-sync-row="0">
+          <span class="dot"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3.2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6L9 17l-5-5"/></svg></span>
+          <span class="name">Menus &amp; categories</span>
+          <span class="state">Waiting</span>
+        </div>
+        <div class="sm-sync-row" data-sync-row="1">
+          <span class="dot"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3.2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6L9 17l-5-5"/></svg></span>
+          <span class="name">Items, photos &amp; prices</span>
+          <span class="state">Waiting</span>
+        </div>
+        <div class="sm-sync-row" data-sync-row="2">
+          <span class="dot"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3.2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6L9 17l-5-5"/></svg></span>
+          <span class="name">Modifier groups &amp; allergens</span>
+          <span class="state">Waiting</span>
+        </div>
+        <div class="sm-sync-row" data-sync-row="3">
+          <span class="dot"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3.2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6L9 17l-5-5"/></svg></span>
+          <span class="name">Locations, hours &amp; prep times</span>
+          <span class="state">Waiting</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ---------- Step 4 · approve locations ---------- -->
+  <div class="sm-oo-step" data-oo-step="locations"
+       data-sm-title="Approve locations"
+       data-sm-sub="These branches and hours were pulled from your provider. Tick the ones that accept online orders and adjust hours if needed."
+       data-sm-primary="Approve &amp; continue"
+       data-sm-back="keys">
+
+    <div class="sm-steps" data-oo-stepper="2"></div>
+
+    <div class="sm-list-head">
+      <div class="sm-list-count"><span id="sm-loc-total">3</span> locations synced · <span id="sm-loc-on">2</span> accepting online orders</div>
+      <button class="sm-list-action" type="button" id="sm-loc-select-all">Select all</button>
+    </div>
+
+    <div class="sm-loc on expanded" data-loc="downtown">
+      <div class="sm-loc-row">
+        <span class="sm-tick on" data-loc-tick><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3.2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6L9 17l-5-5"/></svg></span>
+        <div class="sm-loc-text">
+          <div class="sm-loc-name">Brava Kitchen — Downtown <span class="sm-tag open">Open</span></div>
+          <div class="sm-loc-addr">12 Market St · Pickup 15–20 min</div>
+        </div>
+        <button class="sm-hours-btn" type="button" data-loc-hours>Hide hours</button>
+      </div>
+      <div class="sm-loc-hours">
+        <div class="sm-hours-label">Operating hours</div>
+        <div class="sm-hours-row"><span class="d">Monday – Friday</span><span class="t">11:00 – 22:00</span></div>
+        <div class="sm-hours-row"><span class="d">Saturday – Sunday</span><span class="t">10:00 – 23:00</span></div>
+        <div class="sm-order-types">
+          <span class="lbl">Order types</span>
+          <button class="sm-chip on" type="button"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6L9 17l-5-5"/></svg>Pickup</button>
+          <button class="sm-chip on" type="button"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6L9 17l-5-5"/></svg>Delivery</button>
+          <button class="sm-chip" type="button"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6L9 17l-5-5"/></svg>Curbside</button>
+        </div>
+      </div>
+    </div>
+
+    <div class="sm-loc on" data-loc="riverside">
+      <div class="sm-loc-row">
+        <span class="sm-tick on" data-loc-tick><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3.2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6L9 17l-5-5"/></svg></span>
+        <div class="sm-loc-text">
+          <div class="sm-loc-name">Brava Kitchen — Riverside <span class="sm-tag open">Open</span></div>
+          <div class="sm-loc-addr">88 Quay Rd · Pickup 20–30 min</div>
+        </div>
+        <button class="sm-hours-btn" type="button" data-loc-hours>Edit hours</button>
+      </div>
+      <div class="sm-loc-hours">
+        <div class="sm-hours-label">Operating hours</div>
+        <div class="sm-hours-row"><span class="d">Monday – Thursday</span><span class="t">12:00 – 21:30</span></div>
+        <div class="sm-hours-row"><span class="d">Friday – Sunday</span><span class="t">12:00 – 23:30</span></div>
+        <div class="sm-order-types">
+          <span class="lbl">Order types</span>
+          <button class="sm-chip on" type="button"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6L9 17l-5-5"/></svg>Pickup</button>
+          <button class="sm-chip" type="button"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6L9 17l-5-5"/></svg>Delivery</button>
+          <button class="sm-chip" type="button"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6L9 17l-5-5"/></svg>Curbside</button>
+        </div>
+      </div>
+    </div>
+
+    <div class="sm-loc closed" data-loc="northpark">
+      <div class="sm-loc-row">
+        <span class="sm-tick" data-loc-tick><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3.2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6L9 17l-5-5"/></svg></span>
+        <div class="sm-loc-text">
+          <div class="sm-loc-name">Brava Kitchen — North Park <span class="sm-tag shut">Closed</span></div>
+          <div class="sm-loc-addr">5 Grove Ave · Closed · opens 17:00</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ---------- Step 5 · connected administration ---------- -->
+  <div class="sm-oo-step" data-oo-step="admin"
+       data-sm-title="Online ordering"
+       data-sm-sub="Connected. Manage how ordering behaves in your app — menu, prices and checkout stay with your provider."
+       data-sm-primary="Save changes"
+       data-sm-back="locations">
+
+    <div class="sm-banner" style="margin-bottom:24px">
+      <div class="sm-check-round"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6L9 17l-5-5"/></svg></div>
+      <div class="sm-banner-text">
+        <div class="sm-banner-title"><span data-admin-provider>Deliverect</span> connected <span style="font-weight:600;color:var(--muted);font-size:12.5px">account 668e…ad1</span></div>
+        <div class="sm-banner-sub">Last synced <span id="sm-last-sync">just now</span> · <span id="sm-live-locs">2</span> locations live</div>
+      </div>
+      <button class="sm-banner-btn" type="button" id="sm-resync">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12a9 9 0 01-9 9 9 9 0 01-7.6-4.2"/><path d="M3 12a9 9 0 019-9 9 9 0 017.6 4.2"/><path d="M20 3v5h-5M4 21v-5h5"/></svg>
+        Re-sync
+      </button>
+    </div>
+
+    <div class="sm-section">
+      <div class="sm-section-label">Menu &amp; sync</div>
+      <div class="sm-field">
+        <div class="sm-label">Menu sync frequency
+          <button class="sm-info" type="button" data-tip="How often Como re-reads your provider’s menu. More frequent syncs keep 86’d items accurate.">i</button>
+        </div>
+        <select class="sm-select" id="sm-sync-freq">
+          <option>Every 15 minutes</option>
+          <option>Every hour</option>
+          <option>Every 6 hours</option>
+          <option>Manually only</option>
+        </select>
+      </div>
+      <button class="sm-link-out" type="button">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 13v6a2 2 0 01-2 2H5a2 2 0 01-2-2V8a2 2 0 012-2h6"/><path d="M15 3h6v6"/><path d="M10 14L21 3"/></svg>
+        Edit menu &amp; prices in <span data-admin-provider>Deliverect</span>
+      </button>
+    </div>
+
+    <div class="sm-section">
+      <div class="sm-section-label">In-app experience</div>
+      <div class="sm-toggle-row">
+        <div class="sm-toggle-text">
+          <div class="sm-toggle-name">Allergen &amp; dietary badges</div>
+          <div class="sm-toggle-desc">Show allergen and dietary tags on menu items, pulled from your provider’s item data.</div>
+        </div>
+        <span class="toggle on" data-oo-bind="allergens"></span>
+      </div>
+      <div class="sm-toggle-row">
+        <div class="sm-toggle-text">
+          <div class="sm-toggle-name">Live order tracking</div>
+          <div class="sm-toggle-desc">Members see a status timeline and get push updates from the kitchen.</div>
+        </div>
+        <span class="toggle on" data-oo-bind="tracking"></span>
+      </div>
+      <div class="sm-toggle-row">
+        <div class="sm-toggle-text">
+          <div class="sm-toggle-name">Tipping at checkout</div>
+          <div class="sm-toggle-desc">Show preset tip chips in the basket.</div>
+        </div>
+        <span class="toggle on" data-oo-bind="tipping"></span>
+      </div>
+    </div>
+
+    <div class="sm-section">
+      <div class="sm-section-label">Support</div>
+      <div class="sm-field">
+        <div class="sm-label">“Help with my order” routes to
+          <button class="sm-info" type="button" data-tip="Where the support button inside an order goes. Como is Tier 1 for ordering issues, so pick a channel you actually monitor.">i</button>
+        </div>
+        <select class="sm-select" id="sm-oo-support">
+          <option>In-app chat</option>
+          <option>Email support</option>
+          <option>Phone the store</option>
+          <option>Provider support</option>
+        </select>
+      </div>
+      <div class="sm-note" style="margin-top:18px">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="10.5" width="16" height="10.5" rx="2"/><path d="M8 10.5V7a4 4 0 018 0v3.5"/></svg>
+        <span>Menu, prices, item options and the checkout flow are managed by your provider to keep ordering reliable. Learn what you can customise.</span>
+      </div>
+      <button class="sm-help" type="button" id="sm-oo-disconnect" style="color:var(--danger,#c7355a);margin-top:20px">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18.4 5.6a9 9 0 11-12.8 0"/><path d="M12 2v10"/></svg>
+        Disconnect <span data-admin-provider>Deliverect</span>
+      </button>
+    </div>
+  </div>
+</div>

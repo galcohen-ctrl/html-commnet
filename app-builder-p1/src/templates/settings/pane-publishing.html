@@ -1,0 +1,195 @@
+<div class="sm-pane" data-sm-pane="app-store"
+     data-sm-title="App Store Connect"
+     data-sm-sub="Como submits your iOS builds through this connection. Layer 1 changes still ship instantly over the air."
+     data-sm-primary="Save changes">
+
+  <div class="sm-section">
+    <div class="sm-banner">
+      <div class="sm-check-round"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6L9 17l-5-5"/></svg></div>
+      <div class="sm-banner-text">
+        <div class="sm-banner-title">Connected to Apple</div>
+        <div class="sm-banner-sub">Velvet Bistro Hospitality Ltd. · API key expires 14 Feb 2027</div>
+      </div>
+      <button class="sm-banner-action" type="button">Disconnect</button>
+    </div>
+  </div>
+
+  <div class="sm-section">
+    <div class="sm-section-label">Account</div>
+    <div class="sm-row2">
+      <div class="sm-field">
+        <label class="sm-label" for="sm-asc-team">Team ID</label>
+        <input class="sm-input" id="sm-asc-team" type="text" value="9K4T2XQ8LP">
+      </div>
+      <div class="sm-field">
+        <label class="sm-label" for="sm-asc-app">App ID</label>
+        <input class="sm-input" id="sm-asc-app" type="text" value="6478112094">
+      </div>
+    </div>
+  </div>
+
+  <div class="sm-section">
+    <div class="sm-section-label">Releases</div>
+    <div class="sm-rows">
+      <div class="sm-rows-row">
+        <div class="sm-rows-text"><div class="sm-rows-name">Version 3.4.1 (218)</div><div class="sm-rows-sub">Submitted 11 Aug 2026 · Apple review</div></div>
+        <span class="sm-status warn">In review</span>
+      </div>
+      <div class="sm-rows-row">
+        <div class="sm-rows-text"><div class="sm-rows-name">Version 3.4.0 (214)</div><div class="sm-rows-sub">Released 28 Jul 2026 · 100% rollout</div></div>
+        <span class="sm-status ok">Live</span>
+      </div>
+    </div>
+    <div class="sm-toggle-row">
+      <div class="sm-toggle-text">
+        <div class="sm-toggle-name">Send every build to TestFlight first</div>
+        <div class="sm-toggle-desc">Your internal testers get the build before it goes to Apple review.</div>
+      </div>
+      <span class="toggle on"></span>
+    </div>
+    <div class="sm-toggle-row">
+      <div class="sm-toggle-text">
+        <div class="sm-toggle-name">Auto-release once approved</div>
+        <div class="sm-toggle-desc">When off, an approved build waits for you to press release.</div>
+      </div>
+      <span class="toggle"></span>
+    </div>
+  </div>
+</div>
+
+<div class="sm-pane" data-sm-pane="google-play"
+    data-sm-title="Google Play"
+     data-sm-sub="Where Como uploads your Android bundles and which track they land on."
+     data-sm-primary="Save changes">
+
+  <div class="sm-section">
+    <div class="sm-banner" style="border-color:#f0dcb8;background:#fdf8ee">
+      <div class="sm-logo" style="background:#b87816">GP</div>
+      <div class="sm-banner-text">
+        <div class="sm-banner-title">Service account needs renewing</div>
+        <div class="sm-banner-sub">The uploaded key expired on 2 Aug 2026 — Android releases are paused until it’s replaced.</div>
+      </div>
+      <button class="sm-banner-btn" type="button">Upload key</button>
+    </div>
+  </div>
+
+  <div class="sm-section">
+    <div class="sm-section-label">Account</div>
+    <div class="sm-field">
+      <label class="sm-label" for="sm-play-pkg">Package name</label>
+      <input class="sm-input" id="sm-play-pkg" type="text" value="com.como.velvetbistro">
+    </div>
+    <div class="sm-field">
+      <div class="sm-label">Service account JSON
+        <button class="sm-info" type="button" data-tip="Created in Google Cloud → IAM → Service accounts, then granted release access in the Play Console.">i</button>
+      </div>
+      <div class="sm-upload">
+        <div class="sm-upload-thumb" style="background:#ececf2;color:#85859a;font-size:12px">JSON</div>
+        <div class="sm-upload-text">
+          <div class="sm-upload-name">play-publisher-2025.json</div>
+          <div class="sm-upload-meta">Uploaded 14 Feb 2026 · expired 2 Aug 2026</div>
+        </div>
+        <button class="sm-banner-btn" type="button">Replace</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="sm-section">
+    <div class="sm-section-label">Release track</div>
+    <div class="sm-field">
+      <label class="sm-label" for="sm-play-track">Publish new builds to</label>
+      <select class="sm-select" id="sm-play-track">
+        <option>Production</option>
+        <option>Open testing</option>
+        <option>Closed testing</option>
+        <option>Internal testing</option>
+      </select>
+    </div>
+    <div class="sm-toggle-row">
+      <div class="sm-toggle-text">
+        <div class="sm-toggle-name">Staged rollout</div>
+        <div class="sm-toggle-desc">Start at 10% of users and ramp up over five days.</div>
+      </div>
+      <span class="toggle on"></span>
+    </div>
+  </div>
+</div>
+
+<div class="sm-pane" data-sm-pane="integrations"
+     data-sm-title="Integrations"
+     data-sm-sub="Everything else your app talks to — POS, messaging and automation."
+     data-sm-primary="Save changes">
+
+  <div class="sm-section">
+    <div class="sm-section-label">Connected</div>
+    <div class="sm-rows">
+      <div class="sm-rows-row">
+        <div class="sm-logo" style="background:#0fa47f">D</div>
+        <div class="sm-rows-text">
+          <div class="sm-rows-name">Deliverect</div>
+          <div class="sm-rows-sub">Online ordering · menu, basket &amp; checkout sync</div>
+        </div>
+        <span class="sm-status ok">Connected</span>
+        <button class="sm-banner-btn" type="button" data-sm-goto="online-ordering">Manage</button>
+      </div>
+      <div class="sm-rows-row">
+        <div class="sm-logo" style="background:#1d1d28">PB</div>
+        <div class="sm-rows-text">
+          <div class="sm-rows-name">PAR Brink POS</div>
+          <div class="sm-rows-sub">Purchases post to loyalty in real time · 3 stores mapped</div>
+        </div>
+        <span class="sm-status ok">Connected</span>
+        <button class="sm-banner-btn" type="button">Manage</button>
+      </div>
+      <div class="sm-rows-row">
+        <div class="sm-logo" style="background:#f2b134">MC</div>
+        <div class="sm-rows-text">
+          <div class="sm-rows-name">Mailchimp</div>
+          <div class="sm-rows-sub">Audience sync paused — token rejected 6 Aug 2026</div>
+        </div>
+        <span class="sm-status warn">Action needed</span>
+        <button class="sm-banner-btn" type="button">Reconnect</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="sm-section">
+    <div class="sm-section-label">Available</div>
+    <div class="sm-rows">
+      <div class="sm-rows-row">
+        <div class="sm-logo" style="background:#c7355a">TW</div>
+        <div class="sm-rows-text">
+          <div class="sm-rows-name">Twilio</div>
+          <div class="sm-rows-sub">Send SMS alongside push for high-value campaigns</div>
+        </div>
+        <button class="sm-banner-btn" type="button">Connect</button>
+      </div>
+      <div class="sm-rows-row">
+        <div class="sm-logo" style="background:#4a5568">ZP</div>
+        <div class="sm-rows-text">
+          <div class="sm-rows-name">Zapier</div>
+          <div class="sm-rows-sub">Fire loyalty events into 6,000+ other tools</div>
+        </div>
+        <button class="sm-banner-btn" type="button">Connect</button>
+      </div>
+      <div class="sm-rows-row">
+        <div class="sm-logo" style="background:#6d28d9">PN</div>
+        <div class="sm-rows-text">
+          <div class="sm-rows-name">Pendo</div>
+          <div class="sm-rows-sub">In-app product analytics and guided tours</div>
+        </div>
+        <button class="sm-banner-btn" type="button">Connect</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="sm-section">
+    <div class="sm-section-label">Developer</div>
+    <div class="sm-field">
+      <div class="sm-label">Webhook endpoint
+        <button class="sm-info" type="button" data-tip="Como POSTs every loyalty and order event to this URL. Retries for 24 hours on failure.">i</button>
+      </div>
+      <input class="sm-input" type="url" placeholder="https://api.yourdomain.com/como/events">
+    </div>
+  </div>
+</div>

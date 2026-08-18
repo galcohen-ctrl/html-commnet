@@ -8,6 +8,23 @@ import {
   readJsonResponse,
 } from '../utils.js';
 
+const GITHUB_TIMEOUT_MS = 8000;
+
+async function githubFetch(url, options = {}) {
+  const controller = new AbortController();
+  const timeout = window.setTimeout(() => controller.abort(), GITHUB_TIMEOUT_MS);
+  try {
+    return await fetch(url, { ...options, signal: controller.signal });
+  } catch (error) {
+    if (error.name === 'AbortError') {
+      throw new Error('GitHub comments timed out. The prototype is still available.');
+    }
+    throw error;
+  } finally {
+    window.clearTimeout(timeout);
+  }
+}
+
 function githubHeaders() {
   const headers = {
     Accept: 'application/vnd.github+json',
@@ -86,7 +103,7 @@ export function createGithubCommentsAdapter(config) {
   const apiRoot = `https://api.github.com/repos/${config.repository}`;
 
   async function fetchIssuesPage(page = 1, accumulated = []) {
-    const response = await fetch(
+    const response = await githubFetch(
       `${apiRoot}/issues?state=open&per_page=100&page=${page}`,
       { headers: githubHeaders() },
     );
@@ -99,7 +116,7 @@ export function createGithubCommentsAdapter(config) {
     if (!getGithubToken()) {
       throw new Error('GitHub token required to create comments');
     }
-    const response = await fetch(`${apiRoot}/issues`, {
+    const response = await githubFetch(`${apiRoot}/issues`, {
       method: 'POST',
       headers: { ...githubHeaders(), 'Content-Type': 'application/json' },
       body: JSON.stringify({
@@ -114,7 +131,7 @@ export function createGithubCommentsAdapter(config) {
   }
 
   async function updateIssue(number, meta) {
-    const response = await fetch(`${apiRoot}/issues/${number}`, {
+    const response = await githubFetch(`${apiRoot}/issues/${number}`, {
       method: 'PATCH',
       headers: { ...githubHeaders(), 'Content-Type': 'application/json' },
       body: JSON.stringify({ body: issueBody(meta) }),
@@ -131,7 +148,7 @@ export function createGithubCommentsAdapter(config) {
     const path = `${config.assetDirectory}/${commentId}-${index}.${extension}`;
     const encodedPath = path.split('/').map(encodeURIComponent).join('/');
     const content = await fileToBase64(file);
-    const response = await fetch(`${apiRoot}/contents/${encodedPath}`, {
+    const response = await githubFetch(`${apiRoot}/contents/${encodedPath}`, {
       method: 'PUT',
       headers: { ...githubHeaders(), 'Content-Type': 'application/json' },
       body: JSON.stringify({
