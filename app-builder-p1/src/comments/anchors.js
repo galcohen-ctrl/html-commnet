@@ -90,14 +90,13 @@ export function screenForElement(element) {
 export function chooseCommentAnchor(element) {
   if (!element || isCommentOverlayElement(element)) return null;
 
-  // Preserve precise control/content comments even inside a large anchored region.
-  const specificElement = element.closest?.(SPECIFIC_SELECTOR);
-  if (specificElement) return specificElement;
-
-  // Product regions can opt into a durable anchor that survives markup refactors.
-  const durableAnchor = element.closest?.('[data-comment-anchor]');
-  if (durableAnchor) return durableAnchor;
-  return element.closest?.(MEANINGFUL_SELECTOR) || element;
+  // Walk at most 3 levels up to find a specific anchor; otherwise target the clicked element.
+  let el = element;
+  for (let i = 0; i < 3 && el; i++) {
+    if (el.matches?.(SPECIFIC_SELECTOR)) return el;
+    el = el.parentElement;
+  }
+  return element;
 }
 
 function isUnique(selector) {
