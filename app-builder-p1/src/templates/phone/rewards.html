@@ -14,7 +14,16 @@
             <div class="p-section-hd"><span class="spark">✦</span> Rewards</div>
 
             <div class="rewards-progs">
-              <div class="prog-card" data-slot-name="rewards-gifts" data-rw-tile="gifts">
+              <!-- My Gifts: skeleton + real card share the same slot -->
+              <div class="gf-skel-widget" data-skel-for="rewards-gifts">
+                <div class="gf-skel-reward">
+                  <div class="gf-skel-line w40 tall"></div>
+                  <div class="gf-skel-line w70"></div>
+                  <div class="gf-skel-line w55"></div>
+                </div>
+                <div class="gf-skel-tag">My Gifts · add from the left panel</div>
+              </div>
+              <div class="prog-card hidden-slot" data-widget="rewards-gifts" data-slot-name="rewards-gifts" data-rw-tile="gifts">
                 <div class="rw-img" style="display:none;"></div>
                 <div class="kicker">My Gifts</div>
                 <div class="prog-title">Active Rewards ready to be redeemed</div>
@@ -22,7 +31,16 @@
                 <button class="rw-btn" style="display:none;"></button>
               </div>
 
-              <div class="prog-card" data-slot-name="rewards-points" data-rw-tile="points">
+              <!-- Points Shop: skeleton + real card share the same slot -->
+              <div class="gf-skel-widget" data-skel-for="rewards-points">
+                <div class="gf-skel-reward">
+                  <div class="gf-skel-line w55 tall"></div>
+                  <div class="gf-skel-line w90"></div>
+                  <div class="gf-skel-line w60"></div>
+                </div>
+                <div class="gf-skel-tag">Points Shop · add from the left panel</div>
+              </div>
+              <div class="prog-card hidden-slot" data-widget="rewards-points" data-slot-name="rewards-points" data-rw-tile="points">
                 <div class="rw-img" style="display:none;"></div>
                 <div class="kicker">My Points Shop</div>
                 <div class="prog-title">1 pt per AED spent</div>
@@ -30,7 +48,19 @@
                 <button class="rw-btn" style="display:none;"></button>
               </div>
 
-              <div class="punch-card" data-slot-name="rewards-punch" data-rw-tile="punch">
+              <!-- Punch Card: skeleton + real card share the same slot -->
+              <div class="gf-skel-widget" data-skel-for="rewards-punch">
+                <div class="gf-skel-reward">
+                  <div class="gf-skel-line w60 tall"></div>
+                  <div class="gf-skel-punch">
+                    <span></span><span></span><span></span><span></span><span></span>
+                    <span></span><span></span><span></span><span></span><span></span>
+                  </div>
+                  <div class="gf-skel-line w55"></div>
+                </div>
+                <div class="gf-skel-tag">Punch Card · add from the left panel</div>
+              </div>
+              <div class="punch-card hidden-slot" data-widget="rewards-punch" data-slot-name="rewards-punch" data-rw-tile="punch">
                 <div class="rw-img" style="display:none;"></div>
                 <div class="prog-title">Coffee Punch Card</div>
                 <div class="punches">

@@ -69,6 +69,10 @@ export function initBindings(ctx) {
             statsRow.classList.add('wrap-' + value);
           }
         }
+        if (bindRadio === 'loyalty-layout') {
+          const lc = document.querySelector('.loyalty-card');
+          if (lc) lc.dataset.loyalty = value;
+        }
         if (bindRadio === 'member-state') {
           const greetRow = document.querySelector('.greet-row');
           if (greetRow) greetRow.classList.toggle('is-guest', value === 'guest');
@@ -282,3 +286,4 @@ export function initBindings(ctx) {
 
   return { wireToggle, wireRadioGroup, getPlainText, setupVariableInput, normalizeHex, wireColorControl };
 }
+

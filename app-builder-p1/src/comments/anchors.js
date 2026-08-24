@@ -207,8 +207,7 @@ export function selectorForElement(element) {
 
 export function targetForPoint(element, clientX, clientY) {
   const rect = element.getBoundingClientRect();
-  const durableElement = element.closest?.('[data-comment-anchor]');
-  const commentAnchor = durableElement?.getAttribute('data-comment-anchor') || undefined;
+  const commentAnchor = element.getAttribute('data-comment-anchor') || undefined;
   return {
     selector: selectorForElement(element),
     ...(commentAnchor ? { commentAnchor } : {}),
@@ -226,57 +225,84 @@ export function targetForPoint(element, clientX, clientY) {
 }
 
 export function findCommentTarget(comment) {
-  // Prefer the exact selector. New selectors are scoped by a durable ancestor,
-  // while the stored anchor remains a resilient fallback after internal edits.
+  // Prefer the exact selector (more specific); durable anchor is the fallback.
   const selector = comment?.target?.selector;
   if (selector) {
     try {
       const element = document.querySelector(selector);
       if (element) return element;
     } catch {
-      // Fall through to the stable anchor and legacy recovery paths.
+      // Fall through to the stable anchor.
     }
   }
 
   const durableAnchor = comment?.target?.commentAnchor;
-  if (durableAnchor) {
-    try {
-      return document.querySelector(
-        `[data-comment-anchor="${attributeEscape(durableAnchor)}"]`,
-      );
-    } catch {
-      return null;
-    }
+  if (!durableAnchor) return null;
+
+  const anchorSelector = `[data-comment-anchor="${attributeEscape(durableAnchor)}"]`;
+
+  // If the stored selector was more specific than the anchor but failed to match,
+  // the real target isn't on screen (e.g. a different wizard step) — don't
+  // fall back to the broad container.
+  if (selector && selector !== anchorSelector && !selector.startsWith(anchorSelector)) {
+    return null;
   }
+
+  try {
+    return document.querySelector(anchorSelector);
+  } catch {
+    return null;
+  }
+}
+
+// Returns the topmost full-screen overlay if one is active, so pins behind it
+// are hidden instead of floating under the overlay.
+function activeOverlay() {
+  const wizard = document.getElementById('setup-wizard');
+  if (wizard && window.getComputedStyle(wizard).display !== 'none') return wizard;
+  const settings = document.getElementById('settings-modal');
+  if (settings && settings.classList.contains('open')) return settings;
   return null;
+}
+
+function normalizeText(text) {
+  return String(text || '').trim().replace(/\s+/g, ' ');
+}
+
+// Check whether the element's current text still overlaps the context that was
+// captured when the comment was placed.  Catches cross-step mismatches where
+// the same CSS selector exists on every wizard step but shows different content.
+function contextMatches(element, storedContext) {
+  if (!storedContext || storedContext.length < 12) return true;
+  const current = normalizeText(element.textContent).slice(0, 90);
+  if (!current) return true;
+  const len = Math.min(50, storedContext.length, current.length);
+  return current.slice(0, len) === storedContext.slice(0, len);
 }
 
 export function pinPositionForComment(comment) {
   const target = findCommentTarget(comment);
-  const routeMatches =
-    comment.screen === currentScreen() || comment.screen === 'unknown';
+  if (!target || !isVisible(target)) return { x: -100, y: -100, visible: false };
 
-  if (target && isVisible(target)) {
-    const rect = target.getBoundingClientRect();
-    const relativeX = Number.isFinite(Number(comment.target?.relativeX))
-      ? Number(comment.target.relativeX)
-      : 0.5;
-    const relativeY = Number.isFinite(Number(comment.target?.relativeY))
-      ? Number(comment.target.relativeY)
-      : 0.5;
-    return {
-      x: rect.left + clamp(relativeX) * rect.width,
-      y: rect.top + clamp(relativeY) * rect.height,
-      visible: routeMatches,
-    };
+  // Hide pins for elements that sit behind the active full-screen overlay
+  const overlay = activeOverlay();
+  if (overlay && !overlay.contains(target)) return { x: -100, y: -100, visible: false };
+
+  // Hide if matched element's text diverged from the stored context
+  if (!contextMatches(target, comment.target?.context)) {
+    return { x: -100, y: -100, visible: false };
   }
 
-  const fallbackX = Number(comment.target?.fallbackClientX);
-  const fallbackY = Number(comment.target?.fallbackClientY);
-  const hasFallback = Number.isFinite(fallbackX) && Number.isFinite(fallbackY);
+  const rect = target.getBoundingClientRect();
+  const relativeX = Number.isFinite(Number(comment.target?.relativeX))
+    ? Number(comment.target.relativeX)
+    : 0.5;
+  const relativeY = Number.isFinite(Number(comment.target?.relativeY))
+    ? Number(comment.target.relativeY)
+    : 0.5;
   return {
-    x: hasFallback ? fallbackX : -100,
-    y: hasFallback ? fallbackY : -100,
-    visible: routeMatches && hasFallback,
+    x: rect.left + clamp(relativeX) * rect.width,
+    y: rect.top + clamp(relativeY) * rect.height,
+    visible: true,
   };
 }

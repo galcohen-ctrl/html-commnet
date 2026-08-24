@@ -685,6 +685,20 @@ export function initMenuSource(ctx) {
   }
 
   function renderNone() {
+    const inSkeleton = document.body.classList.contains('gf-skeleton');
+    if (inSkeleton) {
+      return appHeader('MENU', 'Choose an approach on the left') + `
+        <div class="gf-skel-menu" style="padding:12px 14px">
+          <div class="gf-skel-menu-hero"></div>
+          <div class="gf-skel-menu-grid">
+            <div class="gf-skel-menu-item"><div class="gf-skel-menu-item-img"></div><div class="gf-skel-line w70"></div><div class="gf-skel-line w40"></div></div>
+            <div class="gf-skel-menu-item"><div class="gf-skel-menu-item-img"></div><div class="gf-skel-line w60"></div><div class="gf-skel-line w40"></div></div>
+            <div class="gf-skel-menu-item"><div class="gf-skel-menu-item-img"></div><div class="gf-skel-line w80"></div><div class="gf-skel-line w40"></div></div>
+            <div class="gf-skel-menu-item"><div class="gf-skel-menu-item-img"></div><div class="gf-skel-line w55"></div><div class="gf-skel-line w40"></div></div>
+          </div>
+          <div class="gf-skel-tag">Menu · pick an approach from the left panel</div>
+        </div>`;
+    }
     return appHeader('MENU', 'Not set up yet') + `
       <div class="pm-empty">
         <div class="pm-empty-ic">${ICON.cutlery}</div>

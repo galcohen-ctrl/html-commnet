@@ -19,7 +19,7 @@ If dist/index.html exists, the production Vite build is served. Otherwise the
 source directory is served for backwards compatibility.
 
 Run: python3 local-comment-server.py
-Open: http://127.0.0.1:8791/html-commnet/app-builder-p1/?mode=local
+Open: http://127.0.0.1:8791/html-commnet/?mode=local
 """
 import base64
 import binascii
@@ -38,9 +38,7 @@ ASSETS_DIR = os.path.join(DATA_DIR, 'assets')
 COMMENTS_FILE = os.path.join(DATA_DIR, 'comments.json')
 DIST_DIR = os.path.join(ROOT, 'dist')
 STATIC_DIR = DIST_DIR if os.path.isfile(os.path.join(DIST_DIR, 'index.html')) else ROOT
-PUBLIC_BASE = os.environ.get(
-    'PUBLIC_BASE', '/html-commnet/app-builder-p1'
-).rstrip('/')
+PUBLIC_BASE = os.environ.get('PUBLIC_BASE', '/html-commnet').rstrip('/')
 
 EXT_MAP = {'image/png': 'png', 'image/jpeg': 'jpg', 'image/webp': 'webp', 'image/gif': 'gif'}
 

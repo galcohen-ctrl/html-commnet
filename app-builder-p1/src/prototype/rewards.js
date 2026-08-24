@@ -125,3 +125,4 @@ export function initRewards(ctx) {
 
   return { rwTiles, rwRenderPhone, rwPaintImageState, rwOpenEditor, rwApplyImage };
 }
+

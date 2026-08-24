@@ -120,21 +120,25 @@ export function initCoreNavigation(ctx) {
   }
 
   // ---------- Goal presets (shared by the setup wizard and the top-bar preset dropdown) ----------
+  const ORDERING_WIDGET_KEYS = ['order-again', 'top-items', 'menu-categories', 'menu-reels'];
+  const ALL_HOME_WIDGET_KEYS = ['profile', 'promo-cards', 'promo-cards-2', 'social', ...ORDERING_WIDGET_KEYS];
   const GOAL_DEFS = {
     loyalty: {
-      label: 'Loyalty & Rewards', sub: 'Loyalty & Rewards',
+      label: 'Loyalty and rewards', sub: 'Loyalty and rewards',
       widgets: ['profile', 'promo-cards', 'social'], menuDP: false,
-      name: 'Loyalty & Rewards',
-      desc: 'Put points, gifts and punch cards front-and-centre to bring members back.',
-      tags: ['Profile & points', 'Featured offers', 'Social'],
+      name: 'Loyalty and rewards',
+      desc: 'Offer points, gifts, and punch cards to keep customers coming back.',
+      tags: ['Profile and points', 'Promotional offers', 'Social'],
       icon: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M20 12v10H4V12M2 7h20v5H2zM12 22V7"/><path d="M12 7H7.5a2.5 2.5 0 010-5C11 2 12 7 12 7zM12 7h4.5a2.5 2.5 0 000-5C13 2 12 7 12 7z"/></svg>'
     },
     ordering: {
-      label: 'Online Ordering', sub: 'Online Ordering',
-      widgets: ['profile', 'promo-cards', 'promo-cards-2'], menuDP: true,
-      name: 'Online Ordering',
-      desc: 'Lead with the menu, offers and a fast path to order for pickup or delivery.',
-      tags: ['Menu + offers', 'Delivery / Pickup', 'Promos'],
+      label: 'Online ordering', sub: 'Online ordering',
+      // Ordering preset now seeds the four ordering widgets alongside Profile & Loyalty.
+      // Gating still applies — locked widgets stay off until the merchant connects a provider.
+      widgets: ['menu-reels', 'order-again', 'top-items', 'profile', 'menu-categories'], menuDP: true,
+      name: 'Online ordering',
+      desc: 'Feature your menu and give customers a fast way to order for pickup or delivery.',
+      tags: ['Menu and offers', 'Ordering and pickup', 'Reviews'],
       icon: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M6 2 3 6v14a2 2 0 002 2h14a2 2 0 002-2V6l-3-4z"/><path d="M3 6h18"/><path d="M16 10a4 4 0 01-8 0"/></svg>'
     },
     blank: {
@@ -146,7 +150,14 @@ export function initCoreNavigation(ctx) {
   function applyGoalPreset(goal) {
     const def = GOAL_DEFS[goal] || GOAL_DEFS.blank;
     state.goal = goal;
-    ['profile', 'promo-cards', 'promo-cards-2', 'social'].forEach(k => setWidgetOn(k, def.widgets.indexOf(k) !== -1));
+    // Gated ordering widgets can't turn on until the integration is connected — skip them here.
+    const connected = typeof window.isOrderingConnected === 'function' && window.isOrderingConnected();
+    ALL_HOME_WIDGET_KEYS.forEach(k => {
+      const wantsOn = def.widgets.indexOf(k) !== -1;
+      const gated = ORDERING_WIDGET_KEYS.indexOf(k) !== -1;
+      if (gated && !connected) setWidgetOn(k, false);
+      else setWidgetOn(k, wantsOn);
+    });
     const dp = document.querySelector('#cp-menu [data-bind="[data-slot-name=\'menu-dp\']"]');
     if (dp && def.menuDP !== dp.classList.contains('on')) dp.click();
     const subEl = document.getElementById('phone-brand-sub');

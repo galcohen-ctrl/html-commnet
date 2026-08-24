@@ -37,6 +37,7 @@
     cursor: pointer;
     min-width: 130px;
   }
+
   .seg {
     display: flex; align-items: center; gap: 2px;
     border: 1px solid var(--line);
@@ -153,3 +154,4 @@
     font-size: 10px; text-transform: uppercase; letter-spacing: .6px;
     color: var(--como); font-weight: 700; margin-bottom: 6px;
   }
+

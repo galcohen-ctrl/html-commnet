@@ -1,0 +1,180 @@
+@layer components {
+  /* ============================================================
+     GUIDED FLOW — welcome modal, sidebar stepper, step footer.
+     The wizard is gone: the sidebar itself is the stepper now.
+     ============================================================ */
+
+  /* ---------- Welcome modal ---------- */
+  .gf-welcome-overlay {
+    position: fixed; inset: 0; z-index: 900;
+    background: rgba(20, 18, 34, .55);
+    backdrop-filter: blur(3px);
+    display: none; place-items: center;
+  }
+  .gf-welcome-overlay.open { display: grid; }
+  .gf-welcome {
+    width: 520px; max-width: calc(100vw - 40px);
+    background: var(--panel); border-radius: 20px;
+    box-shadow: 0 24px 60px rgba(0, 0, 0, .28);
+    padding: 34px 34px 26px; text-align: center;
+    animation: gfPop .32s cubic-bezier(0.2, 0.8, 0.2, 1);
+  }
+  @keyframes gfPop { from { opacity: 0; transform: translateY(14px) scale(.97); } to { opacity: 1; transform: none; } }
+  .gf-welcome-logo {
+    width: 54px; height: 54px; margin: 0 auto 16px;
+    border-radius: 15px; display: grid; place-items: center;
+    background: var(--como); color: #fff; font-size: 26px;
+  }
+  .gf-welcome h1 { font-size: 24px; font-weight: 800; letter-spacing: -.02em; color: var(--ink); margin-bottom: 8px; }
+  .gf-welcome p { font-size: 14.5px; color: var(--muted); line-height: 1.55; margin-bottom: 22px; }
+  .gf-welcome-list { text-align: left; margin: 0 0 24px; display: flex; flex-direction: column; gap: 10px; }
+  .gf-welcome-item { display: flex; align-items: center; gap: 11px; font-size: 13.5px; color: var(--ink); }
+  .gf-welcome-item .n {
+    width: 22px; height: 22px; border-radius: 50%; flex: none;
+    background: var(--como-soft); color: var(--como);
+    display: grid; place-items: center; font-size: 11.5px; font-weight: 800;
+  }
+  .gf-welcome-actions { display: flex; gap: 10px; justify-content: center; }
+  .gf-btn {
+    padding: 11px 20px; border-radius: 10px; font-size: 14px; font-weight: 650;
+    cursor: pointer; border: 1.5px solid transparent; transition: filter .15s, background .15s;
+  }
+  .gf-btn.primary { background: var(--como); color: #fff; }
+  .gf-btn.primary:hover { filter: brightness(1.08); }
+  .gf-btn.ghost { background: var(--panel); border-color: var(--line); color: var(--muted); }
+  .gf-btn.ghost:hover { border-color: #bdb9cc; color: var(--ink); }
+
+  /* ---------- Sidebar stepper ---------- */
+  .side-step { position: relative; }
+  .side-step .step-dot {
+    width: 22px; height: 22px; border-radius: 50%; flex: none;
+    display: grid; place-items: center; position: relative;
+    border: 1.5px solid var(--line); background: var(--panel);
+    font-size: 11px; font-weight: 800; color: var(--muted);
+    transition: background .18s, border-color .18s, color .18s;
+  }
+  .side-step .step-dot .tick { width: 12px; height: 12px; display: none; }
+  .side-step.done .step-dot {
+    background: #16a34a; border-color: #16a34a; color: #fff;
+  }
+  .side-step.done .step-dot .n { display: none; }
+  .side-step.done .step-dot .tick { display: block; }
+  .side-step.active .step-dot {
+    background: var(--como); border-color: var(--como); color: #fff;
+  }
+  .side-step.done .side-lbl { color: var(--muted); }
+
+  /* Connector line between consecutive steps */
+  .side-steps { position: relative; }
+  .side-steps .side-step + .side-step::before {
+    content: ""; position: absolute; left: 21px; top: -7px; height: 7px;
+    width: 1.5px; background: var(--line);
+  }
+  .side-steps .side-step.done + .side-step::before { background: #86d5a3; }
+  body.side-collapsed .side-steps .side-step + .side-step::before { display: none; }
+
+  /* ---------- Step footer (always-visible bar below the scrollable config panel) ---------- */
+  .cp-step-foot {
+    flex: 0 0 auto;
+    background: var(--panel);
+    border-top: 1px solid var(--line);
+    border-right: 1px solid var(--line);
+    padding: 12px 18px;
+    display: flex; align-items: center; gap: 10px;
+    z-index: 5;
+  }
+  .cp-step-foot .cp-step-count { font-size: 12px; color: var(--muted); font-weight: 600; margin-right: auto; }
+  .cp-step-skip {
+    margin-right: auto;
+    background: none; border: none; cursor: pointer;
+    color: var(--muted); font-size: 13px; font-weight: 600; padding: 8px 10px; border-radius: 8px;
+  }
+  .cp-step-skip:hover { color: var(--ink); background: #f4f3f8; }
+  .cp-step-next {
+    background: var(--como); color: #fff; border: none; cursor: pointer;
+    font-size: 13.5px; font-weight: 650; padding: 10px 16px; border-radius: 10px;
+    display: inline-flex; align-items: center; gap: 7px;
+  }
+  .cp-step-next:hover { filter: brightness(1.08); }
+  .cp-step-next svg { width: 15px; height: 15px; }
+
+  /* ---------- App focus card (shown on the Home step) ---------- */
+  .cp-focus-card {
+    display: flex; align-items: center; gap: 12px; position: relative;
+    background: var(--como-soft); border: 1px solid #ddd0f7;
+    border-radius: 12px; padding: 12px 14px; margin-bottom: 16px;
+  }
+  .cp-focus-ic {
+    width: 34px; height: 34px; border-radius: 9px; flex: none;
+    background: var(--como); color: #fff; display: grid; place-items: center;
+  }
+  .cp-focus-ic svg { width: 18px; height: 18px; }
+  .cp-focus-text { min-width: 0; margin-right: auto; }
+  .cp-focus-lbl { font-size: 10.5px; font-weight: 800; letter-spacing: .07em; text-transform: uppercase; color: var(--como); }
+  .cp-focus-val { font-size: 13.5px; font-weight: 700; color: var(--ink); }
+  .cp-focus-change {
+    background: var(--panel); border: 1.5px solid #ddd0f7; color: var(--como);
+    font-size: 12px; font-weight: 700; padding: 6px 11px; border-radius: 8px;
+    cursor: pointer; display: inline-flex; align-items: center; gap: 5px; flex: none;
+  }
+  .cp-focus-change:hover { border-color: var(--como); }
+  .cp-focus-menu {
+    position: absolute; right: 12px; top: calc(100% - 4px); z-index: 30;
+    background: var(--panel); border: 1px solid var(--line); border-radius: 11px;
+    box-shadow: 0 12px 30px rgba(0, 0, 0, .16); padding: 5px; min-width: 200px;
+    display: none;
+  }
+  .cp-focus-menu.open { display: block; }
+  .cp-focus-menu button {
+    display: block; width: 100%; text-align: left; background: none; border: none;
+    padding: 9px 11px; border-radius: 7px; cursor: pointer;
+    font-size: 13px; font-weight: 600; color: var(--ink);
+  }
+  .cp-focus-menu button:hover { background: #f4f3f8; }
+  .cp-focus-menu button.active { color: var(--como); background: var(--como-soft); }
+
+  /* ---------- Simple step pages (business / branding / publish) ---------- */
+  .gf-swatch-row { display: flex; gap: 10px; align-items: center; flex-wrap: wrap; }
+  .gf-swatch {
+    width: 32px; height: 32px; border-radius: 50%; cursor: pointer; border: 2.5px solid transparent;
+    box-shadow: inset 0 0 0 2px rgba(255,255,255,.9), var(--shadow-sm);
+    transition: transform .15s, box-shadow .15s;
+  }
+  .gf-swatch:hover { transform: scale(1.1); }
+  .gf-swatch.selected { box-shadow: inset 0 0 0 3px #fff, 0 0 0 2.5px var(--ink); }
+  .gf-chip-row { display: flex; flex-wrap: wrap; gap: 7px; }
+  .gf-chip {
+    padding: 7px 13px; border: 1.5px solid var(--line); border-radius: 100px;
+    font-size: 12.5px; font-weight: 500; color: var(--muted);
+    background: var(--panel); cursor: pointer; transition: all .15s;
+  }
+  .gf-chip:hover { border-color: #bdb9cc; color: var(--ink); }
+  .gf-chip.selected { background: var(--como); border-color: var(--como); color: #fff; font-weight: 600; }
+  .gf-advanced-link {
+    display: inline-flex; align-items: center; gap: 6px; margin-top: 4px;
+    background: none; border: none; cursor: pointer; padding: 0;
+    color: var(--como); font-size: 12.5px; font-weight: 650;
+  }
+  .gf-advanced-link:hover { text-decoration: underline; }
+
+  /* Review & publish */
+  .gf-review-row {
+    display: flex; align-items: center; gap: 11px;
+    padding: 11px 13px; border: 1px solid var(--line); border-radius: 11px; margin-bottom: 8px;
+  }
+  .gf-review-row .rv-tick {
+    width: 20px; height: 20px; border-radius: 50%; flex: none; display: grid; place-items: center;
+    background: #eef0f4; color: #9a9aab;
+  }
+  .gf-review-row.done .rv-tick { background: #16a34a; color: #fff; }
+  .gf-review-row .rv-tick svg { width: 11px; height: 11px; }
+  .gf-review-name { font-size: 13.5px; font-weight: 650; color: var(--ink); margin-right: auto; }
+  .gf-review-edit { background: none; border: none; cursor: pointer; color: var(--como); font-size: 12.5px; font-weight: 650; }
+  .gf-review-edit:hover { text-decoration: underline; }
+  .gf-publish-btn {
+    width: 100%; margin-top: 14px; background: var(--como); color: #fff; border: none;
+    padding: 13px; border-radius: 12px; font-size: 14.5px; font-weight: 700; cursor: pointer;
+  }
+  .gf-publish-btn:hover { filter: brightness(1.08); }
+  .gf-publish-btn:disabled { background: #cfcdd8; cursor: not-allowed; }
+}

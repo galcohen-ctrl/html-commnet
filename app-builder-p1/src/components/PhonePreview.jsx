@@ -8,6 +8,7 @@ import menuHtml from '../templates/phone/menu.html?raw';
 import modalsHtml from '../templates/phone/modals.html?raw';
 import moreHtml from '../templates/phone/more.html?raw';
 import qrHtml from '../templates/phone/qr.html?raw';
+import reelsModalHtml from '../templates/phone/reels-modal.html?raw';
 import rewardsHtml from '../templates/phone/rewards.html?raw';
 import StaticMarkup from './StaticMarkup';
 
@@ -22,6 +23,8 @@ const pagesHtml = [
   accountHtml,
   loginHtml,
 ].join('\n');
+
+const modalsCombinedHtml = modalsHtml + '\n' + reelsModalHtml;
 
 const bottomNavStart = bottomNavHtml.indexOf('<div class="bottom-nav"');
 const bottomNavInner = bottomNavHtml.slice(
@@ -55,7 +58,7 @@ export default function PhonePreview() {
             html={pagesHtml}
           />
 
-          <div dangerouslySetInnerHTML={{ __html: modalsHtml }} />
+          <div dangerouslySetInnerHTML={{ __html: modalsCombinedHtml }} />
 
           <StaticMarkup
             as="div"

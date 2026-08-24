@@ -64,10 +64,13 @@ export function initReordering() {
       const handle = e.target.closest('.handle');
       if (!handle) return;
       const row = handle.closest('.cp-widget-row');
-      if (!row || !row.classList.contains('on')) return;
+      // Allow reorder for on OR off rows — merchants often plan the layout before
+      // toggling widgets on. Reorder passes read every row's key regardless.
+      // The reels chip row uses cp-fixed-slot to opt out (chip is pinned on phone).
+      if (!row || row.classList.contains('cp-fixed-slot')) return;
       e.preventDefault();
 
-      liveRows = Array.from(container.querySelectorAll('.cp-widget-row.on'));
+      liveRows = Array.from(container.querySelectorAll('.cp-widget-row:not(.cp-fixed-slot)'));
       currentIdx = liveRows.indexOf(row);
       targetIdx = currentIdx;
       dragging = row;
@@ -95,14 +98,25 @@ export function initReordering() {
     const orderedKeys = Array.from(container.querySelectorAll('.cp-widget-row'))
       .map(r => r.querySelector('.toggle'))
       .filter(Boolean)
-      .map(t => t.dataset.widgetToggle);
+      .map(t => t.dataset.widgetToggle)
+      // Reels chip is pinned to the top of the phone by CSS; skip it in the reorder pass.
+      .filter(k => k !== 'menu-reels');
     let prev = anchor;
     orderedKeys.forEach(key => {
-      const widget = homePage.querySelector('[data-widget="' + key + '"]');
-      if (widget) {
+      // Keep each widget's skeleton block glued to the widget so the placeholder
+      // renders in the same position when the widget is toggled off.
+      const skeleton = homePage.querySelector('.gf-skel-widget[data-skel-for="' + key + '"]');
+      if (skeleton) {
+        prev.parentNode.insertBefore(skeleton, prev.nextSibling);
+        prev = skeleton;
+      }
+      // querySelectorAll: a single toggle key can own multiple phone widgets
+      // (e.g. `profile` covers both `.greet-row` and `.loyalty-card`).
+      const widgets = homePage.querySelectorAll('[data-widget="' + key + '"]');
+      widgets.forEach(widget => {
         prev.parentNode.insertBefore(widget, prev.nextSibling);
         prev = widget;
-      }
+      });
     });
   }
 
@@ -131,3 +145,4 @@ export function initReordering() {
 
   return { initReorderable, reorderPhoneWidgets, reorderRewardsCards };
 }
+

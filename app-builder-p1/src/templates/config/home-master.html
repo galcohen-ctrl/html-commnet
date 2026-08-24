@@ -1,15 +1,32 @@
       <div class="cp-master">
-        <h3 class="cp-head">Editing page</h3>
+        <h3 class="cp-head">Step 3</h3>
         <div class="cp-page-title">Home</div>
         <div class="cp-page-sub">Click any widget to edit it. Every change reflects live on the phone.</div>
+
+        <div class="cp-focus-card" id="cp-focus-card">
+          <div class="cp-focus-ic" id="cp-focus-ic"></div>
+          <div class="cp-focus-text">
+            <div class="cp-focus-lbl">App focus</div>
+            <div class="cp-focus-val" id="cp-focus-val">Not chosen yet</div>
+          </div>
+          <button class="cp-focus-change" id="cp-focus-change" type="button">
+            Change
+            <svg viewBox="0 0 24 24" width="12" height="12" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round"><path d="M6 9l6 6 6-6"/></svg>
+          </button>
+          <div class="cp-focus-menu" id="cp-focus-menu">
+            <button type="button" data-focus="loyalty">Loyalty and rewards</button>
+            <button type="button" data-focus="ordering">Online ordering</button>
+            <button type="button" data-focus="blank">Blank canvas</button>
+          </div>
+        </div>
 
         <div class="cp-section open">
           <div class="cp-head-row">Home widgets <span class="chev">›</span></div>
           <div class="cp-body">
             <div class="cp-widget-row off">
               <span class="handle">⠿</span>
-              <span class="w-name" data-drill="profile">Profile Widget</span>
-              <span class="toggle" data-bind=".greet-row, .stats-row" data-widget-toggle="profile" title="Add to Home">
+              <span class="w-name" data-drill="profile">Profile &amp; Loyalty</span>
+              <span class="toggle" data-bind=".greet-row, .loyalty-card" data-widget-toggle="profile" title="Add to Home">
                 <svg class="i-plus" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M10 4v12M4 10h12"/></svg>
                 <svg class="i-check" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M4 10l4 4 8-8"/></svg>
               </span>
@@ -30,17 +47,6 @@
             </div>
             <div class="cp-widget-row off">
               <span class="handle">⠿</span>
-              <span class="w-name" data-drill="promo-cards-2">Promo Cards — More Offers</span>
-              <span class="toggle" data-bind=".promo-cards-widget[data-widget='promo-cards-2']" data-widget-toggle="promo-cards-2" title="Add to Home">
-                <svg class="i-plus" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M10 4v12M4 10h12"/></svg>
-                <svg class="i-check" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M4 10l4 4 8-8"/></svg>
-              </span>
-              <button class="w-edit-icon" data-drill="promo-cards-2" title="Edit widget">
-                <svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12.5 3l4.5 4.5-10 10H2.5v-4.5l10-10z"/><path d="M11 4.5l4.5 4.5"/></svg>
-              </button>
-            </div>
-            <div class="cp-widget-row off">
-              <span class="handle">⠿</span>
               <span class="w-name" data-drill="social">Social Links</span>
               <span class="toggle" data-bind=".social-strip" data-widget-toggle="social" title="Add to Home">
                 <svg class="i-plus" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M10 4v12M4 10h12"/></svg>
@@ -49,6 +55,62 @@
               <button class="w-edit-icon" data-drill="social" title="Edit widget">
                 <svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12.5 3l4.5 4.5-10 10H2.5v-4.5l10-10z"/><path d="M11 4.5l4.5 4.5"/></svg>
               </button>
+            </div>
+            <div class="cp-widget-row off cp-oo-widget" data-oo-widget="order-again">
+              <span class="handle">⠿</span>
+              <span class="w-name" data-drill="order-again">Order Again</span>
+              <span class="toggle" data-bind=".oa-widget" data-widget-toggle="order-again" title="Add to Home">
+                <svg class="i-plus" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M10 4v12M4 10h12"/></svg>
+                <svg class="i-check" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M4 10l4 4 8-8"/></svg>
+              </span>
+              <button class="w-edit-icon" data-drill="order-again" title="Edit widget">
+                <svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12.5 3l4.5 4.5-10 10H2.5v-4.5l10-10z"/><path d="M11 4.5l4.5 4.5"/></svg>
+              </button>
+              <span class="w-oo-lock" title="Connect online ordering to enable">
+                <svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"><rect x="4.5" y="9" width="11" height="7.5" rx="1.5"/><path d="M7 9V6.5a3 3 0 016 0V9"/></svg>
+              </span>
+            </div>
+            <div class="cp-widget-row off cp-oo-widget" data-oo-widget="top-items">
+              <span class="handle">⠿</span>
+              <span class="w-name" data-drill="top-items">Top Items</span>
+              <span class="toggle" data-bind=".ti-widget" data-widget-toggle="top-items" title="Add to Home">
+                <svg class="i-plus" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M10 4v12M4 10h12"/></svg>
+                <svg class="i-check" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M4 10l4 4 8-8"/></svg>
+              </span>
+              <button class="w-edit-icon" data-drill="top-items" title="Edit widget">
+                <svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12.5 3l4.5 4.5-10 10H2.5v-4.5l10-10z"/><path d="M11 4.5l4.5 4.5"/></svg>
+              </button>
+              <span class="w-oo-lock" title="Connect online ordering to enable">
+                <svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"><rect x="4.5" y="9" width="11" height="7.5" rx="1.5"/><path d="M7 9V6.5a3 3 0 016 0V9"/></svg>
+              </span>
+            </div>
+            <div class="cp-widget-row off cp-oo-widget" data-oo-widget="menu-categories">
+              <span class="handle">⠿</span>
+              <span class="w-name" data-drill="menu-categories">Menu Categories</span>
+              <span class="toggle" data-bind=".mc-widget" data-widget-toggle="menu-categories" title="Add to Home">
+                <svg class="i-plus" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M10 4v12M4 10h12"/></svg>
+                <svg class="i-check" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M4 10l4 4 8-8"/></svg>
+              </span>
+              <button class="w-edit-icon" data-drill="menu-categories" title="Edit widget">
+                <svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12.5 3l4.5 4.5-10 10H2.5v-4.5l10-10z"/><path d="M11 4.5l4.5 4.5"/></svg>
+              </button>
+              <span class="w-oo-lock" title="Connect online ordering to enable">
+                <svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"><rect x="4.5" y="9" width="11" height="7.5" rx="1.5"/><path d="M7 9V6.5a3 3 0 016 0V9"/></svg>
+              </span>
+            </div>
+            <div class="cp-widget-row off cp-oo-widget cp-fixed-slot" data-oo-widget="menu-reels" title="Reels chip is pinned to the top of the phone">
+              <span class="handle handle-locked" title="Reels chip position is fixed at the top">⠿</span>
+              <span class="w-name" data-drill="menu-reels">Menu Reels chip</span>
+              <span class="toggle" data-bind=".phone-reels-chip" data-widget-toggle="menu-reels" title="Add reels chip to Home">
+                <svg class="i-plus" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M10 4v12M4 10h12"/></svg>
+                <svg class="i-check" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M4 10l4 4 8-8"/></svg>
+              </span>
+              <button class="w-edit-icon" data-drill="menu-reels" title="Edit widget">
+                <svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12.5 3l4.5 4.5-10 10H2.5v-4.5l10-10z"/><path d="M11 4.5l4.5 4.5"/></svg>
+              </button>
+              <span class="w-oo-lock" title="Connect online ordering to enable">
+                <svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"><rect x="4.5" y="9" width="11" height="7.5" rx="1.5"/><path d="M7 9V6.5a3 3 0 016 0V9"/></svg>
+              </span>
             </div>
             <div class="cp-hint-inline">Click <b>+</b> to add · <b>✏</b> to edit</div>
             <div class="cp-add-widget-wrap">

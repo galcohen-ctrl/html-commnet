@@ -4,8 +4,8 @@ This is the Vite + React port of the App Builder P1 prototype. It keeps the orig
 
 | URL | Review storage | Intended use |
 | --- | --- | --- |
-| `/html-commnet/app-builder-p1/` | Open GitHub Issues and screenshot files on the `data` branch | Public GitHub Pages review |
-| `/html-commnet/app-builder-p1/?mode=local` | `local-comments/comments.json` and `local-comments/assets/` | Private local iteration |
+| `/html-commnet/` | Open GitHub Issues and screenshot files on the `data` branch | Public GitHub Pages review |
+| `/html-commnet/?mode=local` | `local-comments/comments.json` and `local-comments/assets/` | Private local iteration |
 
 ## Requirements
 
@@ -19,7 +19,7 @@ npm install
 npm run dev
 ```
 
-Open `http://127.0.0.1:5173/html-commnet/app-builder-p1/` for GitHub comment mode.
+Open `http://127.0.0.1:5173/html-commnet/` for GitHub comment mode.
 
 For local comments, one command starts Vite and the Python comment server:
 
@@ -27,7 +27,7 @@ For local comments, one command starts Vite and the Python comment server:
 npm run dev:local
 ```
 
-Open `http://127.0.0.1:5173/html-commnet/app-builder-p1/?mode=local`. Vite proxies comment and screenshot requests to the Python server on port 8791.
+Open `http://127.0.0.1:5173/html-commnet/?mode=local`. Vite proxies comment and screenshot requests to the Python server on port 8791.
 
 If port 8791 is already occupied, choose another port for both processes:
 
@@ -44,18 +44,6 @@ The React overlay in `src/comments/` owns the comment button, element highlighti
 - Local mode never calls GitHub. The Python server writes comments and screenshots beneath the gitignored `local-comments/` directory.
 - Resolving a local comment deletes its JSON entry and associated local screenshots. Public GitHub comments are resolved through their linked issue on GitHub.
 - Stable `data-comment-anchor` attributes and legacy selector fallbacks keep pins attached while the UI changes or navigates between app screens.
-
-### Pull public review comments for Copilot
-
-From `app-builder-p1/`, run:
-
-```bash
-npm run comments:pull
-```
-
-This reads the currently open `[APP-BUILDER-P1]` GitHub issues and creates a local, gitignored `review-comments/` folder containing normalized JSON, a readable Markdown summary, and downloaded screenshots. The public repository can be read without a token; set `GH_TOKEN` or `GITHUB_TOKEN` only if GitHub rate limits the request.
-
-Ask the coding agent to read `review-comments/README.md` and `github-open-comments.json`, inspect every local screenshot, match `target.commentAnchor` first and `target.selector` second, implement and test the fixes, and leave the issues open until the deployed result is verified.
 
 ## Project structure
 
@@ -75,7 +63,7 @@ npm run build
 npm run preview
 ```
 
-The production files are written to `dist/`. Preview them at `http://127.0.0.1:4173/html-commnet/app-builder-p1/`.
+The production files are written to `dist/`. Preview them at `http://127.0.0.1:4173/html-commnet/`.
 
 To run local comments against the production build:
 
@@ -83,7 +71,7 @@ To run local comments against the production build:
 npm run preview:local
 ```
 
-Then open `http://127.0.0.1:4173/html-commnet/app-builder-p1/?mode=local`.
+Then open `http://127.0.0.1:4173/html-commnet/?mode=local`.
 
 You can also serve the compiled build and local API directly from Python:
 
@@ -92,12 +80,12 @@ npm run build
 python3 local-comment-server.py
 ```
 
-Then open `http://127.0.0.1:8791/html-commnet/app-builder-p1/?mode=local`.
+Then open `http://127.0.0.1:8791/html-commnet/?mode=local`.
 
 ## GitHub Pages
 
-`vite.config.js` sets the repository base path to `/html-commnet/app-builder-p1/`. The repository-root workflow in `.github/workflows/deploy-pages.yml` installs locked dependencies, builds this app, preserves the repository's other static prototypes, and overlays `dist/` at the public `app-builder-p1/` path before deploying the complete Pages artifact.
+`vite.config.js` sets the repository base path to `/html-commnet/`. The workflow in `.github/workflows/deploy-pages.yml` installs locked dependencies, builds `dist/`, uploads it as the Pages artifact, and deploys it on pushes to `main` or manual dispatch.
 
-In the repository's **Settings → Pages**, set **Source** to **GitHub Actions**. The expected public URL is `https://galcohen-ctrl.github.io/html-commnet/app-builder-p1/`. If the repository or folder name changes, update both `base` in `vite.config.js` and the repository setting in `src/comments/config.js`.
+In the repository's **Settings → Pages**, set **Source** to **GitHub Actions**. The expected public URL is `https://galcohen-ctrl.github.io/html-commnet/`. If the repository name changes, update both `base` in `vite.config.js` and the repository setting in `src/comments/config.js`.
 
 No `gh-pages` package, deployment branch, or `npm run deploy` command is required.

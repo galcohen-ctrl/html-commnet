@@ -54,7 +54,6 @@ function issueBody(meta) {
   body += `**Name**: ${meta.name}\n`;
   body += `**Comment**: ${meta.comment}\n`;
   body += `**Element**: ${meta.target.selector || ''}\n`;
-  body += `**Stable anchor**: ${meta.target.commentAnchor || ''}\n`;
   body += `**Context**: ${meta.target.context || ''}\n`;
   body += `**Anchor**: selector=${(meta.target.selector || '').replace(/\n/g, ' ')}, rx=${meta.target.relativeX}, ry=${meta.target.relativeY}\n`;
   body += `**Fallback**: x=${Math.round(meta.target.fallbackClientX)}, y=${Math.round(meta.target.fallbackClientY)}\n`;

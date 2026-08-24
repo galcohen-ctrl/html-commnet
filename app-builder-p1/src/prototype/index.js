@@ -5,9 +5,11 @@ import { initBranding } from './branding.js';
 import { initPromoWidgets } from './promoWidgets.js';
 import { initRewards } from './rewards.js';
 import { initReordering } from './reordering.js';
-import { initSetupWizard } from './setupWizard.js';
+import { initGuidedFlow } from './guidedFlow.js';
 import { initSettingsModal } from './settingsModal.js';
 import { initMenuSource } from './menuSource.js';
+import { initSkeletonPreview } from './guidedFlowSkeleton.js';
+import { initOrderingWidgets } from './orderingWidgets.js';
 
 let runtime;
 
@@ -24,6 +26,8 @@ export function initPrototype() {
   Object.assign(runtime, initReordering(runtime));
   Object.assign(runtime, initSettingsModal(runtime));
   Object.assign(runtime, initMenuSource(runtime));
-  initSetupWizard(runtime);
+  Object.assign(runtime, initOrderingWidgets(runtime));
+  Object.assign(runtime, initGuidedFlow(runtime));
+  Object.assign(runtime, initSkeletonPreview(runtime));
   return runtime;
 }

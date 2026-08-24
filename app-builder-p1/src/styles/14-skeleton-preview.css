@@ -1,0 +1,231 @@
+@layer components {
+  /* ============================================================
+     Skeleton preview mode — slow, subtle shimmer over merchant-
+     owned fields until they are edited. Member-owned data (points,
+     tier, etc.) stays as sample. Applies to every phone screen.
+     ============================================================ */
+
+  /* Long, gentle animation so it reads as ambient motion, not a spinner */
+  @keyframes gfShimmer {
+    from { background-position: 100% 0; }
+    to   { background-position: -100% 0; }
+  }
+  @keyframes gfSpin { to { transform: rotate(360deg); } }
+
+  /* --- Shimmer bar for text placeholders (business name, etc.) --- */
+  body.gf-skeleton .gf-blank {
+    color: transparent !important;
+    background:
+      linear-gradient(90deg,
+        rgba(0,0,0,.05) 0%,
+        rgba(0,0,0,.11) 40%,
+        rgba(0,0,0,.05) 80%
+      );
+    background-size: 240% 100%;
+    border-radius: 4px;
+    animation: gfShimmer 4.5s ease-in-out infinite;
+    display: inline-block;
+    min-height: 1em;
+    min-width: 4em;
+  }
+  body.gf-skeleton .gf-blank * { color: transparent !important; }
+  body.gf-skeleton .gf-blank::selection { background: transparent; }
+  body:not(.tpl-blank).gf-skeleton .gf-blank {
+    background: linear-gradient(90deg,
+      rgba(255,255,255,.05) 0%,
+      rgba(255,255,255,.13) 40%,
+      rgba(255,255,255,.05) 80%);
+    background-size: 240% 100%;
+  }
+
+  /* --- Dashed hint-frame for image / widget slots --- */
+  body.gf-skeleton .gf-hint {
+    position: relative;
+    background: rgba(0,0,0,.02) !important;
+    border: 1.5px dashed rgba(0,0,0,.18) !important;
+    border-radius: 12px !important;
+    color: rgba(0,0,0,.45) !important;
+    display: flex; align-items: center; justify-content: center;
+    text-align: center;
+    font-size: 11px; font-weight: 600;
+    letter-spacing: .3px;
+    min-height: 44px;
+    animation: none;
+  }
+  body:not(.tpl-blank).gf-skeleton .gf-hint {
+    background: rgba(255,255,255,.02) !important;
+    border-color: rgba(255,255,255,.2) !important;
+    color: rgba(255,255,255,.5) !important;
+  }
+
+  /* --- Widget-level skeleton blocks --- */
+  .gf-skel-widget { display: none; }
+  body.gf-skeleton .gf-skel-widget[data-skel-for] { display: block; margin-bottom: 14px; }
+  body.gf-skeleton .empty-canvas[data-empty="home"] { display: none !important; }
+
+  .gf-skel-card, .gf-skel-promo, .gf-skel-social,
+  .gf-skel-tile, .gf-skel-loc, .gf-skel-menu {
+    background: rgba(0,0,0,.02);
+    border: 1.5px dashed rgba(0,0,0,.16);
+    border-radius: 14px;
+    padding: 14px 16px;
+    display: flex; align-items: center; gap: 14px;
+  }
+
+  .gf-skel-lines { flex: 1; display: flex; flex-direction: column; gap: 8px; min-width: 0; }
+
+  /* Slow, ambient shimmer for all block-level skeletons */
+  .gf-skel-line,
+  .gf-skel-promo-img,
+  .gf-skel-btn,
+  .gf-skel-loc-thumb,
+  .gf-skel-menu-hero,
+  .gf-skel-menu-item-img {
+    background: linear-gradient(90deg,
+      rgba(0,0,0,.05) 0%,
+      rgba(0,0,0,.12) 40%,
+      rgba(0,0,0,.05) 80%);
+    background-size: 240% 100%;
+    animation: gfShimmer 4.5s ease-in-out infinite;
+  }
+  .gf-skel-line { height: 10px; border-radius: 4px; }
+  .gf-skel-line.tall { height: 14px; }
+  .gf-skel-line.w40 { width: 40%; }
+  .gf-skel-line.w55 { width: 55%; }
+  .gf-skel-line.w60 { width: 60%; }
+  .gf-skel-line.w70 { width: 70%; }
+  .gf-skel-line.w80 { width: 80%; }
+  .gf-skel-line.w90 { width: 90%; }
+
+  .gf-skel-ring {
+    width: 64px; height: 64px; border-radius: 50%; flex: none;
+    border: 7px solid rgba(0,0,0,.09);
+    position: relative;
+  }
+  .gf-skel-ring::after {
+    content: ""; position: absolute; inset: -7px;
+    border-radius: 50%;
+    border: 7px solid transparent;
+    border-top-color: rgba(0,0,0,.14);
+    animation: gfSpin 6s linear infinite;
+  }
+
+  .gf-skel-promo { flex-direction: column; align-items: stretch; }
+  .gf-skel-promo-img { width: 100%; height: 96px; border-radius: 10px; }
+  .gf-skel-btn { height: 26px; width: 42%; border-radius: 999px; margin-top: 4px; }
+
+  .gf-skel-social { justify-content: center; gap: 18px; padding: 16px; }
+  .gf-skel-social span {
+    width: 28px; height: 28px; border-radius: 50%;
+    background: rgba(0,0,0,.11);
+    display: inline-block;
+  }
+
+  /* Rewards page skeletons (one per card slot) */
+  .gf-skel-reward {
+    background: rgba(0,0,0,.02);
+    border: 1.5px dashed rgba(0,0,0,.16);
+    border-radius: 14px;
+    padding: 14px;
+    margin-bottom: 12px;
+    display: flex; flex-direction: column; gap: 9px;
+  }
+  .gf-skel-reward .gf-skel-punch {
+    display: flex; gap: 6px;
+  }
+  .gf-skel-reward .gf-skel-punch span {
+    width: 20px; height: 20px; border-radius: 50%;
+    background: rgba(0,0,0,.08);
+  }
+
+  /* Locations page skeletons */
+  .gf-skel-loc { margin-bottom: 10px; }
+  .gf-skel-loc-thumb { width: 44px; height: 44px; border-radius: 12px; flex: none; }
+
+  /* More page skeletons — grid tiles */
+  .gf-skel-more-grid {
+    display: grid; grid-template-columns: 1fr 1fr; gap: 10px;
+  }
+  .gf-skel-tile {
+    flex-direction: column; align-items: flex-start;
+    padding: 14px; gap: 8px; min-height: 88px;
+  }
+  .gf-skel-tile .gf-skel-tile-ic {
+    width: 30px; height: 30px; border-radius: 8px;
+    background: rgba(0,0,0,.09);
+  }
+
+  /* Menu page skeletons — hero + items grid */
+  .gf-skel-menu {
+    flex-direction: column; align-items: stretch;
+    padding: 0; overflow: hidden; border: none;
+    background: transparent;
+  }
+  .gf-skel-menu-hero {
+    width: 100%; height: 140px; border-radius: 14px; margin-bottom: 12px;
+  }
+  .gf-skel-menu-grid {
+    display: grid; grid-template-columns: 1fr 1fr; gap: 10px;
+  }
+  .gf-skel-menu-item {
+    background: rgba(0,0,0,.02);
+    border: 1.5px dashed rgba(0,0,0,.14);
+    border-radius: 12px; padding: 8px;
+    display: flex; flex-direction: column; gap: 6px;
+  }
+  .gf-skel-menu-item-img {
+    width: 100%; height: 70px; border-radius: 8px;
+  }
+
+  .gf-skel-tag {
+    text-align: center; font-size: 10px; font-weight: 700;
+    letter-spacing: .4px; text-transform: uppercase;
+    color: rgba(0,0,0,.4);
+    margin-top: 6px;
+  }
+
+  /* Dark phone themes (Fine Dining / Café) — flip to light overlays */
+  body:not(.tpl-blank) .gf-skel-card,
+  body:not(.tpl-blank) .gf-skel-promo,
+  body:not(.tpl-blank) .gf-skel-social,
+  body:not(.tpl-blank) .gf-skel-tile,
+  body:not(.tpl-blank) .gf-skel-loc,
+  body:not(.tpl-blank) .gf-skel-reward,
+  body:not(.tpl-blank) .gf-skel-menu-item {
+    background: rgba(255,255,255,.03);
+    border-color: rgba(255,255,255,.2);
+  }
+  body:not(.tpl-blank) .gf-skel-line,
+  body:not(.tpl-blank) .gf-skel-promo-img,
+  body:not(.tpl-blank) .gf-skel-btn,
+  body:not(.tpl-blank) .gf-skel-loc-thumb,
+  body:not(.tpl-blank) .gf-skel-menu-hero,
+  body:not(.tpl-blank) .gf-skel-menu-item-img {
+    background: linear-gradient(90deg,
+      rgba(255,255,255,.05) 0%,
+      rgba(255,255,255,.13) 40%,
+      rgba(255,255,255,.05) 80%);
+    background-size: 240% 100%;
+  }
+  body:not(.tpl-blank) .gf-skel-ring { border-color: rgba(255,255,255,.1); }
+  body:not(.tpl-blank) .gf-skel-ring::after { border-top-color: rgba(255,255,255,.22); }
+  body:not(.tpl-blank) .gf-skel-social span { background: rgba(255,255,255,.12); }
+  body:not(.tpl-blank) .gf-skel-tile .gf-skel-tile-ic { background: rgba(255,255,255,.12); }
+  body:not(.tpl-blank) .gf-skel-reward .gf-skel-punch span { background: rgba(255,255,255,.1); }
+  body:not(.tpl-blank) .gf-skel-tag { color: rgba(255,255,255,.5); }
+
+  /* Sample-data pill for content that comes from the member profile */
+  body.gf-skeleton .gf-sample-pill {
+    position: relative;
+  }
+  body.gf-skeleton .gf-sample-pill::after {
+    content: "SAMPLE";
+    position: absolute; top: 6px; right: 8px; z-index: 2;
+    font-size: 8px; font-weight: 800; letter-spacing: .8px;
+    color: rgba(255,255,255,.6);
+    background: rgba(255,255,255,.08);
+    padding: 2px 6px; border-radius: 999px;
+    pointer-events: none;
+  }
+}
+

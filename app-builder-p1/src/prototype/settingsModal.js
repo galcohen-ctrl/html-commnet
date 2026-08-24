@@ -425,5 +425,6 @@ export function initSettingsModal(ctx) {
     isOrderingConnected: () => ordering.connected,
   };
   window.openSettings = open;
+  window.isOrderingConnected = () => ordering.connected;
   return api;
 }

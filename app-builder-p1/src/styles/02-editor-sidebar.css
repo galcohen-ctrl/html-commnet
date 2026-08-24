@@ -129,5 +129,11 @@
   body.side-collapsed .side-nav { overflow: visible; }
   body.side-collapsed .side-item .side-lbl { pointer-events: none; }
 
+  .side-check { margin-left: auto; width: 16px; height: 16px; color: #22c55e; flex: none; }
+  .side-check svg { width: 16px; height: 16px; }
+  .side-completed { color: var(--muted); }
+  .side-completed .side-ic { opacity: .7; }
+  body.side-collapsed .side-check { display: none; }
+
   .side-spacer { flex: 1; cursor: default; }
   body.side-collapsed .side-spacer { cursor: pointer; }

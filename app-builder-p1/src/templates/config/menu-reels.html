@@ -1,0 +1,98 @@
+        <div class="cp-detail" data-detail="menu-reels">
+          <div class="cp-detail-header">
+            <button class="cp-back">‹</button>
+            <div class="cp-detail-title">Menu Reels</div>
+          </div>
+          <div class="cp-oo-connected-note">
+            <span class="cp-oo-check">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6L9 17l-5-5"/></svg>
+            </span>
+            <span>Vertical short-form videos linked to items in your <b>online ordering menu</b>.</span>
+          </div>
+
+          <div class="cp-section open">
+            <div class="cp-head-row">Your reels <span class="pc-count" id="mr-count">3</span> <span class="chev">›</span></div>
+            <div class="cp-body">
+              <div class="pc-items-list" id="mr-items-list"></div>
+              <button class="pc-add-btn" id="mr-add-btn">+ Add reel</button>
+              <button class="pc-add-btn cp-preview-btn" id="mr-preview-btn" type="button">
+                <svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 3l14 9-14 9z"/></svg>
+                Test cold-launch open
+              </button>
+            </div>
+          </div>
+
+          <div class="cp-section open">
+            <div class="cp-head-row">Chip appearance <span class="chev">›</span></div>
+            <div class="cp-body">
+              <div class="cp-field">
+                <label>Chip label</label>
+                <input class="cp-input-text" id="mr-chip-label" value="New reels · tap to watch" />
+              </div>
+              <div class="cp-toggle-row">
+                <span class="lbl">Auto-open on cold launch</span>
+                <span class="toggle on" id="mr-toggle-autoopen"></span>
+              </div>
+              <div class="cp-toggle-row">
+                <span class="lbl">Member can dismiss (✕)</span>
+                <span class="toggle on" id="mr-toggle-dismiss"></span>
+              </div>
+              <div class="cp-info cp-info-tight">Chip is pinned to the top of the phone and can't be reordered.</div>
+            </div>
+          </div>
+        </div>
+
+        <div class="cp-detail" data-detail="mr-item-edit">
+          <div class="cp-detail-header">
+            <button class="cp-back" id="mr-item-back">‹</button>
+            <div class="cp-detail-title" id="mr-item-title">Edit reel</div>
+          </div>
+          <div class="cp-section open"><div class="cp-body">
+            <div class="cp-field">
+              <label>Title</label>
+              <input class="cp-input-text" id="mr-item-title-input" />
+            </div>
+            <div class="cp-field">
+              <label>Subtitle</label>
+              <input class="cp-input-text" id="mr-item-subtitle" />
+            </div>
+            <div class="cp-field">
+              <label>Video URL (MP4)</label>
+              <input class="cp-input-text" id="mr-item-video" />
+              <div class="cp-upload-note">Vertical 9:16 clips work best. ~8s each.</div>
+            </div>
+            <div class="cp-field">
+              <label>Poster image (loading state)</label>
+              <input class="cp-input-text" id="mr-item-poster" />
+            </div>
+            <div class="cp-field">
+              <label>CTA label</label>
+              <input class="cp-input-text" id="mr-item-cta-label" />
+            </div>
+            <div class="cp-field">
+              <label>CTA links to</label>
+              <select class="cp-select" id="mr-item-cta-target">
+                <option value="ti-1">Truffle Burger</option>
+                <option value="ti-2">Spicy Tuna Poke</option>
+                <option value="ti-3">Wagyu Ramen</option>
+                <option value="ti-4">Miso Salmon Bowl</option>
+                <option value="ti-5">Buffalo Chicken Wrap</option>
+                <option value="ti-6">Green Goddess Salad</option>
+                <option value="menu">Full menu</option>
+              </select>
+            </div>
+            <div class="cp-field">
+              <label>Auto-advance after (seconds)</label>
+              <div class="cp-range-row">
+                <input type="range" min="3" max="15" step="1" id="mr-item-seconds" />
+                <span class="cp-range-value" id="mr-item-seconds-value">6s</span>
+              </div>
+              <div class="cp-upload-note">Member can swipe or tap to skip — this is only the auto-advance timer.</div>
+            </div>
+            <div class="cp-field">
+              <label>Expires on</label>
+              <input type="date" class="cp-input-text" id="mr-item-expires" />
+              <div class="cp-upload-note">After this date the reel is hidden from members automatically.</div>
+            </div>
+          </div></div>
+        </div>

@@ -3,8 +3,20 @@
       <div class="cp-master">
         <h3 class="cp-head">Editing page</h3>
         <div class="cp-page-title">Locations</div>
-        <div class="cp-page-sub">Location data and presentation are hardcoded and pulled directly from Hub 2 Business Info — nothing to configure here.</div>
-        <div class="cp-info"><b>Note:</b> the Locations page has no builder controls. Branches, hours, and map behavior are managed entirely in Hub 2.</div>
+        <div class="cp-page-sub">Show the Locations page in the app. Content is pulled from Hub 2 Business Info.</div>
+
+        <div class="cp-section open">
+          <div class="cp-head-row">Locations page <span class="chev">›</span></div>
+          <div class="cp-body">
+            <div class="cp-toggle-row">
+              <span class="lbl">Show Locations in the app</span>
+              <span class="toggle" data-bind=".app-page[data-page='locations'] .search-bar, .app-page[data-page='locations'] .filter-chips, .app-page[data-page='locations'] .loc-card"></span>
+            </div>
+            <div class="cp-hint-inline">Turn this off to hide the Locations tab from members entirely.</div>
+          </div>
+        </div>
+
+        <div class="cp-info"><b>Note:</b> branches, hours, and map behavior are managed entirely in Hub 2. This page has no other builder controls.</div>
       </div>
     </div>
 

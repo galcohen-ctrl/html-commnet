@@ -49,7 +49,8 @@
   .greet-row .guest-state { display: none; }
   .greet-row.is-guest .hello { display: none; }
   .greet-row.is-guest .guest-state { display: block; }
-  .greet-row.is-guest ~ .stats-row { display: none !important; }
+  .greet-row.is-guest ~ .stats-row,
+  .greet-row.is-guest ~ .loyalty-card { display: none !important; }
   .guest-state .g-title { font-size: 18px; font-weight: 700; color: var(--p-text); }
   .guest-state .g-sub { font-size: 11.5px; color: var(--p-text-muted); margin: 4px 0 10px; }
   .guest-state .g-login-btn {
@@ -81,6 +82,43 @@
   .stat-tile .lbl { font-size: 8.5px; text-transform: uppercase; color: var(--p-text-muted); font-weight: 700; letter-spacing: .5px; margin-top: 3px; }
   .stat-tile .stat-icon { margin: 6px auto 0; width: 18px; height: 18px; color: var(--p-accent); }
   .stat-tile .stat-icon svg { width: 100%; height: 100%; }
+
+  /* ---------- Loyalty card (Toast-inspired: ring / bar / minimal) ---------- */
+  .loyalty-card {
+    display: flex; align-items: center; gap: 14px;
+    background: var(--p-panel);
+    border: 1px solid var(--p-border);
+    border-radius: 16px;
+    padding: 14px 16px;
+    margin-bottom: 16px;
+  }
+  .loyalty-card .lc-body { flex: 1 1 auto; min-width: 0; display: flex; flex-direction: column; gap: 9px; }
+  .lc-label { font-size: 9.5px; text-transform: uppercase; letter-spacing: .6px; font-weight: 700; color: var(--p-text-muted); }
+  .lc-points { font-size: 21px; font-weight: 800; color: var(--p-text); line-height: 1.05; }
+  .lc-points b { font-weight: 800; }
+  .lc-next-txt { font-size: 10.5px; color: var(--p-text-muted); margin-bottom: 6px; }
+  .lc-bar { height: 6px; border-radius: 4px; background: rgba(255,255,255,.14); overflow: hidden; }
+  .lc-bar span { display: block; height: 100%; border-radius: 4px; background: var(--p-accent); }
+  .lc-card-btn {
+    align-self: flex-start; display: inline-flex; align-items: center; gap: 7px;
+    background: none; border: 1px solid var(--p-text); color: var(--p-text);
+    border-radius: 10px; padding: 8px 13px; font-size: 11.5px; font-weight: 700; cursor: pointer;
+  }
+  .lc-card-btn svg { width: 15px; height: 15px; }
+  .lc-ring { position: relative; width: 78px; height: 78px; flex: none; }
+  .lc-ring svg { width: 100%; height: 100%; transform: rotate(-90deg); }
+  .lc-ring-track { fill: none; stroke: rgba(255,255,255,.14); stroke-width: 7; }
+  .lc-ring-fill { fill: none; stroke: var(--p-accent); stroke-width: 7; stroke-linecap: round;
+    stroke-dasharray: 188.5; stroke-dashoffset: 37.7; transition: stroke-dashoffset .4s ease; }
+  .lc-ring-label { position: absolute; inset: 0; display: flex; flex-direction: column; align-items: center; justify-content: center; }
+  .lc-ring-label b { font-size: 15px; font-weight: 800; color: var(--p-text); line-height: 1; }
+  .lc-ring-label span { font-size: 9px; color: var(--p-text-muted); margin-top: 1px; }
+
+  /* Layout modes */
+  .loyalty-card[data-loyalty="ring"] .lc-bar { display: none; }
+  .loyalty-card[data-loyalty="bar"] .lc-ring { display: none; }
+  .loyalty-card[data-loyalty="minimal"] .lc-ring { display: none; }
+  .loyalty-card[data-loyalty="minimal"] .lc-next { display: none; }
 
   /* ====== Promo Cards Widget (unified) ====== */
   .promo-cards-widget { position: relative; margin-bottom: 16px; }
@@ -629,3 +667,4 @@
     cursor: pointer; transition: transform .15s;
   }
   .social-strip span:hover { transform: translateY(-2px); color: var(--p-accent); }
+

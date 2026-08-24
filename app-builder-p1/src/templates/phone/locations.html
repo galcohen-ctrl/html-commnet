@@ -11,16 +11,42 @@
               <button class="icon-btn" title="Filter">⚙</button>
             </div>
 
-            <div class="search-bar">🔍 <span>Search branches</span></div>
+            <div class="search-bar hidden-slot">🔍 <span>Search branches</span></div>
 
-            <div class="filter-chips">
+            <!-- Locations skeleton (visible in skeleton mode). Real content is pulled from Hub 2. -->
+            <div class="gf-skel-widget" data-skel-for="locations-list">
+              <div class="gf-skel-loc">
+                <div class="gf-skel-loc-thumb"></div>
+                <div class="gf-skel-lines">
+                  <div class="gf-skel-line w60 tall"></div>
+                  <div class="gf-skel-line w80"></div>
+                </div>
+              </div>
+              <div class="gf-skel-loc">
+                <div class="gf-skel-loc-thumb"></div>
+                <div class="gf-skel-lines">
+                  <div class="gf-skel-line w55 tall"></div>
+                  <div class="gf-skel-line w70"></div>
+                </div>
+              </div>
+              <div class="gf-skel-loc">
+                <div class="gf-skel-loc-thumb"></div>
+                <div class="gf-skel-lines">
+                  <div class="gf-skel-line w60 tall"></div>
+                  <div class="gf-skel-line w90"></div>
+                </div>
+              </div>
+              <div class="gf-skel-tag">Locations · pulled from Hub 2</div>
+            </div>
+
+            <div class="filter-chips hidden-slot">
               <div class="chip active">Open now</div>
               <div class="chip">Dine-in</div>
               <div class="chip">Takeout</div>
               <div class="chip">Delivery</div>
             </div>
 
-            <div class="loc-card palm">
+            <div class="loc-card palm hidden-slot">
               <div class="thumb">🌴</div>
               <div class="info">
                 <div class="name">Palm Jumeirah</div>
@@ -33,7 +59,7 @@
               </div>
             </div>
 
-            <div class="loc-card bay">
+            <div class="loc-card bay hidden-slot">
               <div class="thumb">🏙</div>
               <div class="info">
                 <div class="name">Business Bay</div>
@@ -46,7 +72,7 @@
               </div>
             </div>
 
-            <div class="loc-card downtown">
+            <div class="loc-card downtown hidden-slot">
               <div class="thumb">🌆</div>
               <div class="info">
                 <div class="name">Downtown Branch</div>

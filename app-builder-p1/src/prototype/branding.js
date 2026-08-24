@@ -219,3 +219,4 @@ export function initBranding(ctx) {
 
   return { applyFontFamily, activateFontItem, wireFontItem, loadCustomFont, applyLogo, clearLogo, handleLogoFile };
 }
+

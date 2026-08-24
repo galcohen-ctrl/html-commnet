@@ -81,7 +81,6 @@ export function initPromoWidgets(ctx) {
         const row = document.createElement('div');
         row.className = 'pc-item';
         row.dataset.pcIdx = idx;
-        row.dataset.pcId = c.id;
         row.innerHTML = '<span class="handle">⠿</span>'
           + '<span class="pc-item-name">' + escHtml(c.headline || 'Untitled card') + '</span>'
           + '<button class="pc-vis ' + (c.visible ? 'on' : '') + '" title="Toggle visibility"><svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"><path d="M1 10s3.5-6 9-6 9 6 9 6-3.5 6-9 6-9-6-9-6z"/><circle cx="10" cy="10" r="3"/></svg></button>'
@@ -420,7 +419,10 @@ export function initPromoWidgets(ctx) {
       updateHomeEmptyState();
       markDirty();
     });
-    widgetsListBody.insertBefore(row, addWidgetWrap);
+    // Insert new rows above the "Click + / ✏" hint so the hint stays anchored
+    // right before the "Add widget" button and doesn't split the widget list.
+    const hintInline = widgetsListBody.querySelector('.cp-hint-inline');
+    widgetsListBody.insertBefore(row, hintInline || addWidgetWrap);
     return row;
   }
 
@@ -605,3 +607,4 @@ export function initPromoWidgets(ctx) {
 
   return { initPromoCards, escHtml, readImageFile, openGridPicker, wireDrillNode, buildWidgetRow, promoDrillMarkup, createPromoInstance, createTextDivider };
 }
+
