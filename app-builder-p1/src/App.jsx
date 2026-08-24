@@ -17,6 +17,20 @@ export default function App() {
       });
   }, []);
 
+  // The comment overlay owns its own React root mounted on document.body.
+  useEffect(() => {
+    let dispose = () => {};
+    let cancelled = false;
+    import('./comments/index.js').then(({ initComments }) => {
+      if (cancelled) return;
+      dispose = initComments();
+    });
+    return () => {
+      cancelled = true;
+      dispose();
+    };
+  }, []);
+
   return (
     <>
       <TopBar />
