@@ -23,7 +23,7 @@ const localCommentsProxy = {
 
 export default defineConfig({
   plugins: [react()],
-  base: '/html-commnet/',
+  base: '/html-commnet/app-builder-p1/',
   server: {
     proxy: localCommentsProxy,
   },
