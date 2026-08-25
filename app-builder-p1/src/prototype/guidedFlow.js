@@ -8,6 +8,7 @@
 
 const STEPS = [
   { key: 'business', label: 'Business details', kind: 'setup' },
+  { key: 'app-focus', label: 'App focus', kind: 'setup' },
   { key: 'branding', label: 'Branding', kind: 'setup' },
   { key: 'home', label: 'Home', kind: 'screen' },
   { key: 'rewards', label: 'Rewards', kind: 'screen' },
@@ -33,7 +34,7 @@ export function initGuidedFlow(ctx) {
   const { showToast, markDirty } = ctx;
 
   const done = new Set();
-  const flow = { current: 'home', focus: null, bizName: '', category: '', accent: '#6d28d9', font: 'sans-serif' };
+  const flow = { current: 'home', focus: null, bizName: '', headline: '', country: '', bizType: '', category: '', accent: '#6d28d9', font: 'sans-serif' };
 
   const stepButtons = [...document.querySelectorAll('.side-step[data-step]')];
   const indexOf = (key) => STEPS.findIndex((s) => s.key === key);
@@ -83,8 +84,9 @@ export function initGuidedFlow(ctx) {
       nextBtn.style.display = isLast ? 'none' : '';
       nextBtn.firstChild.textContent = done.has(flow.current) ? 'Saved · continue ' : 'Save and continue ';
     }
-    const skipBtn = document.getElementById('gf-step-skip');
-    if (skipBtn) skipBtn.style.display = position === STEPS.length - 1 ? 'none' : '';
+
+    const backBtn = document.getElementById('gf-step-back');
+    if (backBtn) backBtn.style.visibility = position === 0 ? 'hidden' : '';
   }
 
   function renderReview() {
@@ -120,22 +122,103 @@ export function initGuidedFlow(ctx) {
       else render();
     });
   }
-  const skipBtn = document.getElementById('gf-step-skip');
-  if (skipBtn) {
-    skipBtn.addEventListener('click', () => {
-      const next = STEPS[indexOf(flow.current) + 1];
-      if (next) goToStep(next.key);
+
+  const backBtn = document.getElementById('gf-step-back');
+  if (backBtn) {
+    backBtn.addEventListener('click', () => {
+      const prev = STEPS[indexOf(flow.current) - 1];
+      if (prev) goToStep(prev.key);
     });
   }
 
+
   /* -------------------------------------------------------- welcome modal */
+
+  const TOUR_STEPS = [
+    { target: '.side-nav', title: 'Your steps', text: 'Follow these steps top to bottom. Each gets a green tick when done — and you can jump to any of them at any time.' },
+    { target: '#config-panel', title: 'Set it up here', text: 'This panel is where you fill in details and choose the widgets for each step of your app.' },
+    { target: '#device-frame', title: 'Live preview', text: 'Your customer\'s app updates here instantly as you make changes — no guessing what it looks like.' },
+    { target: '.cp-step-foot', title: 'Save and continue', text: 'When a step looks good, save and move on. You can always go back and edit later.' },
+  ];
+
+  let tourBubble = null;
+  let tourHighlight = null;
+
+  function clearTour() {
+    if (tourBubble) { tourBubble.remove(); tourBubble = null; }
+    if (tourHighlight) { tourHighlight.remove(); tourHighlight = null; }
+  }
+
+  function showTourStep(idx) {
+    clearTour();
+    if (idx >= TOUR_STEPS.length) return;
+    const step = TOUR_STEPS[idx];
+    const anchor = document.querySelector(step.target);
+    if (!anchor) { showTourStep(idx + 1); return; }
+    const rect = anchor.getBoundingClientRect();
+    if (rect.width === 0 && rect.height === 0) { showTourStep(idx + 1); return; }
+
+    tourHighlight = document.createElement('div');
+    tourHighlight.className = 'gf-tour-highlight';
+    tourHighlight.style.top = `${rect.top}px`;
+    tourHighlight.style.left = `${rect.left}px`;
+    tourHighlight.style.width = `${rect.width}px`;
+    tourHighlight.style.height = `${rect.height}px`;
+    document.body.appendChild(tourHighlight);
+
+    tourBubble = document.createElement('div');
+    tourBubble.className = 'gf-tour-bubble';
+    tourBubble.innerHTML = `
+      <div class="gf-tour-header">Step ${idx + 1} — ${step.title} <span class="gf-tour-count">${idx + 1} / ${TOUR_STEPS.length}</span></div>
+      <div class="gf-tour-body">${step.text}</div>
+      <div class="gf-tour-actions">
+        <button class="gf-tour-exit" type="button">Exit tour</button>
+        <button class="gf-tour-next gf-btn primary" type="button">${idx < TOUR_STEPS.length - 1 ? 'Next →' : 'Start building →'}</button>
+      </div>
+      <div class="gf-tour-dots">${TOUR_STEPS.map((_, i) => `<span class="gf-tour-dot${i === idx ? ' active' : ''}"></span>`).join('')}</div>
+    `;
+    document.body.appendChild(tourBubble);
+
+    const bw = tourBubble.offsetWidth;
+    const bh = tourBubble.offsetHeight;
+    const gap = 16;
+    const margin = 12;
+    let left, top, arrowSide;
+
+    // Prefer placing the bubble to the right of the target; fall back to left.
+    if (window.innerWidth - rect.right >= bw + gap) {
+      left = rect.right + gap;
+      arrowSide = 'left';
+    } else if (rect.left >= bw + gap) {
+      left = rect.left - bw - gap;
+      arrowSide = 'right';
+    } else {
+      // Not enough room on either side — center over the target's right edge.
+      left = Math.min(rect.right + gap, window.innerWidth - bw - margin);
+      arrowSide = 'left';
+    }
+    top = rect.top + rect.height / 2 - bh / 2;
+    top = Math.max(margin, Math.min(top, window.innerHeight - bh - margin));
+    left = Math.max(margin, Math.min(left, window.innerWidth - bw - margin));
+
+    tourBubble.style.top = `${top}px`;
+    tourBubble.style.left = `${left}px`;
+    tourBubble.classList.toggle('arrow-right', arrowSide === 'right');
+    // Point the arrow at the vertical center of the target.
+    const arrowY = rect.top + rect.height / 2 - top;
+    tourBubble.style.setProperty('--gf-arrow-y', `${Math.max(18, Math.min(arrowY, bh - 18))}px`);
+
+    tourBubble.querySelector('.gf-tour-next').addEventListener('click', () => showTourStep(idx + 1));
+    tourBubble.querySelector('.gf-tour-exit').addEventListener('click', clearTour);
+  }
 
   const welcome = document.getElementById('gf-welcome');
   if (welcome) {
     welcome.classList.add('open');
-    const close = (startAtFirstStep) => {
+    const close = (withTour) => {
       welcome.classList.remove('open');
-      if (startAtFirstStep) goToStep('business');
+      goToStep('business');
+      if (withTour) requestAnimationFrame(() => showTourStep(0));
     };
     document.getElementById('gf-welcome-start')?.addEventListener('click', () => close(true));
     document.getElementById('gf-welcome-skip')?.addEventListener('click', () => close(false));
@@ -154,10 +237,33 @@ export function initGuidedFlow(ctx) {
       if (bound) bound.value = name;
     });
   }
+
+  const headlineInput = document.getElementById('gf-headline');
+  if (headlineInput) {
+    headlineInput.addEventListener('input', () => {
+      flow.headline = headlineInput.value;
+      const subtitle = document.getElementById('phone-brand-sub');
+      if (subtitle) subtitle.textContent = flow.headline || 'Storefront headline';
+    });
+  }
+
+  document.querySelectorAll('#gf-biz-type-row [data-biztype]').forEach((chip) => {
+    chip.addEventListener('click', () => {
+      flow.bizType = chip.dataset.biztype;
+      document.querySelectorAll('#gf-biz-type-row [data-biztype]').forEach((c) => c.classList.toggle('selected', c === chip));
+    });
+  });
+
+  document.getElementById('gf-country')?.addEventListener('change', (e) => {
+    flow.country = e.target.value;
+  });
+
   document.querySelectorAll('#gf-cat-row [data-cat]').forEach((chip) => {
     chip.addEventListener('click', () => {
       flow.category = chip.dataset.cat;
       document.querySelectorAll('#gf-cat-row [data-cat]').forEach((c) => c.classList.toggle('selected', c === chip));
+      const catBadge = document.querySelector('.app-page[data-page="home"] .category-badge');
+      if (catBadge) catBadge.textContent = chip.dataset.cat;
     });
   });
 
@@ -212,12 +318,10 @@ export function initGuidedFlow(ctx) {
       document.querySelectorAll('#gf-font-row [data-font]').forEach((c) => c.classList.toggle('selected', c === chip));
     });
   });
-  document.getElementById('gf-advanced-branding')?.addEventListener('click', () => {
-    goToStep('home');
-    ctx.openBusinessNameSettings?.();
-  });
+
 
   /* ------------------------------------------- app focus card (Home step) */
+  /* --------------------------------------------------------- app focus step */
 
   function setFocus(goal) {
     flow.focus = goal;
@@ -226,10 +330,28 @@ export function initGuidedFlow(ctx) {
     const ic = document.getElementById('cp-focus-ic');
     if (val) val.textContent = FOCUS_LABELS[goal] || 'Not chosen yet';
     if (ic) ic.innerHTML = FOCUS_ICONS[goal] || '';
+    document.querySelectorAll('#gf-focus-options [data-focus]').forEach((b) => {
+      b.classList.toggle('selected', b.dataset.focus === goal);
+    });
     document.querySelectorAll('#cp-focus-menu [data-focus]').forEach((b) => {
       b.classList.toggle('active', b.dataset.focus === goal);
     });
+    document.body.classList.remove('focus-loyalty', 'focus-ordering', 'focus-blank');
+    document.body.classList.add('focus-' + goal);
   }
+
+  // App Focus step: big Celia-style cards. Picking one applies the focus and
+  // advances to the next step, mirroring "select then Save & continue".
+  document.querySelectorAll('#gf-focus-options [data-focus]').forEach((card) => {
+    card.addEventListener('click', () => {
+      setFocus(card.dataset.focus);
+      done.add('app-focus');
+      showToast?.(`App focus set to ${FOCUS_LABELS[card.dataset.focus]}`);
+    });
+  });
+
+  // Home step recap: "Change" opens an inline dropdown to switch focus without
+  // leaving the Home step.
   const focusChange = document.getElementById('cp-focus-change');
   const focusMenu = document.getElementById('cp-focus-menu');
   if (focusChange && focusMenu) {
@@ -243,7 +365,7 @@ export function initGuidedFlow(ctx) {
         e.stopPropagation();
         focusMenu.classList.remove('open');
         setFocus(b.dataset.focus);
-        showToast?.(`Home focus set to ${FOCUS_LABELS[b.dataset.focus]}`);
+        showToast?.(`App focus set to ${FOCUS_LABELS[b.dataset.focus]}`);
       });
     });
   }

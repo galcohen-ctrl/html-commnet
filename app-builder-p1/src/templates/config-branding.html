@@ -45,10 +45,65 @@
         <button class="gf-chip" data-font="rounded" type="button">Rounded</button>
         <button class="gf-chip" data-font="slab" type="button">Slab</button>
       </div>
-      <button class="gf-advanced-link" id="gf-advanced-branding" type="button">
-        Advanced branding options
-        <svg viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><path d="M9 6l6 6-6 6"/></svg>
-      </button>
+    </div>
+  </div>
+
+  <div class="cp-section" id="gf-advanced-branding-section">
+    <div class="cp-head-row">Advanced branding options <span class="chev">›</span></div>
+    <div class="cp-body">
+      <div class="cp-hint-inline">Fine-tune background, text, and card colours across the entire app.</div>
+
+      <div class="cp-field">
+        <label>App background</label>
+        <div class="cp-color-row">
+          <div class="cp-color-swatch" style="background:#0f0d17;">
+            <input type="color" value="#0f0d17" data-bind-color="--p-bg" />
+          </div>
+          <div class="cp-color-info">
+            <div class="cp-color-label">Background</div>
+            <input class="cp-color-hex" value="#0F0D17" spellcheck="false" maxlength="9" />
+          </div>
+        </div>
+      </div>
+
+      <div class="cp-field">
+        <label>Card background</label>
+        <div class="cp-color-row">
+          <div class="cp-color-swatch" style="background:#1a1728;">
+            <input type="color" value="#1a1728" data-bind-color="--p-panel" />
+          </div>
+          <div class="cp-color-info">
+            <div class="cp-color-label">Cards &amp; panels</div>
+            <input class="cp-color-hex" value="#1A1728" spellcheck="false" maxlength="9" />
+          </div>
+        </div>
+      </div>
+
+      <div class="cp-field">
+        <label>Primary text</label>
+        <div class="cp-color-row">
+          <div class="cp-color-swatch" style="background:#ffffff;">
+            <input type="color" value="#ffffff" data-bind-color="--p-text" />
+          </div>
+          <div class="cp-color-info">
+            <div class="cp-color-label">Headings &amp; body</div>
+            <input class="cp-color-hex" value="#FFFFFF" spellcheck="false" maxlength="9" />
+          </div>
+        </div>
+      </div>
+
+      <div class="cp-field">
+        <label>Secondary text</label>
+        <div class="cp-color-row">
+          <div class="cp-color-swatch" style="background:#9c98ac;">
+            <input type="color" value="#9c98ac" data-bind-color="--p-text-muted" />
+          </div>
+          <div class="cp-color-info">
+            <div class="cp-color-label">Muted &amp; captions</div>
+            <input class="cp-color-hex" value="#9C98AC" spellcheck="false" maxlength="9" />
+          </div>
+        </div>
+      </div>
     </div>
   </div>
 </div>

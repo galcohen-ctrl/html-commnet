@@ -19,6 +19,13 @@
   .app-top-header .brand-text .name { font-size: 13px; font-weight: 800; letter-spacing: .5px; }
   .app-top-header .brand-text .sub { font-size: 10px; color: var(--p-text-muted); margin-top: 1px; }
   .app-top-header .brand-text .sub:empty { display: none; }
+
+  .category-badge {
+    font-size: 10px; font-weight: 600; color: var(--p-accent);
+    padding: 0 2px 8px; text-align: left;
+  }
+  .category-badge:empty { display: none; }
+
   .header-tap-target { border-radius: 10px; margin: -4px; padding: 4px; cursor: pointer; transition: background .12s; }
   .header-tap-target:hover { background: var(--p-panel); }
 

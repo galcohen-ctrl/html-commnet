@@ -177,4 +177,164 @@
   }
   .gf-publish-btn:hover { filter: brightness(1.08); }
   .gf-publish-btn:disabled { background: #cfcdd8; cursor: not-allowed; }
+
+  /* ---------- Tour speech bubble ---------- */
+  .gf-tour-bubble {
+    position: fixed; z-index: 950;
+    background: #fff; border-radius: 14px;
+    box-shadow: 0 8px 32px rgba(0, 0, 0, .18), 0 2px 8px rgba(0, 0, 0, .08);
+    padding: 20px 22px 16px; width: 320px; max-width: calc(100vw - 40px);
+    animation: gfPop .25s cubic-bezier(0.2, 0.8, 0.2, 1);
+  }
+  .gf-tour-bubble::before {
+    content: ''; position: absolute; top: var(--gf-arrow-y, 50%); left: -8px;
+    transform: translateY(-50%);
+    border: 8px solid transparent; border-right-color: #fff;
+    border-left: none;
+  }
+  .gf-tour-bubble.arrow-right::before {
+    left: auto; right: -8px;
+    border-right: none; border-left-color: #fff;
+  }
+  .gf-tour-header {
+    font-size: 14px; font-weight: 750; color: var(--ink); margin-bottom: 6px;
+    display: flex; align-items: center; gap: 8px;
+  }
+  .gf-tour-count { font-size: 12px; font-weight: 600; color: var(--muted); margin-left: auto; }
+  .gf-tour-body { font-size: 13.5px; color: var(--muted); line-height: 1.55; margin-bottom: 16px; }
+  .gf-tour-actions { display: flex; gap: 10px; align-items: center; }
+  .gf-tour-exit {
+    background: none; border: none; font-size: 13px; font-weight: 600;
+    color: var(--muted); cursor: pointer;
+  }
+  .gf-tour-exit:hover { color: var(--ink); }
+  .gf-tour-next { font-size: 13px; padding: 8px 16px; border-radius: 8px; margin-left: auto; }
+  .gf-tour-dots {
+    display: flex; gap: 6px; justify-content: center; margin-top: 12px;
+  }
+  .gf-tour-dot {
+    width: 7px; height: 7px; border-radius: 50%; background: #ddd;
+  }
+  .gf-tour-dot.active { background: var(--como); }
+
+  /* Spotlight ring drawn over the element the current tour step describes. */
+  .gf-tour-highlight {
+    position: fixed; z-index: 940; pointer-events: none;
+    border-radius: 12px;
+    box-shadow: 0 0 0 3px var(--como), 0 0 0 9999px rgba(20, 18, 34, .45);
+    transition: all .2s ease;
+    animation: gfPop .25s cubic-bezier(0.2, 0.8, 0.2, 1);
+  }
+
+  /* ---------- App Focus step (Celia-style option cards) ---------- */
+  .gf-focus-options { display: flex; flex-direction: column; gap: 12px; margin-top: 4px; }
+  .gf-focus-option {
+    text-align: left; background: var(--panel); cursor: pointer;
+    border: 1.5px solid var(--line); border-radius: 14px; padding: 16px 16px 14px;
+    display: flex; flex-direction: column; gap: 8px; transition: border-color .15s, box-shadow .15s;
+  }
+  .gf-focus-option:hover { border-color: #c9c4d8; }
+  .gf-focus-option.selected { border-color: var(--como); box-shadow: 0 0 0 3px var(--como-soft); }
+  .gf-focus-option-head { display: flex; align-items: center; gap: 11px; }
+  .gf-focus-option-ic {
+    width: 38px; height: 38px; border-radius: 11px; flex: none;
+    background: var(--como-soft); color: var(--como);
+    display: grid; place-items: center;
+  }
+  .gf-focus-option-ic svg { width: 20px; height: 20px; }
+  .gf-focus-option-name { font-size: 15px; font-weight: 750; color: var(--ink); letter-spacing: -.01em; }
+  .gf-focus-option-desc { font-size: 13px; color: var(--muted); line-height: 1.5; }
+  .gf-focus-tags { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 2px; }
+  .gf-focus-tag {
+    font-size: 11.5px; font-weight: 600; color: var(--como);
+    background: var(--como-soft); border-radius: 999px; padding: 4px 10px;
+  }
+  .gf-focus-option-blank { flex-direction: row; align-items: center; }
+  .gf-focus-option-blank .gf-focus-option-head { flex: 1; }
+  .gf-focus-option-blank .gf-focus-option-name { font-size: 14px; font-weight: 650; }
+
+  /* ---------- App focus recap card (Home step) ---------- */
+  .cp-focus-recap {
+    display: flex; align-items: center; gap: 11px; position: relative;
+    background: var(--como-soft); border: 1px solid var(--line);
+    border-radius: 12px; padding: 11px 13px; margin-bottom: 12px;
+  }
+  .cp-focus-recap .cp-focus-ic {
+    width: 34px; height: 34px; border-radius: 9px; flex: none;
+    background: #fff; color: var(--como); display: grid; place-items: center;
+  }
+  .cp-focus-recap .cp-focus-ic svg { width: 18px; height: 18px; }
+  .cp-focus-recap .cp-focus-text { flex: 1; min-width: 0; }
+  .cp-focus-recap .cp-focus-lbl { font-size: 10.5px; font-weight: 700; text-transform: uppercase; letter-spacing: .04em; color: var(--como); }
+  .cp-focus-recap .cp-focus-val { font-size: 13.5px; font-weight: 700; color: var(--ink); }
+  .cp-focus-recap .cp-focus-change {
+    background: #fff; border: 1px solid var(--line); border-radius: 8px;
+    padding: 6px 11px; font-size: 12.5px; font-weight: 650; color: var(--ink);
+    cursor: pointer; display: flex; align-items: center; gap: 4px; flex: none;
+  }
+  .cp-focus-recap .cp-focus-change:hover { border-color: var(--como); color: var(--como); }
+
+  /* Inline focus dropdown on the Home recap card. */
+  .cp-focus-recap .cp-focus-menu {
+    position: absolute; top: calc(100% + 4px); right: 13px; z-index: 40;
+    background: #fff; border: 1px solid var(--line); border-radius: 10px;
+    box-shadow: 0 8px 24px rgba(0, 0, 0, .12); padding: 5px; min-width: 190px;
+    display: none;
+  }
+  .cp-focus-recap .cp-focus-menu.open { display: block; }
+  .cp-focus-recap .cp-focus-menu button {
+    display: block; width: 100%; text-align: left; background: none; border: none;
+    padding: 9px 11px; border-radius: 7px; font-size: 13px; font-weight: 600;
+    color: var(--ink); cursor: pointer;
+  }
+  .cp-focus-recap .cp-focus-menu button:hover { background: var(--como-soft); }
+  .cp-focus-recap .cp-focus-menu button.active { background: var(--como-soft); color: var(--como); }
+
+  /* Ordering-only widgets (Order Again, Top Items) only show when the app
+     focus is Online ordering — hidden for Loyalty and Blank canvas. */
+  body:not(.focus-ordering) #cp-home .cp-widget-row.cp-oo-widget { display: none !important; }
+  body:not(.focus-ordering) #add-widget-menu [data-add="menu-categories"] { display: none !important; }
+
+  /* ---------- Step 1 plain fields (Celia-style, no accordion) ---------- */
+  .gf-fieldset { margin-bottom: 18px; }
+  .gf-field-label {
+    display: block; font-size: 13px; font-weight: 700; color: var(--ink);
+    margin-bottom: 8px; letter-spacing: -.01em;
+  }
+  .gf-req { color: #d6336c; font-weight: 700; }
+  .gf-field-hint { font-size: 11.5px; color: var(--muted); margin-top: 7px; line-height: 1.5; }
+  .gf-biztype-cards { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+  .gf-biztype-card {
+    display: flex; flex-direction: column; align-items: center; gap: 10px;
+    text-align: center; cursor: pointer; background: var(--panel);
+    border: 1.5px solid var(--line); border-radius: 12px; padding: 18px 12px;
+    transition: border-color .15s, box-shadow .15s;
+  }
+  .gf-biztype-card:hover { border-color: #c9c4d8; }
+  .gf-biztype-card.selected { border-color: var(--como); box-shadow: 0 0 0 3px var(--como-soft); }
+  .gf-biztype-ic { color: var(--ink); }
+  .gf-biztype-ic svg { width: 26px; height: 26px; }
+  .gf-biztype-card.selected .gf-biztype-ic { color: var(--como); }
+  .gf-biztype-name { font-size: 12.5px; font-weight: 650; color: var(--ink); line-height: 1.3; }
+
+  /* ---------- Step footer back button ---------- */
+  .cp-step-back {
+    display: inline-flex; align-items: center; gap: 4px;
+    background: var(--panel); border: 1.5px solid var(--line); border-radius: 10px;
+    padding: 10px 15px; font-size: 13.5px; font-weight: 650; color: var(--muted);
+    cursor: pointer; transition: border-color .15s, color .15s;
+  }
+  .cp-step-back svg { width: 15px; height: 15px; }
+  .cp-step-back:hover { border-color: #bdb9cc; color: var(--ink); }
+
+  /* ---------- Select dropdown ---------- */
+  .cp-select {
+    width: 100%; padding: 10px 14px; border-radius: 10px;
+    border: 1.5px solid var(--line); background: var(--panel);
+    font-size: 13.5px; color: var(--ink); cursor: pointer;
+    appearance: none;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%236b6b80' stroke-width='2.5' stroke-linecap='round'%3E%3Cpath d='M6 9l6 6 6-6'/%3E%3C/svg%3E");
+    background-repeat: no-repeat; background-position: right 12px center;
+  }
+  .cp-select:focus { border-color: var(--como); outline: none; }
 }

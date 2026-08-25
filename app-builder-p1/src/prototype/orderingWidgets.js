@@ -11,7 +11,7 @@
 import { LAST_ORDER, TOP_ITEMS, MENU_CATEGORIES, MENU_REELS, REELS_CHIP_DEFAULTS } from '../data/orderingMock.js';
 
 // Keys of every widget that requires online ordering to work.
-const OO_WIDGET_KEYS = ['order-again', 'top-items', 'menu-categories', 'menu-reels'];
+const OO_WIDGET_KEYS = ['order-again', 'top-items', 'menu-categories'];
 
 function escHtml(s) {
   const d = document.createElement('div');

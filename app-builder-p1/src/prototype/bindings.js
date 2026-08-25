@@ -24,6 +24,14 @@ export function initBindings(ctx) {
         const on = t.classList.contains('on');
         row.classList.toggle('on', on);
         row.classList.toggle('off', !on);
+        // Turning a Home widget ON via its + toggle drills straight into its
+        // config so the merchant can customise it right away.
+        if (on && row.closest('#cp-home')) {
+          const drillKey = row.querySelector('[data-drill]')?.dataset.drill;
+          if (drillKey && typeof window.openDrill === 'function') {
+            window.openDrill('cp-home', drillKey);
+          }
+        }
       }
       // Sync parent social-item .on/.off state (reveals the indented URL input below it)
       const socialItem = t.closest('.cp-social-item');

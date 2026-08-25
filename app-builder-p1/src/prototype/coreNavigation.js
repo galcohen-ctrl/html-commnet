@@ -150,14 +150,12 @@ export function initCoreNavigation(ctx) {
   function applyGoalPreset(goal) {
     const def = GOAL_DEFS[goal] || GOAL_DEFS.blank;
     state.goal = goal;
-    // Gated ordering widgets can't turn on until the integration is connected — skip them here.
-    const connected = typeof window.isOrderingConnected === 'function' && window.isOrderingConnected();
-    ALL_HOME_WIDGET_KEYS.forEach(k => {
-      const wantsOn = def.widgets.indexOf(k) !== -1;
-      const gated = ORDERING_WIDGET_KEYS.indexOf(k) !== -1;
-      if (gated && !connected) setWidgetOn(k, false);
-      else setWidgetOn(k, wantsOn);
-    });
+    // Focus no longer auto-enables widgets — the merchant adds them manually.
+    // Every widget starts OFF; the phone's skeleton preview reflects the focus.
+    ALL_HOME_WIDGET_KEYS.forEach(k => setWidgetOn(k, false));
+    // Tag the body so the skeleton layer can reflect the chosen focus.
+    document.body.classList.remove('focus-loyalty', 'focus-ordering', 'focus-blank');
+    document.body.classList.add('focus-' + goal);
     const dp = document.querySelector('#cp-menu [data-bind="[data-slot-name=\'menu-dp\']"]');
     if (dp && def.menuDP !== dp.classList.contains('on')) dp.click();
     const subEl = document.getElementById('phone-brand-sub');

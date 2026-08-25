@@ -15,6 +15,7 @@ import menuHtml from '../templates/config-menu.html?raw';
 import moreHtml from '../templates/config-more.html?raw';
 import rewardsHtml from '../templates/config-rewards.html?raw';
 import businessHtml from '../templates/config-business.html?raw';
+import appFocusHtml from '../templates/config-app-focus.html?raw';
 import brandingStepHtml from '../templates/config-branding.html?raw';
 import publishHtml from '../templates/config-publish.html?raw';
 import StaticMarkup from './StaticMarkup';
@@ -98,6 +99,14 @@ export default function ConfigPanel() {
         <StaticMarkup
           as="div"
           className="cp-page"
+          id="cp-app-focus"
+          data-comment-anchor="config-app-focus"
+          style={{ display: 'none' }}
+          html={appFocusHtml}
+        />
+        <StaticMarkup
+          as="div"
+          className="cp-page"
           id="cp-branding"
           data-comment-anchor="config-branding-step"
           style={{ display: 'none' }}
@@ -114,7 +123,10 @@ export default function ConfigPanel() {
       </div>
 
       <div className="cp-step-foot" data-comment-anchor="step-footer">
-        <button className="cp-step-skip" id="gf-step-skip" type="button">Skip for now</button>
+        <button className="cp-step-back" id="gf-step-back" type="button">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.6" strokeLinecap="round" strokeLinejoin="round"><path d="M19 12H5M11 18l-6-6 6-6" /></svg>
+          {' Back'}
+        </button>
         <button className="cp-step-next" id="gf-step-next" type="button">
           {'Save and continue '}
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.6" strokeLinecap="round" strokeLinejoin="round"><path d="M5 12h14M13 6l6 6-6 6" /></svg>

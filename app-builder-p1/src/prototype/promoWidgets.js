@@ -600,8 +600,21 @@ export function initPromoWidgets(ctx) {
         addWidgetMenu.classList.remove('open');
         if (b.dataset.add === 'promo') createPromoInstance();
         else if (b.dataset.add === 'divider') createTextDivider();
+        else if (b.dataset.add === 'menu-categories') addMenuCategoriesWidget();
       });
     });
+  }
+
+  function addMenuCategoriesWidget() {
+    if (document.querySelector('[data-widget-toggle="menu-categories"]')) {
+      showToast?.('Menu Categories is already added');
+      return;
+    }
+    buildWidgetRow('Menu Categories', 'menu-categories', 'menu-categories', '.mc-widget', () => {
+      document.querySelectorAll('.mc-widget').forEach(el => el.classList.add('hidden-slot'));
+    });
+    showToast?.('Menu Categories widget added');
+    markDirty?.();
   }
 
 
