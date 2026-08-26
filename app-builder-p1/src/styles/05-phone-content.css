@@ -328,16 +328,10 @@
   }
   body.tpl-3 .reward-banner .rb-arrow { color: #fff; }
 
-  /* Rewards program cards */
-  .rewards-progs {
-    display: flex; gap: 10px; overflow-x: auto; scroll-snap-type: x mandatory;
-    margin-bottom: 10px; padding-bottom: 2px;
-  }
-  .rewards-progs::-webkit-scrollbar { display: none; }
-  .rewards-progs .prog-card, .rewards-progs .punch-card { flex: 0 0 220px; scroll-snap-align: start; margin-bottom: 0; }
-  .app-page.rewards-list-style .rewards-progs { flex-direction: column; overflow-x: visible; }
-  .app-page.rewards-list-style .rewards-progs .prog-card,
-  .app-page.rewards-list-style .rewards-progs .punch-card { flex: 1 1 auto; }
+  /* Rewards program cards — one vertical stack shared with merchant-added widgets. */
+  .rewards-stage { display: flex; flex-direction: column; gap: 12px; }
+  .rewards-stage .prog-card,
+  .rewards-stage .punch-card { margin-bottom: 0; }
   .prog-card {
     background: var(--p-card-grad);
     border: 1px solid var(--p-border);

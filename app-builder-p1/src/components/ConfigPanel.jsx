@@ -43,6 +43,7 @@ const pageInner = (html) => {
 export default function ConfigPanel() {
   return (
     <div className="config-column" data-comment-anchor="config-column">
+      <div className="cp-breadcrumb" id="cp-breadcrumb" data-comment-anchor="config-breadcrumb" />
       <div
         className="config-panel"
         id="config-panel"
@@ -125,10 +126,10 @@ export default function ConfigPanel() {
       <div className="cp-step-foot" data-comment-anchor="step-footer">
         <button className="cp-step-back" id="gf-step-back" type="button">
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.6" strokeLinecap="round" strokeLinejoin="round"><path d="M19 12H5M11 18l-6-6 6-6" /></svg>
-          {' Back'}
+          <span id="gf-step-back-label">Back</span>
         </button>
         <button className="cp-step-next" id="gf-step-next" type="button">
-          {'Save and continue '}
+          <span id="gf-step-next-label">Save and continue</span>
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.6" strokeLinecap="round" strokeLinejoin="round"><path d="M5 12h14M13 6l6 6-6 6" /></svg>
         </button>
       </div>

@@ -133,9 +133,9 @@ export function initCoreNavigation(ctx) {
     },
     ordering: {
       label: 'Online ordering', sub: 'Online ordering',
-      // Ordering preset now seeds the four ordering widgets alongside Profile & Loyalty.
-      // Gating still applies — locked widgets stay off until the merchant connects a provider.
-      widgets: ['menu-reels', 'order-again', 'top-items', 'profile', 'menu-categories'], menuDP: true,
+      // Ordering preset seeds Profile and Promo Cards plus the four ordering widgets.
+      // Gating still applies — locked widgets stay off until a provider is connected.
+      widgets: ['profile', 'promo-cards', 'menu-reels', 'order-again', 'top-items', 'menu-categories'], menuDP: true,
       name: 'Online ordering',
       desc: 'Feature your menu and give customers a fast way to order for pickup or delivery.',
       tags: ['Menu and offers', 'Ordering and pickup', 'Reviews'],
@@ -150,9 +150,17 @@ export function initCoreNavigation(ctx) {
   function applyGoalPreset(goal) {
     const def = GOAL_DEFS[goal] || GOAL_DEFS.blank;
     state.goal = goal;
-    // Focus no longer auto-enables widgets — the merchant adds them manually.
-    // Every widget starts OFF; the phone's skeleton preview reflects the focus.
-    ALL_HOME_WIDGET_KEYS.forEach(k => setWidgetOn(k, false));
+    // Focus seeds its recommended widgets, so the phone shows real content from the
+    // App Focus step onward instead of an empty skeleton. Blank canvas seeds nothing.
+    // The guard class stops each seeded toggle from drilling into its config.
+    document.body.classList.add('gf-applying-preset');
+    const wanted = new Set(def.widgets || []);
+    const orderingReady = window.isOrderingConnected?.() === true;
+    ALL_HOME_WIDGET_KEYS.forEach(k => {
+      const gated = ORDERING_WIDGET_KEYS.includes(k) && !orderingReady;
+      setWidgetOn(k, wanted.has(k) && !gated);
+    });
+    document.body.classList.remove('gf-applying-preset');
     // Tag the body so the skeleton layer can reflect the chosen focus.
     document.body.classList.remove('focus-loyalty', 'focus-ordering', 'focus-blank');
     document.body.classList.add('focus-' + goal);
@@ -269,6 +277,10 @@ export function initCoreNavigation(ctx) {
     const btn = document.getElementById('side-branding-btn');
     if (btn) btn.classList.toggle('active', !!(detail && detail.classList.contains('show')));
   }
+  // Depth changes drive the breadcrumb and the context-aware step footer.
+  function emitNavChange() {
+    document.dispatchEvent(new CustomEvent('como:navchange'));
+  }
   function openDrill(pageId, key) {
     const page = document.getElementById(pageId);
     if (!page) return;
@@ -280,6 +292,7 @@ export function initCoreNavigation(ctx) {
     updateBrandingSideActive();
     // scroll config panel to top
     document.getElementById('config-panel').scrollTop = 0;
+    emitNavChange();
   }
   function closeDrill(pageId) {
     const page = document.getElementById(pageId);
@@ -290,6 +303,7 @@ export function initCoreNavigation(ctx) {
     page.querySelectorAll('.cp-detail').forEach(d => d.classList.remove('show'));
     updateBrandingSideActive();
     document.getElementById('config-panel').scrollTop = 0;
+    emitNavChange();
   }
   function resetAllDrills() {
     document.querySelectorAll('.cp-master').forEach(m => m.classList.remove('hide'));
@@ -308,25 +322,17 @@ export function initCoreNavigation(ctx) {
     body.querySelectorAll('.cp-detail').forEach(d => d.classList.toggle('show', d === drillNode));
     document.body.classList.add('l3-open');
     body.scrollTop = 0;
+    document.dispatchEvent(new CustomEvent('como:navchange'));
   }
   function closeL3Panel() {
     document.body.classList.remove('l3-open');
     const body = document.getElementById('l3-body');
     if (body) body.querySelectorAll('.cp-detail.show').forEach(d => d.classList.remove('show'));
-    document.querySelectorAll('.pc-item.l3-active').forEach(i => i.classList.remove('l3-active'));
+    document.querySelectorAll('.l3-active').forEach(i => i.classList.remove('l3-active'));
+    document.dispatchEvent(new CustomEvent('como:navchange'));
   }
   window.openL3Panel = openL3Panel;
   window.closeL3Panel = closeL3Panel;
-
-  // ---------- Insert a breadcrumb kicker into every drill header (once, at load) ----------
-  document.querySelectorAll('.cp-detail').forEach(d => {
-    const header = d.querySelector('.cp-detail-header');
-    if (!header) return;
-    const crumb = document.createElement('div');
-    crumb.className = 'cp-crumb';
-    crumb.textContent = 'Home settings';
-    d.insertBefore(crumb, header);
-  });
 
   // ---------- Jump to Business name & header settings (from the phone header, any page) ----------
   function openBusinessNameSettings() {

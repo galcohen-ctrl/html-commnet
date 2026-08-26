@@ -61,6 +61,25 @@
   /* --- Widget-level skeleton blocks --- */
   .gf-skel-widget { display: none; }
   body.gf-skeleton .gf-skel-widget[data-skel-for] { display: block; margin-bottom: 14px; }
+
+  /* Hover preview: a widget shown mid-way between skeleton and live, so the
+     merchant can see what adding it would give them without adding it. */
+  .widget-ghost {
+    opacity: .45;
+    filter: saturate(.55);
+    outline: 1.5px dashed var(--p-accent, #6d28d9);
+    outline-offset: 3px;
+    border-radius: 14px;
+    pointer-events: none;
+    animation: ghostIn .16s cubic-bezier(0.2, 0.8, 0.2, 1);
+  }
+  @keyframes ghostIn {
+    from { opacity: 0; transform: translateY(5px); }
+    to { opacity: .45; transform: none; }
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .widget-ghost { animation: none; }
+  }
   body.gf-skeleton .empty-canvas[data-empty="home"] { display: none !important; }
 
   .gf-skel-card, .gf-skel-promo, .gf-skel-social,

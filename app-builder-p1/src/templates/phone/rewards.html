@@ -13,7 +13,9 @@
 
             <div class="p-section-hd"><span class="spark">✦</span> Rewards</div>
 
-            <div class="rewards-progs">
+            <!-- One stage for reward cards and merchant-added widgets alike.
+                 layoutRewardsStage() wraps runs of reward cards in .rewards-progs. -->
+            <div class="rewards-stage" id="rewards-stage">
               <!-- My Gifts: skeleton + real card share the same slot -->
               <div class="gf-skel-widget" data-skel-for="rewards-gifts">
                 <div class="gf-skel-reward">

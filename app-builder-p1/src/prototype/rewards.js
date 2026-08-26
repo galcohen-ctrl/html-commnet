@@ -58,7 +58,13 @@ export function initRewards(ctx) {
     document.getElementById('rw-edit-desc').value = t.desc;
     document.getElementById('rw-edit-btn-text').value = t.btnText;
     rwPaintImageState(t.imgData);
-    openDrill('cp-rewards', 'rw-tile');
+    // Editing one reward card is an item-level edit, so it opens in the third
+    // panel and the reward list stays visible beside it.
+    const node = document.querySelector('[data-detail="rw-tile"]');
+    window.openL3Panel?.(node);
+    document.querySelectorAll('#cp-rewards .cp-widget-row').forEach((row) => {
+      row.classList.toggle('l3-active', row.querySelector('[data-rw-key]')?.dataset.rwKey === key);
+    });
   }
 
   document.querySelectorAll('[data-rw-key]').forEach(el => {
@@ -66,6 +72,10 @@ export function initRewards(ctx) {
       e.stopPropagation();
       rwOpenEditor(el.dataset.rwKey);
     });
+  });
+
+  document.querySelector('[data-detail="rw-tile"] .cp-back')?.addEventListener('click', () => {
+    window.closeL3Panel?.();
   });
 
   ['rw-edit-headline', 'rw-edit-desc', 'rw-edit-btn-text'].forEach(id => {

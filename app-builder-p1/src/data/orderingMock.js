@@ -2,9 +2,12 @@
  * Mock data for the online-ordering widgets on the App Builder P1 prototype.
  *
  * Photos are royalty-free hotlinks from Unsplash's public CDN with `?w=` sizing.
- * Reel videos are public MP4s from Pixabay's CDN — swap for locally hosted files
- * before ever pushing this folder to a production surface.
+ * Reel videos and their posters are generated locally and served from `public/reels/`,
+ * so a demo never depends on a third-party video CDN staying up.
  */
+
+// Vite serves `public/` from the configured base, which differs between dev and Pages.
+const asset = (file) => `${import.meta.env.BASE_URL}reels/${file}`;
 
 // Member "last order" — used by Order Again hero card.
 export const LAST_ORDER = {
@@ -36,7 +39,7 @@ export const MENU_CATEGORIES = [
   { id: 'cat-6', name: 'Kids menu', image: 'https://images.unsplash.com/photo-1626082927389-6cd097cdc6ec?auto=format&fit=crop&w=500&q=70', count: 7, visible: true },
 ];
 
-// Menu Reels — short vertical MP4 clips (Pixabay CDN, ~2\u20134 MB each).
+// Menu Reels — short vertical MP4 clips served from `public/reels/`.
 // Each has an auto-play duration (seconds) and an optional expiration date.
 export const MENU_REELS = [
   {
@@ -45,8 +48,8 @@ export const MENU_REELS = [
     subtitle: 'Chef\u2019s special \u00b7 this week',
     ctaLabel: 'Order now \u2192',
     ctaTarget: 'ti-1',
-    video: 'https://cdn.pixabay.com/video/2020/07/01/43081-436375097_large.mp4',
-    poster: 'https://images.unsplash.com/photo-1568901346375-23c9450c58cd?auto=format&fit=crop&w=600&q=70',
+    video: asset('reel-burger.mp4'),
+    poster: asset('reel-burger.jpg'),
     seconds: 6,
     expires: '2026-12-31',
     visible: true,
@@ -57,8 +60,8 @@ export const MENU_REELS = [
     subtitle: 'Fresh daily',
     ctaLabel: 'Add to cart \u2192',
     ctaTarget: 'ti-2',
-    video: 'https://cdn.pixabay.com/video/2019/07/24/25543-352109824_large.mp4',
-    poster: 'https://images.unsplash.com/photo-1546069901-ba9599a7e63c?auto=format&fit=crop&w=600&q=70',
+    video: asset('reel-poke.mp4'),
+    poster: asset('reel-poke.jpg'),
     seconds: 5,
     expires: '2026-10-15',
     visible: true,
@@ -69,8 +72,8 @@ export const MENU_REELS = [
     subtitle: 'Winter warmer',
     ctaLabel: 'See item \u2192',
     ctaTarget: 'ti-3',
-    video: 'https://cdn.pixabay.com/video/2020/03/17/33489-399807006_large.mp4',
-    poster: 'https://images.unsplash.com/photo-1569718212165-3a8278d5f624?auto=format&fit=crop&w=600&q=70',
+    video: asset('reel-ramen.mp4'),
+    poster: asset('reel-ramen.jpg'),
     seconds: 7,
     expires: '2027-01-31',
     visible: true,

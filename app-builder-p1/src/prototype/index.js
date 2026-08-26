@@ -10,6 +10,8 @@ import { initSettingsModal } from './settingsModal.js';
 import { initMenuSource } from './menuSource.js';
 import { initSkeletonPreview } from './guidedFlowSkeleton.js';
 import { initOrderingWidgets } from './orderingWidgets.js';
+import { initRewardsBlocks } from './rewardsBlocks.js';
+import { initGhostPreview } from './ghostPreview.js';
 
 let runtime;
 
@@ -27,7 +29,9 @@ export function initPrototype() {
   Object.assign(runtime, initSettingsModal(runtime));
   Object.assign(runtime, initMenuSource(runtime));
   Object.assign(runtime, initOrderingWidgets(runtime));
+  Object.assign(runtime, initRewardsBlocks(runtime));
   Object.assign(runtime, initGuidedFlow(runtime));
   Object.assign(runtime, initSkeletonPreview(runtime));
+  Object.assign(runtime, initGhostPreview(runtime));
   return runtime;
 }

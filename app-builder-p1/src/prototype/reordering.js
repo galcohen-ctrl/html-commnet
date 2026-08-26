@@ -120,27 +120,13 @@ export function initReordering() {
     });
   }
 
-  // Rewards cards (My Gifts / My Points Shop / Punch Card) share one flex container,
-  // so reordering is just re-appending each card in the config panel's row order.
+  // Rewards reordering is owned by rewardsBlocks.js, which lays out reward cards
+  // and merchant-added widgets from one shared config list.
   function reorderRewardsCards() {
-    const rewardsPage = document.querySelector('.app-page[data-page="rewards"]');
-    if (!rewardsPage) return;
-    const container = document.querySelector('#cp-rewards .cp-master');
-    if (!container) return;
-    const wrap = rewardsPage.querySelector('.rewards-progs');
-    if (!wrap) return;
-    const orderedKeys = Array.from(container.querySelectorAll('.cp-widget-row'))
-      .map(r => r.querySelector('.w-name'))
-      .filter(Boolean)
-      .map(n => n.dataset.rwKey);
-    orderedKeys.forEach(key => {
-      const card = wrap.querySelector('[data-rw-tile="' + key + '"]');
-      if (card) wrap.appendChild(card);
-    });
+    window.layoutRewardsStage?.();
   }
 
   initReorderable(document.querySelector('#cp-home .cp-master'), reorderPhoneWidgets);
-  initReorderable(document.querySelector('#cp-rewards .cp-master'), reorderRewardsCards);
 
 
   return { initReorderable, reorderPhoneWidgets, reorderRewardsCards };

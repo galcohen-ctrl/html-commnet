@@ -25,8 +25,9 @@ export function initBindings(ctx) {
         row.classList.toggle('on', on);
         row.classList.toggle('off', !on);
         // Turning a Home widget ON via its + toggle drills straight into its
-        // config so the merchant can customise it right away.
-        if (on && row.closest('#cp-home')) {
+        // config so the merchant can customise it right away. Seeding a focus
+        // preset flips many at once, so it opts out via the guard class.
+        if (on && row.closest('#cp-home') && !document.body.classList.contains('gf-applying-preset')) {
           const drillKey = row.querySelector('[data-drill]')?.dataset.drill;
           if (drillKey && typeof window.openDrill === 'function') {
             window.openDrill('cp-home', drillKey);
@@ -62,10 +63,6 @@ export function initBindings(ctx) {
             h.classList.remove('pos-left', 'pos-center', 'pos-right');
             h.classList.add('pos-' + value);
           });
-        }
-        if (bindRadio === 'rewards-style') {
-          const rw = document.querySelector('.app-page[data-page="rewards"]');
-          if (rw) rw.classList.toggle('rewards-list-style', value === 'list');
         }
         if (bindRadio === 'icon-style') {
           document.body.dataset.iconStyle = value;
@@ -258,6 +255,24 @@ export function initBindings(ctx) {
     if (s && s[0] !== '#') s = '#' + s;
     return /^#[0-9a-fA-F]{6}$/.test(s) ? s.toLowerCase() : null;
   }
+  // Live CSS vars may be authored as #rgb or rgb()/rgba(); a native colour input only
+  // accepts #rrggbb, so coerce whatever the theme actually resolved to.
+  function toHex(value) {
+    const s = (value || '').trim();
+    if (!s) return null;
+    const direct = normalizeHex(s);
+    if (direct) return direct;
+    const short = s.match(/^#([0-9a-fA-F])([0-9a-fA-F])([0-9a-fA-F])$/);
+    if (short) return ('#' + short[1] + short[1] + short[2] + short[2] + short[3] + short[3]).toLowerCase();
+    const rgb = s.match(/^rgba?\(\s*([\d.]+)[\s,]+([\d.]+)[\s,]+([\d.]+)/i);
+    if (rgb) {
+      const hex = rgb.slice(1, 4)
+        .map((n) => Math.max(0, Math.min(255, Math.round(parseFloat(n)))).toString(16).padStart(2, '0'))
+        .join('');
+      return '#' + hex;
+    }
+    return null;
+  }
   // Wires one <input type="color"> together with the sibling .cp-color-hex field.
   // `apply(hex)` receives the committed color; called on every valid change.
   function wireColorControl(colorInput, apply) {
@@ -287,11 +302,37 @@ export function initBindings(ctx) {
   }
   window.wireColorControl = wireColorControl;
 
-  document.querySelectorAll('input[type="color"][data-bind-color]').forEach(inp => {
-    wireColorControl(inp, (hex) => document.body.style.setProperty(inp.dataset.bindColor, hex));
+  // The advanced colour controls ship with placeholder hex values from the old dark
+  // theme, so the swatch claimed "black" while the preview was white. Seed every
+  // control from the live CSS var, and keep controls sharing a var in lockstep.
+  const colorControls = [...document.querySelectorAll('input[type="color"][data-bind-color]')];
+
+  function paintColorControl(input, hex) {
+    input.value = hex;
+    const swatch = input.parentElement;
+    if (swatch) swatch.style.background = hex;
+    const hexEl = input.closest('.cp-color-row')?.querySelector('.cp-color-hex');
+    if (hexEl && document.activeElement !== hexEl) hexEl.value = hex.toUpperCase();
+  }
+
+  function syncColorVar(varName, hex) {
+    colorControls.forEach((c) => {
+      if (c.dataset.bindColor === varName) paintColorControl(c, hex);
+    });
+  }
+  window.syncColorVar = syncColorVar;
+
+  colorControls.forEach((inp) => {
+    const varName = inp.dataset.bindColor;
+    const live = toHex(getComputedStyle(document.body).getPropertyValue(varName));
+    if (live) paintColorControl(inp, live);
+    wireColorControl(inp, (hex) => {
+      document.body.style.setProperty(varName, hex);
+      syncColorVar(varName, hex);
+    });
   });
 
 
-  return { wireToggle, wireRadioGroup, getPlainText, setupVariableInput, normalizeHex, wireColorControl };
+  return { wireToggle, wireRadioGroup, getPlainText, setupVariableInput, normalizeHex, wireColorControl, syncColorVar };
 }
 

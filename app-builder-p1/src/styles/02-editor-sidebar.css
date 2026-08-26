@@ -6,19 +6,19 @@
     min-width: 0;
     min-height: 0;
     display: grid;
-    grid-template-columns: 216px 340px 0px 1fr;
+    grid-template-columns: 216px 400px 0px 1fr;
     overflow: hidden;
     transition: grid-template-columns .28s cubic-bezier(0.2, 0.8, 0.2, 1);
   }
   body.side-collapsed .workspace {
-    grid-template-columns: 64px 340px 0px 1fr;
+    grid-template-columns: 64px 400px 0px 1fr;
   }
   /* Third panel (L3) open: reveal the 360px column; the phone area (1fr) shrinks so the phone slides right */
   body.l3-open .workspace {
-    grid-template-columns: 216px 340px 360px 1fr;
+    grid-template-columns: 216px 400px 360px 1fr;
   }
   body.l3-open.side-collapsed .workspace {
-    grid-template-columns: 64px 340px 360px 1fr;
+    grid-template-columns: 64px 400px 360px 1fr;
   }
 
   /* ============================================================

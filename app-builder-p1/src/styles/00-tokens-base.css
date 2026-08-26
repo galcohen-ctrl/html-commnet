@@ -15,17 +15,19 @@
   }
 
   /* Phone theme — Blank (default — clean white starter) */
+  /* Background and cards must differ, or changing "App background" looks like
+     nothing happened. Grouped-background pattern: tinted canvas, white cards. */
   body.tpl-blank {
-    --p-bg: #ffffff;
+    --p-bg: #f2f2f7;
     --p-panel: #ffffff;
-    --p-panel-2: #f5f5f8;
+    --p-panel-2: #e9e9f0;
     --p-text: #1d1d28;
     --p-text-muted: #8a8798;
     --p-accent: #6d28d9;
     --p-accent-2: #5b1eb5;
     --p-danger: #dc2626;
-    --p-border: #eaeaf1;
-    --p-card-grad: linear-gradient(160deg, #ffffff 0%, #f5f5f8 100%);
+    --p-border: #e4e4ee;
+    --p-card-grad: linear-gradient(160deg, #ffffff 0%, #f7f7fb 100%);
     --p-hero-grad: linear-gradient(135deg, #6d28d9 0%, #a855f7 100%);
     --p-nav-bg: #ffffff;
   }

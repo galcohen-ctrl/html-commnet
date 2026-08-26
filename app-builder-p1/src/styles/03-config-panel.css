@@ -63,9 +63,13 @@
     user-select: none;
   }
   .cp-section .cp-head-row .chev {
-    margin-left: auto; color: #c7c7d4; font-size: 12px;
-    transition: transform .15s;
+    margin-left: auto; color: var(--muted); font-size: 19px; line-height: 1;
+    width: 24px; height: 24px; flex: none;
+    display: inline-flex; align-items: center; justify-content: center;
+    border-radius: 7px;
+    transition: transform .15s, color .15s, background .15s;
   }
+  .cp-section .cp-head-row:hover .chev { color: var(--ink); background: #eeedf5; }
   .cp-section.open .cp-head-row { border-bottom-color: var(--line); }
   .cp-section.open .cp-head-row .chev { transform: rotate(90deg); }
   .cp-section .cp-body { display: none; padding: 10px 14px 12px; }
