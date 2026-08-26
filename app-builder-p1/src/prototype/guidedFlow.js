@@ -70,6 +70,7 @@ export function initGuidedFlow(ctx) {
     if (key === 'publish') renderReview();
     render();
   }
+  window.goToBrandingStep = () => goToStep('branding');
 
   /* ------------------------------------------------------------ rendering */
 
@@ -439,13 +440,17 @@ export function initGuidedFlow(ctx) {
   }
 
   const headlineInput = document.getElementById('gf-headline');
-  if (headlineInput) {
-    headlineInput.addEventListener('input', () => {
-      flow.headline = headlineInput.value;
-      const subtitle = document.getElementById('phone-brand-sub');
-      if (subtitle) subtitle.textContent = flow.headline || 'Storefront headline';
-    });
+  const brandingHeadlineInput = document.getElementById('gf-branding-headline');
+  function setHeadline(value, source) {
+    flow.headline = value;
+    if (headlineInput && source !== headlineInput) headlineInput.value = value;
+    if (brandingHeadlineInput && source !== brandingHeadlineInput) brandingHeadlineInput.value = value;
+    const subtitle = document.getElementById('phone-brand-sub');
+    if (subtitle) subtitle.textContent = value || 'Storefront headline';
+    markDirty?.();
   }
+  headlineInput?.addEventListener('input', () => setHeadline(headlineInput.value, headlineInput));
+  brandingHeadlineInput?.addEventListener('input', () => setHeadline(brandingHeadlineInput.value, brandingHeadlineInput));
 
   document.querySelectorAll('#gf-biz-type-row [data-biztype]').forEach((chip) => {
     chip.addEventListener('click', () => {
@@ -523,9 +528,10 @@ export function initGuidedFlow(ctx) {
   const logoResult = document.getElementById('gf-logo-result');
   const logoThumb = document.getElementById('gf-logo-thumb-img');
   const logoFilename = document.getElementById('gf-logo-filename');
+  const logoControls = document.getElementById('gf-logo-controls');
 
   function paintLogoTargets(dataUrl) {
-    [document.getElementById('phone-brand-mark'), document.getElementById('brand-logo')].forEach((el) => {
+    document.querySelectorAll('.app-page .app-top-header .brand-mark, #brand-logo').forEach((el) => {
       if (!el) return;
       el.classList.toggle('has-logo', !!dataUrl);
       el.style.backgroundImage = dataUrl ? `url(${dataUrl})` : '';
@@ -540,13 +546,16 @@ export function initGuidedFlow(ctx) {
     if (logoFilename) logoFilename.textContent = name;
     if (logoResult) logoResult.style.display = '';
     if (logoZone) logoZone.style.display = 'none';
+    if (logoControls) logoControls.hidden = false;
   }
 
   function clearLogoResult() {
     if (logoResult) logoResult.style.display = 'none';
     if (logoZone) logoZone.style.display = '';
+    if (logoControls) logoControls.hidden = true;
     if (logoFile) logoFile.value = '';
     paintLogoTargets(null);
+    markDirty?.();
     showToast?.('Logo removed');
   }
 
@@ -559,6 +568,7 @@ export function initGuidedFlow(ctx) {
       const dataUrl = e.target.result;
       paintLogoTargets(dataUrl);
       showLogoResult(dataUrl, file.name);
+      markDirty?.();
       showToast?.('Logo uploaded');
     };
     reader.readAsDataURL(file);
@@ -581,6 +591,14 @@ export function initGuidedFlow(ctx) {
     chip.addEventListener('click', () => {
       flow.font = chip.dataset.font;
       document.querySelectorAll('#gf-font-row [data-font]').forEach((c) => c.classList.toggle('selected', c === chip));
+      const fontStacks = {
+        'sans-serif': '-apple-system, BlinkMacSystemFont, "SF Pro Display", sans-serif',
+        serif: 'Georgia, "Times New Roman", serif',
+        mono: '"SFMono-Regular", Consolas, monospace',
+        rounded: '"Arial Rounded MT Bold", "Trebuchet MS", sans-serif',
+        slab: 'Rockwell, "Roboto Slab", Georgia, serif',
+      };
+      ctx.applyFontFamily?.(fontStacks[flow.font] || fontStacks['sans-serif']);
     });
   });
 

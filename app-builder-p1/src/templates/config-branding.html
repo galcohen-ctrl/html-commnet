@@ -62,6 +62,34 @@
       </div>
       <input type="file" id="gf-logo-file" accept="image/png,image/jpeg,image/jpg,image/webp" style="display:none;" />
       <div class="cp-upload-note">Supported: png, jpg, jpeg, webp. Max 5MB.</div>
+      <div class="gf-logo-controls" id="gf-logo-controls" hidden>
+        <div class="cp-subhead">Position</div>
+        <div class="cp-radio-group">
+          <div class="cp-radio" data-bind-radio="logo-position" data-value="left">Left</div>
+          <div class="cp-radio active" data-bind-radio="logo-position" data-value="center">Center</div>
+          <div class="cp-radio" data-bind-radio="logo-position" data-value="right">Right</div>
+        </div>
+        <div class="cp-subhead">Size</div>
+        <div class="cp-slider-row">
+          <input type="range" class="cp-slider" min="30" max="120" value="60" data-bind-slider="logo-size" />
+          <span class="cp-slider-val">60%</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="cp-section open">
+    <div class="cp-head-row">App header <span class="chev">›</span></div>
+    <div class="cp-body">
+      <div class="cp-field">
+        <label>Business name</label>
+        <input class="cp-input-text" data-bind-text=".app-page[data-page='home'] .app-top-header .brand-text .name" value="Your Business" />
+      </div>
+      <div class="cp-field">
+        <label for="gf-branding-headline">Storefront headline</label>
+        <input id="gf-branding-headline" class="cp-input-text" type="text" placeholder="e.g. Fresh food, real rewards" maxlength="60" />
+      </div>
+      <div class="cp-toggle-row"><span class="lbl">Show business name</span><span class="toggle on" data-bind=".app-page[data-page='home'] .app-top-header .brand-text"></span></div>
     </div>
   </div>
 
@@ -86,14 +114,32 @@
 
       <div class="cp-field">
         <label>App background</label>
+        <div class="cp-seg" id="appbg-mode">
+          <button class="cp-seg-btn active" type="button" data-mode="solid">Solid</button>
+          <button class="cp-seg-btn" type="button" data-mode="gradient">Gradient</button>
+        </div>
         <div class="cp-color-row">
-          <div class="cp-color-swatch" style="background:#0f0d17;">
-            <input type="color" value="#0f0d17" data-bind-color="--p-bg" />
+          <div class="cp-color-swatch" style="background:#f2f2f7;">
+            <input type="color" value="#f2f2f7" id="appbg-color1" />
           </div>
           <div class="cp-color-info">
-            <div class="cp-color-label">Background</div>
-            <input class="cp-color-hex" value="#0F0D17" spellcheck="false" maxlength="9" />
+            <div class="cp-color-label" id="appbg-label1">Background</div>
+            <input class="cp-color-hex" value="#F2F2F7" spellcheck="false" maxlength="9" />
           </div>
+        </div>
+        <div class="cp-color-row" id="appbg-row2" style="display:none;">
+          <div class="cp-color-swatch" style="background:#e9e7f0;">
+            <input type="color" value="#e9e7f0" id="appbg-color2" />
+          </div>
+          <div class="cp-color-info">
+            <div class="cp-color-label">Gradient end</div>
+            <input class="cp-color-hex" value="#E9E7F0" spellcheck="false" maxlength="9" />
+          </div>
+        </div>
+        <div class="cp-slider-row">
+          <span class="cp-mini-label">Opacity</span>
+          <input type="range" class="cp-slider" min="0" max="100" value="100" id="appbg-opacity" />
+          <span class="cp-slider-val" id="appbg-opacity-val">100%</span>
         </div>
       </div>
 
@@ -135,6 +181,34 @@
           </div>
         </div>
       </div>
+
+      <div class="cp-subhead">Icon style</div>
+      <div class="cp-icon-style-preview">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><path d="M3 10l9-7 9 7v10a2 2 0 01-2 2H5a2 2 0 01-2-2z"/></svg>
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><path d="M20 12v10H4V12M2 7h20v5H2zM12 22V7"/></svg>
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0118 0z"/><circle cx="12" cy="10" r="3"/></svg>
+      </div>
+      <div class="cp-radio-group">
+        <div class="cp-radio active" data-bind-radio="icon-style" data-value="outline">Outline</div>
+        <div class="cp-radio" data-bind-radio="icon-style" data-value="solid">Solid</div>
+        <div class="cp-radio" data-bind-radio="icon-style" data-value="duotone">Duotone</div>
+      </div>
+
+      <div class="cp-subhead">Font library</div>
+      <input type="text" class="cp-font-search" id="font-search" placeholder="Search fonts…" />
+      <div class="cp-font-list" id="font-list">
+        <div class="cp-font-item active" data-font="-apple-system, BlinkMacSystemFont, 'SF Pro Display', sans-serif"><span class="fname">SF Pro</span><span class="fsub">Default</span></div>
+        <div class="cp-font-item" data-font="'Roboto', sans-serif"><span class="fname">Roboto</span><span class="fsub">Sans</span></div>
+        <div class="cp-font-item" data-font="'Poppins', sans-serif"><span class="fname">Poppins</span><span class="fsub">Sans</span></div>
+        <div class="cp-font-item" data-font="'Playfair Display', Georgia, serif"><span class="fname">Playfair Display</span><span class="fsub">Serif</span></div>
+        <div class="cp-font-item" data-font="'Merriweather', Georgia, serif"><span class="fname">Merriweather</span><span class="fsub">Serif</span></div>
+      </div>
+      <div class="cp-subhead">Custom font</div>
+      <div class="cp-upload-zone" id="font-drop-zone" onclick="document.getElementById('font-file').click()">
+        <div class="cp-upload-btn">+ Upload custom font</div>
+        <div class="cp-upload-hint">.woff2 · .otf · .ttf</div>
+      </div>
+      <input type="file" id="font-file" accept=".woff2,.otf,.ttf" style="display:none;" />
     </div>
   </div>
 </div>

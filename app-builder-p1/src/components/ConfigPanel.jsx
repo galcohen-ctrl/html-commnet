@@ -1,4 +1,3 @@
-import brandingHtml from '../templates/config/branding.html?raw';
 import homeMasterHtml from '../templates/config/home-master.html?raw';
 import profileHtml from '../templates/config/profile.html?raw';
 import promoFeaturedCardHtml from '../templates/config/promo-featured-card.html?raw';
@@ -32,7 +31,6 @@ const homeHtml = [
   topItemsHtml,
   menuCategoriesHtml,
   menuReelsHtml,
-  brandingHtml,
 ].join('\n');
 
 const pageInner = (html) => {

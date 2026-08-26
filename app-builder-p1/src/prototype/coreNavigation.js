@@ -52,12 +52,6 @@ export function initCoreNavigation(ctx) {
       document.body.classList.remove('side-collapsed');
     }
   });
-  // Sidebar Design section: Branding is global, so it jumps straight to the Home page's Branding drill
-  const sideBrandingBtn = document.getElementById('side-branding-btn');
-  if (sideBrandingBtn) {
-    sideBrandingBtn.addEventListener('click', () => openBusinessNameSettings());
-  }
-
   // ---------- Template preset ----------
   function setBrand(name, mark, sub) {
     document.getElementById('brand-name').textContent = name;
@@ -273,9 +267,9 @@ export function initCoreNavigation(ctx) {
     document.querySelectorAll('.cp-crumb').forEach(c => c.textContent = label + ' settings');
   }
   function updateBrandingSideActive() {
-    const detail = document.querySelector('.cp-detail[data-detail="branding"]');
+    const page = document.getElementById('cp-branding');
     const btn = document.getElementById('side-branding-btn');
-    if (btn) btn.classList.toggle('active', !!(detail && detail.classList.contains('show')));
+    if (btn) btn.classList.toggle('active', !!page && page.style.display !== 'none');
   }
   // Depth changes drive the breadcrumb and the context-aware step footer.
   function emitNavChange() {
@@ -334,10 +328,9 @@ export function initCoreNavigation(ctx) {
   window.openL3Panel = openL3Panel;
   window.closeL3Panel = closeL3Panel;
 
-  // ---------- Jump to Business name & header settings (from the phone header, any page) ----------
+  // ---------- Jump to the guided Branding step from the phone header ----------
   function openBusinessNameSettings() {
-    goToPage('home');
-    openDrill('cp-home', 'branding');
+    if (typeof window.goToBrandingStep === 'function') window.goToBrandingStep();
   }
   window.openBusinessNameSettings = openBusinessNameSettings;
 
@@ -358,7 +351,7 @@ export function initCoreNavigation(ctx) {
   }
   window.openAccountPage = openAccountPage;
 
-  // ---------- Links that jump to Home → Branding & Customization ----------
+  // ---------- Links that jump to Branding ----------
   ['rewards-branding-link'].forEach(id => {
     const link = document.getElementById(id);
     if (link) link.addEventListener('click', (e) => { e.preventDefault(); openBusinessNameSettings(); });
