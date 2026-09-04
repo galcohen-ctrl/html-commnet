@@ -79,7 +79,7 @@
     padding: 10px 6px;
     text-align: center;
     cursor: pointer;
-    transition: all .15s;
+    transition: border-color .15s, transform .15s, box-shadow .15s;
   }
   .stats-row.wrap-square .stat-tile { border-radius: 4px; }
   .stats-row.wrap-none .stat-tile { background: none; border: none; border-radius: 0; }
@@ -146,7 +146,11 @@
   .pc-carousel-wrap::-webkit-scrollbar { display: none; }
   .promo-cards-widget[data-pc-display="carousel"] .pc-carousel-wrap { flex-wrap: nowrap; }
   .promo-cards-widget[data-pc-display="carousel"] .pc-card {
-    min-width: 100%; scroll-snap-align: start; flex-shrink: 0;
+    box-sizing: border-box;
+    flex: 0 0 100%;
+    min-width: 0;
+    width: 100%;
+    scroll-snap-align: start;
   }
   .promo-cards-widget[data-pc-display="carousel"] .pc-dots { display: flex; }
 
@@ -176,6 +180,8 @@
   .text-divider.no-line::before, .text-divider.no-line::after { display: none; }
   .text-divider.align-left { justify-content: flex-start; }
   .text-divider.align-left::before { display: none; }
+  .text-divider.align-right { justify-content: flex-end; }
+  .text-divider.align-right::after { display: none; }
   .text-divider span {
     font-size: 10px; font-weight: 800; letter-spacing: 1.2px;
     text-transform: uppercase; color: var(--p-accent); white-space: nowrap;
@@ -190,6 +196,25 @@
     transition: transform .15s;
   }
   .pc-card:hover { transform: translateY(-2px); }
+  .pc-card { cursor: default; }
+  .pc-card.pc-tappable { cursor: pointer; }
+  .pc-card-btn { cursor: pointer; }
+
+  /* Title font role — anything a member reads as a heading */
+  .app-top-header .brand-text .name,
+  .greet-row .hello,
+  .guest-state .g-title,
+  .lc-points,
+  .prog-title,
+  .pc-card-headline,
+  .ti-title,
+  .mc-title,
+  .oa-name,
+  .more-tile .t-name,
+  .loc-card .name {
+    font-family: var(--p-font-title, inherit);
+  }
+  .app-top-header { background: var(--p-header-bg, transparent); }
   .pc-card.pc-hidden { display: none; }
 
   /* ── Image mode: COVER (full-width image on top, text below) ── */
@@ -234,6 +259,31 @@
   .pc-card-img.beef { background: linear-gradient(135deg, #4a1d1d 0%, #7a2c2c 100%); }
   .pc-card-img.choc { background: linear-gradient(135deg, #3b2313 0%, #6b4423 100%); }
   .pc-card-img.sushi { background: linear-gradient(135deg, #1c2f47 0%, #2d4d6d 100%); }
+  .pc-card-img.delivery {
+    background:
+      radial-gradient(circle at 18% 24%, rgba(255,255,255,.92) 0 8px, transparent 9px),
+      radial-gradient(circle at 77% 74%, #111827 0 9px, transparent 10px),
+      radial-gradient(circle at 28% 74%, #111827 0 9px, transparent 10px),
+      linear-gradient(135deg, rgba(255,255,255,.18), rgba(255,255,255,0) 36%),
+      linear-gradient(135deg, #f97316 0%, #dc2626 48%, #7f1d1d 100%);
+    position: relative;
+  }
+  .pc-card-img.delivery::before {
+    content: "";
+    position: absolute;
+    left: 28px; right: 34px; top: 38px; height: 34px;
+    border-radius: 12px 12px 5px 5px;
+    background: rgba(255,255,255,.9);
+    box-shadow: 20px -15px 0 -6px rgba(255,255,255,.74), 48px 9px 0 -12px rgba(255,255,255,.7);
+  }
+  .pc-card-img.delivery::after {
+    content: "";
+    position: absolute;
+    left: 52px; top: 30px; width: 42px; height: 16px;
+    border: 5px solid rgba(255,255,255,.88);
+    border-bottom: 0;
+    border-radius: 18px 18px 0 0;
+  }
   .pc-card-img.empty-img { background: var(--p-panel-2); display: grid; place-items: center; color: var(--p-text-muted); font-size: 20px; }
   .pc-card-img.has-upload { background-size: cover; background-position: center; }
 
@@ -287,7 +337,7 @@
   .pc-dot {
     width: 6px; height: 6px; border-radius: 50%;
     background: var(--p-border);
-    cursor: pointer; transition: all .2s;
+    cursor: pointer; transition: background-color .2s;
   }
   .pc-dot.active { background: var(--p-accent); width: 18px; border-radius: 999px; }
 
@@ -378,6 +428,18 @@
     background: var(--p-accent); border-color: var(--p-accent);
   }
 
+  /* Punch cards shown as a swipeable carousel (a member can hold several at once) */
+  .punch-carousel {
+    display: flex; overflow-x: auto; scroll-snap-type: x mandatory;
+    gap: 0; scrollbar-width: none; -webkit-overflow-scrolling: touch;
+  }
+  .punch-carousel::-webkit-scrollbar { display: none; }
+  .punch-carousel .punch-card {
+    box-sizing: border-box;
+    flex: 0 0 100%; min-width: 0; width: 100%;
+    margin-bottom: 0; scroll-snap-align: start;
+  }
+
   /* How to Start Earning */
   .howto-card {
     background: var(--p-card-grad);
@@ -433,7 +495,7 @@
     font-size: 10px; font-weight: 700; white-space: nowrap;
     background: var(--p-panel); color: var(--p-text-muted);
     border: 1px solid var(--p-border); cursor: pointer;
-    transition: all .12s;
+    transition: background-color .12s, color .12s, border-color .12s;
   }
   .chip.active { background: var(--p-accent); color: #111; border-color: var(--p-accent); }
   body.tpl-3 .chip.active { color: #fff; }
@@ -548,6 +610,9 @@
     display: grid; grid-template-columns: 1fr 1fr; gap: 10px;
     padding-top: 8px;
   }
+  body.more-list .more-grid { grid-template-columns: 1fr; gap: 8px; }
+  body.more-list .more-tile { min-height: 0; display: flex; align-items: center; gap: 12px; padding: 11px 13px; }
+  body.more-list .more-tile .t-ic { margin: 0; flex: none; }
   .more-tile {
     background: var(--p-panel);
     border: 1px solid var(--p-border);
@@ -668,4 +733,3 @@
     cursor: pointer; transition: transform .15s;
   }
   .social-strip span:hover { transform: translateY(-2px); color: var(--p-accent); }
-

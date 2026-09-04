@@ -2,6 +2,27 @@
    MENU SOURCE — config-panel screens for the menu building flow
    ============================================================ */
 
+/* When arriving from the Online ordering step, the merchant is here only to
+   enter the webview URL, not to change menu source or toggle the whole tab.
+   Hide the surrounding chrome and the in-panel return banner. */
+body.oo-webview-from-step2 #cp-menu .px-menu-simple,
+body.oo-webview-from-step2 #cp-menu > [data-screen-toggle="menu"],
+body.oo-webview-from-step2 #cp-menu .ms-kicker,
+body.oo-webview-from-step2 #cp-menu #ms-webview-return { display: none !important; }
+/* Force the webview ms-screen visible regardless of the simple/advanced toggle. */
+body.oo-webview-from-step2 #cp-menu > .ms-screen[data-ms="webview"] { display: block !important; }
+
+/* The webview setup now opens as a third panel with Step 2 still visible, so the
+   normal Save & continue footer stays and advances to the next step — the old
+   "Back to Online ordering" button is retired. */
+.gf-oo-return-btn { display: none !important; }
+
+.ms-input.cp-input-error {
+  border-color: var(--danger, #c7355a);
+  box-shadow: 0 0 0 2px rgba(199, 53, 90, .18);
+}
+.ms-input-icon:has(.cp-input-error) svg { color: var(--danger, #c7355a); }
+
 .ms-screen { display: none; flex-direction: column; flex: 1 1 auto; min-height: 0; }
 .ms-screen.active { display: flex; animation: cpSlide .22s ease; }
 
@@ -125,6 +146,33 @@
 .ms-btn:disabled { background: #ececf2; color: #a3a3b4; cursor: default; }
 .ms-btn.small { width: auto; padding: 8px 13px; font-size: 12px; margin-top: 0; }
 
+/* Spinner + loading / success states shared by the connect button and the
+   bottom-nav "Back to Online ordering" button so the two stay in sync. */
+.ms-btn-spinner,
+.gf-oo-return-btn .ms-btn-spinner {
+  display: none;
+  width: 14px; height: 14px;
+  border-radius: 50%;
+  border: 2px solid rgba(255,255,255,.35);
+  border-top-color: #fff;
+  animation: ms-spin .8s linear infinite;
+}
+.ms-btn.is-loading .ms-btn-ic,
+.gf-oo-return-btn.is-loading > svg { display: none; }
+.ms-btn.is-loading .ms-btn-spinner,
+.gf-oo-return-btn.is-loading .ms-btn-spinner { display: inline-block; }
+.ms-btn.is-loading,
+.gf-oo-return-btn.is-loading { background: #8f5cf1 !important; color: #fff !important; cursor: progress; }
+
+.ms-btn.is-success,
+.gf-oo-return-btn.is-success { background: var(--ok, #12854f) !important; color: #fff !important; }
+.ms-btn.is-success:hover,
+.gf-oo-return-btn.is-success:hover { filter: brightness(1.05); }
+.ms-btn.is-success .ms-btn-ic,
+.gf-oo-return-btn.is-success > svg { color: #fff; }
+
+@keyframes ms-spin { to { transform: rotate(360deg); } }
+
 .ms-inline-action {
   background: none; border: none; font: inherit;
   font-size: 12.5px; font-weight: 750; color: var(--como);
@@ -164,18 +212,47 @@
 .ms-status svg { width: 15px; height: 15px; flex: none; }
 .ms-status.hidden { display: none; }
 
+/* Contextual banner shown when the merchant reached this screen from the Online
+   ordering step, so the round-trip back to that step is obvious. */
+.ms-return {
+  display: flex; align-items: center; gap: 10px;
+  padding: 10px 12px; margin-bottom: 14px;
+  border-radius: 12px;
+  background: var(--como-soft);
+  border: 1px solid #e0d6fb;
+}
+.ms-return[hidden] { display: none; }
+.ms-return.done { background: var(--ok-soft); border-color: #cdebd8; }
+.ms-return-ic { flex: none; width: 20px; height: 20px; color: var(--como); }
+.ms-return.done .ms-return-ic { color: var(--ok); }
+.ms-return-ic svg { width: 100%; height: 100%; }
+.ms-return .ic-done { display: none; }
+.ms-return.done .ic-todo { display: none; }
+.ms-return.done .ic-done { display: block; }
+.ms-return-text { flex: 1; min-width: 0; font-size: 12px; line-height: 1.45; font-weight: 650; color: var(--ink); }
+.ms-return-btn {
+  flex: none; font: inherit; font-size: 12px; font-weight: 750;
+  color: #fff; background: var(--como); border: 0;
+  border-radius: 999px; padding: 7px 13px; cursor: pointer;
+}
+.ms-return.done .ms-return-btn { background: var(--ok); }
+.ms-return-btn:hover { filter: brightness(.96); }
+
 /* Info dot reuses the settings-modal tooltip look, scaled for the panel */
-.ms-info {
+.ms-info,
+.config-column button.ms-info {
   width: 14px; height: 14px; flex: none;
+  min-height: 14px;
   border-radius: 50%; border: 1.3px solid #b9b9c8; color: #8b8b9c;
   font-size: 9px; font-weight: 800; line-height: 1;
-  display: grid; place-items: center; cursor: help;
+  display: inline-grid; place-items: center; cursor: help;
   position: relative; background: none; padding: 0; font-family: inherit;
+  vertical-align: middle;
 }
 .ms-info::after {
   content: attr(data-tip);
-  position: absolute; left: 50%; bottom: calc(100% + 8px);
-  transform: translateX(-50%);
+  position: absolute; right: 0; left: auto; bottom: calc(100% + 8px);
+  transform: none;
   width: 218px; padding: 10px 12px;
   background: #1d1a2b; color: #edebf6;
   border-radius: 9px; font-size: 11.5px; font-weight: 500; line-height: 1.45;
@@ -183,7 +260,8 @@
   opacity: 0; pointer-events: none; transition: opacity .13s;
   z-index: 40;
 }
-.ms-info:hover::after { opacity: 1; }
+.ms-info:hover::after,
+.ms-info:focus::after { opacity: 1; }
 
 /* ---------- Toggle card ---------- */
 .ms-toggle-card { border: 1px solid var(--line); border-radius: 13px; padding: 2px 14px; }

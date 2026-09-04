@@ -3,20 +3,30 @@
       <div class="cp-master">
         <h3 class="cp-head">Editing page</h3>
         <div class="cp-page-title">Locations</div>
-        <div class="cp-page-sub">Show the Locations page in the app. Content is pulled from Hub 2 Business Info.</div>
+        <div class="cp-page-sub">Branch details come from Hub 2 Business Info. Choose what members see here.</div>
 
         <div class="cp-section open">
-          <div class="cp-head-row">Locations page <span class="chev">›</span></div>
+          <div class="cp-head-row">What to show <span class="chev">›</span></div>
           <div class="cp-body">
             <div class="cp-toggle-row">
-              <span class="lbl">Show Locations in the app</span>
-              <span class="toggle" data-bind=".app-page[data-page='locations'] .search-bar, .app-page[data-page='locations'] .filter-chips, .app-page[data-page='locations'] .loc-card"></span>
+              <span class="lbl">Search branches</span>
+              <span class="toggle on" data-bind=".app-page[data-page='locations'] .search-bar"></span>
             </div>
-            <div class="cp-hint-inline">Turn this off to hide the Locations tab from members entirely.</div>
+            <div class="cp-toggle-row">
+              <span class="lbl">Filter chips</span>
+              <span class="toggle on" data-bind=".app-page[data-page='locations'] .filter-chips"></span>
+            </div>
+            <div class="cp-toggle-row">
+              <span class="lbl">Opening hours &amp; distance</span>
+              <span class="toggle on" data-bind=".app-page[data-page='locations'] .loc-card .meta"></span>
+            </div>
+            <div class="cp-toggle-row">
+              <span class="lbl">Navigate button</span>
+              <span class="toggle on" data-bind=".app-page[data-page='locations'] .loc-card .nav-btn"></span>
+            </div>
+            <div class="cp-section-note">Branches are always sorted by distance from the member. Addresses and hours are edited in Hub 2.</div>
           </div>
         </div>
-
-        <div class="cp-info"><b>Note:</b> branches, hours, and map behavior are managed entirely in Hub 2. This page has no other builder controls.</div>
       </div>
     </div>
 

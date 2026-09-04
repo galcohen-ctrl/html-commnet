@@ -26,6 +26,7 @@ export default defineConfig({
   base: '/html-commnet/app-builder-p1/',
   server: {
     proxy: localCommentsProxy,
+    allowedHosts: ['.ngrok-free.app', '.ngrok-free.dev', '.ngrok.app', '.ngrok.io', '.ngrok.dev'],
   },
   preview: {
     proxy: localCommentsProxy,

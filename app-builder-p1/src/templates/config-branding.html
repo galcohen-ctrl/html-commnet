@@ -1,7 +1,12 @@
 <div class="cp-master">
   <h3 class="cp-head">Step 3</h3>
   <div class="cp-page-title">Branding</div>
-  <div class="cp-page-sub">Consistent branding helps customers recognize you and builds trust.</div>
+  <div class="cp-page-sub">Choose one global brand system. Every proven screen inherits it automatically.</div>
+
+  <div class="px-brand-source" id="px-brand-source" role="status">
+    <span class="px-brand-source-mark" aria-hidden="true">✓</span>
+    <span><strong>Global branding</strong><small>Home, Rewards, Menu, Locations, Login, Profile, and More stay in sync.</small></span>
+  </div>
 
   <div class="cp-focus-recap">
     <div class="cp-focus-ic"></div>
@@ -9,14 +14,13 @@
       <div class="cp-focus-lbl">App focus</div>
       <div class="cp-focus-val">Not chosen yet</div>
     </div>
-    <button class="cp-focus-change" type="button">
+    <button class="cp-focus-change" type="button" aria-haspopup="menu" aria-expanded="false">
       Change
       <svg viewBox="0 0 24 24" width="12" height="12" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round"><path d="M6 9l6 6 6-6"/></svg>
     </button>
-    <div class="cp-focus-menu">
-      <button type="button" data-focus="loyalty">Loyalty and rewards</button>
-      <button type="button" data-focus="ordering">Online ordering</button>
-      <button type="button" data-focus="blank">Blank canvas</button>
+    <div class="cp-focus-menu" role="menu" aria-label="Change app focus">
+      <button type="button" role="menuitemradio" aria-checked="false" data-focus="loyalty">Lead with loyalty</button>
+      <button type="button" role="menuitemradio" aria-checked="false" data-focus="ordering">Lead with ordering</button>
     </div>
   </div>
 
@@ -43,7 +47,7 @@
     <div class="cp-head-row">Logo <span class="chev">›</span></div>
     <div class="cp-body">
       <div class="gf-logo-result" id="gf-logo-result" style="display:none;">
-        <div class="gf-logo-thumb"><img id="gf-logo-thumb-img" alt="Uploaded logo" /></div>
+        <div class="gf-logo-thumb"><img id="gf-logo-thumb-img" src="data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///ywAAAAAAQABAAACAUwAOw==" alt="Uploaded logo" /></div>
         <div class="gf-logo-meta">
           <div class="gf-logo-status">
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6L9 17l-5-5"/></svg>
@@ -86,18 +90,28 @@
         <input class="cp-input-text" data-bind-text=".app-page[data-page='home'] .app-top-header .brand-text .name" value="Your Business" />
       </div>
       <div class="cp-field">
-        <label for="gf-branding-headline">Storefront headline</label>
+        <label for="gf-branding-headline">App tagline</label>
         <input id="gf-branding-headline" class="cp-input-text" type="text" placeholder="e.g. Fresh food, real rewards" maxlength="60" />
+        <div class="cp-hint-inline">One short line under your business name. Same tagline you set in Business details.</div>
       </div>
       <div class="cp-toggle-row"><span class="lbl">Show business name</span><span class="toggle on" data-bind=".app-page[data-page='home'] .app-top-header .brand-text"></span></div>
     </div>
   </div>
 
   <div class="cp-section open">
-    <div class="cp-head-row">Font family <span class="chev">›</span></div>
+    <div class="cp-head-row">Typography <span class="chev">›</span></div>
     <div class="cp-body">
-      <div class="cp-hint-inline">Typography sets the tone and makes your content easier to read.</div>
-      <div class="gf-chip-row" id="gf-font-row">
+      <div class="cp-hint-inline">Pick one font for titles and one for body text. Two is usually the limit before an app starts to look busy.</div>
+      <div class="cp-subhead">Title font</div>
+      <div class="gf-chip-row" id="gf-title-font-row">
+        <button class="gf-chip selected" data-font="sans-serif" type="button">Sans-serif</button>
+        <button class="gf-chip" data-font="serif" type="button">Serif</button>
+        <button class="gf-chip" data-font="mono" type="button">Mono</button>
+        <button class="gf-chip" data-font="rounded" type="button">Rounded</button>
+        <button class="gf-chip" data-font="slab" type="button">Slab</button>
+      </div>
+      <div class="cp-subhead">Body font</div>
+      <div class="gf-chip-row" id="gf-body-font-row">
         <button class="gf-chip selected" data-font="sans-serif" type="button">Sans-serif</button>
         <button class="gf-chip" data-font="serif" type="button">Serif</button>
         <button class="gf-chip" data-font="mono" type="button">Mono</button>
@@ -143,6 +157,8 @@
         </div>
       </div>
 
+      <div class="px-contrast-result" id="px-contrast-result" role="status" aria-live="polite"></div>
+
       <div class="cp-field">
         <label>Card background</label>
         <div class="cp-color-row">
@@ -182,6 +198,19 @@
         </div>
       </div>
 
+      <div class="cp-field">
+        <label>Navigation &amp; header background</label>
+        <div class="cp-color-row">
+          <div class="cp-color-swatch" style="background:#ffffff;">
+            <input type="color" value="#ffffff" data-bind-color="--p-nav-bg" />
+          </div>
+          <div class="cp-color-info">
+            <div class="cp-color-label">Top header &amp; bottom bar</div>
+            <input class="cp-color-hex" value="#FFFFFF" spellcheck="false" maxlength="9" />
+          </div>
+        </div>
+      </div>
+
       <div class="cp-subhead">Icon style</div>
       <div class="cp-icon-style-preview">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><path d="M3 10l9-7 9 7v10a2 2 0 01-2 2H5a2 2 0 01-2-2z"/></svg>
@@ -194,21 +223,11 @@
         <div class="cp-radio" data-bind-radio="icon-style" data-value="duotone">Duotone</div>
       </div>
 
-      <div class="cp-subhead">Font library</div>
-      <input type="text" class="cp-font-search" id="font-search" placeholder="Search fonts…" />
-      <div class="cp-font-list" id="font-list">
-        <div class="cp-font-item active" data-font="-apple-system, BlinkMacSystemFont, 'SF Pro Display', sans-serif"><span class="fname">SF Pro</span><span class="fsub">Default</span></div>
-        <div class="cp-font-item" data-font="'Roboto', sans-serif"><span class="fname">Roboto</span><span class="fsub">Sans</span></div>
-        <div class="cp-font-item" data-font="'Poppins', sans-serif"><span class="fname">Poppins</span><span class="fsub">Sans</span></div>
-        <div class="cp-font-item" data-font="'Playfair Display', Georgia, serif"><span class="fname">Playfair Display</span><span class="fsub">Serif</span></div>
-        <div class="cp-font-item" data-font="'Merriweather', Georgia, serif"><span class="fname">Merriweather</span><span class="fsub">Serif</span></div>
-      </div>
       <div class="cp-subhead">Custom font</div>
-      <div class="cp-upload-zone" id="font-drop-zone" onclick="document.getElementById('font-file').click()">
-        <div class="cp-upload-btn">+ Upload custom font</div>
-        <div class="cp-upload-hint">.woff2 · .otf · .ttf</div>
+      <div class="px-font-request">
+        <span><strong>Need a licensed custom font?</strong><small>Fonts ship with the native app and require an app update.</small></span>
+        <button type="button" id="px-request-font">Request in App submission</button>
       </div>
-      <input type="file" id="font-file" accept=".woff2,.otf,.ttf" style="display:none;" />
     </div>
   </div>
 </div>

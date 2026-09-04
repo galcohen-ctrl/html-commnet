@@ -1,4 +1,411 @@
-  @media (max-width: 960px) {
-    .sw-body { grid-template-columns: 1fr; }
-    .sw-preview { display: none; }
+/* ============================================================
+   ADAPTIVE EDITOR
+   Desktop: full workbench (>= 1180px)
+   Compact/tablet: collapsed rail + explicit Edit/Preview view
+   Mobile / zoom reflow: horizontal step rail + one content column
+   ============================================================ */
+
+:root {
+  --ui-ease-out: cubic-bezier(0.23, 1, 0.32, 1);
+  --ui-ease-in-out: cubic-bezier(0.77, 0, 0.175, 1);
+  --ui-ease-drawer: cubic-bezier(0.32, 0.72, 0, 1);
+}
+
+/* The switch is created by responsive.js and is intentionally absent on the
+   wide workbench, where editing and preview are visible together. */
+.responsive-view-switch {
+  display: none;
+  align-items: center;
+  gap: 3px;
+  padding: 3px;
+  border: 1px solid var(--line);
+  border-radius: 11px;
+  background: #f4f4fa;
+}
+.responsive-view-switch button {
+  min-width: 84px;
+  min-height: 38px;
+  padding: 0 13px;
+  border: 0;
+  border-radius: 8px;
+  background: transparent;
+  color: var(--muted);
+  font: inherit;
+  font-size: 12.5px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: color 140ms ease, background-color 140ms ease, box-shadow 140ms ease, transform 100ms ease;
+}
+.responsive-view-switch button[aria-pressed="true"] {
+  color: var(--ink);
+  background: #fff;
+  box-shadow: 0 1px 3px rgba(20, 20, 40, .1);
+}
+.responsive-view-switch button:active { transform: scale(.97); }
+.responsive-view-switch button:focus-visible {
+  outline: 3px solid rgba(109, 40, 217, .25);
+  outline-offset: 1px;
+}
+
+/* Exact transitions replace broad "all" transitions in the incumbent editor. */
+.cp-item,
+.cp-radio {
+  transition: color 120ms ease, background-color 120ms ease, border-color 120ms ease, box-shadow 120ms ease;
+}
+.cp-widget-row {
+  transition: border-color 150ms ease, background-color 150ms ease, box-shadow 150ms ease;
+}
+.cp-widget-row .toggle {
+  transition: color 120ms ease, background-color 120ms ease, border-color 120ms ease, box-shadow 120ms ease, transform 120ms var(--ui-ease-out);
+}
+.w-edit-icon {
+  transition: color 120ms ease, background-color 120ms ease, border-color 120ms ease, transform 120ms var(--ui-ease-out);
+}
+
+/* Editor hit areas: the glyph can stay compact while its interactive target is
+   comfortable for touch, trackpads, motor accessibility, and browser zoom. */
+.topbar button,
+.topbar select,
+body .cp-step-back,
+body .cp-step-next,
+.config-column button,
+.config-column .cp-radio,
+.config-column input:not([type="color"]):not([type="range"]),
+.config-column select {
+  min-height: 44px;
+}
+.topbar .close-btn { width: 44px; height: 44px; }
+.cp-widget-row .toggle,
+.w-edit-icon,
+.cp-widget-row .handle,
+.rw-row-head .handle {
+  width: 44px;
+  min-width: 44px;
+  height: 44px;
+  min-height: 44px;
+}
+.cp-widget-row .handle,
+.rw-row-head .handle {
+  display: inline-grid;
+  place-items: center;
+  margin-block: -5px;
+  touch-action: none;
+  user-select: none;
+  -webkit-user-select: none;
+  opacity: 1;
+}
+.cp-widget-row.dragging .handle { pointer-events: auto; }
+.cp-widget-row .handle:focus-visible,
+.rw-row-head .handle:focus-visible {
+  color: var(--como);
+  outline: 3px solid rgba(109, 40, 217, .22);
+  outline-offset: -3px;
+  border-radius: 9px;
+}
+.reorder-status,
+.preview-edit-help {
+  position: fixed !important;
+  width: 1px !important;
+  height: 1px !important;
+  padding: 0 !important;
+  margin: -1px !important;
+  overflow: hidden !important;
+  clip: rect(0, 0, 0, 0) !important;
+  white-space: nowrap !important;
+  border: 0 !important;
+}
+
+@media (hover: hover) and (pointer: fine) {
+  .responsive-view-switch button:hover { color: var(--ink); }
+}
+
+/* A regular desktop can show the full editor, but a deep L3 panel becomes a
+   non-blocking side drawer until there is enough width for four true columns. */
+@media (min-width: 1180px) and (max-width: 1439.98px) {
+  body.l3-open .workspace {
+    grid-template-columns: 216px minmax(360px, 400px) 0 0 minmax(360px, 1fr);
   }
+  body.l3-open.side-collapsed .workspace {
+    grid-template-columns: 64px minmax(360px, 400px) 0 0 minmax(360px, 1fr);
+  }
+  /* Fourth panel open: all editor columns become real and the phone shifts right;
+     the L3 list is a column here rather than a drawer. */
+  body.l4-open .workspace,
+  body.l4-open.side-collapsed .workspace {
+    grid-template-columns: 64px minmax(280px, 320px) 288px 320px minmax(280px, 1fr);
+  }
+  .l3-panel {
+    position: absolute;
+    inset-block: 0;
+    right: 0;
+    width: min(360px, calc(100% - 464px));
+    z-index: 35;
+    opacity: 0;
+    transform: scale(.985);
+    transform-origin: right center;
+    box-shadow: -22px 0 50px -28px rgba(20, 20, 40, .38);
+    transition: opacity 200ms var(--ui-ease-out), transform 200ms var(--ui-ease-out);
+  }
+  body.l3-open .l3-panel { opacity: 1; transform: scale(1); }
+  body.l4-open .l3-panel {
+    position: static; width: auto; z-index: auto;
+    opacity: 1; transform: none; box-shadow: none;
+  }
+}
+
+/* Compact/tablet workbench ----------------------------------- */
+@media (max-width: 1179.98px) {
+  .responsive-view-switch { display: inline-flex; }
+  .topbar .demo-toggle { display: none; }
+
+  .workspace,
+  body.side-collapsed .workspace,
+  body.l3-open .workspace,
+  body.l3-open.side-collapsed .workspace,
+  body.l4-open .workspace,
+  body.l4-open.side-collapsed .workspace {
+    grid-template-columns: 64px minmax(0, 1fr);
+    grid-template-rows: minmax(0, 1fr);
+  }
+
+  .side-nav {
+    grid-column: 1;
+    grid-row: 1;
+    padding: 10px;
+    overflow-x: visible;
+    overflow-y: auto;
+  }
+  .side-brand { justify-content: center; padding-inline: 0; }
+  .side-brand-name,
+  .side-kicker,
+  .side-item .side-lbl,
+  .side-item .side-check,
+  .side-item .side-chev { display: none; }
+  .side-toggle-btn { display: none; }
+  .side-nav .side-item {
+    width: 44px;
+    min-width: 44px;
+    min-height: 44px;
+    justify-content: center;
+    padding: 9px;
+    margin-inline: auto;
+  }
+  .side-steps .side-step + .side-step::before { display: none; }
+  .side-tooltip { left: calc(100% + 8px); }
+  body .side-nav { overflow-x: visible; }
+  body .account-menu { left: 54px; bottom: 0; width: min(248px, calc(100vw - 76px)); }
+
+  .config-column,
+  .preview-area {
+    grid-column: 2;
+    grid-row: 1;
+    min-width: 0;
+    min-height: 0;
+  }
+  .preview-area {
+    display: none;
+    justify-content: center;
+    padding: 24px;
+    overflow: hidden;
+  }
+  body[data-responsive-view="preview"] .preview-area { display: flex; }
+  body[data-responsive-view="preview"] .config-column { display: none; }
+
+  .l3-panel {
+    position: absolute;
+    inset: 0 0 0 64px;
+    width: auto;
+    z-index: 40;
+    opacity: 0;
+    transform: scale(.985);
+    transform-origin: right center;
+    box-shadow: -22px 0 50px -28px rgba(20, 20, 40, .4);
+    transition: opacity 220ms var(--ui-ease-out), transform 220ms var(--ui-ease-drawer);
+  }
+  body.l3-open[data-responsive-view="edit"] .l3-panel {
+    opacity: 1;
+    transform: scale(1);
+  }
+  body[data-responsive-view="preview"] .l3-panel { display: none; }
+  .l4-panel {
+    position: absolute;
+    inset: 0 0 0 64px;
+    width: auto;
+    z-index: 41;
+    opacity: 0;
+    transform: scale(.985);
+    transform-origin: right center;
+    box-shadow: -22px 0 50px -28px rgba(20, 20, 40, .4);
+    transition: opacity 220ms var(--ui-ease-out), transform 220ms var(--ui-ease-drawer);
+  }
+  body.l4-open[data-responsive-view="edit"] .l4-panel { opacity: 1; transform: scale(1); }
+  body[data-responsive-view="preview"] .l4-panel { display: none; }
+  .l3-inner { padding: 20px clamp(18px, 4vw, 32px); }
+
+  .config-panel { padding-inline: clamp(18px, 4vw, 36px); }
+  body .cp-step-foot { padding-inline: clamp(18px, 4vw, 36px); }
+
+  .sw-body { grid-template-columns: 1fr; }
+  .sw-preview { display: none; }
+}
+
+@media (max-width: 920px) {
+  .topbar .preset-dropdown { display: none; }
+}
+
+/* Mobile and 200% zoom reflow ------------------------------- */
+@media (max-width: 767.98px) {
+  .topbar {
+    height: auto;
+    min-height: 64px;
+    padding: 8px 12px;
+    gap: 8px;
+    flex-wrap: wrap;
+  }
+  .topbar .brand { flex: 1 1 120px; min-width: 0; }
+  .topbar .brand > div:last-child { min-width: 0; }
+  .topbar .brand-name { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  .topbar .brand-sub { display: none; }
+  .topbar .top-spacer { display: none; }
+  .topbar .save-btn { min-width: 44px; padding-inline: 12px; }
+  .responsive-view-switch {
+    order: 10;
+    width: 100%;
+  }
+  .responsive-view-switch button { flex: 1; min-height: 44px; }
+
+  .workspace,
+  body.side-collapsed .workspace,
+  body.l3-open .workspace,
+  body.l3-open.side-collapsed .workspace {
+    grid-template-columns: minmax(0, 1fr);
+    grid-template-rows: 56px minmax(0, 1fr);
+  }
+
+  .side-nav,
+  body.side-collapsed .side-nav {
+    grid-column: 1;
+    grid-row: 1;
+    flex-direction: row;
+    align-items: center;
+    gap: 2px;
+    padding: 6px;
+    border-right: 0;
+    border-bottom: 1px solid #26223a;
+    overflow-x: auto;
+    overflow-y: hidden;
+    scrollbar-width: none;
+    overscroll-behavior-x: contain;
+  }
+  .side-nav::-webkit-scrollbar { display: none; }
+  .side-brand,
+  .side-kicker,
+  .side-divider,
+  .side-spacer,
+  .side-toggle-btn { display: none; }
+  .side-items,
+  .side-foot { display: flex; flex: 0 0 auto; flex-direction: row; gap: 2px; }
+  .side-foot { margin: 0; padding: 0; border: 0; }
+  .side-nav .side-item,
+  body.side-collapsed .side-nav .side-item {
+    flex: 0 0 44px;
+    width: 44px;
+    min-width: 44px;
+    min-height: 44px;
+    margin: 0;
+    padding: 9px;
+  }
+  .side-nav .side-item.active::before {
+    left: 8px;
+    right: 8px;
+    top: auto;
+    bottom: 0;
+    width: auto;
+    height: 3px;
+    border-radius: 3px 3px 0 0;
+    background: linear-gradient(90deg, var(--como), #a855f7);
+  }
+  .side-tooltip { display: none !important; }
+  body .account-menu {
+    position: fixed;
+    left: 8px;
+    right: 8px;
+    bottom: 64px;
+    width: auto;
+    max-height: min(560px, calc(100dvh - 144px));
+    overflow-y: auto;
+  }
+
+  .config-column,
+  .preview-area {
+    grid-column: 1;
+    grid-row: 2;
+  }
+  .config-panel {
+    padding: 18px clamp(16px, 5vw, 24px);
+    scrollbar-gutter: auto;
+  }
+  .cp-breadcrumb { padding-inline: clamp(16px, 5vw, 24px); }
+  body .cp-step-foot {
+    padding: 10px clamp(12px, 4vw, 20px);
+    gap: 8px;
+    flex-wrap: wrap;
+  }
+  body .cp-step-back,
+  body .cp-step-next { min-height: 44px; }
+  body .cp-step-next { flex: 1 1 170px; justify-content: center; }
+  body .cp-step-back { flex: 0 1 auto; }
+
+  .preview-area {
+    padding: 16px 12px 32px;
+    overflow-x: hidden;
+  }
+  .preview-edit-toolbar {
+    position: absolute;
+    top: 12px;
+    right: 12px;
+    margin: 0;
+  }
+
+  .l3-panel {
+    inset: 56px 0 0 0;
+    width: auto;
+  }
+  .l3-inner { padding: 18px clamp(16px, 5vw, 24px); }
+
+  .config-column,
+  .config-panel,
+  .cp-page,
+  .cp-section,
+  .cp-field,
+  .cp-field input,
+  .cp-field textarea,
+  .cp-field select { max-width: 100%; min-width: 0; }
+  .cp-radio-group { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(120px, 100%), 1fr)); }
+}
+
+@media (max-width: 420px) {
+  .topbar .save-btn { font-size: 0; width: 44px; padding: 0; }
+  .topbar .save-btn::before { content: "Saved"; font-size: 11px; }
+  .topbar .save-btn[data-state="saving"]::before { content: "Saving"; }
+  .topbar .save-btn[data-state="error"]::before { content: "Retry"; }
+  .topbar .brand-logo { width: 28px; height: 28px; }
+  .cp-widget-row { padding-inline: 8px; gap: 4px; }
+  .cp-widget-row .w-name { font-size: 12px; }
+  .preview-edit-toggle { width: 44px; padding: 0; justify-content: center; }
+  .preview-edit-toggle .preview-edit-label { display: none; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .responsive-view-switch button,
+  .cp-item,
+  .cp-radio,
+  .cp-widget-row,
+  .cp-widget-row .toggle,
+  .w-edit-icon,
+  .l3-panel {
+    transition-duration: 1ms !important;
+  }
+  .responsive-view-switch button:active,
+  .cp-widget-row .toggle:active { transform: none; }
+}

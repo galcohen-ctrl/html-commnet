@@ -36,8 +36,12 @@ export function initBranding(ctx) {
   })();
 
   // ---------- Font picker (Branding drill: list + search + custom upload) ----------
-  function applyFontFamily(font) {
-    document.querySelectorAll('.app-shell').forEach(shell => shell.style.fontFamily = font);
+  function applyFontFamily(font, role = 'both') {
+    if (role === 'both' || role === 'body') {
+      document.body.style.setProperty('--p-font-body', font);
+      document.querySelectorAll('.app-shell').forEach(shell => shell.style.fontFamily = font);
+    }
+    if (role === 'both' || role === 'title') document.body.style.setProperty('--p-font-title', font);
   }
   function activateFontItem(item) {
     document.querySelectorAll('.cp-font-item, .cp-font-card').forEach(x => x.classList.remove('active'));
@@ -120,6 +124,11 @@ export function initBranding(ctx) {
       loadCustomFont(e.dataTransfer.files && e.dataTransfer.files[0]);
     });
   }
+
+  // The header is transparent until the merchant picks a navigation colour.
+  document.querySelector('input[type="color"][data-bind-color="--p-nav-bg"]')?.addEventListener('input', (e) => {
+    document.body.style.setProperty('--p-header-bg', e.target.value);
+  });
 
   // ---------- Slider bindings (Logo size) ----------
   document.querySelectorAll('.cp-slider[data-bind-slider]').forEach(s => {

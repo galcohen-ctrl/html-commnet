@@ -42,9 +42,6 @@ export function initRewardsBlocks(ctx) {
   const drill = document.querySelector('[data-detail="rw-block"]');
   if (!list || !stage || !drill) return {};
 
-  // Reward cards keep their own skeleton placeholder, like Home widgets do.
-  const REWARD_SLOTS = { gifts: 'rewards-gifts', points: 'rewards-points', punch: 'rewards-punch' };
-
   const blocks = [];
   let nextId = 1;
   let editingId = null;
@@ -62,16 +59,15 @@ export function initRewardsBlocks(ctx) {
     [...list.querySelectorAll('.cp-widget-row')].forEach((row) => {
       const blockId = row.dataset.rwBlock;
       if (blockId) {
-        const el = stage.querySelector(`[data-widget="rw-block-${blockId}"]`);
+        const el = stage.querySelector(`[data-widget="rw-block-${blockId}"]`)
+          || stage.querySelector(`.promo-cards-widget[data-widget="${blockId}"]`);
         if (el) stage.appendChild(el);
         return;
       }
       const key = row.querySelector('[data-rw-key]')?.dataset.rwKey;
       if (!key) return;
-      const skeleton = stage.querySelector(`.gf-skel-widget[data-skel-for="${REWARD_SLOTS[key]}"]`);
-      if (skeleton) stage.appendChild(skeleton);
-      const card = stage.querySelector(`[data-rw-tile="${key}"]`);
-      if (card) stage.appendChild(card);
+      // A member can hold more than one punch card, so move every matching tile.
+      stage.querySelectorAll(`[data-rw-tile="${key}"]`).forEach((card) => stage.appendChild(card));
     });
   }
 
@@ -130,12 +126,13 @@ export function initRewardsBlocks(ctx) {
     row.innerHTML = `<div class="rw-row-head">
         <span class="handle">⠿</span>
         <span class="w-name" title="${esc(BLOCK_DEFS[b.type].label)}">${esc(blockName(b))}</span>
-        <button class="w-edit-icon" title="${b.type === 'text' ? 'Edit text' : 'Edit widget'}"><svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12.5 3l4.5 4.5-10 10H2.5v-4.5l10-10z"/><path d="M11 4.5l4.5 4.5"/></svg></button>
         <button class="w-del-icon" title="Remove widget"><svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"><path d="M4 6h12M8 6V4h4v2M6 6v10a1 1 0 001 1h6a1 1 0 001-1V6"/></svg></button>
       </div>${inline}`;
 
-    row.querySelector('.w-edit-icon').addEventListener('click', () => openBlock(b.id));
-    row.querySelector('.w-name').addEventListener('click', () => openBlock(b.id));
+    row.querySelector('.rw-row-head').addEventListener('click', (e) => {
+      if (e.target.closest('.handle, .w-del-icon, input, textarea')) return;
+      openBlock(b.id);
+    });
     row.querySelector('.w-del-icon').addEventListener('click', (e) => {
       e.stopPropagation();
       blocks.splice(blocks.indexOf(b), 1);
@@ -302,6 +299,8 @@ export function initRewardsBlocks(ctx) {
   /* --------------------------------------------------------- add menu */
 
   function addBlock(type) {
+    // Promo cards on Rewards use the same rich widget as Home (plus a Heading field).
+    if (type === 'promo') { window.createRewardsPromoInstance?.(); return; }
     const block = { id: nextId++, type, ...BLOCK_DEFS[type].make() };
     blocks.push(block);
     const row = addBlockRow(block);
@@ -313,7 +312,7 @@ export function initRewardsBlocks(ctx) {
     } else {
       openBlock(block.id);
     }
-    row.scrollIntoView({ block: 'nearest', behavior: 'smooth' });
+    row.scrollIntoView({ block: 'nearest', behavior: window.matchMedia('(prefers-reduced-motion: reduce)').matches ? 'auto' : 'smooth' });
   }
 
   if (addBtn && addMenu) {

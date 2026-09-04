@@ -5,6 +5,26 @@
         <div class="cp-page-sub">Grid of quick-access tiles. Toggle any tile off to hide it on the phone.</div>
 
         <div class="cp-section open">
+          <div class="cp-head-row">Header <span class="chev">›</span></div>
+          <div class="cp-body">
+            <div class="cp-field">
+              <label>Page subtitle</label>
+              <input class="cp-input-text" data-bind-text=".app-page[data-page='more'] .app-top-header .brand-text .sub" value="Everything else" />
+            </div>
+          </div>
+        </div>
+
+        <div class="cp-section open">
+          <div class="cp-head-row">Layout <span class="chev">›</span></div>
+          <div class="cp-body">
+            <div class="cp-radio-group" id="more-layout-group">
+              <div class="cp-radio active" data-more-layout="grid">Grid</div>
+              <div class="cp-radio" data-more-layout="list">List</div>
+            </div>
+          </div>
+        </div>
+
+        <div class="cp-section open">
           <div class="cp-head-row">More tiles <span class="chev">›</span></div>
           <div class="cp-body">
             <div class="cp-toggle-row"><span class="lbl">Home</span><span class="toggle" data-bind=".more-tile:nth-child(1)"></span></div>

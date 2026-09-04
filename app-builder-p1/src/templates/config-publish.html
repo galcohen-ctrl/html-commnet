@@ -1,13 +1,40 @@
 <div class="cp-master">
-  <h3 class="cp-head">Last step</h3>
-  <div class="cp-page-title">Review &amp; publish</div>
-  <div class="cp-page-sub">Check everything is set up, then send your app to the stores.</div>
+  <h3 class="cp-head">Content publishing</h3>
+  <div class="cp-page-title">Prepare your first app</div>
+  <div class="cp-page-sub">Review the member experience, publish the content version, then complete native app submission separately.</div>
+
+  <div class="gf-publish-status" id="gf-content-status" data-state="draft" role="status">
+    <span class="gf-publish-status-dot"></span>
+    <span><b>Reviewable draft</b><small>Nothing is live yet.</small></span>
+  </div>
 
   <div class="cp-section open">
     <div class="cp-head-row">Your setup <span class="chev">›</span></div>
     <div class="cp-body" id="gf-review-list"><!-- rendered by the guided-flow module --></div>
   </div>
 
-  <button class="gf-publish-btn" id="gf-publish-btn" type="button">Publish my app</button>
-  <div class="cp-hint-inline" style="text-align:center;margin-top:8px">You can keep editing after publishing. Changes go live in about a minute.</div>
+  <button class="gf-publish-btn" id="gf-publish-btn" type="button" disabled aria-describedby="gf-publish-hint">Publish content changes</button>
+  <div class="cp-hint-inline" id="gf-publish-hint">Complete the required setup above to publish. Content updates usually appear in the app within a few minutes.</div>
+
+  <div class="px-launch-checklist" id="px-launch-checklist">
+    <div class="px-launch-row">
+      <span class="px-launch-icon" aria-hidden="true">1</span>
+      <span><strong>Check the full-size preview</strong><small>The browser preview checks layout; native behavior still needs a device test.</small></span>
+      <button type="button" id="px-open-device-preview">Open preview</button>
+    </div>
+    <label class="px-launch-row px-launch-check">
+      <input type="checkbox" id="px-device-reviewed" />
+      <span><strong>I reviewed the important member states</strong><small>Guest, returning member, ordering or loyalty, and every included screen.</small></span>
+    </label>
+  </div>
+
+  <div class="gf-submission-card">
+    <div class="gf-submission-copy">
+      <strong>Native app launch</strong>
+      <span>The technical parts — developer accounts, store assets, privacy answers and the Apple and Google submission — are prepared with your Como team. You review and approve; you do not have to work through it alone.</span>
+    </div>
+    <button class="gf-secondary-btn" id="gf-open-submission-btn" type="button">Open app submission</button>
+  </div>
+
+  <button class="px-restore-published" id="px-restore-published" type="button">Restore last published version</button>
 </div>

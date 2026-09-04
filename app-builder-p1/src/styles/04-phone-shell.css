@@ -9,6 +9,7 @@
     background-image:
       radial-gradient(circle at 20% 30%, rgba(109,40,217,.04) 0%, transparent 40%),
       radial-gradient(circle at 80% 70%, rgba(168,85,247,.04) 0%, transparent 40%);
+    position: relative;
   }
 
   .device-frame {
@@ -23,6 +24,22 @@
       0 10px 30px rgba(0,0,0,.15),
       0 0 0 1px rgba(0,0,0,.1);
     flex: none;
+  }
+  /* Keep the preview faithful to one 320 × 660 app canvas. The outer stage is
+     resized by responsive.js while the device itself is uniformly scaled, so a
+     short browser window never turns the preview into a misleading narrow app. */
+  .device-stage {
+    position: relative;
+    width: 320px;
+    height: 660px;
+    flex: none;
+  }
+  .device-stage .device-frame {
+    position: absolute;
+    top: 0;
+    left: 0;
+    transform: scale(var(--preview-device-scale, 1));
+    transform-origin: top left;
   }
   .device-frame.android { border-radius: 30px; padding: 10px; }
   .device-screen {
@@ -75,13 +92,37 @@
   }
   .app-shell::-webkit-scrollbar { display: none; }
 
+  /* "Exit web link preview" pill — appears on hover while previewing a card's
+     web-link tap action, so the merchant knows where they are and can get back. */
+  .tap-preview-exit {
+    position: absolute; top: 42px; left: 0; right: 0; z-index: 30;
+    display: flex; justify-content: center;
+    opacity: 0; transform: translateY(-6px); pointer-events: none;
+    transition: opacity .18s ease, transform .18s ease;
+  }
+  body.tap-webview-preview.tap-webview-hint .tap-preview-exit,
+  body.tap-webview-preview .device-screen:hover .tap-preview-exit {
+    opacity: 1; transform: none; pointer-events: auto;
+  }
+  .tap-preview-exit-btn {
+    display: inline-flex; align-items: center; gap: 7px;
+    background: rgba(18, 18, 33, .9); color: #fff;
+    border: none; border-radius: 999px;
+    padding: 8px 14px; font: inherit; font-size: 12px; font-weight: 700;
+    cursor: pointer; box-shadow: 0 8px 20px -6px rgba(0, 0, 0, .5);
+    -webkit-backdrop-filter: blur(4px); backdrop-filter: blur(4px);
+  }
+  .tap-preview-exit-btn:hover { background: #121221; }
+  .tap-preview-exit-btn svg { width: 14px; height: 14px; flex: none; }
+
   .app-page {
     display: none;
     padding: 0 16px 24px;
     min-height: 100%;
   }
-  .app-page.active { display: block; animation: fadeIn .25s ease; }
-  @keyframes fadeIn { from { opacity: 0; transform: translateY(4px); } to { opacity: 1; transform: none; } }
+  /* Phone navigation is frequent and may be keyboard initiated. Keeping it
+     immediate feels faster and avoids restarting a keyframe on rapid changes. */
+  .app-page.active { display: block; }
 
   /* Bottom nav */
   .bottom-nav {
@@ -106,5 +147,95 @@
   }
   .nav-item svg { width: 20px; height: 20px; }
   .nav-item.active { color: var(--p-accent); }
-  .nav-item:hover { color: var(--p-accent); }
+  .nav-item:focus-visible {
+    outline: 2px solid var(--p-accent);
+    outline-offset: 1px;
+    border-radius: 8px;
+  }
 
+  /* Explicit preview editing mode. Customer-facing CTAs remain normal until the
+     merchant opts into this mode from the preview toolbar. */
+  .preview-edit-toolbar {
+    position: sticky;
+    top: 12px;
+    align-self: flex-end;
+    z-index: 70;
+    margin: -28px 0 12px;
+    pointer-events: auto;
+  }
+  .preview-edit-toggle {
+    min-height: 44px;
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    padding: 0 14px;
+    border: 1px solid rgba(29, 29, 40, .14);
+    border-radius: 999px;
+    background: rgba(255, 255, 255, .88);
+    color: var(--ink);
+    box-shadow: 0 8px 24px rgba(20, 20, 40, .1);
+    backdrop-filter: blur(18px) saturate(150%);
+    font-size: 12.5px;
+    font-weight: 700;
+    cursor: pointer;
+    transition: color 140ms ease, background-color 140ms ease, border-color 140ms ease, transform 100ms ease;
+  }
+  .preview-edit-toggle svg { width: 16px; height: 16px; flex: none; color: #7d7d8d; }
+  .preview-edit-toggle[aria-pressed="true"] {
+    color: var(--como);
+    background: rgba(255, 255, 255, .96);
+    border-color: rgba(109, 40, 217, .35);
+  }
+  .preview-edit-toggle[aria-pressed="true"] svg { color: var(--como); }
+  .preview-edit-toggle:active { transform: scale(.97); }
+  .preview-edit-toggle:focus-visible {
+    outline: 3px solid rgba(109, 40, 217, .28);
+    outline-offset: 2px;
+  }
+
+  body.preview-edit-mode .device-screen [data-preview-editable] {
+    cursor: pointer;
+    outline: 1px solid transparent;
+    outline-offset: 3px;
+    border-radius: 12px;
+    transition: outline-color 140ms ease, box-shadow 140ms ease, opacity 140ms ease;
+  }
+  body.preview-edit-mode .device-screen [data-preview-editable]:focus-visible,
+  body.preview-edit-mode .device-screen [data-preview-editable].preview-edit-selected {
+    outline: 2px solid var(--p-accent, var(--como));
+    box-shadow: 0 0 0 5px color-mix(in srgb, var(--p-accent, var(--como)) 16%, transparent);
+  }
+  body.preview-edit-mode .device-screen [data-preview-editable].preview-edit-selected {
+    position: relative;
+    z-index: 2;
+  }
+  .cp-widget-row.preview-linked,
+  .pc-item.preview-linked {
+    border-color: var(--como) !important;
+    box-shadow: 0 0 0 3px var(--como-soft) !important;
+  }
+
+  @media (hover: hover) and (pointer: fine) {
+    .nav-item:hover { color: var(--p-accent); }
+    body.preview-edit-mode .device-screen [data-preview-editable]:hover {
+      outline-color: color-mix(in srgb, var(--p-accent, var(--como)) 65%, transparent);
+    }
+    .preview-edit-toggle:hover { border-color: rgba(109, 40, 217, .35); }
+  }
+
+  @media (prefers-reduced-transparency: reduce) {
+    .preview-edit-toggle { background: #fff; backdrop-filter: none; }
+  }
+
+  @media (prefers-contrast: more) {
+    .preview-edit-toggle { background: #fff; border: 2px solid currentColor; }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .preview-edit-toggle,
+    .preview-edit-toggle::before,
+    body.preview-edit-mode .device-screen [data-preview-editable] {
+      transition-duration: 1ms;
+    }
+    .preview-edit-toggle:active { transform: none; }
+  }

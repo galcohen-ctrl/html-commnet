@@ -8,7 +8,7 @@
                   <div class="sub">Your rewards</div>
                 </div>
               </div>
-              <button class="icon-btn" onclick="openAccountPage()" title="Profile">👤</button>
+              <button class="icon-btn px-profile-icon" onclick="openAccountPage()" aria-label="Open profile"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9"><circle cx="12" cy="8" r="3.5"/><path d="M5 21a7 7 0 0114 0"/></svg></button>
             </div>
 
             <div class="p-section-hd"><span class="spark">✦</span> Rewards</div>
@@ -16,16 +16,7 @@
             <!-- One stage for reward cards and merchant-added widgets alike.
                  layoutRewardsStage() wraps runs of reward cards in .rewards-progs. -->
             <div class="rewards-stage" id="rewards-stage">
-              <!-- My Gifts: skeleton + real card share the same slot -->
-              <div class="gf-skel-widget" data-skel-for="rewards-gifts">
-                <div class="gf-skel-reward">
-                  <div class="gf-skel-line w40 tall"></div>
-                  <div class="gf-skel-line w70"></div>
-                  <div class="gf-skel-line w55"></div>
-                </div>
-                <div class="gf-skel-tag">My Gifts · add from the left panel</div>
-              </div>
-              <div class="prog-card hidden-slot" data-widget="rewards-gifts" data-slot-name="rewards-gifts" data-rw-tile="gifts">
+              <div class="prog-card hidden-slot" data-widget="rewards-gifts" data-slot-name="rewards-gifts" data-rw-tile="gifts" role="button" tabindex="0" onclick="showPhonePage('gifts')">
                 <div class="rw-img" style="display:none;"></div>
                 <div class="kicker">My Gifts</div>
                 <div class="prog-title">Active Rewards ready to be redeemed</div>
@@ -33,16 +24,8 @@
                 <button class="rw-btn" style="display:none;"></button>
               </div>
 
-              <!-- Points Shop: skeleton + real card share the same slot -->
-              <div class="gf-skel-widget" data-skel-for="rewards-points">
-                <div class="gf-skel-reward">
-                  <div class="gf-skel-line w55 tall"></div>
-                  <div class="gf-skel-line w90"></div>
-                  <div class="gf-skel-line w60"></div>
-                </div>
-                <div class="gf-skel-tag">Points Shop · add from the left panel</div>
-              </div>
-              <div class="prog-card hidden-slot" data-widget="rewards-points" data-slot-name="rewards-points" data-rw-tile="points">
+              <!-- Points Shop -->
+              <div class="prog-card hidden-slot" data-widget="rewards-points" data-slot-name="rewards-points" data-rw-tile="points" role="button" tabindex="0" onclick="showPhonePage('point-shop')">
                 <div class="rw-img" style="display:none;"></div>
                 <div class="kicker">My Points Shop</div>
                 <div class="prog-title">1 pt per AED spent</div>
@@ -50,27 +33,41 @@
                 <button class="rw-btn" style="display:none;"></button>
               </div>
 
-              <!-- Punch Card: skeleton + real card share the same slot -->
-              <div class="gf-skel-widget" data-skel-for="rewards-punch">
-                <div class="gf-skel-reward">
-                  <div class="gf-skel-line w60 tall"></div>
-                  <div class="gf-skel-punch">
-                    <span></span><span></span><span></span><span></span><span></span>
-                    <span></span><span></span><span></span><span></span><span></span>
+              <!-- Punch Cards — a member can hold several, shown as a swipeable carousel -->
+              <div class="punch-slot hidden-slot" data-widget="rewards-punch" data-slot-name="rewards-punch" data-rw-tile="punch">
+                <div class="punch-carousel" id="punch-carousel">
+                  <div class="punch-card">
+                    <div class="rw-img" style="display:none;"></div>
+                    <div class="prog-title">Coffee Punch Card</div>
+                    <div class="punches">
+                      <span class="punch filled"></span><span class="punch filled"></span><span class="punch filled"></span><span class="punch filled"></span><span class="punch filled"></span>
+                      <span class="punch filled"></span><span class="punch filled"></span><span class="punch"></span><span class="punch"></span><span class="punch"></span>
+                    </div>
+                    <div class="prog-sub">7 of 10 · Free coffee after 10 stamps</div>
+                    <button class="rw-btn" style="display:none;"></button>
                   </div>
-                  <div class="gf-skel-line w55"></div>
+                  <div class="punch-card">
+                    <div class="prog-title">Lunch Club Card</div>
+                    <div class="punches">
+                      <span class="punch filled"></span><span class="punch filled"></span><span class="punch filled"></span><span class="punch"></span><span class="punch"></span>
+                      <span class="punch"></span><span class="punch"></span><span class="punch"></span><span class="punch"></span><span class="punch"></span>
+                    </div>
+                    <div class="prog-sub">3 of 10 · Free main after 10 lunches</div>
+                  </div>
+                  <div class="punch-card">
+                    <div class="prog-title">Bakery Club Card</div>
+                    <div class="punches">
+                      <span class="punch filled"></span><span class="punch filled"></span><span class="punch filled"></span><span class="punch filled"></span><span class="punch filled"></span>
+                      <span class="punch filled"></span><span class="punch filled"></span><span class="punch filled"></span><span class="punch filled"></span><span class="punch"></span>
+                    </div>
+                    <div class="prog-sub">9 of 10 · Free pastry after 10 visits</div>
+                  </div>
                 </div>
-                <div class="gf-skel-tag">Punch Card · add from the left panel</div>
-              </div>
-              <div class="punch-card hidden-slot" data-widget="rewards-punch" data-slot-name="rewards-punch" data-rw-tile="punch">
-                <div class="rw-img" style="display:none;"></div>
-                <div class="prog-title">Coffee Punch Card</div>
-                <div class="punches">
-                  <span class="punch filled"></span><span class="punch filled"></span><span class="punch filled"></span><span class="punch filled"></span><span class="punch filled"></span>
-                  <span class="punch filled"></span><span class="punch filled"></span><span class="punch"></span><span class="punch"></span><span class="punch"></span>
+                <div class="pc-dots" id="punch-dots">
+                  <span class="pc-dot active" data-punch-dot="0"></span>
+                  <span class="pc-dot" data-punch-dot="1"></span>
+                  <span class="pc-dot" data-punch-dot="2"></span>
                 </div>
-                <div class="prog-sub">7 of 10 · Free coffee after 10 stamps</div>
-                <button class="rw-btn" style="display:none;"></button>
               </div>
             </div>
           </div>

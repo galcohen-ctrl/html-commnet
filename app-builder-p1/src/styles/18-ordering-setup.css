@@ -1,0 +1,263 @@
+/* ============================================================
+   Step 2 — "How do customers order from your app?"
+   Replaces the old App Focus card grid.
+   ============================================================ */
+
+.oo-choice {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  margin-top: 14px;
+}
+
+.oo-opt {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+  width: 100%;
+  padding: 13px 15px;
+  text-align: left;
+  background: var(--panel);
+  border: 1.5px solid var(--line);
+  border-radius: var(--radius);
+  cursor: pointer;
+  transition:
+    border-color var(--motion-fast) var(--ease-out),
+    box-shadow var(--motion-fast) var(--ease-out),
+    background var(--motion-fast) var(--ease-out);
+}
+
+.oo-opt:hover { border-color: #c9c4d8; }
+.oo-opt:focus-visible { outline: none; border-color: var(--como); box-shadow: 0 0 0 3px var(--focus-ring); }
+.oo-opt.selected { border-color: var(--como); box-shadow: 0 0 0 3px var(--como-soft); }
+
+/* While one option is being previewed, the others recede so the phone and the
+   hovered card read as a single answer. */
+.oo-choice.previewing .oo-opt:not(:hover):not(:focus-visible) { opacity: .55; }
+
+/* ---- radio mark ---- */
+.oo-opt-mark {
+  flex: none;
+  width: 19px;
+  height: 19px;
+  margin-top: 2px;
+  border: 2px solid #c3c3d2;
+  border-radius: 50%;
+  position: relative;
+  transition: border-color var(--motion-fast) var(--ease-out);
+}
+.oo-opt.selected .oo-opt-mark { border-color: var(--como); }
+.oo-opt-mark::after {
+  content: "";
+  position: absolute;
+  inset: 3px;
+  border-radius: 50%;
+  background: var(--como);
+  transform: scale(0);
+  transition: transform var(--motion-fast) var(--ease-out);
+}
+.oo-opt.selected .oo-opt-mark::after { transform: scale(1); }
+
+/* Confirmation dialog — shown before disconnecting a connected ordering method. */
+.gf-confirm-overlay {
+  position: fixed; inset: 0; z-index: 1000;
+  display: grid; place-items: center; padding: 24px;
+  background: rgba(18, 18, 33, .48);
+  opacity: 0; transition: opacity .16s ease;
+}
+.gf-confirm-overlay.is-open { opacity: 1; }
+.gf-confirm {
+  width: min(430px, 92vw);
+  background: var(--panel, #fff); color: var(--ink, #1d1d28);
+  border-radius: 16px; padding: 22px 22px 18px;
+  box-shadow: 0 24px 60px -20px rgba(20, 20, 40, .55);
+  transform: translateY(8px) scale(.98);
+  transition: transform .18s cubic-bezier(0.23, 1, 0.32, 1);
+}
+.gf-confirm-overlay.is-open .gf-confirm { transform: none; }
+.gf-confirm-title { margin: 0 0 8px; font-size: 17px; font-weight: 800; }
+.gf-confirm-body { margin: 0 0 18px; font-size: 13.5px; line-height: 1.55; color: var(--muted, #5b5b6b); }
+.gf-confirm-btns { display: flex; justify-content: flex-end; gap: 10px; }
+.gf-confirm-btns button {
+  min-height: 40px; padding: 0 16px; border-radius: 10px;
+  font: inherit; font-size: 13.5px; font-weight: 700; cursor: pointer;
+  border: 1px solid var(--line, #e6e6ee);
+}
+.gf-confirm-cancel { background: #fff; color: var(--ink, #1d1d28); }
+.gf-confirm-cancel:hover { background: #f4f4f8; }
+.gf-confirm-ok { background: var(--danger, #c7355a); color: #fff; border-color: var(--danger, #c7355a); }
+.gf-confirm-ok:hover { filter: brightness(1.05); }
+/* ---- body ---- */
+.oo-opt-body { display: flex; flex-direction: column; gap: 6px; min-width: 0; flex: 1; }
+
+.oo-opt-head { display: flex; align-items: center; flex-wrap: wrap; gap: 8px; }
+.oo-opt-name { font-size: 15px; font-weight: 750; color: var(--ink); letter-spacing: -.01em; }
+
+/* Green "configured" chip shown once native connects a provider or web view
+   points at a menu. */
+.oo-opt-status {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  margin-left: auto;
+  font-size: 11px;
+  font-weight: 800;
+  color: var(--ok);
+  background: var(--ok-soft);
+  border: 1px solid #cdebd8;
+  padding: 3px 9px 3px 7px;
+  border-radius: 999px;
+}
+.oo-opt-status[hidden] { display: none; }
+.oo-opt-status svg { width: 13px; height: 13px; }
+
+/* Provider-agnostic hint naming where the next choice happens. */
+.oo-opt-note { font-size: 12px; line-height: 1.5; color: var(--muted); font-style: italic; }
+
+.oo-badge-rec {
+  font-size: 10.5px;
+  font-weight: 800;
+  letter-spacing: .04em;
+  text-transform: uppercase;
+  color: var(--como);
+  background: var(--como-soft);
+  padding: 3px 8px;
+  border-radius: 999px;
+}
+
+.oo-opt-desc { font-size: 13px; line-height: 1.55; color: var(--muted); }
+
+/* ---- what the choice unlocks ---- */
+.oo-unlocks { display: flex; flex-direction: column; gap: 5px; margin-top: 3px; }
+.oo-unlocks-label {
+  font-size: 10.5px;
+  font-weight: 800;
+  letter-spacing: .04em;
+  text-transform: uppercase;
+  color: var(--muted);
+}
+.oo-unlocks-row { display: flex; flex-wrap: wrap; gap: 5px; }
+
+.oo-unlock {
+  font-size: 11.5px;
+  font-weight: 650;
+  color: var(--como);
+  background: var(--como-soft);
+  padding: 3px 8px;
+  border-radius: 6px;
+}
+
+/* Named but unavailable in this mode — shown so the trade-off is legible at the
+   moment of choosing rather than discovered later on the Home step. */
+.oo-unlock.off {
+  color: var(--muted);
+  background: var(--line-soft);
+  text-decoration: line-through;
+  text-decoration-color: #c3c3d2;
+}
+
+/* ---- configured option border ---- */
+.oo-opt.configured { border-color: #bfe6cd; }
+.oo-opt.configured.selected { border-color: var(--como); }
+
+/* ---- committed outcome ---- */
+.oo-outcome[hidden] { display: none; }
+.oo-outcome {
+  display: flex;
+  align-items: flex-start;
+  gap: 11px;
+  margin-top: 12px;
+  padding: 11px 13px;
+  border-radius: 12px;
+  background: var(--ok-soft);
+  border: 1px solid #cdebd8;
+}
+.oo-outcome[data-oo-mode="webview"],
+.oo-outcome[data-oo-mode="skip"] {
+  background: var(--line-soft);
+  border-color: var(--line);
+}
+
+.oo-outcome-ic { flex: none; width: 18px; height: 18px; margin-top: 1px; color: var(--ok); }
+.oo-outcome[data-oo-mode="webview"] .oo-outcome-ic,
+.oo-outcome[data-oo-mode="skip"] .oo-outcome-ic { color: var(--muted); }
+.oo-outcome-ic svg { width: 100%; height: 100%; }
+
+.oo-outcome-text { display: flex; flex-direction: column; gap: 3px; }
+.oo-outcome-text strong { font-size: 13.5px; font-weight: 750; color: var(--ink); }
+.oo-outcome-text span { font-size: 12.5px; line-height: 1.5; color: var(--muted); }
+
+/* ---- consequences on the phone chrome ---- */
+.nav-item.slot-hidden,
+.side-item.slot-hidden { display: none; }
+
+/* ---- info tooltip button ---- */
+.oo-tip-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 16px; height: 16px;
+  margin-left: 3px;
+  font-size: 10px; font-weight: 800; font-style: normal;
+  color: var(--muted);
+  border: 1.5px solid var(--line);
+  border-radius: 50%;
+  background: transparent;
+  cursor: pointer;
+  vertical-align: middle;
+  line-height: 1;
+  padding: 0;
+}
+.oo-tip-btn:hover { color: var(--como); border-color: var(--como); }
+
+.oo-tip-bubble {
+  position: absolute;
+  left: auto; right: 0; top: calc(100% + 6px);
+  width: 260px;
+  z-index: 50;
+  padding: 10px 12px;
+  font-size: 12px; line-height: 1.55; font-style: normal; font-weight: 500;
+  color: var(--ink);
+  background: var(--panel);
+  border: 1px solid var(--line);
+  border-radius: 10px;
+  box-shadow: 0 6px 20px rgba(0,0,0,.14);
+  pointer-events: none;
+  animation: oo-tip-in 120ms var(--ease-out);
+}
+@keyframes oo-tip-in {
+  from { opacity: 0; transform: translateY(-4px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+/* Reels chip must never appear during Online ordering step 2. */
+body.on-step-online-ordering .phone-reels-chip { display: none !important; }
+
+@media (prefers-reduced-motion: reduce) {
+  .oo-opt,
+  .oo-opt-mark,
+  .oo-opt-mark::after { transition: none; }
+}
+
+/* ============================================================
+   Home image banner — the Rewards image block, ported so Home
+   and Rewards compose from the same generic palette.
+   ============================================================ */
+
+.hb-banner { margin: 12px 14px; border-radius: 14px; overflow: hidden; background: #fff; box-shadow: var(--shadow-sm); }
+.hb-img { width: 100%; aspect-ratio: 16 / 9; background-size: cover; background-position: center; }
+.hb-img.is-empty { background: repeating-linear-gradient(45deg, #eceaf3, #eceaf3 10px, #f5f4f9 10px, #f5f4f9 20px); }
+.hb-cap { padding: 11px 13px; display: flex; flex-direction: column; gap: 8px; }
+.hb-h { font-size: 14px; font-weight: 750; color: var(--ink); }
+.hb-h:empty { display: none; }
+.hb-cta {
+  align-self: flex-start;
+  font-size: 12.5px;
+  font-weight: 700;
+  color: #fff;
+  background: var(--p-accent, var(--como));
+  border: 0;
+  padding: 7px 13px;
+  border-radius: 999px;
+  cursor: pointer;
+}

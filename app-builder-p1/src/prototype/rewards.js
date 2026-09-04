@@ -52,6 +52,17 @@ export function initRewards(ctx) {
   function rwOpenEditor(key) {
     const t = rwTiles[key];
     if (!t) return;
+    // A reward tile that isn't shown yet can't be configured — nudge its + toggle.
+    const tileRow = [...document.querySelectorAll('#cp-rewards .cp-widget-row')]
+      .find((r) => r.querySelector('[data-rw-key]')?.dataset.rwKey === key);
+    if (tileRow && tileRow.classList.contains('off')) {
+      const toggle = tileRow.querySelector('.toggle');
+      if (toggle) {
+        toggle.classList.add('cp-toggle-nudge');
+        setTimeout(() => toggle.classList.remove('cp-toggle-nudge'), 600);
+      }
+      return;
+    }
     rwEditKey = key;
     document.getElementById('rw-edit-title').textContent = t.name;
     document.getElementById('rw-edit-headline').value = t.headline;

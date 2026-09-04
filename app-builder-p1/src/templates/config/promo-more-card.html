@@ -18,7 +18,7 @@
             <div class="cp-field">
               <label>Image</label>
               <div class="pc-edit-image-zone" id="pc2-edit-image-zone">
-                <img class="pc-edit-image-preview" id="pc2-edit-image-preview" style="display:none;" />
+                <img class="pc-edit-image-preview" id="pc2-edit-image-preview" src="data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///ywAAAAAAQABAAACAUwAOw==" alt="" style="display:none;" />
                 <div class="pc-edit-image-empty" id="pc2-edit-image-empty">
                   <div class="pc-upload-prompt">
                     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><path d="M21 15l-5-5L5 21"/></svg>
@@ -47,6 +47,23 @@
             <div class="cp-field" id="pc2-edit-btn-text-field">
               <label>Button text</label>
               <input class="cp-input-text" id="pc2-edit-btn-text" placeholder="e.g. View Menu →" />
+            </div>
+            <div class="cp-field pc-webview-cfg" id="pc2-webview-cfg" hidden>
+              <label>Web link address</label>
+              <div class="ms-input-icon">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M10 13a5 5 0 007.5.5l3-3a5 5 0 00-7-7l-1.7 1.7"/><path d="M14 11a5 5 0 00-7.5-.5l-3 3a5 5 0 007 7l1.7-1.7"/></svg>
+                <input class="ms-input" type="url" id="pc2-webview-url" value="https://" />
+              </div>
+              <button class="ms-btn" type="button" id="pc2-webview-connect"><svg class="ms-btn-ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/><path d="M7 10l5 5 5-5"/><path d="M12 15V3"/></svg><span class="ms-btn-spinner" aria-hidden="true"></span><span class="ms-btn-label">Add &amp; preview</span></button>
+              <div class="ms-status hidden" id="pc2-webview-status"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M8.5 12.2l2.5 2.5 4.5-5"/></svg> Looks good — page reachable and secure (https).</div>
+              <div class="ms-section-label" id="pc2-webview-display-label" hidden>Display options</div>
+              <div class="ms-toggle-card" id="pc2-webview-display" hidden>
+                <div class="ms-toggle-row"><div class="ms-toggle-text"><div class="ms-toggle-name">Show back button</div></div><span class="toggle on" data-wv-opt="back"></span></div>
+                <div class="ms-toggle-row"><div class="ms-toggle-text"><div class="ms-toggle-name">Show app bottom bar</div></div><span class="toggle on" data-wv-opt="bottombar"></span></div>
+                <div class="ms-toggle-row"><div class="ms-toggle-text"><div class="ms-toggle-name">Open external links in-app</div></div><span class="toggle on" data-wv-opt="inapp"></span></div>
+                <div class="ms-toggle-row"><div class="ms-toggle-text"><div class="ms-toggle-name">Hide the site&#39;s own header</div></div><span class="toggle" data-wv-opt="hideheader"></span></div>
+                <div class="ms-toggle-row"><div class="ms-toggle-text"><div class="ms-toggle-name">Members only</div></div><span class="toggle" data-wv-opt="membersonly"></span></div>
+              </div>
             </div>
           </div>
         </div>

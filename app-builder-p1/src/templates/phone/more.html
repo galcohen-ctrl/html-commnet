@@ -5,18 +5,7 @@
                 <div class="name">MORE</div>
                 <div class="sub">Everything else</div>
               </div>
-              <button class="icon-btn" onclick="openAccountPage()" title="Profile">👤</button>
-            </div>
-
-            <!-- Skeleton for More tiles — visible while no tiles are turned on -->
-            <div class="gf-skel-widget" data-skel-for="more-tiles">
-              <div class="gf-skel-more-grid">
-                <div class="gf-skel-tile"><div class="gf-skel-tile-ic"></div><div class="gf-skel-line w70 tall"></div><div class="gf-skel-line w90"></div></div>
-                <div class="gf-skel-tile"><div class="gf-skel-tile-ic"></div><div class="gf-skel-line w60 tall"></div><div class="gf-skel-line w80"></div></div>
-                <div class="gf-skel-tile"><div class="gf-skel-tile-ic"></div><div class="gf-skel-line w60 tall"></div><div class="gf-skel-line w70"></div></div>
-                <div class="gf-skel-tile"><div class="gf-skel-tile-ic"></div><div class="gf-skel-line w55 tall"></div><div class="gf-skel-line w80"></div></div>
-              </div>
-              <div class="gf-skel-tag">Tiles · turn on from the left panel</div>
+              <button class="icon-btn px-profile-icon" onclick="openAccountPage()" aria-label="Open profile"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9"><circle cx="12" cy="8" r="3.5"/><path d="M5 21a7 7 0 0114 0"/></svg></button>
             </div>
 
             <div class="more-grid">
@@ -36,7 +25,7 @@
                 </div>
               </button>
 
-              <button class="more-tile hidden-slot" onclick="openModal('orders')">
+              <button class="more-tile hidden-slot" onclick="showPhonePage('orders')">
                 <div class="t-ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 3h12v18l-3-2-3 2-3-2-3 2z"/><path d="M9 8h6M9 12h6"/></svg></div>
                 <div>
                   <div class="t-name">My Orders</div>
@@ -68,7 +57,7 @@
                 </div>
               </button>
 
-              <button class="more-tile hidden-slot" onclick="openModal('referral')">
+              <button class="more-tile hidden-slot" onclick="showPhonePage('referral')">
                 <div class="t-ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="18" cy="5" r="2.5"/><circle cx="6" cy="12" r="2.5"/><circle cx="18" cy="19" r="2.5"/><path d="M8.3 10.7l7.4-4.4M8.3 13.3l7.4 4.4"/></svg></div>
                 <div>
                   <div class="t-name">Refer a Friend</div>

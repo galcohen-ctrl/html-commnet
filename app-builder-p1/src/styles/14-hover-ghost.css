@@ -1,0 +1,38 @@
+@layer components {
+  /* ============================================================
+     Hover ghost preview — a widget shown mid-way between hidden
+     and live so the merchant can preview what adding it would give
+     them without committing. The skeleton placeholder system was
+     removed; only the hover ghost (and its reduced-motion rules,
+     shared with the product tour) remains.
+     ============================================================ */
+  .widget-ghost {
+    opacity: .45;
+    filter: saturate(.55);
+    outline: 1.5px dashed var(--p-accent, #6d28d9);
+    outline-offset: 3px;
+    border-radius: 14px;
+    pointer-events: none;
+    animation: ghostIn .16s cubic-bezier(0.2, 0.8, 0.2, 1);
+  }
+  @keyframes ghostIn {
+    from { opacity: 0; transform: translateY(5px); }
+    to { opacity: .45; transform: none; }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .widget-ghost,
+    body.gf-touring .gf-tour-badge-dot,
+    body.gf-touring .gf-tour-highlight,
+    body.gf-touring .gf-tour-bubble,
+    body.gf-touring .gf-tour-badge {
+      animation: none !important;
+    }
+    .widget-ghost,
+    body.gf-touring .gf-tour-highlight,
+    body.gf-touring .gf-tour-bubble {
+      transform: none !important;
+      transition: opacity 100ms linear !important;
+    }
+  }
+}

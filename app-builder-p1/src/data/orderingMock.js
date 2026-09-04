@@ -19,6 +19,34 @@ export const LAST_ORDER = {
   location: 'Downtown location',
 };
 
+// Member order history — Order Again shows these as a swipeable carousel.
+export const PAST_ORDERS = [
+  {
+    itemName: 'Creamy Pesto Rigatoni',
+    itemImage: 'https://images.unsplash.com/photo-1621996346565-e3dbc353d2e5?auto=format&fit=crop&w=800&q=70',
+    addOns: '+ Parmesan · Sparkling water',
+    price: '$18.50',
+    when: 'Ordered 3 days ago',
+    location: 'Downtown location',
+  },
+  {
+    itemName: 'Truffle Burger & Fries',
+    itemImage: 'https://images.unsplash.com/photo-1568901346375-23c9450c58cd?auto=format&fit=crop&w=800&q=70',
+    addOns: '+ Bacon · Garlic aioli · Cola',
+    price: '$21.00',
+    when: 'Ordered last week',
+    location: 'Downtown location',
+  },
+  {
+    itemName: 'Spicy Tuna Poke Bowl',
+    itemImage: 'https://images.unsplash.com/photo-1546069901-ba9599a7e63c?auto=format&fit=crop&w=800&q=70',
+    addOns: '+ Edamame · Green tea',
+    price: '$16.50',
+    when: 'Ordered 2 weeks ago',
+    location: 'Marina location',
+  },
+];
+
 // Top items carousel — merchant's manually curated bestsellers.
 export const TOP_ITEMS = [
   { id: 'ti-1', name: 'Truffle Burger', price: '$14.90', image: 'https://images.unsplash.com/photo-1568901346375-23c9450c58cd?auto=format&fit=crop&w=600&q=70', badge: 'Bestseller', visible: true },
@@ -82,6 +110,6 @@ export const MENU_REELS = [
 
 export const REELS_CHIP_DEFAULTS = {
   label: 'New reels \u00b7 tap to watch',
-  autoOpen: true,
+  autoOpen: false,
   dismissible: true,
 };

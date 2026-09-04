@@ -1,69 +1,40 @@
 <div class="cp-master">
   <h3 class="cp-head">Step 1</h3>
-  <div class="cp-page-title">Describe your business</div>
-  <div class="cp-page-sub">Your business name and category appear on your app's home screen. You can update these later.</div>
+  <div class="cp-page-title">Tell us about your business</div>
+  <div class="cp-page-sub">These details appear on your app's home screen. You can change them anytime.</div>
 
   <div class="gf-fieldset">
-    <label class="gf-field-label" for="gf-biz-name">Company name</label>
-    <input id="gf-biz-name" class="cp-input-text" type="text" placeholder="e.g. Velvet Bistro" value="" autocomplete="off" />
+    <label class="gf-field-label" for="gf-biz-name">Company name <span class="gf-req">*</span></label>
+    <input id="gf-biz-name" class="cp-input-text" type="text" placeholder="e.g. Velvet Bistro" value="" autocomplete="organization" maxlength="60" required aria-describedby="gf-biz-name-error" />
+    <div class="gf-field-error" id="gf-biz-name-error" aria-live="polite"></div>
   </div>
 
   <div class="gf-fieldset">
-    <label class="gf-field-label" for="gf-country">Country <span class="gf-req">*</span></label>
-    <select id="gf-country" class="cp-select">
-      <option value="" disabled selected>Select country</option>
-      <option value="US">United States</option>
-      <option value="GB">United Kingdom</option>
-      <option value="IE">Ireland</option>
-      <option value="IL">Israel</option>
-      <option value="AU">Australia</option>
-      <option value="CA">Canada</option>
-      <option value="FR">France</option>
-      <option value="DE">Germany</option>
-      <option value="ES">Spain</option>
-      <option value="IT">Italy</option>
-      <option value="NL">Netherlands</option>
-      <option value="SG">Singapore</option>
-    </select>
-  </div>
-
-  <div class="gf-fieldset">
-    <label class="gf-field-label">What best describes your business? <span class="gf-req">*</span></label>
-    <div class="gf-biztype-cards" id="gf-biz-type-row">
-      <button class="gf-biztype-card" data-biztype="physical" type="button">
-        <span class="gf-biztype-ic">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M3 9l1.5-5h15L21 9M4 9h16v10a1 1 0 01-1 1H5a1 1 0 01-1-1V9zM3 9h18"/><path d="M9 20v-6h6v6"/></svg>
-        </span>
-        <span class="gf-biztype-name">Physical store</span>
-      </button>
-      <button class="gf-biztype-card" data-biztype="service" type="button">
-        <span class="gf-biztype-ic">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><circle cx="9" cy="8" r="3"/><path d="M3 20a6 6 0 0112 0"/><circle cx="18" cy="8" r="2"/><path d="M18 6.5V5M18 11v-1.5M20.6 8h-1.5M16.9 8h-1.5"/></svg>
-        </span>
-        <span class="gf-biztype-name">Service provider / Other</span>
-      </button>
-    </div>
-  </div>
-
-  <div class="gf-fieldset">
-    <label class="gf-field-label">Industry <span class="gf-optional">· choose up to 3</span></label>
-    <div class="gf-chip-row" id="gf-cat-row">
-      <button class="gf-chip" data-cat="Beauty and Spa" type="button">Beauty and Spa</button>
-      <button class="gf-chip" data-cat="Entertainment" type="button">Entertainment</button>
-      <button class="gf-chip" data-cat="Food &amp; Drink" type="button">Food &amp; Drink</button>
-      <button class="gf-chip" data-cat="Groceries &amp; Market" type="button">Groceries &amp; Market</button>
-      <button class="gf-chip" data-cat="Health &amp; Fitness" type="button">Health &amp; Fitness</button>
-      <button class="gf-chip" data-cat="Retail &amp; Fashion" type="button">Retail &amp; Fashion</button>
-      <button class="gf-chip" data-cat="Services" type="button">Services</button>
-      <button class="gf-chip" data-cat="Travel" type="button">Travel</button>
-      <button class="gf-chip" data-cat="Other" type="button">Other</button>
-    </div>
-    <div class="gf-field-hint" id="gf-cat-hint">Pick every industry you operate in — a restaurant with a convenience store counts as both.</div>
-  </div>
-
-  <div class="gf-fieldset">
-    <label class="gf-field-label" for="gf-headline">Store front headline</label>
+    <label class="gf-field-label" for="gf-headline">App tagline</label>
     <input id="gf-headline" class="cp-input-text" type="text" placeholder="e.g. Fresh food, real rewards" value="" autocomplete="off" maxlength="60" />
-    <div class="gf-field-hint">A short tagline shown below your business name on the app home screen.</div>
+    <div class="gf-field-hint">One short line shown under your business name on the home screen. Write it as a sentence, not keywords.</div>
+  </div>
+
+  <div class="gf-fieldset">
+    <label class="gf-field-label">Logo</label>
+    <div class="gf-logo-result" id="gf-step1-logo-result" style="display:none;">
+      <div class="gf-logo-thumb"><img id="gf-step1-logo-preview" src="data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///ywAAAAAAQABAAACAUwAOw==" alt="Uploaded logo" /></div>
+      <div class="gf-logo-meta">
+        <div class="gf-logo-status">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6L9 17l-5-5"/></svg>
+          Uploaded
+        </div>
+        <div class="gf-logo-filename" id="gf-step1-logo-filename">logo.png</div>
+        <div class="gf-logo-actions">
+          <button class="gf-logo-action" id="gf-step1-logo-replace" type="button">Replace</button>
+        </div>
+      </div>
+    </div>
+    <div class="cp-upload-zone" id="gf-step1-logo-zone">
+      <div class="cp-upload-btn">+ Upload from Computer</div>
+      <div class="cp-upload-hint">or drag &amp; drop files here</div>
+    </div>
+    <input type="file" id="gf-step1-logo-file" accept="image/png,image/jpeg,image/jpg,image/webp" style="display:none;" />
+    <div class="cp-upload-note">Supported: png, jpg, jpeg, webp. Max 5MB. Position and size are set in Branding.</div>
   </div>
 </div>

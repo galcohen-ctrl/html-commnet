@@ -14,7 +14,7 @@ import menuHtml from '../templates/config-menu.html?raw';
 import moreHtml from '../templates/config-more.html?raw';
 import rewardsHtml from '../templates/config-rewards.html?raw';
 import businessHtml from '../templates/config-business.html?raw';
-import appFocusHtml from '../templates/config-app-focus.html?raw';
+import onlineOrderingHtml from '../templates/config-online-ordering.html?raw';
 import brandingStepHtml from '../templates/config-branding.html?raw';
 import publishHtml from '../templates/config-publish.html?raw';
 import StaticMarkup from './StaticMarkup';
@@ -98,10 +98,10 @@ export default function ConfigPanel() {
         <StaticMarkup
           as="div"
           className="cp-page"
-          id="cp-app-focus"
-          data-comment-anchor="config-app-focus"
+          id="cp-online-ordering"
+          data-comment-anchor="config-online-ordering"
           style={{ display: 'none' }}
-          html={appFocusHtml}
+          html={onlineOrderingHtml}
         />
         <StaticMarkup
           as="div"
@@ -127,8 +127,13 @@ export default function ConfigPanel() {
           <span id="gf-step-back-label">Back</span>
         </button>
         <button className="cp-step-next" id="gf-step-next" type="button">
-          <span id="gf-step-next-label">Save and continue</span>
+          <span id="gf-step-next-label">Save &amp; continue</span>
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.6" strokeLinecap="round" strokeLinejoin="round"><path d="M5 12h14M13 6l6 6-6 6" /></svg>
+        </button>
+        <button className="gf-oo-return-btn" id="gf-oo-return-btn" type="button">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.6" strokeLinecap="round" strokeLinejoin="round"><path d="M19 12H5M11 18l-6-6 6-6" /></svg>
+          <span className="ms-btn-spinner" aria-hidden="true"></span>
+          <span>Back to Online ordering</span>
         </button>
       </div>
     </div>

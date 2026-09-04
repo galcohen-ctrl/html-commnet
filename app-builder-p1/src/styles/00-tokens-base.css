@@ -9,9 +9,23 @@
     --como-soft: #f1ebfd;
     --ok: #16a34a;
     --ok-soft: #ecfdf3;
+    --danger: #b42346;
+    --danger-soft: #fff1f4;
+    --warning: #9a5b00;
+    --warning-soft: #fff7e6;
+    --focus-ring: rgba(109, 40, 217, .3);
     --radius: 14px;
     --shadow-sm: 0 1px 2px rgba(20,20,40,.06);
     --shadow: 0 1px 2px rgba(20,20,40,.06), 0 8px 24px rgba(20,20,40,.06);
+    --motion-press: 120ms;
+    --motion-fast: 160ms;
+    --motion-panel: 220ms;
+    --ease-out: cubic-bezier(0.23, 1, 0.32, 1);
+    --ease-in-out: cubic-bezier(0.77, 0, 0.175, 1);
+    --ease-drawer: cubic-bezier(0.32, 0.72, 0, 1);
+    --ui-ease-out: var(--ease-out);
+    --ui-ease-in-out: var(--ease-in-out);
+    --ui-ease-drawer: var(--ease-drawer);
   }
 
   /* Phone theme — Blank (default — clean white starter) */
@@ -80,4 +94,8 @@
     display: flex;
     flex-direction: column;
   }
-  button { font-family: inherit; }
+  button, input, select, textarea { font-family: inherit; }
+  :where(button, [href], input, select, textarea, [tabindex]):focus-visible {
+    outline: 3px solid var(--focus-ring);
+    outline-offset: 2px;
+  }

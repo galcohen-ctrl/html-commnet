@@ -10,6 +10,8 @@
     background: rgba(20, 18, 34, .55);
     backdrop-filter: blur(3px);
     display: none; place-items: center;
+    padding: max(12px, env(safe-area-inset-top)) max(12px, env(safe-area-inset-right)) max(12px, env(safe-area-inset-bottom)) max(12px, env(safe-area-inset-left));
+    overflow-y: auto;
   }
   .gf-welcome-overlay.open { display: grid; }
   .gf-welcome {
@@ -18,6 +20,9 @@
     box-shadow: 0 24px 60px rgba(0, 0, 0, .28);
     padding: 34px 34px 26px; text-align: center;
     animation: gfPop .32s cubic-bezier(0.2, 0.8, 0.2, 1);
+    max-height: calc(100dvh - 24px);
+    overflow-y: auto;
+    overscroll-behavior: contain;
   }
   @keyframes gfPop { from { opacity: 0; transform: translateY(14px) scale(.97); } to { opacity: 1; transform: none; } }
   .gf-welcome-logo {
@@ -25,7 +30,10 @@
     border-radius: 15px; display: grid; place-items: center;
     background: var(--como); color: #fff; font-size: 26px;
   }
-  .gf-welcome h1 { font-size: 24px; font-weight: 800; letter-spacing: -.02em; color: var(--ink); margin-bottom: 8px; }
+  .gf-welcome h1 {
+    max-width: 19ch; margin: 0 auto 8px; color: var(--ink);
+    font-size: 24px; font-weight: 800; letter-spacing: -.02em; text-wrap: balance;
+  }
   .gf-welcome p { font-size: 14.5px; color: var(--muted); line-height: 1.55; margin-bottom: 22px; }
   .gf-welcome-list { text-align: left; margin: 0 0 24px; display: flex; flex-direction: column; gap: 10px; }
   .gf-welcome-item { display: flex; align-items: center; gap: 11px; font-size: 13.5px; color: var(--ink); }
@@ -35,6 +43,10 @@
     display: grid; place-items: center; font-size: 11.5px; font-weight: 800;
   }
   .gf-welcome-actions { display: flex; gap: 10px; justify-content: center; }
+  .gf-help-link {
+    display: inline-flex; margin: -8px 0 18px; color: var(--como);
+    font-size: 13px; font-weight: 650; text-underline-offset: 3px;
+  }
   .gf-btn {
     padding: 11px 20px; border-radius: 10px; font-size: 14px; font-weight: 650;
     cursor: pointer; border: 1.5px solid transparent; transition: filter .15s, background .15s;
@@ -54,6 +66,7 @@
     transition: background .18s, border-color .18s, color .18s;
   }
   .side-step .step-dot .tick { width: 12px; height: 12px; display: none; }
+  .side-step .screen-dot { border-radius: 7px; font-size: 13px; }
   .side-step.done .step-dot {
     background: #16a34a; border-color: #16a34a; color: #fff;
   }
@@ -136,7 +149,7 @@
   /* ---------- Simple step pages (business / branding / publish) ---------- */
   .gf-swatch-row { display: flex; gap: 10px; align-items: center; flex-wrap: wrap; }
   .gf-swatch {
-    width: 32px; height: 32px; border-radius: 50%; cursor: pointer; border: 2.5px solid transparent;
+    width: 40px; height: 40px; border-radius: 50%; cursor: pointer; border: 2.5px solid transparent;
     box-shadow: inset 0 0 0 2px rgba(255,255,255,.9), var(--shadow-sm);
     transition: transform .15s, box-shadow .15s;
   }
@@ -146,7 +159,7 @@
   .gf-chip {
     padding: 7px 13px; border: 1.5px solid var(--line); border-radius: 100px;
     font-size: 12.5px; font-weight: 500; color: var(--muted);
-    background: var(--panel); cursor: pointer; transition: all .15s;
+    background: var(--panel); cursor: pointer; transition: background-color .15s, border-color .15s, color .15s;
   }
   .gf-chip:hover { border-color: #bdb9cc; color: var(--ink); }
   .gf-chip.selected { background: var(--como); border-color: var(--como); color: #fff; font-weight: 600; }
@@ -172,6 +185,12 @@
   .gf-review-row.done .rv-tick { background: #16a34a; color: #fff; }
   .gf-review-row .rv-tick svg { width: 11px; height: 11px; }
   .gf-review-name { font-size: 13.5px; font-weight: 650; color: var(--ink); margin-right: auto; }
+  .gf-review-state {
+    border-radius: 999px; padding: 4px 8px; font-size: 10.5px; font-weight: 750;
+    background: #f0f0f5; color: var(--muted);
+  }
+  .gf-review-state.ready, .gf-review-state.reviewed { background: var(--ok-soft); color: #13723a; }
+  .gf-review-state.missing { background: var(--danger-soft); color: var(--danger); }
   .gf-review-edit { background: none; border: none; cursor: pointer; color: var(--como); font-size: 12.5px; font-weight: 650; }
   .gf-review-edit:hover { text-decoration: underline; }
   .gf-publish-btn {
@@ -180,6 +199,32 @@
   }
   .gf-publish-btn:hover { filter: brightness(1.08); }
   .gf-publish-btn:disabled { background: #cfcdd8; cursor: not-allowed; }
+  .gf-publish-btn[data-state="published"]:disabled {
+    background: var(--ok-soft); color: #13723a; border: 1px solid #b9e5c9;
+  }
+  .gf-publish-btn:disabled:hover { filter: none; }
+  .gf-publish-status {
+    display: flex; align-items: center; gap: 11px; margin: 14px 0;
+    padding: 12px 13px; border: 1px solid var(--line); border-radius: 12px;
+    background: #fafafe; color: var(--ink);
+  }
+  .gf-publish-status-dot { width: 10px; height: 10px; border-radius: 50%; flex: none; background: var(--warning); }
+  .gf-publish-status[data-state="publishing"] .gf-publish-status-dot { background: var(--como); }
+  .gf-publish-status[data-state="live"] .gf-publish-status-dot { background: var(--ok); }
+  .gf-publish-status span:last-child { display: flex; flex-direction: column; gap: 2px; }
+  .gf-publish-status b { font-size: 13px; }
+  .gf-publish-status small { color: var(--muted); line-height: 1.35; }
+  .gf-submission-card {
+    display: flex; align-items: center; gap: 12px; margin-top: 18px; padding: 14px;
+    border: 1px solid #d9cef5; border-radius: 13px; background: #f8f5ff;
+  }
+  .gf-submission-copy { display: flex; flex: 1; flex-direction: column; gap: 4px; min-width: 0; }
+  .gf-submission-copy strong { font-size: 13px; }
+  .gf-submission-copy span { color: var(--muted); font-size: 11.5px; line-height: 1.45; }
+  .gf-secondary-btn {
+    min-height: 40px; flex: none; border: 1px solid var(--como); border-radius: 9px;
+    background: var(--panel); color: var(--como); padding: 8px 12px; font-size: 12px; font-weight: 700; cursor: pointer;
+  }
 
   /* ---------- Tour speech bubble ---------- */
   .gf-tour-bubble {
@@ -233,12 +278,16 @@
     position: fixed; z-index: 940; pointer-events: none;
     border-radius: 12px;
     box-shadow: 0 0 0 3px var(--como), 0 0 0 9999px rgba(20, 18, 34, .55);
-    transition: all .2s ease;
     animation: gfFade .25s ease;
   }
 
   /* ---------- App Focus step (Celia-style option cards) ---------- */
   .gf-focus-options { display: flex; flex-direction: column; gap: 12px; margin-top: 4px; }
+  .gf-focus-note {
+    display: flex; align-items: flex-start; gap: 8px; margin: 12px 0 14px; padding: 10px 11px;
+    border-radius: 10px; background: #f5f3fa; color: var(--muted); font-size: 11.5px; line-height: 1.45;
+  }
+  .gf-focus-note svg { width: 16px; height: 16px; flex: none; margin-top: 1px; color: var(--como); }
   .gf-focus-option {
     text-align: left; background: var(--panel); cursor: pointer;
     border: 1.5px solid var(--line); border-radius: 14px; padding: 16px 16px 14px;
@@ -255,6 +304,7 @@
   .gf-focus-option-ic svg { width: 20px; height: 20px; }
   .gf-focus-option-name { font-size: 15px; font-weight: 750; color: var(--ink); letter-spacing: -.01em; }
   .gf-focus-option-desc { font-size: 13px; color: var(--muted); line-height: 1.5; }
+  .gf-focus-outcome { color: var(--como); font-size: 11.5px; font-weight: 800; letter-spacing: .02em; text-transform: uppercase; }
   .gf-focus-tags { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 2px; }
   .gf-focus-tag {
     font-size: 11.5px; font-weight: 600; color: var(--como);
@@ -307,13 +357,16 @@
   body:not(.focus-ordering) #add-widget-menu [data-add="menu-categories"] { display: none !important; }
 
   /* ---------- Step 1 plain fields (Celia-style, no accordion) ---------- */
-  .gf-fieldset { margin-bottom: 18px; }
+  .gf-fieldset { margin: 0 0 18px; padding: 0; }
+  .gf-fieldset-reset { border: 0; min-width: 0; }
   .gf-field-label {
     display: block; font-size: 13px; font-weight: 700; color: var(--ink);
     margin-bottom: 8px; letter-spacing: -.01em;
   }
   .gf-req { color: #d6336c; font-weight: 700; }
   .gf-field-hint { font-size: 11.5px; color: var(--muted); margin-top: 7px; line-height: 1.5; }
+  .gf-field-error { min-height: 18px; margin-top: 5px; color: var(--danger); font-size: 11.5px; font-weight: 650; line-height: 1.4; }
+  [aria-invalid="true"] { border-color: var(--danger) !important; }
   .gf-biztype-cards { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
   .gf-biztype-card {
     display: flex; flex-direction: column; align-items: center; gap: 10px;
@@ -348,6 +401,43 @@
     background-repeat: no-repeat; background-position: right 12px center;
   }
   .cp-select:focus { border-color: var(--como); outline: none; }
+
+  @media (max-width: 520px) {
+    .gf-welcome { width: 100%; max-width: 100%; padding: 18px 16px 16px; border-radius: 16px; text-align: left; }
+    .gf-welcome-logo { width: 44px; height: 44px; margin-bottom: 10px; border-radius: 13px; font-size: 22px; }
+    .gf-welcome h1 { margin-bottom: 6px; font-size: 21px; line-height: 1.15; text-align: center; }
+    .gf-welcome p { margin-bottom: 14px; font-size: 13px; line-height: 1.42; }
+    .gf-welcome-list { margin-bottom: 14px; gap: 7px; }
+    .gf-welcome-item { gap: 9px; font-size: 12.5px; line-height: 1.3; }
+    .gf-welcome-item .n { width: 20px; height: 20px; }
+    .gf-help-link { display: flex; justify-content: center; margin: 0 0 12px; font-size: 12.5px; }
+    .gf-welcome-actions { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+    .gf-btn { min-height: 44px; padding: 9px 8px; font-size: 12.5px; }
+    .gf-tour-bubble.is-mobile-sheet {
+      inset: auto 12px 12px !important;
+      width: auto; max-width: none; padding: 16px;
+      border-radius: 16px;
+    }
+    .gf-tour-bubble.is-mobile-sheet::before { display: none; }
+    .gf-tour-bubble.is-mobile-sheet .gf-tour-actions { flex-wrap: wrap; }
+    .gf-tour-badge { display: none; }
+    .gf-biztype-cards { grid-template-columns: 1fr; }
+    .gf-submission-card { align-items: stretch; flex-direction: column; }
+    .gf-secondary-btn { width: 100%; min-height: 44px; }
+    .gf-review-row { flex-wrap: wrap; }
+    .gf-review-name { min-width: calc(100% - 42px); }
+    .gf-review-edit { margin-left: 31px; }
+  }
+
+  @media (hover: none) {
+    .gf-swatch:hover { transform: none; }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .gf-welcome, .gf-tour-bubble, .gf-tour-highlight, .gf-tour-badge-dot, .cp-master, .cp-detail {
+      animation: none !important; transition-duration: .01ms !important;
+    }
+  }
 
   /* ---------- Logo upload result state ---------- */
   .gf-logo-result {

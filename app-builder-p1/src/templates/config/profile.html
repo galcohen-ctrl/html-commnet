@@ -13,7 +13,7 @@
           <div class="cp-body">
             <div class="cp-field">
               <label>Greeting text</label>
-              <div class="cp-input-text cp-input-rich" contenteditable="true" data-bind-text=".greet-row .hello" data-vars="true">Hey Welcome, Obaidul!</div>
+              <div class="cp-input-text cp-input-rich" contenteditable="true" data-bind-text=".greet-row .hello" data-vars="true">Welcome back!</div>
             </div>
             <div class="cp-hint">Use <code>{firstName}</code>, <code>{lastName}</code>, <code>{phone}</code>, <code>{dob}</code>, <code>{tier}</code> to personalize. Type <b>@</b> to insert a member variable.</div>
           </div>
@@ -31,8 +31,9 @@
             </div>
             <div class="cp-toggle-row"><span class="lbl">Points balance</span><span class="toggle on" data-bind=".loyalty-card .lc-balance"></span></div>
             <div class="cp-toggle-row"><span class="lbl">Progress to next reward</span><span class="toggle on" data-bind=".loyalty-card .lc-next"></span></div>
-            <div class="cp-toggle-row"><span class="lbl">"Show loyalty card" button</span><span class="toggle on" data-bind=".loyalty-card .lc-card-btn"></span></div>
-            <div class="cp-section-note">Points, tier and progress fill in live from the member's loyalty profile.</div>
+            <div class="cp-toggle-row"><span class="lbl">"Show QR code" button</span><span class="toggle on" data-bind=".loyalty-card .lc-card-btn"></span></div>
+            <div class="cp-toggle-row"><span class="lbl">Wallet pass button</span><span class="toggle" data-bind=".loyalty-card .lc-wallet-btn"></span></div>
+            <div class="cp-section-note">The QR code is the member's app client ID, scanned at the counter. A wallet pass is the separate Apple or Google Wallet card.</div>
           </div>
         </div>
         <div class="cp-section open" data-state-section="guest" style="display:none">

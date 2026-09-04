@@ -8,10 +8,10 @@
  * next (see Ship 3 origin routing).
  */
 
-import { LAST_ORDER, TOP_ITEMS, MENU_CATEGORIES, MENU_REELS, REELS_CHIP_DEFAULTS } from '../data/orderingMock.js';
+import { LAST_ORDER, PAST_ORDERS, TOP_ITEMS, MENU_CATEGORIES, MENU_REELS, REELS_CHIP_DEFAULTS } from '../data/orderingMock.js';
 
 // Keys of every widget that requires online ordering to work.
-const OO_WIDGET_KEYS = ['order-again', 'top-items', 'menu-categories'];
+const OO_WIDGET_KEYS = ['order-again', 'top-items', 'menu-categories', 'menu-reels'];
 
 function escHtml(s) {
   const d = document.createElement('div');
@@ -21,6 +21,7 @@ function escHtml(s) {
 
 export function initOrderingWidgets(ctx) {
   const { showToast, markDirty, openDrill, closeL3Panel, openL3Panel } = ctx;
+  const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)');
 
   const state = {
     orderAgain: {
@@ -30,6 +31,7 @@ export function initOrderingWidgets(ctx) {
       eyebrow: 'Your last order',
       buttonLabel: 'Reorder',
       empty: LAST_ORDER,
+      orders: PAST_ORDERS.map((o) => ({ ...o })),
     },
     topItems: {
       title: 'Popular right now',
@@ -88,6 +90,7 @@ export function initOrderingWidgets(ctx) {
 
   // Intercept clicks on locked ordering-widget rows and open the wizard instead of toggling.
   document.addEventListener('click', (event) => {
+    if (document.body.classList.contains('gf-applying-preset') || document.body.classList.contains('gf-restoring')) return;
     if (isOrderingConnected()) return;
     const row = event.target.closest('.cp-widget-row.cp-oo-widget');
     if (!row || !row.classList.contains('locked')) return;
@@ -113,7 +116,7 @@ export function initOrderingWidgets(ctx) {
       if (toggle && row && !toggle.classList.contains('on')) toggle.click();
       const homeStep = document.querySelector('.side-step[data-step="home"]');
       if (homeStep) homeStep.click();
-      if (row) row.scrollIntoView({ behavior: 'smooth', block: 'center' });
+      if (row) row.scrollIntoView({ behavior: window.matchMedia('(prefers-reduced-motion: reduce)').matches ? 'auto' : 'smooth', block: 'center' });
       window.orderingWizardOrigin = null;
       showToast('Online ordering connected · this widget is now live');
     }
@@ -122,6 +125,21 @@ export function initOrderingWidgets(ctx) {
   /* ==================================================== Order Again */
 
   const oaWidget = document.querySelector('.oa-widget');
+  const OA_REORDER_SVG = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12a9 9 0 01-9 9 9 9 0 01-7.6-4.2"/><path d="M3 12a9 9 0 019-9 9 9 0 017.6 4.2"/><path d="M20 3v5h-5M4 21v-5h5"/></svg>';
+  const esc = (s) => String(s ?? '').replace(/[&<>"]/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]));
+  const oaOrders = () => state.orderAgain.orders || [];
+
+  // The header sub-line names whichever order is currently centered, so swiping
+  // keeps the "when / where" context in view above the card.
+  function oaUpdateActive(i) {
+    const orders = oaOrders();
+    const idx = Math.max(0, Math.min(i, orders.length - 1));
+    const o = orders[idx];
+    if (!o || !oaWidget) return;
+    const when = oaWidget.querySelector('#oa-when');
+    if (when) when.textContent = o.when + ' · ' + o.location;
+    oaWidget.querySelectorAll('#oa-dots .pc-dot').forEach((d, k) => d.classList.toggle('active', k === idx));
+  }
 
   function renderOrderAgain() {
     if (!oaWidget) return;
@@ -130,16 +148,46 @@ export function initOrderingWidgets(ctx) {
     oaWidget.classList.toggle('no-image', !s.showImage);
     oaWidget.classList.toggle('no-meta', !s.showMeta);
     oaWidget.querySelector('.oa-eyebrow').textContent = s.eyebrow;
-    oaWidget.querySelector('.oa-btn').lastChild.textContent = ' ' + s.buttonLabel;
-    oaWidget.querySelector('#oa-name').textContent = s.empty.itemName;
-    oaWidget.querySelector('#oa-meta').textContent = s.empty.addOns;
-    oaWidget.querySelector('#oa-price').textContent = s.empty.price;
-    oaWidget.querySelector('#oa-when').textContent = s.empty.when + ' · ' + s.empty.location;
-    const img = oaWidget.querySelector('#oa-img');
-    if (img) img.style.backgroundImage = 'url(' + s.empty.itemImage + ')';
+    const carousel = oaWidget.querySelector('#oa-carousel');
+    const dots = oaWidget.querySelector('#oa-dots');
+    const orders = oaOrders();
+    if (carousel) {
+      carousel.innerHTML = orders.map((o) => (
+        '<div class="oa-card">'
+        + '<div class="oa-img" style="background-image:url(' + o.itemImage + ')"></div>'
+        + '<div class="oa-body">'
+        +   '<div class="oa-name">' + esc(o.itemName) + '</div>'
+        +   '<div class="oa-meta">' + esc(o.addOns) + '</div>'
+        +   '<div class="oa-price">' + esc(o.price) + '</div>'
+        + '</div>'
+        + '<button class="oa-btn" type="button">' + OA_REORDER_SVG + ' ' + esc(s.buttonLabel) + '</button>'
+        + '</div>'
+      )).join('');
+    }
+    if (dots) {
+      dots.innerHTML = orders.map((_, i) => '<span class="pc-dot' + (i === 0 ? ' active' : '') + '" data-oa-dot="' + i + '"></span>').join('');
+      dots.style.display = orders.length > 1 ? '' : 'none';
+    }
+    const i = carousel ? Math.round(carousel.scrollLeft / (carousel.offsetWidth || 1)) : 0;
+    oaUpdateActive(i);
   }
 
   function wireOrderAgain() {
+    const carousel = oaWidget?.querySelector('#oa-carousel');
+    if (carousel) {
+      carousel.addEventListener('scroll', () => {
+        oaUpdateActive(Math.round(carousel.scrollLeft / (carousel.offsetWidth || 1)));
+      });
+    }
+    oaWidget?.addEventListener('click', (e) => {
+      const dot = e.target.closest('[data-oa-dot]');
+      if (dot && carousel) {
+        const i = parseInt(dot.dataset.oaDot);
+        carousel.scrollTo({ left: i * carousel.offsetWidth, behavior: reduceMotion.matches ? 'auto' : 'smooth' });
+        return;
+      }
+      if (e.target.closest('.oa-btn')) showToast?.('Added your order to the cart');
+    });
     document.querySelectorAll('[data-oa-layout]').forEach((r) => {
       r.addEventListener('click', () => {
         document.querySelectorAll('[data-oa-layout]').forEach((x) => x.classList.remove('active'));
@@ -473,11 +521,12 @@ export function initOrderingWidgets(ctx) {
     const clamped = Math.max(0, Math.min(total - 1, idx));
     state.menuReels.activeIdx = clamped;
     if (!reelsStack) return;
+    reelsStack.style.transition = reduceMotion.matches ? 'opacity 100ms linear' : 'transform 420ms cubic-bezier(.2,.8,.2,1)';
     reelsStack.style.transform = 'translateY(' + (-clamped * 100) + '%)';
     reelsStack.querySelectorAll('.reels-frame').forEach((f, i) => {
       const video = f.querySelector('video');
       if (!video) return;
-      if (i === clamped) {
+      if (i === clamped && !reduceMotion.matches) {
         video.currentTime = 0;
         video.play().catch(() => {});
       } else {
@@ -489,6 +538,7 @@ export function initOrderingWidgets(ctx) {
 
   function scheduleAutoAdvance() {
     clearTimeout(state.menuReels.autoAdvanceTimer);
+    if (reduceMotion.matches) return;
     const reels = activeReels();
     const cur = reels[state.menuReels.activeIdx];
     if (!cur) return;
@@ -530,36 +580,50 @@ export function initOrderingWidgets(ctx) {
   // Swipe up/down between reels; swipe down at first reel closes.
   function wireReelsSwipe() {
     if (!reelsStack) return;
-    let startY = null;
-    let dragging = false;
+    let gesture = null;
     reelsStack.addEventListener('pointerdown', (e) => {
       if (e.target.closest('.reels-cta')) return;
-      startY = e.clientY;
-      dragging = true;
+      reelsStack.setPointerCapture(e.pointerId);
+      gesture = { pointerId: e.pointerId, startY: e.clientY, lastY: e.clientY, lastTime: performance.now(), velocity: 0 };
+      reelsStack.classList.add('dragging');
       clearTimeout(state.menuReels.autoAdvanceTimer);
     });
-    document.addEventListener('pointermove', (e) => {
-      if (!dragging) return;
-      const dy = e.clientY - startY;
+    reelsStack.addEventListener('pointermove', (e) => {
+      if (!gesture || e.pointerId !== gesture.pointerId) return;
+      const now = performance.now();
+      const elapsed = Math.max(1, now - gesture.lastTime);
+      gesture.velocity = (e.clientY - gesture.lastY) / elapsed;
+      gesture.lastY = e.clientY;
+      gesture.lastTime = now;
+      let dy = e.clientY - gesture.startY;
+      const atFirst = state.menuReels.activeIdx === 0 && dy > 0;
+      const atLast = state.menuReels.activeIdx === activeReels().length - 1 && dy < 0;
+      if (atFirst || atLast) dy *= .42;
       reelsStack.style.transition = 'none';
       reelsStack.style.transform = 'translateY(calc(' + (-state.menuReels.activeIdx * 100) + '% + ' + dy + 'px))';
     });
-    document.addEventListener('pointerup', (e) => {
-      if (!dragging) return;
-      dragging = false;
-      const dy = e.clientY - startY;
-      reelsStack.style.transition = '';
+    const finish = (e, cancelled = false) => {
+      if (!gesture || e.pointerId !== gesture.pointerId) return;
+      const activeGesture = gesture;
+      const dy = e.clientY - activeGesture.startY;
+      const velocity = activeGesture.velocity;
+      gesture = null;
+      if (reelsStack.hasPointerCapture?.(e.pointerId)) reelsStack.releasePointerCapture(e.pointerId);
+      reelsStack.classList.remove('dragging');
       const total = activeReels().length;
       const threshold = 60;
-      if (dy < -threshold && state.menuReels.activeIdx < total - 1) {
+      if (!cancelled && (dy < -threshold || velocity < -.55) && state.menuReels.activeIdx < total - 1) {
         setReelsActiveIndex(state.menuReels.activeIdx + 1);
-      } else if (dy > threshold) {
+      } else if (!cancelled && (dy > threshold || velocity > .55)) {
         if (state.menuReels.activeIdx === 0) closeReelsModal();
         else setReelsActiveIndex(state.menuReels.activeIdx - 1);
       } else {
         setReelsActiveIndex(state.menuReels.activeIdx);
       }
-    });
+    };
+    reelsStack.addEventListener('pointerup', (e) => finish(e));
+    reelsStack.addEventListener('pointercancel', (e) => finish(e, true));
+    reelsStack.addEventListener('lostpointercapture', (e) => { if (gesture) finish(e, true); });
     reelsStack.addEventListener('click', (e) => {
       const cta = e.target.closest('.reels-cta');
       if (cta) {
@@ -718,10 +782,29 @@ export function initOrderingWidgets(ctx) {
   // Cold-launch simulation: if the merchant left "Auto-open on cold launch" on
   // and the reels chip is enabled, open the reels modal once after the app loads.
   setTimeout(() => {
+    if (reduceMotion.matches) return;
     if (!state.menuReels.autoOpen) return;
     const chipEnabled = reelsChip && !reelsChip.classList.contains('hidden-slot');
     if (chipEnabled && activeReels().length) openReelsModal(0);
   }, 800);
 
-  return { OO_WIDGET_KEYS, openReelsModal, closeReelsModal, applyGating };
+  function exportOrderingWidgets() {
+    return JSON.parse(JSON.stringify(state, (key, value) => (/timer|editing/i.test(key) ? undefined : value)));
+  }
+
+  function importOrderingWidgets(saved = {}) {
+    ['orderAgain', 'topItems', 'menuCategories', 'menuReels'].forEach((key) => {
+      if (saved[key]) Object.assign(state[key], saved[key]);
+    });
+    renderOrderAgain();
+    renderTopItemsPhone();
+    renderTopItemsList();
+    renderMenuCategoriesPhone();
+    renderMenuCategoriesList();
+    renderReelsList();
+    renderReelsStack();
+    applyGating();
+  }
+
+  return { OO_WIDGET_KEYS, orderingWidgetState: state, openReelsModal, closeReelsModal, applyGating, exportOrderingWidgets, importOrderingWidgets };
 }

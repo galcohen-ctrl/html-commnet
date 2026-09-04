@@ -1,12 +1,26 @@
-<div class="toast-hint" id="toast-hint"></div>
+<div class="toast-hint" id="toast-hint" role="status" aria-live="polite" aria-atomic="true">
+  <span id="toast-message"></span>
+  <button class="toast-action" id="toast-action" type="button" hidden></button>
+</div>
 
-<div class="confirm-overlay" id="preset-confirm-overlay">
-  <div class="confirm-box">
-    <div class="confirm-title">Switch starting point?</div>
-    <div class="confirm-body">Loading “<span id="confirm-preset-name">Loyalty &amp; Rewards</span>” will replace your current widgets and content. This can’t be undone.</div>
+<div class="confirm-overlay" id="qr-preview-overlay" aria-hidden="true">
+  <div class="confirm-box" role="dialog" aria-modal="true" aria-labelledby="qr-preview-title" aria-describedby="qr-preview-desc">
+    <div class="confirm-title" id="qr-preview-title">Open this preview on your phone</div>
+    <div class="confirm-body" id="qr-preview-desc">Scan with your phone camera to walk through the app the way a member would, before you publish anything.</div>
+    <div class="qr-box" style="width:180px; height:180px; margin:4px auto 2px;"><div class="qr-pattern"></div></div>
+    <div class="confirm-actions">
+      <button class="confirm-cancel" id="qr-preview-close" type="button">Close</button>
+    </div>
+  </div>
+</div>
+
+<div class="confirm-overlay" id="preset-confirm-overlay" aria-hidden="true">
+  <div class="confirm-box" role="dialog" aria-modal="true" aria-labelledby="preset-confirm-title" aria-describedby="preset-confirm-description">
+    <div class="confirm-title" id="preset-confirm-title">Change your app focus?</div>
+    <div class="confirm-body" id="preset-confirm-description">Applying “<span id="confirm-preset-name">Loyalty &amp; Rewards</span>” will update the recommended Home widgets. Your brand and written content stay in place, and you can undo the change.</div>
     <div class="confirm-actions">
       <button class="confirm-cancel" id="preset-confirm-cancel" type="button">Cancel</button>
-      <button class="confirm-ok" id="preset-confirm-ok" type="button">Yes, switch preset</button>
+      <button class="confirm-ok" id="preset-confirm-ok" type="button">Apply new focus</button>
     </div>
   </div>
 </div>

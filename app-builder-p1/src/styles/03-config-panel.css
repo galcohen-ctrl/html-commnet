@@ -84,10 +84,26 @@
     font-size: 12.5px; font-weight: 600;
     background: #fff;
     cursor: pointer;
-    transition: all .12s;
+    transition: border-color .12s, background-color .12s, box-shadow .12s;
   }
   .cp-item:hover { border-color: var(--como); }
   .cp-item.highlight { border-color: var(--como); background: var(--como-soft); }
+  .cp-page-title.px-renamable { display: flex; align-items: center; gap: 8px; }
+  .px-rename-btn {
+    opacity: 0; flex: none; width: 26px; height: 26px; min-height: 26px;
+    display: grid; place-items: center; margin-left: auto;
+    background: none; border: 1px solid transparent; border-radius: 8px;
+    color: var(--muted); cursor: pointer; transition: .12s;
+  }
+  .cp-page-title.px-renamable:hover .px-rename-btn { opacity: 1; }
+  .px-rename-btn:hover { color: var(--como); border-color: var(--line); }
+  .px-rename-btn:focus-visible { opacity: 1; }
+  .px-rename-btn svg { width: 14px; height: 14px; }
+  .px-rename-input {
+    font: inherit; width: 100%; padding: 2px 8px;
+    border: 1px solid var(--como); border-radius: 8px; background: #fff; color: var(--ink);
+  }
+
   .cp-item .handle { color: #c7c7d4; font-size: 14px; cursor: grab; }
   .cp-item .name { flex: 1; }
   .cp-item .tag { font-size: 10px; color: var(--muted); background: #f4f4fa; padding: 2px 7px; border-radius: 999px; font-weight: 700; }
@@ -104,6 +120,8 @@
   .cp-add:hover { border-color: var(--como); background: var(--como-soft); }
 
   .cp-field { display: flex; flex-direction: column; gap: 5px; margin-bottom: 12px; position: relative; }
+  /* A .cp-field with [hidden] must stay hidden — the class's display:flex otherwise wins over the UA [hidden] rule. */
+  .cp-field[hidden] { display: none; }
   .cp-field label {
     font-size: 11px; font-weight: 700; color: var(--muted);
     text-transform: uppercase; letter-spacing: .4px;
@@ -119,7 +137,7 @@
     border: 1px solid var(--line); border-radius: 7px;
     font-size: 11.5px; font-weight: 650;
     cursor: pointer; background: #fff; color: var(--muted);
-    transition: all .12s;
+    transition: border-color .12s, background-color .12s, color .12s;
   }
   .cp-radio.active { border-color: var(--como); color: var(--como); background: var(--como-soft); }
 
@@ -465,6 +483,32 @@
     cursor: pointer; transition: border-color .15s, color .15s;
   }
   .empty-canvas .ec-hint:hover { border-color: var(--p-accent); color: var(--p-accent); }
+
+  /* ---------- Phone blank placeholder (Step 1 before editing) ---------- */
+  .phone-blank-placeholder {
+    display: none;
+    padding: 80px 20px 30px; text-align: center;
+    color: var(--p-text);
+  }
+  body.phone-preview-blank .phone-blank-placeholder { display: block; }
+  body.phone-preview-blank .app-page[data-page="home"] > *:not(.phone-blank-placeholder) {
+    display: none !important;
+  }
+  /* After first edit on Step 1: show only header, hide widgets */
+  body.phone-header-only .app-page[data-page="home"] > *:not(.app-top-header):not(.category-badge) {
+    display: none !important;
+  }
+  .phone-blank-placeholder .ec-graphic {
+    width: 60px; height: 60px; margin: 0 auto 16px;
+    border-radius: 16px;
+    background: var(--p-panel-2, #f4f3f8);
+    display: grid; place-items: center;
+    border: 1.5px dashed var(--p-border, #dcdbe7);
+  }
+  .phone-blank-placeholder .ec-graphic svg { width: 28px; height: 28px; color: var(--p-text-muted, #a3a3b0); }
+  .phone-blank-placeholder .ec-title { font-size: 14px; font-weight: 700; margin-bottom: 5px; letter-spacing: -.2px; }
+  .phone-blank-placeholder .ec-sub { font-size: 11px; color: var(--p-text-muted); line-height: 1.55; max-width: 200px; margin: 0 auto; }
+
   body.tpl-blank .app-top-header .brand-mark:not(.has-logo) {
     background: #f0f0f6 !important; color: #a3a3b0 !important;
     box-shadow: none !important;
@@ -481,7 +525,7 @@
     margin-bottom: 6px;
     background: #fff;
     font-size: 13px; font-weight: 600;
-    transition: all .15s;
+    transition: border-color .15s, background-color .15s, box-shadow .15s;
   }
   .cp-widget-row:hover { border-color: #c7bfe3; }
   .cp-widget-row.on {
@@ -513,7 +557,7 @@
     color: var(--como);
     padding: 0;
     display: inline-flex; align-items: center; justify-content: center;
-    transition: all .15s;
+    transition: background-color .15s, border-color .15s, color .15s, transform .15s, box-shadow .15s;
     flex: none;
     line-height: 1;
   }
@@ -533,6 +577,13 @@
     color: #fff;
     box-shadow: 0 2px 6px rgba(109,40,217,.28);
   }
+  .cp-widget-row { cursor: pointer; }
+  .cp-widget-row.off { cursor: default; }
+  .cp-widget-row .handle { cursor: grab; }
+  @keyframes cpToggleNudge { 0%, 100% { transform: scale(1); } 30% { transform: scale(1.28); } 60% { transform: scale(1.12); } }
+  .cp-widget-row .toggle.cp-toggle-nudge { animation: cpToggleNudge .6s ease; box-shadow: 0 0 0 4px rgba(109, 40, 217, .22); }
+  .cp-social-item .cp-toggle-row .handle { cursor: grab; margin-right: 2px; color: #b9b9c6; }
+  .cp-social-item.dragging { opacity: .5; }
   .cp-widget-row .toggle.on:hover { background: #5b1eb5; border-color: #5b1eb5; }
   .cp-widget-row .toggle.on .i-plus { display: none; }
   .cp-widget-row .toggle.on .i-check { display: block; }
@@ -547,7 +598,7 @@
     padding: 0;
     cursor: pointer;
     display: inline-flex; align-items: center; justify-content: center;
-    transition: all .15s;
+    transition: background-color .15s, border-color .15s, color .15s, opacity .15s;
     flex: none;
   }
   .w-edit-icon svg { width: 15px; height: 15px; }

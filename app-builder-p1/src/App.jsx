@@ -2,6 +2,7 @@ import { useEffect } from 'react';
 import ConfigPanel from './components/ConfigPanel';
 import EditorOverlays from './components/EditorOverlays';
 import LevelThreePanel from './components/LevelThreePanel';
+import LevelFourPanel from './components/LevelFourPanel';
 import PhonePreview from './components/PhonePreview';
 import WelcomeModal from './components/WelcomeModal';
 import Sidebar from './components/Sidebar';
@@ -38,6 +39,7 @@ export default function App() {
         <Sidebar />
         <ConfigPanel />
         <LevelThreePanel />
+        <LevelFourPanel />
         <PhonePreview />
       </div>
       <EditorOverlays />

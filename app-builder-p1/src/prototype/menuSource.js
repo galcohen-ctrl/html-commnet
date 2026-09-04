@@ -78,6 +78,7 @@ export function initMenuSource(ctx) {
     approach: null,
     integration: null,
     screen: 'chooser',
+    fromOrdering: false,
     webview: { url: 'https://velvetbistro.com/menu', connected: false, back: true, bottombar: true, inapp: true, hideheader: false, membersonly: false },
     pdf: { uploaded: false },
     custom: { url: 'https://order.velvetbistro.com', connected: false, back: true, bottombar: true, inapp: true, membersonly: true, theme: true, hideheader: true, color: '#6d28d9' },
@@ -110,8 +111,9 @@ export function initMenuSource(ctx) {
       const approach = opt.dataset.approach;
       page.querySelectorAll('[data-approach]').forEach(o => o.classList.toggle('on', o === opt));
       state.approach = approach;
+      state.fromOrdering = false;
       markDirty();
-      if (approach === 'webview') show('webview');
+      if (approach === 'webview') { show('webview'); updateWebviewReturn(); }
       else if (approach === 'pdf') show('pdf');
       else if (approach === 'ordering') show(orderingApi().connected ? 'oo-connected' : 'oo-integration');
       else if (approach === 'manual') show(state.manual.started ? 'build-categories' : 'build-method');
@@ -128,19 +130,208 @@ export function initMenuSource(ctx) {
 
   const webUrl = document.getElementById('ms-webview-url');
   const webStatus = document.getElementById('ms-webview-status');
+  const webviewReturn = document.getElementById('ms-webview-return');
+  const webviewReturnBtn = document.getElementById('ms-webview-return-btn');
+  // Contextual banner: only present when the merchant reached this screen from the
+  // Online ordering step, so the round-trip back to that step stays obvious.
+  function updateWebviewReturn() {
+    if (!webviewReturn) return;
+    webviewReturn.hidden = !state.fromOrdering;
+    const done = state.webview.connected;
+    webviewReturn.classList.toggle('done', done);
+    const label = webviewReturn.querySelector('[data-return-label]');
+    if (label) label.textContent = done
+      ? 'Menu connected. Head back to Online ordering to finish.'
+      : 'You are setting up online ordering. Add your menu, then head back.';
+    if (webviewReturnBtn) webviewReturnBtn.textContent = done ? 'Return to Online ordering' : 'Back to Online ordering';
+  }
+  webviewReturnBtn?.addEventListener('click', () => { window.goToStep?.('online-ordering'); });
+  // Tell the Online ordering step whether the web-view menu is wired up.
+  function announceWebview() {
+    document.dispatchEvent(new CustomEvent('como:menu-source', { detail: { approach: 'webview', connected: state.webview.connected, url: state.webview.url } }));
+  }
   webUrl.addEventListener('input', () => {
     state.webview.url = webUrl.value;
     state.webview.connected = false;
     webStatus.classList.add('hidden');
+    // Typing clears the "please enter URL" validation state.
+    webUrl.setAttribute('aria-invalid', 'false');
+    webUrl.classList.remove('cp-input-error');
+    const urlErr = document.getElementById('ms-webview-url-error');
+    if (urlErr) urlErr.textContent = '';
+    // Typing invalidates the previous connection; buttons return to idle.
+    if (typeof setConnectState === 'function') setConnectState('idle');
+    if (typeof setReturnState === 'function') setReturnState('idle');
+    updateWebviewReturn();
+    announceWebview();
     renderPhone();
   });
-  document.getElementById('ms-webview-connect').addEventListener('click', () => {
-    state.webview.url = webUrl.value.trim() || 'https://velvetbistro.com/menu';
-    state.webview.connected = true;
-    webStatus.classList.remove('hidden');
+  const connectBtn = document.getElementById('ms-webview-connect');
+  const connectLabel = document.createElement('span');
+  connectLabel.className = 'ms-btn-label';
+  connectLabel.textContent = 'Add & preview';
+  // Replace the plain "Connect & load" text with a label span we can retarget.
+  connectBtn.textContent = '';
+  connectBtn.insertAdjacentHTML('afterbegin', '<svg class="ms-btn-ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/><path d="M7 10l5 5 5-5"/><path d="M12 15V3"/></svg><span class="ms-btn-spinner" aria-hidden="true"></span>');
+  connectBtn.appendChild(connectLabel);
+
+  function setConnectState(state) {
+    connectBtn.classList.remove('is-loading', 'is-success');
+    connectBtn.disabled = false;
+    if (state === 'loading') {
+      connectBtn.classList.add('is-loading');
+      connectBtn.disabled = true;
+      connectLabel.textContent = 'Loading preview…';
+    } else if (state === 'success') {
+      connectBtn.classList.add('is-success');
+      connectLabel.textContent = 'Reload preview';
+    } else {
+      connectLabel.textContent = 'Add & preview';
+    }
+    // Display options only make sense once there is a page to preview.
+    document.getElementById('ms-webview-display')?.toggleAttribute('hidden', state !== 'success');
+  }
+
+  function setReturnState(state) {
+    const btn = document.getElementById('gf-oo-return-btn');
+    if (!btn) return;
+    btn.classList.remove('is-loading', 'is-success');
+    btn.disabled = false;
+    if (state === 'loading') {
+      btn.classList.add('is-loading');
+      btn.disabled = true;
+    } else if (state === 'success') {
+      btn.classList.add('is-success');
+    }
+  }
+
+  // Change only the phone preview's active page + bottom nav highlight — the
+  // sidebar and config panel are owned by the guided-flow step and stay put.
+  function showPhonePage(target) {
+    document.querySelectorAll('#app-shell .app-page').forEach((p) => {
+      p.classList.toggle('active', p.dataset.page === target);
+    });
+    document.querySelectorAll('#bottom-nav .nav-item').forEach((n) => {
+      n.classList.toggle('active', n.dataset.nav === target);
+    });
+    const shell = document.getElementById('app-shell');
+    if (shell) shell.scrollTop = 0;
+  }
+
+  connectBtn.addEventListener('click', () => {
+    const url = webUrl.value.trim();
+    if (!url) {
+      webUrl.setAttribute('aria-invalid', 'true');
+      webUrl.classList.add('cp-input-error');
+      const urlErr = document.getElementById('ms-webview-url-error');
+      if (urlErr) urlErr.textContent = 'Please enter your ordering URL first.';
+      webUrl.focus();
+      return;
+    }
+    setConnectState('loading');
+    setReturnState('loading');
+    setTimeout(() => {
+      state.webview.url = url;
+      state.webview.connected = true;
+      webStatus.classList.remove('hidden');
+      markDirty();
+      renderPhone();
+      updateWebviewReturn();
+      announceWebview();
+      setConnectState('success');
+      setReturnState('success');
+      // Show the merchant the payoff: the phone jumps to the Order tab (which is
+      // the webview) so they see their site rendered inside the app.
+      if (state.fromOrdering) showPhonePage('menu');
+      showToast('Loaded ' + hostOf(state.webview.url) + ' in the preview');
+    }, 1000);
+  });
+
+  // Remembers where #cp-menu normally lives so it can be returned to the config
+  // panel after being borrowed by the third (L3) panel for Step-2 webview setup.
+  let cpMenuHome = null;
+
+  // Move the Menu page into the third panel so the Online ordering step (Step 2)
+  // stays visible in the main config column beside it — the webview setup opens
+  // as a third panel instead of replacing Step 2.
+  function placeMenuInL3() {
+    const menu = document.getElementById('cp-menu');
+    const l3body = document.getElementById('l3-body');
+    if (!menu || !l3body) return false;
+    if (!cpMenuHome) cpMenuHome = { parent: menu.parentElement, next: menu.nextElementSibling };
+    l3body.appendChild(menu);
+    menu.style.display = 'flex';
+    document.body.classList.add('l3-open');
+    l3body.scrollTop = 0;
+    document.dispatchEvent(new CustomEvent('como:navchange'));
+    return true;
+  }
+
+  // Return #cp-menu to its home in the config panel and close the third panel.
+  // Idempotent, so any exit path (return button, sidebar nav) can call it safely.
+  function exitWebviewL3() {
+    if (!cpMenuHome) return;
+    const menu = document.getElementById('cp-menu');
+    const home = cpMenuHome;
+    cpMenuHome = null;
+    if (menu) {
+      menu.style.display = '';
+      if (home.next && home.next.parentElement === home.parent) home.parent.insertBefore(menu, home.next);
+      else home.parent.appendChild(menu);
+    }
+    document.body.classList.remove('l3-open');
+    document.body.classList.remove('oo-webview-from-step2');
+  }
+  // guidedFlow.goToStep() calls this on every navigation away, so the borrowed
+  // Menu page is always restored no matter how the merchant leaves.
+  window.__exitWebviewL3 = exitWebviewL3;
+
+  // Entry point used by the Online ordering step's "Web view" choice: open the
+  // Menu screen's web-view setup as a third panel while Step 2 stays put.
+  function openWebviewSetup({ fromOrdering = false } = {}) {
+    state.approach = 'webview';
+    state.fromOrdering = fromOrdering;
+    page.querySelectorAll('[data-approach]').forEach(o => o.classList.toggle('on', o.dataset.approach === 'webview'));
+    if (fromOrdering) {
+      document.body.classList.add('oo-webview-from-step2');
+      // show() closes any open L3, so borrow the Menu page into the third panel AFTER it.
+      show('webview');
+      if (!placeMenuInL3()) {
+        // Fallback: if the third panel is unavailable, swap the config panel as before.
+        document.querySelectorAll('.cp-page').forEach((cp) => {
+          cp.style.display = (cp.id === 'cp-menu') ? 'flex' : 'none';
+        });
+      }
+    } else {
+      exitWebviewL3();
+      document.body.classList.remove('oo-webview-from-step2');
+      window.goToStep?.('menu');
+      show('webview');
+    }
+    updateWebviewReturn();
     markDirty();
-    renderPhone();
-    showToast('Loaded ' + hostOf(state.webview.url) + ' in the preview');
+  }
+
+  // The bottom-nav "Back to Online ordering" button — replaces Back/Continue while
+  // the merchant is here from Step 2. Validates the URL before allowing return.
+  const ooReturnBtn = document.getElementById('gf-oo-return-btn');
+  ooReturnBtn?.addEventListener('click', () => {
+    const urlValue = (webUrl?.value || '').trim();
+    const urlError = document.getElementById('ms-webview-url-error');
+    if (!urlValue) {
+      webUrl?.setAttribute('aria-invalid', 'true');
+      webUrl?.classList.add('cp-input-error');
+      if (urlError) urlError.textContent = 'Please enter your ordering URL before returning.';
+      webUrl?.focus();
+      return;
+    }
+    webUrl?.setAttribute('aria-invalid', 'false');
+    webUrl?.classList.remove('cp-input-error');
+    if (urlError) urlError.textContent = '';
+    document.body.classList.remove('oo-webview-from-step2');
+    // Phone returns to the Home preview since Online ordering is a Home-level choice.
+    showPhonePage('home');
+    window.goToStep?.('online-ordering');
   });
   page.querySelectorAll('[data-web-opt]').forEach(t => {
     t.addEventListener('click', () => {
@@ -596,7 +787,7 @@ export function initMenuSource(ctx) {
   /* ------------------------------------------------------- drag to reorder */
 
   function makeSortable(container, onDrop) {
-    let dragging = null; let rows = []; let startY = 0; let from = 0; let to = 0; let h = 0;
+    let dragging = null; let rows = []; let startY = 0; let from = 0; let to = 0; let h = 0; let pointerId = null;
 
     const move = (e) => {
       if (!dragging) return;
@@ -614,27 +805,30 @@ export function initMenuSource(ctx) {
         r.style.transform = 'translateY(' + d + 'px)';
       });
     };
-    const up = () => {
-      if (!dragging) return;
+    const up = (event) => {
+      if (!dragging || (event && event.pointerId !== pointerId)) return;
       const row = dragging; const f = from; const t = to;
-      row.style.transition = 'transform .22s cubic-bezier(.2,.8,.2,1)';
-      row.style.transform = 'translateY(0)';
-      setTimeout(() => {
-        if (f !== t && rows[t]) {
-          const ref = rows[t];
-          if (f < t) ref.parentNode.insertBefore(row, ref.nextSibling);
-          else ref.parentNode.insertBefore(row, ref);
-          onDrop();
-        }
-        rows.forEach(r => { r.style.transform = ''; r.style.transition = ''; });
-        row.classList.remove('dragging');
-        dragging = null; rows = [];
-      }, 220);
-      document.removeEventListener('mousemove', move);
-      document.removeEventListener('mouseup', up);
+      const activePointer = pointerId;
+      dragging = null;
+      pointerId = null;
+      const before = row.getBoundingClientRect();
+      if (container.hasPointerCapture?.(activePointer)) container.releasePointerCapture(activePointer);
+      if (f !== t && rows[t]) {
+        const ref = rows[t];
+        if (f < t) ref.parentNode.insertBefore(row, ref.nextSibling);
+        else ref.parentNode.insertBefore(row, ref);
+        onDrop();
+      }
+      rows.forEach(r => { r.style.transform = ''; r.style.transition = ''; });
+      const after = row.getBoundingClientRect();
+      row.animate(
+        [{ transform: `translateY(${before.top - after.top}px) scale(1.02)` }, { transform: 'translateY(0) scale(1)' }],
+        { duration: window.matchMedia('(prefers-reduced-motion: reduce)').matches ? 100 : 260, easing: 'cubic-bezier(.2,.8,.2,1)' },
+      ).finished.catch(() => {}).finally(() => row.classList.remove('dragging'));
+      rows = [];
     };
 
-    container.addEventListener('mousedown', (e) => {
+    container.addEventListener('pointerdown', (e) => {
       const handle = e.target.closest('[data-drag]');
       if (!handle) return;
       const row = handle.closest('.ms-row');
@@ -642,12 +836,15 @@ export function initMenuSource(ctx) {
       e.preventDefault();
       rows = [...container.querySelectorAll('.ms-row')];
       from = rows.indexOf(row); to = from;
-      dragging = row; startY = e.clientY; h = row.offsetHeight + 8;
+      dragging = row; startY = e.clientY; h = row.offsetHeight + 8; pointerId = e.pointerId;
+      container.setPointerCapture(e.pointerId);
       row.classList.add('dragging');
       rows.forEach(r => { if (r !== row) r.style.transition = 'transform .2s cubic-bezier(.2,.8,.2,1)'; });
-      document.addEventListener('mousemove', move);
-      document.addEventListener('mouseup', up);
     });
+    container.addEventListener('pointermove', move);
+    container.addEventListener('pointerup', up);
+    container.addEventListener('pointercancel', up);
+    container.addEventListener('lostpointercapture', up);
   }
 
   /* ------------------------------------------------------------ the phone */
@@ -685,20 +882,6 @@ export function initMenuSource(ctx) {
   }
 
   function renderNone() {
-    const inSkeleton = document.body.classList.contains('gf-skeleton');
-    if (inSkeleton) {
-      return appHeader('MENU', 'Choose an approach on the left') + `
-        <div class="gf-skel-menu" style="padding:12px 14px">
-          <div class="gf-skel-menu-hero"></div>
-          <div class="gf-skel-menu-grid">
-            <div class="gf-skel-menu-item"><div class="gf-skel-menu-item-img"></div><div class="gf-skel-line w70"></div><div class="gf-skel-line w40"></div></div>
-            <div class="gf-skel-menu-item"><div class="gf-skel-menu-item-img"></div><div class="gf-skel-line w60"></div><div class="gf-skel-line w40"></div></div>
-            <div class="gf-skel-menu-item"><div class="gf-skel-menu-item-img"></div><div class="gf-skel-line w80"></div><div class="gf-skel-line w40"></div></div>
-            <div class="gf-skel-menu-item"><div class="gf-skel-menu-item-img"></div><div class="gf-skel-line w55"></div><div class="gf-skel-line w40"></div></div>
-          </div>
-          <div class="gf-skel-tag">Menu · pick an approach from the left panel</div>
-        </div>`;
-    }
     return appHeader('MENU', 'Not set up yet') + `
       <div class="pm-empty">
         <div class="pm-empty-ic">${ICON.cutlery}</div>
@@ -714,7 +897,7 @@ export function initMenuSource(ctx) {
         <div class="pm-empty">
           <div class="pm-empty-ic">${ICON.cutlery}</div>
           <div class="pm-empty-title">Nothing loaded yet</div>
-          <div class="pm-empty-sub">Paste your menu web address and press Connect &amp; load.</div>
+          <div class="pm-empty-sub">Paste your menu web address and press Add &amp; preview.</div>
         </div>`;
     }
     if (w.membersonly) {
@@ -900,7 +1083,7 @@ export function initMenuSource(ctx) {
               <div class="pm-show-name">${escapeHtml(item.name)}</div>
               <div class="pm-show-desc">${escapeHtml(item.desc)}</div>
               ${dietBadges(item.tags, true)}
-              <div class="pm-show-foot"><span class="pm-card-price">${escapeHtml(item.price)}</span><button class="pm-add">+</button></div>
+              <div class="pm-show-foot"><span class="pm-card-price">${escapeHtml(item.price)}</span></div>
             </div>
           </div>`;
         }
@@ -910,7 +1093,7 @@ export function initMenuSource(ctx) {
             <div class="pm-card-name">${escapeHtml(item.name)}</div>
             ${item.desc ? '<div class="pm-card-desc">' + escapeHtml(item.desc) + '</div>' : ''}
             ${dietBadges(item.tags, true)}
-            <div class="pm-card-foot"><span class="pm-card-price">${escapeHtml(item.price)}</span><button class="pm-add">+</button></div>
+            <div class="pm-card-foot"><span class="pm-card-price">${escapeHtml(item.price)}</span></div>
           </div>
         </div>`;
       });
@@ -978,10 +1161,26 @@ export function initMenuSource(ctx) {
   renderManualHeroControl();
   renderPhone();
 
+  function exportMenuSource() {
+    return JSON.parse(JSON.stringify(state));
+  }
+
+  function importMenuSource(saved = {}) {
+    if (!saved || typeof saved !== 'object') return;
+    Object.assign(state, saved);
+    renderCategories();
+    show(state.screen || 'build-categories');
+    renderPhone();
+  }
+
   return {
     menuState: state,
     showMenuScreen: show,
     renderMenuPhone: renderPhone,
+    exportMenuSource,
+    importMenuSource,
     openMenuTab: () => goToPage('menu'),
+    openWebviewSetup,
+    isWebviewConfigured: () => state.webview.connected,
   };
 }

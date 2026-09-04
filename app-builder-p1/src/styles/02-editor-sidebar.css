@@ -1,3 +1,11 @@
+  /* Screen reorder + rename */
+  .side-step.dragging { opacity: .45; }
+  .side-step.drop-target { box-shadow: inset 0 2px 0 var(--como); }
+  .side-lbl-orig {
+    display: block; font-size: 9.5px; font-weight: 600;
+    color: var(--muted); margin-top: 1px; letter-spacing: .2px;
+  }
+
   /* ============================================================
      WORKSPACE
      ============================================================ */
@@ -6,19 +14,34 @@
     min-width: 0;
     min-height: 0;
     display: grid;
-    grid-template-columns: 216px 400px 0px 1fr;
+    grid-template-columns: 216px minmax(360px, 400px) 0 0 minmax(360px, 1fr);
     overflow: hidden;
-    transition: grid-template-columns .28s cubic-bezier(0.2, 0.8, 0.2, 1);
+    position: relative;
   }
+  /* Each workbench surface owns a stable track. At mid-size desktop widths the
+     L3 editor becomes an absolute drawer, which removes it from Grid's auto-
+     placement algorithm; without explicit placement, the preview falls into
+     the deliberately collapsed third track and the real preview track is left
+     empty. Compact/mobile rules can still remap these tracks below. */
+  :where(.workspace) > .side-nav { grid-column: 1; grid-row: 1; }
+  :where(.workspace) > .config-column { grid-column: 2; grid-row: 1; }
+  :where(.workspace) > .preview-area { grid-column: 5; grid-row: 1; }
   body.side-collapsed .workspace {
-    grid-template-columns: 64px 400px 0px 1fr;
+    grid-template-columns: 64px minmax(360px, 400px) 0 0 minmax(360px, 1fr);
   }
-  /* Third panel (L3) open: reveal the 360px column; the phone area (1fr) shrinks so the phone slides right */
+  /* L3 changes the layout immediately; its content supplies the transform/opacity
+     transition, so opening a deep editor never animates grid width. */
   body.l3-open .workspace {
-    grid-template-columns: 216px 400px 360px 1fr;
+    grid-template-columns: 216px minmax(360px, 400px) 360px 0 minmax(360px, 1fr);
   }
   body.l3-open.side-collapsed .workspace {
-    grid-template-columns: 64px 400px 360px 1fr;
+    grid-template-columns: 64px minmax(360px, 400px) 360px 0 minmax(360px, 1fr);
+  }
+  /* L4 (deepest editor, e.g. a single promo card): collapse the step nav and
+     shift the phone right so the fourth panel fits between config and preview. */
+  body.l4-open .workspace,
+  body.l4-open.side-collapsed .workspace {
+    grid-template-columns: 64px minmax(320px, 360px) 320px 360px minmax(280px, 1fr);
   }
 
   /* ============================================================
@@ -58,13 +81,12 @@
   /* ---------- Top-right expand/collapse icon toggle ---------- */
   .side-toggle-btn {
     position: absolute; top: 14px; right: 10px;
-    width: 26px; height: 26px; border-radius: 7px;
+    width: 44px; height: 44px; border-radius: 9px;
     display: grid; place-items: center;
     background: transparent; border: none; color: #8d88a3;
     cursor: pointer; transition: background .12s, color .12s;
     z-index: 5;
   }
-  .side-toggle-btn:hover { color: #fff; background: rgba(255,255,255,.06); }
   .side-toggle-btn svg { width: 16px; height: 16px; }
   body.side-collapsed .side-toggle-btn { position: static; margin: 0 auto 6px; }
 
@@ -83,7 +105,8 @@
   .side-item {
     position: relative;
     display: flex; align-items: center; gap: 12px;
-    padding: 9px 12px;
+    padding: 10px 12px;
+    min-height: 44px;
     border: none; background: transparent;
     color: #b0acc4; font-size: 13.5px; font-weight: 600;
     border-radius: 10px;
@@ -91,16 +114,10 @@
     text-align: left; width: 100%;
     transition: color .15s, background .15s;
   }
-  .side-item:hover { color: #fff; background: rgba(255,255,255,.04); }
   .side-item.active {
     color: #fff;
     background: linear-gradient(90deg, rgba(109,40,217,.28) 0%, rgba(109,40,217,.08) 100%);
-  }
-  .side-item.active::before {
-    content: ""; position: absolute;
-    left: 0; top: 10px; bottom: 10px;
-    width: 3px; border-radius: 0 3px 3px 0;
-    background: linear-gradient(180deg, var(--como), #a855f7);
+    box-shadow: inset 0 0 0 1px rgba(168,85,247,.2);
   }
   .side-item .side-ic {
     width: 22px; height: 22px; flex: none;
@@ -124,10 +141,22 @@
     z-index: 400;
   }
   body:not(.side-collapsed) .side-tooltip { display: none; }
-  body.side-collapsed .side-item:hover .side-tooltip { opacity: 1; }
+  body.side-collapsed .side-item:focus-visible .side-tooltip { opacity: 1; }
   /* Tooltips sit outside the rail, so the rail can't clip them while collapsed */
   body.side-collapsed .side-nav { overflow: visible; }
   body.side-collapsed .side-item .side-lbl { pointer-events: none; }
+
+  .side-toggle-btn:focus-visible,
+  .side-item:focus-visible {
+    outline: 2px solid #c4b5fd;
+    outline-offset: 2px;
+  }
+
+  @media (hover: hover) and (pointer: fine) {
+    .side-toggle-btn:hover { color: #fff; background: rgba(255,255,255,.06); }
+    .side-item:hover { color: #fff; background: rgba(255,255,255,.04); }
+    body.side-collapsed .side-item:hover .side-tooltip { opacity: 1; }
+  }
 
   .side-check { margin-left: auto; width: 16px; height: 16px; color: #22c55e; flex: none; }
   .side-check svg { width: 16px; height: 16px; }

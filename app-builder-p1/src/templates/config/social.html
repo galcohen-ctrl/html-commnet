@@ -6,23 +6,35 @@
         </div>
         <div class="cp-section open">
           <div class="cp-head-row">Icons <span class="chev">›</span></div>
-          <div class="cp-body">
-            <div class="cp-social-item on">
-              <div class="cp-toggle-row"><span class="lbl">Instagram</span><span class="toggle on" data-bind=".social-strip span:nth-child(1)"></span></div>
+          <div class="cp-body" id="social-icons-list">
+            <div class="cp-social-item on" data-social="instagram">
+              <div class="cp-toggle-row"><span class="handle" title="Drag to reorder">⠿</span><span class="lbl">Instagram</span><span class="toggle on" data-bind=".social-strip [data-social='instagram']"></span></div>
               <div class="cp-social-link"><input class="cp-input-text" placeholder="https://instagram.com/yourbusiness" /></div>
             </div>
-            <div class="cp-social-item on">
-              <div class="cp-toggle-row"><span class="lbl">Facebook</span><span class="toggle on" data-bind=".social-strip span:nth-child(2)"></span></div>
+            <div class="cp-social-item on" data-social="facebook">
+              <div class="cp-toggle-row"><span class="handle" title="Drag to reorder">⠿</span><span class="lbl">Facebook</span><span class="toggle on" data-bind=".social-strip [data-social='facebook']"></span></div>
               <div class="cp-social-link"><input class="cp-input-text" placeholder="https://facebook.com/yourbusiness" /></div>
             </div>
-            <div class="cp-social-item on">
-              <div class="cp-toggle-row"><span class="lbl">TikTok</span><span class="toggle on" data-bind=".social-strip span:nth-child(3)"></span></div>
+            <div class="cp-social-item on" data-social="tiktok">
+              <div class="cp-toggle-row"><span class="handle" title="Drag to reorder">⠿</span><span class="lbl">TikTok</span><span class="toggle on" data-bind=".social-strip [data-social='tiktok']"></span></div>
               <div class="cp-social-link"><input class="cp-input-text" placeholder="https://tiktok.com/@yourbusiness" /></div>
             </div>
-            <div class="cp-social-item on">
-              <div class="cp-toggle-row"><span class="lbl">YouTube</span><span class="toggle on" data-bind=".social-strip span:nth-child(4)"></span></div>
+            <div class="cp-social-item on" data-social="youtube">
+              <div class="cp-toggle-row"><span class="handle" title="Drag to reorder">⠿</span><span class="lbl">YouTube</span><span class="toggle on" data-bind=".social-strip [data-social='youtube']"></span></div>
               <div class="cp-social-link"><input class="cp-input-text" placeholder="https://youtube.com/@yourbusiness" /></div>
             </div>
+            <div class="cp-social-item off" data-social="x">
+              <div class="cp-toggle-row"><span class="handle" title="Drag to reorder">⠿</span><span class="lbl">X</span><span class="toggle" data-bind=".social-strip [data-social='x']"></span></div>
+              <div class="cp-social-link"><input class="cp-input-text" placeholder="https://x.com/yourbusiness" /></div>
+            </div>
+            <div class="cp-social-item off" data-social="custom">
+              <div class="cp-toggle-row"><span class="handle" title="Drag to reorder">⠿</span><span class="lbl">Custom link</span><span class="toggle" data-bind=".social-strip [data-social='custom']"></span></div>
+              <div class="cp-social-link">
+                <input class="cp-input-text" placeholder="Label — e.g. Book a table" style="margin-bottom:8px" />
+                <input class="cp-input-text" placeholder="https://" />
+              </div>
+            </div>
+            <div class="cp-section-note">Toggle a network on, add its link, and drag ⠿ to reorder. Use Custom link for anything not listed.</div>
           </div>
         </div>
       </div>

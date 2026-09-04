@@ -1,3 +1,163 @@
+<div class="sm-pane sm-submission-pane" data-sm-pane="app-submission" data-pendo-guide-id="app-submission-checklist"
+     data-sm-title="App submission"
+     data-sm-sub="Prepare your native app for Apple and Google. Your content draft stays separate and can be published from the editor."
+     data-sm-primary="Continue setup">
+
+  <nav class="sm-submission-nav" aria-label="App submission setup">
+    <button class="sm-submission-nav-item active" type="button" data-submission-nav="overview" aria-current="step"><span>1</span>Overview</button>
+    <button class="sm-submission-nav-item" type="button" data-submission-nav="accounts"><span>2</span>Developer accounts</button>
+    <button class="sm-submission-nav-item" type="button" data-submission-nav="listing"><span>3</span>Store listing</button>
+    <button class="sm-submission-nav-item" type="button" data-submission-nav="privacy"><span>4</span>Privacy &amp; compliance</button>
+    <button class="sm-submission-nav-item" type="button" data-submission-nav="testing"><span>5</span>Testing</button>
+    <button class="sm-submission-nav-item" type="button" data-submission-nav="submit"><span>6</span>Submit &amp; release</button>
+    <button class="sm-submission-nav-item" type="button" data-submission-nav="history"><span>7</span>Submission history</button>
+  </nav>
+
+  <section class="sm-submission-step active" data-submission-step="overview"
+           data-sm-title="App submission"
+           data-sm-sub="See what each store needs before Como can prepare a native submission. Apple and Google move independently."
+           data-sm-primary="Start with developer accounts">
+    <div class="sm-submission-intro">
+      <div>
+        <div class="sm-eyebrow">Native launch checklist</div>
+        <h3>Move from app draft to store-ready</h3>
+        <p>A store-ready draft can take under an hour when your business information and merchant-owned developer accounts are ready. Apple and Google control their own review timelines.</p>
+      </div>
+      <span class="sm-readiness-ring" data-submission-progress aria-label="1 of 5 setup gates ready"><strong>20%</strong><small>ready</small></span>
+    </div>
+
+    <div class="sm-store-grid" aria-label="Store readiness">
+      <article class="sm-store-card" data-store-card="apple">
+        <div class="sm-store-card-head"><span class="sm-store-mark apple" aria-hidden="true">A</span><div><h4>Apple App Store</h4><p>Developer access connected</p></div><span class="sm-status warn" data-store-status="apple">3 to do</span></div>
+        <ul class="sm-gate-list">
+          <li class="done" data-gate-row="accounts"><span aria-hidden="true">✓</span>Developer account &amp; delegated access</li>
+          <li data-gate-row="listing"><span aria-hidden="true">2</span>Store listing &amp; assets</li>
+          <li data-gate-row="privacy"><span aria-hidden="true">3</span>Privacy &amp; compliance</li>
+          <li data-gate-row="testing"><span aria-hidden="true">4</span>Approve the native test build</li>
+        </ul>
+        <button class="sm-inline-action" type="button" data-submission-goto="accounts">Review Apple setup</button>
+      </article>
+      <article class="sm-store-card" data-store-card="google">
+        <div class="sm-store-card-head"><span class="sm-store-mark google" aria-hidden="true">G</span><div><h4>Google Play</h4><p>Delegated access still needed</p></div><span class="sm-status warn" data-store-status="google">4 to do</span></div>
+        <ul class="sm-gate-list">
+          <li data-gate-row="accounts"><span aria-hidden="true">1</span>Developer account &amp; delegated access</li>
+          <li data-gate-row="listing"><span aria-hidden="true">2</span>Store listing &amp; assets</li>
+          <li data-gate-row="privacy"><span aria-hidden="true">3</span>Privacy &amp; compliance</li>
+          <li data-gate-row="testing"><span aria-hidden="true">4</span>Approve the native test build</li>
+        </ul>
+        <button class="sm-inline-action" type="button" data-submission-goto="accounts">Connect Google Play</button>
+      </article>
+    </div>
+
+    <div class="sm-support-strip">
+      <div><strong>Want a second pair of eyes?</strong><span>A CSM can accelerate the checklist, while you retain ownership and final approval.</span></div>
+      <button class="sm-banner-btn" type="button" data-submission-review>Ask Como to review</button>
+    </div>
+  </section>
+
+  <section class="sm-submission-step" data-submission-step="accounts"
+           data-sm-title="Developer accounts"
+           data-sm-sub="Use developer organization accounts owned by your business, then delegate only the access Como needs. Never share a password."
+           data-sm-primary="Continue to store listing" data-sm-back="overview">
+    <div class="sm-section">
+      <div class="sm-section-label">Account ownership</div>
+      <div class="sm-note info"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="9"/><path d="M12 10v6M12 7h.01"/></svg><div><b>Your business stays in control.</b> Invite Como with the minimum role needed for build and release work. You can remove access from Apple or Google at any time.</div></div>
+    </div>
+    <div class="sm-account-card ready" data-account-card="apple">
+      <span class="sm-store-mark apple" aria-hidden="true">A</span>
+      <div class="sm-account-copy"><h3>Apple Developer organization</h3><p>Velvet Bistro Hospitality Ltd. · Team 9K4T2XQ8LP</p><small>Como release access verified · no password stored</small></div>
+      <span class="sm-status ok" data-account-status="apple">Ready</span>
+    </div>
+    <div class="sm-account-card" data-account-card="google">
+      <span class="sm-store-mark google" aria-hidden="true">G</span>
+      <div class="sm-account-copy"><h3>Google Play organization</h3><p>Grant Como release access from Play Console.</p><small>A guided checklist opens; you sign in directly with Google.</small></div>
+      <button class="sm-banner-btn" type="button" data-connect-account="google">Grant access</button>
+      <span class="sm-status ok" data-account-status="google" hidden>Ready</span>
+    </div>
+    <a class="sm-help-link" href="https://www.como.com/help" target="_blank" rel="noreferrer">Open the developer account guide <span aria-hidden="true">↗</span></a>
+  </section>
+
+  <section class="sm-submission-step" data-submission-step="listing"
+           data-sm-title="Store listing"
+           data-sm-sub="Write the public listing once, then preview how it maps to Apple and Google."
+           data-sm-primary="Save listing &amp; continue" data-sm-back="accounts">
+    <div class="sm-row2">
+      <div class="sm-field"><label class="sm-label" for="sm-listing-name">App name</label><input class="sm-input" id="sm-listing-name" type="text" maxlength="30" value="Velvet Bistro"><div class="sm-hint"><span data-count-for="sm-listing-name">13</span>/30 characters</div></div>
+      <div class="sm-field"><label class="sm-label" for="sm-listing-subtitle">Subtitle</label><input class="sm-input" id="sm-listing-subtitle" type="text" maxlength="30" placeholder="Loyalty and easy ordering"><div class="sm-hint"><span data-count-for="sm-listing-subtitle">0</span>/30 characters</div></div>
+    </div>
+    <div class="sm-field"><label class="sm-label" for="sm-listing-description">Store description</label><textarea class="sm-textarea" id="sm-listing-description" maxlength="4000" placeholder="Tell guests what they can do in your app."></textarea><div class="sm-hint">Lead with the guest benefit. Store teams may reject misleading claims.</div></div>
+    <div class="sm-field"><label class="sm-label" for="sm-listing-keywords">Keywords</label><input class="sm-input" id="sm-listing-keywords" type="text" placeholder="restaurant, rewards, ordering"><div class="sm-hint">Use relevant words only; avoid competitor names.</div></div>
+    <div class="sm-section">
+      <div class="sm-section-label">Required visual assets</div>
+      <div class="sm-asset-grid">
+        <button class="sm-asset-card" type="button" data-listing-asset="icon"><span class="sm-asset-preview icon">VB</span><span><strong>App icon</strong><small>1024 × 1024 PNG</small></span><em data-asset-state="icon">Add</em></button>
+        <button class="sm-asset-card" type="button" data-listing-asset="screens"><span class="sm-asset-preview screens">▯ ▯</span><span><strong>Screenshots</strong><small>Como can generate a starting set</small></span><em data-asset-state="screens">Generate</em></button>
+      </div>
+    </div>
+    <p class="sm-field-error" data-listing-error role="alert" hidden>Complete the subtitle, description, keywords, app icon, and screenshots to continue.</p>
+  </section>
+
+  <section class="sm-submission-step" data-submission-step="privacy"
+           data-sm-title="Privacy &amp; compliance"
+           data-sm-sub="Confirm what the app collects and provide the public policies each store expects."
+           data-sm-primary="Confirm &amp; continue" data-sm-back="listing">
+    <div class="sm-field"><label class="sm-label" for="sm-privacy-url">Public privacy policy URL</label><input class="sm-input" id="sm-privacy-url" type="url" placeholder="https://velvetbistro.com/privacy"></div>
+    <fieldset class="sm-check-group">
+      <legend>Merchant attestation</legend>
+      <label class="sm-check-row"><input type="checkbox" data-privacy-check="data"><span><strong>I reviewed the app’s data use</strong><small>Loyalty profile, orders, analytics, and notifications match the disclosure shown to guests.</small></span></label>
+      <label class="sm-check-row"><input type="checkbox" data-privacy-check="rights"><span><strong>Guests can request access or deletion</strong><small>Our support process and contact details are current.</small></span></label>
+      <label class="sm-check-row"><input type="checkbox" data-privacy-check="content"><span><strong>I have rights to the submitted content</strong><small>Names, logos, photography, and promotional claims are owned or licensed by the business.</small></span></label>
+    </fieldset>
+    <div class="sm-note"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 3l9 16H3L12 3z"/><path d="M12 9v4M12 16h.01"/></svg><div>Apple and Google may ask follow-up questions. Como can help translate your answers into store forms, but your business approves the final declarations.</div></div>
+    <p class="sm-field-error" data-privacy-error role="alert" hidden>Add a valid public URL and confirm all three statements.</p>
+  </section>
+
+  <section class="sm-submission-step" data-submission-step="testing"
+           data-sm-title="Test the native app"
+           data-sm-sub="Content preview is useful, but a native test build is the final check for device behavior, permissions, and checkout."
+           data-sm-primary="Approve test build" data-sm-back="privacy">
+    <div class="sm-test-build">
+      <div><span class="sm-status ok">Build available</span><h3>Candidate 3.5.0 (221)</h3><p>Prepared 26 Aug 2026 · iOS and Android test links expire in 27 days</p></div>
+      <button class="sm-banner-btn" type="button" data-open-test-links>Open test links</button>
+    </div>
+    <fieldset class="sm-check-group">
+      <legend>Approval checklist</legend>
+      <label class="sm-check-row"><input type="checkbox" data-test-check="ios"><span><strong>Checked on an iPhone</strong><small>Sign-in, loyalty, navigation, notifications prompt, and checkout.</small></span></label>
+      <label class="sm-check-row"><input type="checkbox" data-test-check="android"><span><strong>Checked on an Android phone</strong><small>Back behavior, permissions, deep links, ordering, and payments.</small></span></label>
+      <label class="sm-check-row"><input type="checkbox" data-test-check="approve"><span><strong>I approve this candidate for store preparation</strong><small>Later content changes can still be published separately from the editor.</small></span></label>
+    </fieldset>
+    <p class="sm-field-error" data-testing-error role="alert" hidden>Complete all native test checks before approval.</p>
+  </section>
+
+  <section class="sm-submission-step" data-submission-step="submit"
+           data-sm-title="Submit &amp; release"
+           data-sm-sub="Choose which stores Como should prepare. This prototype creates a review-ready request; it does not contact either store."
+           data-sm-primary="Prepare submission summary" data-sm-back="testing">
+    <div class="sm-note ok" data-ready-note><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="9"/><path d="M8 12l2.5 2.5L16.5 8.5"/></svg><div><b>All setup gates are ready.</b> Review the stores and release choices below before asking Como to prepare the submission.</div></div>
+    <fieldset class="sm-submit-stores">
+      <legend>Stores to prepare</legend>
+      <label class="sm-submit-store"><input type="checkbox" data-submit-store="apple" checked><span class="sm-store-mark apple" aria-hidden="true">A</span><span><strong>Apple App Store</strong><small data-submit-status="apple">Ready to prepare</small></span></label>
+      <label class="sm-submit-store"><input type="checkbox" data-submit-store="google" checked><span class="sm-store-mark google" aria-hidden="true">G</span><span><strong>Google Play</strong><small data-submit-status="google">Ready to prepare</small></span></label>
+    </fieldset>
+    <div class="sm-field"><label class="sm-label" for="sm-release-mode">Release after store approval</label><select class="sm-select" id="sm-release-mode"><option>Hold for my approval</option><option>Release automatically</option><option>Stage the rollout</option></select><div class="sm-hint">Store review is external. Apple and Google may approve, reject, or request changes on different dates.</div></div>
+    <div class="sm-submit-confirm" data-submission-confirmation hidden role="group" aria-label="Confirm submission preparation">
+      <div><strong>Prepare a request for Como review?</strong><p>No app-store submission happens now. Como will review the package and ask for your final approval before any external submission.</p></div>
+      <div><button class="sm-btn ghost" type="button" data-cancel-submission>Not yet</button><button class="sm-btn primary" type="button" data-confirm-submission>Confirm preparation</button></div>
+    </div>
+  </section>
+
+  <section class="sm-submission-step" data-submission-step="history"
+           data-sm-title="Submission history"
+           data-sm-sub="Track Apple and Google separately. Content-only publishes appear in the editor, not here."
+           data-sm-primary="Done" data-sm-back="submit">
+    <div class="sm-rows" aria-live="polite" data-submission-history>
+      <div class="sm-rows-row"><span class="sm-store-mark apple" aria-hidden="true">A</span><div class="sm-rows-text"><div class="sm-rows-name">iOS 3.4.1 (218)</div><div class="sm-rows-sub">Submitted 11 Aug 2026 · Apple review</div></div><span class="sm-status warn">In review</span></div>
+      <div class="sm-rows-row"><span class="sm-store-mark google" aria-hidden="true">G</span><div class="sm-rows-text"><div class="sm-rows-name">Android 3.4.0 (214)</div><div class="sm-rows-sub">Released 28 Jul 2026 · production</div></div><span class="sm-status ok">Live</span></div>
+    </div>
+    <div class="sm-note info"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></svg><div>Store reviews are handled by Apple and Google. Their timelines and decisions are independent; Como will show requests for changes here.</div></div>
+  </section>
+</div>
+
 <div class="sm-pane" data-sm-pane="app-store"
      data-sm-title="App Store Connect"
      data-sm-sub="Como submits your iOS builds through this connection. Layer 1 changes still ship instantly over the air."

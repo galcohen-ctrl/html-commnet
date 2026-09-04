@@ -1,22 +1,24 @@
-          <!-- ============ LOGIN PAGE (guest — hardcoded structure, colors follow Branding) ============ -->
-          <div class="app-page" data-page="login">
-            <div class="app-top-header">
-              <div style="display:flex; align-items:center; gap:10px;">
-                <button class="icon-btn" style="width:32px; height:32px;" onclick="showPhonePage('home')">‹</button>
-                <div class="brand-text">
-                  <div class="name">LOGIN</div>
-                  <div class="sub">Hardcoded screen · colors only</div>
-                </div>
-              </div>
-            </div>
-
-            <div class="login-card">
-              <div class="login-title">Login</div>
-              <label class="login-field-lbl" id="login-field-lbl">Phone Number</label>
-              <input class="login-input" id="login-input" value="056000123" />
-              <button class="login-btn">Login</button>
-              <div class="login-switch" id="login-switch">Login with Email</div>
-              <div class="login-divider"></div>
-              <div class="login-signup">Not yet a member? <span class="login-signup-link">Sign Up</span></div>
-            </div>
-          </div>
+<div class="app-page px-member-experience px-login-page" data-page="login">
+  <header class="px-phone-page-head">
+    <button class="px-phone-back" type="button" onclick="showPhonePage('home')" aria-label="Back to Home">‹</button>
+    <div><strong data-phone-brand>Your Business</strong><span>Member access</span></div>
+  </header>
+  <div class="px-member-scroll px-login-scroll">
+    <section class="px-login-welcome">
+      <div class="px-login-mark" id="px-login-mark">Y</div>
+      <span>Welcome back</span>
+      <h2>Your rewards are waiting.</h2>
+      <p>Sign in to use gifts, collect points, and see your recent orders.</p>
+    </section>
+    <section class="px-login-card">
+      <div class="px-login-tabs" role="tablist" aria-label="Sign-in method"><button class="active" type="button" role="tab" aria-selected="true">Phone</button><button type="button" role="tab" aria-selected="false">Email</button></div>
+      <label for="login-input">Phone number</label>
+      <div class="px-phone-field"><span>+1</span><input id="login-input" inputmode="tel" autocomplete="tel" placeholder="(555) 000-0000" /></div>
+      <button class="px-login-primary" type="button" data-phone-action="Secure sign-in code sent">Continue securely</button>
+      <p class="px-login-help">We’ll text you a one-time code. Standard message rates may apply.</p>
+      <div class="px-login-divider"><span>New here?</span></div>
+      <button class="px-login-secondary" type="button" data-phone-action="Membership sign-up opened">Create a free membership</button>
+    </section>
+    <p class="px-login-legal">By continuing, you agree to the membership terms and privacy policy.</p>
+  </div>
+</div>

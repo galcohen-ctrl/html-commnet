@@ -48,7 +48,7 @@
     border: none; background: transparent;
     padding: 5px 11px; border-radius: 6px;
     font-size: 12px; font-weight: 650; color: var(--muted);
-    cursor: pointer; transition: all .15s;
+    cursor: pointer; transition: background-color .15s, color .15s, box-shadow .15s;
   }
   .seg button.active { background: var(--ink); color: #fff; }
 
@@ -60,7 +60,9 @@
     background: var(--como); color: #fff;
     cursor: pointer; transition: opacity .15s;
   }
-  .save-btn.disabled { background: #e6e6ee; color: #a3a3b0; cursor: not-allowed; }
+  .save-btn[data-state="saving"] { background: var(--como-soft); color: var(--como); cursor: progress; }
+  .save-btn[data-state="error"] { background: var(--danger-soft); color: var(--danger); cursor: pointer; }
+  .save-btn.disabled { background: #ececf2; color: #666675; cursor: default; }
   .close-btn {
     border: 1px solid var(--line); background: #fff;
     width: 34px; height: 34px; border-radius: 8px;
@@ -68,49 +70,17 @@
     display: grid; place-items: center;
   }
 
-  /* ---------- Preset dropdown (top bar) ---------- */
-  .preset-dropdown { position: relative; }
-  .preset-btn {
-    display: flex; align-items: center; gap: 7px;
-    border: 1px solid var(--line); background: #fff;
-    border-radius: 9px; padding: 7px 12px;
-    font-size: 12.5px; font-weight: 650; color: var(--ink);
-    cursor: pointer; transition: border-color .15s;
-  }
-  .preset-btn:hover { border-color: var(--como); }
-  .preset-btn svg { flex: none; width: 15px; height: 15px; }
-  .preset-btn .chev-ic { width: 10px; height: 6px; color: var(--muted); transition: transform .15s; }
-  .preset-dropdown.open .preset-btn .chev-ic { transform: rotate(180deg); }
-  .preset-menu {
-    position: absolute; top: calc(100% + 6px); right: 0;
-    min-width: 180px;
-    background: #fff; border: 1px solid var(--line); border-radius: 10px;
-    box-shadow: 0 12px 28px rgba(0,0,0,.14);
-    padding: 6px; z-index: 150;
-    opacity: 0; pointer-events: none; transform: translateY(-4px);
-    transition: opacity .15s, transform .15s;
-  }
-  .preset-dropdown.open .preset-menu { opacity: 1; pointer-events: auto; transform: none; }
-  .preset-menu-item {
-    display: block; width: 100%; text-align: left;
-    border: none; background: transparent; border-radius: 7px;
-    padding: 8px 10px; font-size: 12.5px; font-weight: 600; color: var(--ink);
-    cursor: pointer;
-  }
-  .preset-menu-item:hover { background: var(--como-soft); }
-  .preset-menu-item.active { color: var(--como); background: var(--como-soft); }
-
-  /* ---------- Demo-only: simulate published state ---------- */
-  .demo-toggle {
-    border: 1px dashed var(--line); background: #fff; color: var(--muted);
-    border-radius: 8px; padding: 6px 10px;
-    font-size: 11.5px; font-weight: 650; cursor: pointer;
-  }
-  .demo-toggle:hover { border-color: var(--como); color: var(--como); }
-  .demo-toggle.active { border-style: solid; border-color: var(--como); color: var(--como); background: var(--como-soft); }
-  .preset-dropdown.disabled .preset-btn { opacity: .45; cursor: not-allowed; pointer-events: none; }
-
   /* ---------- Confirm-before-switch modal ---------- */
+  .top-qr-btn {
+    display: inline-flex; align-items: center; gap: 7px;
+    margin-left: 18px; padding: 7px 13px;
+    background: #fff; border: 1px solid var(--line); border-radius: 999px;
+    font: inherit; font-size: 12.5px; font-weight: 650; color: var(--ink);
+    cursor: pointer; transition: .12s;
+  }
+  .top-qr-btn:hover { border-color: var(--como); color: var(--como); }
+  .top-qr-btn svg { width: 15px; height: 15px; }
+
   .confirm-overlay {
     position: fixed; inset: 0; background: rgba(15,13,23,.45);
     display: flex; align-items: center; justify-content: center;
@@ -120,7 +90,10 @@
   .confirm-box {
     width: 340px; background: #fff; border-radius: 14px;
     padding: 20px; box-shadow: 0 20px 50px rgba(0,0,0,.25);
+    transform: translateY(8px) scale(.985);
+    transition: transform .18s cubic-bezier(.2,.8,.2,1);
   }
+  .confirm-overlay.open .confirm-box { transform: none; }
   .confirm-title { font-size: 15px; font-weight: 750; margin-bottom: 8px; }
   .confirm-body { font-size: 12.5px; color: var(--muted); line-height: 1.5; margin-bottom: 18px; }
   .confirm-actions { display: flex; justify-content: flex-end; gap: 8px; }
@@ -131,6 +104,15 @@
   .confirm-ok {
     border: none; background: var(--como); color: #fff;
     border-radius: 8px; padding: 8px 14px; font-size: 12.5px; font-weight: 650; cursor: pointer;
+  }
+
+  @media (max-width: 767px) {
+    .topbar { gap: 8px; padding-inline: 10px; }
+    .brand-sub, .preset-prefix { display: none; }
+    .preset-btn { max-width: 150px; }
+    #preset-btn-label { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+    .save-btn { padding-inline: 10px; }
+    .close-btn { width: 40px; height: 40px; }
   }
 
   /* ---------- Config hint text + @ variable dropdown ---------- */
@@ -154,4 +136,3 @@
     font-size: 10px; text-transform: uppercase; letter-spacing: .6px;
     color: var(--como); font-weight: 700; margin-bottom: 6px;
   }
-

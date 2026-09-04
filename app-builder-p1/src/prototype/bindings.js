@@ -28,10 +28,16 @@ export function initBindings(ctx) {
         // config so the merchant can customise it right away. Seeding a focus
         // preset flips many at once, so it opts out via the guard class.
         if (on && row.closest('#cp-home') && !document.body.classList.contains('gf-applying-preset')) {
-          const drillKey = row.querySelector('[data-drill]')?.dataset.drill;
-          if (drillKey && typeof window.openDrill === 'function') {
-            window.openDrill('cp-home', drillKey);
-          }
+          // Route through openWidgetRowConfig so L3 widgets (social, profile) open
+          // in the third panel — and a drill already parked in L3 isn't reopened blank.
+          if (typeof window.openWidgetRowConfig === 'function') window.openWidgetRowConfig(row);
+        }
+        // Removing a widget closes its open editor — you can't edit what isn't on
+        // the app. The active row (Home widget or Rewards tile) carries .l3-active;
+        // the drill keeps its values, so re-adding restores the edits.
+        if (!on && !document.body.classList.contains('gf-applying-preset')
+            && row.classList.contains('l3-active') && document.body.classList.contains('l3-open')) {
+          window.closeL3Panel?.();
         }
       }
       // Sync parent social-item .on/.off state (reveals the indented URL input below it)
@@ -46,6 +52,37 @@ export function initBindings(ctx) {
     });
   }
   document.querySelectorAll('.toggle').forEach(wireToggle);
+
+  // Social links: drag to reorder rows; the phone strip mirrors the order.
+  (function initSocialReorder() {
+    const list = document.getElementById('social-icons-list');
+    const strip = document.querySelector('.social-strip');
+    if (!list || !strip) return;
+    let dragKey = null;
+    const syncStrip = () => {
+      list.querySelectorAll('.cp-social-item').forEach((item) => {
+        const span = strip.querySelector(`[data-social="${item.dataset.social}"]`);
+        if (span) strip.appendChild(span);
+      });
+      markDirty();
+    };
+    list.querySelectorAll('.cp-social-item').forEach((item) => {
+      const handle = item.querySelector('.handle');
+      item.setAttribute('draggable', 'false');
+      handle?.addEventListener('mousedown', () => item.setAttribute('draggable', 'true'));
+      item.addEventListener('dragstart', (e) => { dragKey = item.dataset.social; item.classList.add('dragging'); e.dataTransfer.effectAllowed = 'move'; });
+      item.addEventListener('dragend', () => { dragKey = null; item.classList.remove('dragging'); item.setAttribute('draggable', 'false'); });
+      item.addEventListener('dragover', (e) => { if (dragKey && dragKey !== item.dataset.social) e.preventDefault(); });
+      item.addEventListener('drop', (e) => {
+        e.preventDefault();
+        const moved = list.querySelector(`.cp-social-item[data-social="${dragKey}"]`);
+        if (!moved || moved === item) return;
+        const after = moved.compareDocumentPosition(item) & Node.DOCUMENT_POSITION_FOLLOWING;
+        item.insertAdjacentElement(after ? 'afterend' : 'beforebegin', moved);
+        syncStrip();
+      });
+    });
+  })();
 
   // ---------- Radio bindings ----------
   function wireRadioGroup(g) {
