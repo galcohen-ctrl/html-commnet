@@ -1,3 +1,5 @@
+import { openWebsitePreview, websiteUrl } from './websiteScreen.js';
+
 export function initPromoWidgets(ctx) {
   const {
     closeDrill, closeL3Panel, closeL4Panel, markDirty, openDrill, openL3Panel, openL4Panel, showToast,
@@ -62,9 +64,18 @@ export function initPromoWidgets(ctx) {
         // Button-only tap target; with no button the whole card carries the tap action.
         const hasButton = !!c.btnText.trim() && pcWidget?.dataset.pcCta !== 'none';
         card.classList.toggle('pc-tappable', !hasButton && c.action !== 'none');
+        if (c.action && c.action !== 'none') {
+          const target = hasButton ? body.querySelector('.pc-card-btn') : card;
+          if (c.action === 'webview') {
+            target.dataset.previewUrl = c.webviewUrl || '';
+            target.dataset.previewBrowser = JSON.stringify(c.webviewOptions || {});
+          } else target.dataset.previewPage = c.action;
+        }
         const activate = (event) => {
           event.stopPropagation();
-          if (c.action === 'webview') { window.showPhonePage?.('menu'); window.enterTapWebviewPreview?.(); }
+          if (c.action === 'webview') {
+            if (!openWebsitePreview(c.webviewUrl, c.webviewOptions, undefined, pcWidget.closest('.app-page')?.dataset.page)) showToast('Add a website address first.');
+          }
           else if (c.action && c.action !== 'none') window.showPhonePage?.(c.action);
         };
         if (hasButton) body.querySelector('.pc-card-btn')?.addEventListener('click', activate);
@@ -216,6 +227,13 @@ export function initPromoWidgets(ctx) {
       const wvDisplay = gid('-webview-display');
       const wvDisplayLabel = gid('-webview-display-label');
       const wvLabel = wvConnect.querySelector('.ms-btn-label');
+      if (wvStatus) wvStatus.textContent = 'Page added';
+      wvDisplay?.querySelectorAll('[data-wv-opt="inapp"], [data-wv-opt="hideheader"]').forEach((toggle) => {
+        toggle.setAttribute('aria-disabled', 'true');
+        toggle.closest('.ms-toggle-row').classList.add('website-option-unavailable');
+        toggle.closest('.ms-toggle-row').title = 'Requires support from your website; unavailable in this browser preview.';
+        toggle.addEventListener('click', (event) => event.stopImmediatePropagation(), true);
+      });
       const setWvState = (state) => {
         wvConnect.classList.remove('is-loading', 'is-success');
         wvConnect.disabled = false;
@@ -238,27 +256,37 @@ export function initPromoWidgets(ctx) {
         const c = pcEditIdx !== null ? pcCards[pcEditIdx] : null;
         if (wvUrl) wvUrl.value = (c && c.webviewUrl) || 'https://';
         setWvState(c && c.webviewConnected ? 'success' : 'idle');
+        wvDisplay?.querySelectorAll('[data-wv-opt]').forEach((toggle) => {
+          const enabled = c?.webviewOptions?.[toggle.dataset.wvOpt] ?? ['back', 'bottombar', 'inapp'].includes(toggle.dataset.wvOpt);
+          toggle.classList.toggle('on', enabled);
+        });
       };
       wvConnect.addEventListener('click', () => {
-        const url = (wvUrl?.value || '').trim();
-        if (!url || url === 'https://') { wvUrl?.focus(); return; }
-        setWvState('loading');
-        setTimeout(() => {
-          setWvState('success');
-          if (pcEditIdx !== null && pcCards[pcEditIdx]) {
-            pcCards[pcEditIdx].webviewUrl = url;
-            pcCards[pcEditIdx].webviewConnected = true;
-            pcCards[pcEditIdx].action = 'webview';
-          }
-          markDirty();
-          window.showPhonePage?.('menu');
-          window.enterTapWebviewPreview?.();
-        }, 1000);
+        const url = websiteUrl((wvUrl?.value || '').trim());
+        const card = pcEditIdx !== null ? pcCards[pcEditIdx] : null;
+        if (!url || !card) { showToast('Enter a website address starting with https://.'); wvUrl?.focus(); return; }
+        card.webviewUrl = url; card.webviewConnected = true; card.action = 'webview';
+        setWvState('success');
+        pcRenderPhone();
+        openWebsitePreview(url, card.webviewOptions, undefined, pcWidget.closest('.app-page')?.dataset.page);
+        markDirty();
       });
       wvUrl?.addEventListener('input', () => {
-        if (pcEditIdx !== null && pcCards[pcEditIdx]) pcCards[pcEditIdx].webviewConnected = false;
+        if (pcEditIdx !== null && pcCards[pcEditIdx]) {
+          pcCards[pcEditIdx].webviewConnected = false;
+          pcCards[pcEditIdx].webviewUrl = wvUrl.value;
+          pcRenderPhone();
+        }
         setWvState('idle');
       });
+      wvDisplay?.querySelectorAll('[data-wv-opt]').forEach((toggle) => toggle.addEventListener('click', () => {
+        const card = pcEditIdx !== null ? pcCards[pcEditIdx] : null;
+        if (!card) return;
+        card.webviewOptions ||= {};
+        card.webviewOptions[toggle.dataset.wvOpt] = toggle.classList.contains('on');
+        pcRenderPhone();
+        if (card.webviewConnected) openWebsitePreview(card.webviewUrl, card.webviewOptions, undefined, pcWidget.closest('.app-page')?.dataset.page);
+      }));
     }
 
     // Section title: drives the phone eyebrow AND the widget's name in the left panel.
@@ -378,6 +406,7 @@ export function initPromoWidgets(ctx) {
     pcRenderPhone();
     pcRenderItemList();
     pcUpdateCount();
+    return { cards: pcCards, renderPhone: pcRenderPhone };
   }
 
   function escHtml(s) {
@@ -577,15 +606,15 @@ export function initPromoWidgets(ctx) {
   }
 
   function createPromoInstance(opts = {}) {
-    const onRewards = opts.surface === 'rewards';
+    const onRewards = opts.surface === 'rewards' || !!opts.stage;
     const n = dynWidgetSeq++;
     const idp = 'pc' + n;
     const key = 'promo-cards-' + n;
     const drill = 'promo-cards-' + n;
     const editDrill = idp + '-card-edit';
     const title = onRewards ? 'Promo Cards' : 'Promo Cards ' + n;
-    const pageEl = onRewards ? document.getElementById('rewards-stage') : homePageEl;
-    const configEl = onRewards ? document.getElementById('cp-rewards') : cpHomeEl;
+    const pageEl = opts.stage || (onRewards ? document.getElementById('rewards-stage') : homePageEl);
+    const configEl = opts.config || (onRewards ? document.getElementById('cp-rewards') : cpHomeEl);
 
     // Phone widget element (Rewards keeps a section heading above the carousel)
     const widget = document.createElement('div');
@@ -629,30 +658,38 @@ export function initPromoWidgets(ctx) {
     };
 
     // Config row
-    if (onRewards) buildRewardsPromoRow(title, key, drill, onDelete);
-    else buildWidgetRow(title, key, drill, '.promo-cards-widget[data-widget=\'' + key + '\']', onDelete);
+    const row = onRewards ? buildRewardsPromoRow(title, key, drill, onDelete, opts.list) : null;
+    if (row) row.dataset.widgetKey = key;
+    if (!onRewards) buildWidgetRow(title, key, drill, '.promo-cards-widget[data-widget=\'' + key + '\']', onDelete);
 
     // Behaviour
-    initPromoCards({
+    const instance = initPromoCards({
       key, idp, drill, editDrill,
-      seed: [{ id: 0, headline: 'New promo', desc: 'Describe this offer', img: 'beef', imgData: null, action: 'none', btnText: 'Learn more →', visible: true }]
+      seed: opts.saved?.cards || [{ id: 0, headline: 'New promo', desc: 'Describe this offer', img: 'beef', imgData: null, action: 'none', btnText: 'Learn more →', visible: true }]
     });
+    if (opts.saved) {
+      Object.assign(widget.dataset, opts.saved.presentation || {});
+      widget.style.cssText = opts.saved.style || '';
+      const heading = mainDrill.querySelector('.pc-rw-heading-input');
+      if (heading) { heading.value = opts.saved.heading || ''; heading.dispatchEvent(new Event('input', { bubbles: true })); }
+    }
 
     if (onRewards) {
       window.layoutRewardsStage?.();
-      openL3Panel(mainDrill);
+      if (!opts.restoring) openL3Panel(mainDrill);
     } else {
       reorderPhoneWidgets();
       updateHomeEmptyState();
       openDrill('cp-home', drill);
     }
     markDirty();
+    return { key, row, element: widget, capture: () => ({ type: 'promo', cards: instance.cards, heading: mainDrill.querySelector('.pc-rw-heading-input')?.value || '', presentation: { pcDisplay: widget.dataset.pcDisplay, pcImage: widget.dataset.pcImage, pcCta: widget.dataset.pcCta, pcCorners: widget.dataset.pcCorners }, style: widget.style.cssText }) };
   }
   // Rewards Add Widget → same rich promo widget as Home, plus the Heading field.
   window.createRewardsPromoInstance = () => createPromoInstance({ surface: 'rewards' });
 
-  function buildRewardsPromoRow(name, key, drill, onDelete) {
-    const list = document.getElementById('rw-widget-list');
+  function buildRewardsPromoRow(name, key, drill, onDelete, targetList) {
+    const list = targetList || document.getElementById('rw-widget-list');
     if (!list) return null;
     const row = document.createElement('div');
     row.className = 'cp-widget-row on rw-row-block';
@@ -745,7 +782,7 @@ export function initPromoWidgets(ctx) {
     ensureWebviewPromoInstance();
   });
 
-  function createTextDivider() {
+  function createTextDivider(opts = {}) {
     const n = dynWidgetSeq++;
     const key = 'text-divider-' + n;
     const drill = 'divider-' + n;
@@ -756,7 +793,7 @@ export function initPromoWidgets(ctx) {
     el.className = 'text-divider align-center';
     el.dataset.widget = key;
     el.innerHTML = '<span>' + escHtml(label) + '</span>';
-    homePageEl.appendChild(el);
+    (opts.stage || homePageEl).appendChild(el);
 
     // Drill
     const holder = document.createElement('div');
@@ -774,7 +811,7 @@ export function initPromoWidgets(ctx) {
       + '</div>';
     const drillNode = holder.firstElementChild;
     drillNode.dataset.l3 = 'true';
-    cpHomeEl.appendChild(drillNode);
+    (opts.config || cpHomeEl).appendChild(drillNode);
     drillNode.querySelectorAll('.cp-head-row').forEach(h => h.addEventListener('click', () => h.parentElement.classList.toggle('open')));
     drillNode.querySelector('.cp-back').addEventListener('click', () => closeL3Panel());
     // Label edit
@@ -801,15 +838,26 @@ export function initPromoWidgets(ctx) {
     });
 
     // Config row
-    buildWidgetRow('Text Divider', key, drill, '.text-divider[data-widget=\'' + key + '\']', () => {
+    const remove = () => {
       el.remove();
       drillNode.remove();
-    });
+    };
+    const row = opts.list
+      ? buildRewardsPromoRow('Text Divider', key, drill, remove, opts.list)
+      : buildWidgetRow('Text Divider', key, drill, '.text-divider[data-widget=\'' + key + '\']', remove);
+    if (row) row.dataset.widgetKey = key;
+    if (opts.saved) {
+      drillNode.querySelector('.dv-label').value = opts.saved.label;
+      drillNode.querySelector('.dv-label').dispatchEvent(new Event('input', { bubbles: true }));
+      drillNode.querySelector(`[data-dv-align="${opts.saved.align || 'center'}"]`)?.click();
+      if (opts.saved.lines === false) linesToggle.click();
+    }
 
     reorderPhoneWidgets();
     updateHomeEmptyState();
     markDirty();
-    openL3Panel(drillNode);
+    if (!opts.restoring) openL3Panel(drillNode);
+    return { key, row, element: el, capture: () => ({ type: 'divider', label: drillNode.querySelector('.dv-label').value, align: drillNode.querySelector('[data-dv-align].active')?.dataset.dvAlign, lines: linesToggle.classList.contains('on') }) };
   }
 
   if (addWidgetBtn && addWidgetMenu) {
@@ -835,7 +883,7 @@ export function initPromoWidgets(ctx) {
    * menu when it became a first-class gated ordering widget alongside its three
    * siblings; the palette is now purely generic content.
    */
-  function createImageBanner() {
+  function createImageBanner(opts = {}) {
     const n = dynWidgetSeq++;
     const key = 'image-banner-' + n;
     const drill = 'imgbanner-' + n;
@@ -844,7 +892,7 @@ export function initPromoWidgets(ctx) {
     el.className = 'hb-banner';
     el.dataset.widget = key;
     el.innerHTML = '<div class="hb-img is-empty"></div><div class="hb-cap"><div class="hb-h"></div><button class="hb-cta" hidden></button></div>';
-    homePageEl.appendChild(el);
+    (opts.stage || homePageEl).appendChild(el);
 
     const holder = document.createElement('div');
     holder.innerHTML = ''
@@ -873,7 +921,7 @@ export function initPromoWidgets(ctx) {
       + '</div>';
     const drillNode = holder.firstElementChild;
     drillNode.dataset.l3 = 'true';
-    cpHomeEl.appendChild(drillNode);
+    (opts.config || cpHomeEl).appendChild(drillNode);
     drillNode.querySelectorAll('.cp-head-row').forEach(h => h.addEventListener('click', () => h.parentElement.classList.toggle('open')));
     drillNode.querySelector('.cp-back').addEventListener('click', () => closeL3Panel());
 
@@ -918,26 +966,25 @@ export function initPromoWidgets(ctx) {
     // Tap action — same targets as promo cards.
     drillNode.querySelector('.hb-action').addEventListener('change', (e) => {
       bannerAction = e.target.value;
+      delete el.dataset.previewPage; delete el.dataset.previewUrl;
+      if (bannerAction === 'webview') el.dataset.previewUrl = bannerWvUrl.value;
+      else if (bannerAction !== 'none') el.dataset.previewPage = bannerAction;
       el.classList.toggle('hb-tappable', bannerAction !== 'none');
       if (bannerWvCfg) bannerWvCfg.hidden = bannerAction !== 'webview';
       markDirty();
     });
     bannerWvConnect?.addEventListener('click', () => {
-      const url = (bannerWvUrl?.value || '').trim();
-      if (!url || url === 'https://') { bannerWvUrl?.focus(); return; }
-      bannerWvConnect.classList.remove('is-success');
-      bannerWvConnect.classList.add('is-loading'); bannerWvConnect.disabled = true;
-      if (bannerWvLabel) bannerWvLabel.textContent = 'Loading preview…';
-      setTimeout(() => {
-        bannerWvConnect.classList.remove('is-loading'); bannerWvConnect.classList.add('is-success'); bannerWvConnect.disabled = false;
-        if (bannerWvLabel) bannerWvLabel.textContent = 'Reload preview';
-        bannerWvStatus?.classList.remove('hidden');
-        markDirty();
-        window.showPhonePage?.('menu');
-        window.enterTapWebviewPreview?.();
-      }, 1000);
+      const url = websiteUrl((bannerWvUrl?.value || '').trim());
+      if (!url) { showToast('Enter a website address starting with https://.'); bannerWvUrl?.focus(); return; }
+      bannerWvConnect.classList.add('is-success');
+      if (bannerWvLabel) bannerWvLabel.textContent = 'Reload preview';
+      if (bannerWvStatus) { bannerWvStatus.textContent = 'Page added'; bannerWvStatus.classList.remove('hidden'); }
+      el.dataset.previewUrl = url;
+      openWebsitePreview(url, {}, undefined, el.closest('.app-page')?.dataset.page);
+      markDirty();
     });
     bannerWvUrl?.addEventListener('input', () => {
+      if (bannerAction === 'webview') el.dataset.previewUrl = bannerWvUrl.value;
       bannerWvConnect?.classList.remove('is-success');
       if (bannerWvLabel) bannerWvLabel.textContent = 'Add & preview';
       bannerWvStatus?.classList.add('hidden');
@@ -945,23 +992,43 @@ export function initPromoWidgets(ctx) {
     const navigateBanner = (event) => {
       event.stopPropagation();
       if (bannerAction === 'none') return;
-      window.showPhonePage?.(bannerAction === 'webview' ? 'menu' : bannerAction);
-      if (bannerAction === 'webview') window.enterTapWebviewPreview?.();
+      if (bannerAction === 'webview') {
+        if (!openWebsitePreview(bannerWvUrl.value, {}, undefined, el.closest('.app-page')?.dataset.page)) showToast('Add a website address first.');
+      } else window.showPhonePage?.(bannerAction);
     };
     bannerCta.addEventListener('click', navigateBanner);
     el.addEventListener('click', (event) => { if (bannerCta.hidden && bannerAction !== 'none') navigateBanner(event); });
 
-    buildWidgetRow('Image Banner', key, drill, '.hb-banner[data-widget=\'' + key + '\']', () => {
+    const remove = () => {
       el.remove();
       drillNode.remove();
-    });
+    };
+    const row = opts.list
+      ? buildRewardsPromoRow('Image Banner', key, drill, remove, opts.list)
+      : buildWidgetRow('Image Banner', key, drill, '.hb-banner[data-widget=\'' + key + '\']', remove);
+    if (row) row.dataset.widgetKey = key;
+    if (opts.saved) {
+      [['.hb-head', opts.saved.heading], ['.hb-btn', opts.saved.button], ['.hb-action', opts.saved.action], ['.hb-webview-url', opts.saved.url]].forEach(([selector, value]) => {
+        const field = drillNode.querySelector(selector);
+        field.value = value || (selector === '.hb-action' ? 'none' : '');
+        field.dispatchEvent(new Event(field.tagName === 'SELECT' ? 'change' : 'input', { bubbles: true }));
+      });
+      if (opts.saved.image) {
+        bannerImg.style.backgroundImage = opts.saved.image;
+        bannerImg.classList.remove('is-empty');
+        preview.src = opts.saved.imageSource || '';
+        preview.style.display = '';
+        empty.style.display = 'none';
+      }
+    }
 
     reorderPhoneWidgets();
     updateHomeEmptyState();
     markDirty();
-    openL3Panel(drillNode);
+    if (!opts.restoring) openL3Panel(drillNode);
+    return { key, row, element: el, capture: () => ({ type: 'image', heading: drillNode.querySelector('.hb-head').value, button: drillNode.querySelector('.hb-btn').value, action: bannerAction, url: bannerWvUrl.value, image: bannerImg.style.backgroundImage, imageSource: preview.getAttribute('src') }) };
   }
 
 
-  return { initPromoCards, escHtml, readImageFile, openGridPicker, wireDrillNode, buildWidgetRow, promoDrillMarkup, createPromoInstance, createTextDivider };
+  return { initPromoCards, escHtml, readImageFile, openGridPicker, wireDrillNode, buildWidgetRow, promoDrillMarkup, createPromoInstance, createTextDivider, createImageBanner };
 }

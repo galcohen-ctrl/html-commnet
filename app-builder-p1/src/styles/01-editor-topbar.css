@@ -73,7 +73,7 @@
   /* ---------- Confirm-before-switch modal ---------- */
   .top-qr-btn {
     display: inline-flex; align-items: center; gap: 7px;
-    margin-left: 18px; padding: 7px 13px;
+    flex: none; padding: 7px 13px;
     background: #fff; border: 1px solid var(--line); border-radius: 999px;
     font: inherit; font-size: 12.5px; font-weight: 650; color: var(--ink);
     cursor: pointer; transition: .12s;

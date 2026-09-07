@@ -87,7 +87,7 @@ export function initOrderingSetup(ctx = {}) {
       }
       window.positionWebviewPromo?.();
     }
-    window.setMenuSlotMode?.(target === 'skip' ? 'hidden' : target === 'webview' ? 'webview' : 'menu');
+    window.setMenuSlotMode?.(target === 'webview' ? 'webview' : 'menu');
     renumberSteps();
   }
 
@@ -165,7 +165,7 @@ export function initOrderingSetup(ctx = {}) {
 
   // A member can only have one ordering method live, so leaving a CONNECTED one
   // needs an explicit, clearly-worded confirmation before we tear it down.
-  const OO_LABELS = { native: 'In-app ordering', webview: 'a linked ordering website', skip: '“Not yet”' };
+  const OO_LABELS = { native: 'ordering built into your app', webview: 'your ordering website inside the app', skip: '“Not yet”' };
   const providerName = () => (document.querySelector('[data-admin-provider]')?.textContent || 'Deliverect').trim();
 
   function switchGuardFor(target) {

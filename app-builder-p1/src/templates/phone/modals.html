@@ -10,3 +10,25 @@
             <button class="qr-ok-btn" onclick="closeModal()">OK</button>
           </div>
         </div>
+        <div class="phone-modal inbox-modal" data-modal="inbox" aria-hidden="true">
+          <section class="inbox-sheet" role="dialog" aria-modal="true" aria-labelledby="inbox-title">
+            <div class="inbox-grip" aria-hidden="true"></div>
+            <header class="inbox-header">
+              <button class="inbox-icon-button" type="button" data-inbox-back aria-label="Back to inbox" title="Back to inbox" hidden><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m15 18-6-6 6-6"/></svg></button>
+              <div><h2 id="inbox-title">Inbox</h2><p data-inbox-summary>3 unread messages</p></div>
+              <button class="inbox-icon-button inbox-close" type="button" data-inbox-close aria-label="Close inbox" title="Close inbox"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="m6 6 12 12M18 6 6 18"/></svg></button>
+            </header>
+            <div class="inbox-list-view" data-inbox-list-view>
+              <div class="inbox-tools">
+                <div class="inbox-tabs" role="tablist" aria-label="Messages"><button type="button" role="tab" data-inbox-filter="all" aria-selected="true" aria-controls="inbox-messages"><span>All</span></button><button type="button" role="tab" data-inbox-filter="unread" aria-selected="false" aria-controls="inbox-messages"><span>Unread</span></button></div>
+                <button class="inbox-icon-button inbox-read-all" type="button" data-inbox-read-all aria-label="Mark all as read" title="Mark all as read"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="m18 6-7 7-3-3m14 0-7 7-3-3M2 12l5 5"/></svg></button>
+              </div>
+              <div class="inbox-scroll" data-inbox-scroll id="inbox-messages" role="tabpanel" aria-label="Messages">
+                <div class="inbox-pull" data-inbox-pull aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M20 7a8 8 0 1 0 1 7M20 3v5h-5"/></svg><span>Release to load older messages</span></div>
+                <div class="inbox-list-content" data-inbox-list-content><ul class="inbox-messages" data-inbox-list></ul><div class="inbox-empty" data-inbox-empty hidden><svg viewBox="0 0 48 48" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M8 22 15 8h18l7 14v16H8Z"/><path d="M8 22h10l3 6h6l3-6h10m-22-7 4 4 8-8"/></svg><h3>All caught up</h3><p>No unread messages.</p></div><button class="inbox-load-more" type="button" data-inbox-load>Load older messages</button><p class="inbox-sample-note">Sample messages</p></div>
+              </div>
+            </div>
+            <article class="inbox-detail" data-inbox-detail hidden></article>
+            <div class="inbox-live-status" data-inbox-status role="status" aria-live="polite"></div>
+          </section>
+        </div>

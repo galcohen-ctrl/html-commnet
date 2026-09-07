@@ -1,3 +1,6 @@
+.pm-pdf-document { display: flex; flex-direction: column; min-height: 460px; }
+.pm-pdf-document iframe { border: 0; width: 100%; min-height: 410px; background: var(--p-panel); }
+.pm-pdf-document a { padding: 12px; text-align: center; font-size: 13px; color: var(--p-accent); }
 /* ============================================================
    MENU SOURCE — config-panel screens for the menu building flow
    ============================================================ */

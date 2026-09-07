@@ -1,3 +1,9 @@
+    .social-section-title {
+      margin: 0; padding: 11px 14px;
+      font-size: 13px; font-weight: 650; letter-spacing: 0;
+      border-bottom: 1px solid var(--line);
+      color: var(--ink); background: var(--panel);
+    }
   /* Vertical wrapper: scrollable .config-panel on top, always-visible .cp-step-foot below.
      Sits between the sidebar and the L3/preview panels in .workspace (a flex row). */
   .config-column {
@@ -125,6 +131,16 @@
   .cp-field label {
     font-size: 11px; font-weight: 700; color: var(--muted);
     text-transform: uppercase; letter-spacing: .4px;
+  }
+  /* A second, quieter way into the same field — "…or paste a URL" under an
+     upload zone — so it reads as an alternative, not another required step. */
+  .cp-field label.cp-sublabel {
+    text-transform: none; letter-spacing: 0; font-weight: 600;
+    font-size: 11.5px; margin-top: 8px; opacity: .85;
+  }
+  /* Trailing clarification inside a field label, kept out of the shouty caps. */
+  .cp-field label .cp-label-note {
+    text-transform: none; letter-spacing: 0; font-weight: 500; opacity: .8;
   }
   .cp-field .input {
     border: 1px solid var(--line); border-radius: 8px;

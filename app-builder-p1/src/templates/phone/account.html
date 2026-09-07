@@ -2,7 +2,7 @@
   <header class="px-phone-page-head">
     <button class="px-phone-back" type="button" onclick="showPhonePage('home')" aria-label="Back to Home">‹</button>
     <div><strong>My Profile</strong><span>Membership and preferences</span></div>
-    <button class="icon-btn px-profile-icon" type="button" aria-label="Profile options"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9"><circle cx="12" cy="8" r="3.5"/><path d="M5 21a7 7 0 0114 0"/></svg></button>
+    <button class="icon-btn px-profile-icon" type="button" data-inbox-open aria-label="Open inbox"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9"><circle cx="12" cy="8" r="3.5"/><path d="M5 21a7 7 0 0114 0"/></svg></button>
   </header>
   <div class="px-member-scroll px-account-scroll">
     <section class="px-membership-card">
@@ -19,7 +19,7 @@
     <section class="px-profile-list" aria-label="Account settings">
       <button type="button"><span><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg></span><div><strong>Security</strong><small>Password and sign-in methods</small></div><i>›</i></button>
       <button type="button"><span><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="12" cy="12" r="9"/><path d="M3 12h18M12 3a15 15 0 010 18M12 3a15 15 0 000 18"/></svg></span><div><strong>Language &amp; region</strong><small>English · Canada</small></div><i>›</i></button>
-      <button type="button"><span><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M18 8a6 6 0 00-12 0c0 7-3 7-3 7h18s-3 0-3-7"/><path d="M10 20h4"/></svg></span><div><strong>Notifications</strong><small>Offers, rewards, and order updates</small></div><i>›</i></button>
+      <button type="button" class="inbox-entry" data-inbox-open aria-haspopup="dialog"><span><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M18 8a6 6 0 00-12 0c0 7-3 7-3 7h18s-3 0-3-7"/><path d="M10 20h4"/></svg></span><div><strong>Notifications <b class="inbox-row-count" data-inbox-count aria-hidden="true"></b></strong><small>Messages, rewards, and order updates</small></div><i>›</i></button>
       <button type="button"><span><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M4 4h16v16H4z"/><path d="M8 9h8M8 13h8M8 17h5"/></svg></span><div><strong>Privacy &amp; terms</strong><small>Your choices and data</small></div><i>›</i></button>
     </section>
     <button class="px-sign-out" type="button" onclick="showPhonePage('login')">Sign out</button>

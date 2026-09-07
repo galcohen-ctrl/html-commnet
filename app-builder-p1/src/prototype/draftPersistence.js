@@ -54,6 +54,7 @@ function capture(ctx) {
     savedAt: new Date().toISOString(),
     guided: plainClone(ctx.exportDraft?.() || {}),
     product: plainClone(ctx.exportProductExperience?.() || {}),
+    appScreens: plainClone(ctx.exportAppScreens?.() || []),
     menu: plainClone(ctx.exportMenuSource?.() || ctx.menuState || {}),
     ordering: plainClone(ctx.exportOrderingState?.() || ctx.ordering || {}),
     orderingWidgets: plainClone(ctx.exportOrderingWidgets?.() || {}),
@@ -133,6 +134,7 @@ export function initDraftPersistence(ctx) {
     document.body.classList.add('gf-restoring', 'gf-applying-preset');
     try {
       ctx.importDraft?.(payload.guided);
+      ctx.importAppScreens?.(payload.appScreens);
       ctx.importOrderingState?.(payload.ordering);
       ctx.importMenuSource?.(payload.menu);
       ctx.importOrderingWidgets?.(payload.orderingWidgets);

@@ -4,19 +4,20 @@
   <div class="cp-page-sub">These details appear on your app's home screen. You can change them anytime.</div>
 
   <div class="gf-fieldset">
-    <label class="gf-field-label" for="gf-biz-name">Company name <span class="gf-req">*</span></label>
-    <input id="gf-biz-name" class="cp-input-text" type="text" placeholder="e.g. Velvet Bistro" value="" autocomplete="organization" maxlength="60" required aria-describedby="gf-biz-name-error" />
+    <label class="gf-field-label" for="gf-biz-name">Your business name <span class="gf-req">*</span></label>
+    <input id="gf-biz-name" class="cp-input-text" type="text" placeholder="e.g. Velvet Bistro" value="" autocomplete="organization" maxlength="60" required aria-describedby="gf-biz-name-hint gf-biz-name-error" />
+    <div class="gf-field-hint" id="gf-biz-name-hint">Shown at the top of every app screen — watch it land in the preview. It also becomes your app name on the App Store and Google Play.</div>
     <div class="gf-field-error" id="gf-biz-name-error" aria-live="polite"></div>
   </div>
 
   <div class="gf-fieldset">
-    <label class="gf-field-label" for="gf-headline">App tagline</label>
+    <label class="gf-field-label" for="gf-headline">Tagline under your business name</label>
     <input id="gf-headline" class="cp-input-text" type="text" placeholder="e.g. Fresh food, real rewards" value="" autocomplete="off" maxlength="60" />
-    <div class="gf-field-hint">One short line shown under your business name on the home screen. Write it as a sentence, not keywords.</div>
+    <div class="gf-field-hint">The small line directly beneath your name in the app header. Write it as a sentence, not keywords.</div>
   </div>
 
   <div class="gf-fieldset">
-    <label class="gf-field-label">Logo</label>
+    <label class="gf-field-label">Your logo</label>
     <div class="gf-logo-result" id="gf-step1-logo-result" style="display:none;">
       <div class="gf-logo-thumb"><img id="gf-step1-logo-preview" src="data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///ywAAAAAAQABAAACAUwAOw==" alt="Uploaded logo" /></div>
       <div class="gf-logo-meta">
@@ -35,6 +36,6 @@
       <div class="cp-upload-hint">or drag &amp; drop files here</div>
     </div>
     <input type="file" id="gf-step1-logo-file" accept="image/png,image/jpeg,image/jpg,image/webp" style="display:none;" />
-    <div class="cp-upload-note">Supported: png, jpg, jpeg, webp. Max 5MB. Position and size are set in Branding.</div>
+    <div class="cp-upload-note">Sits in the app header above your name, and becomes your app icon in the stores. Supported: png, jpg, jpeg, webp. Max 5MB. Position and size are set in Branding.</div>
   </div>
 </div>

@@ -90,8 +90,13 @@
 /* ---- body ---- */
 .oo-opt-body { display: flex; flex-direction: column; gap: 6px; min-width: 0; flex: 1; }
 
-.oo-opt-head { display: flex; align-items: center; flex-wrap: wrap; gap: 8px; }
-.oo-opt-name { font-size: 15px; font-weight: 750; color: var(--ink); letter-spacing: -.01em; }
+.oo-opt-head { display: flex; align-items: baseline; flex-wrap: wrap; gap: 8px; }
+/* Let a long option name wrap within itself so the info dot stays beside its
+   last line instead of being pushed onto a line of its own. */
+.oo-opt-name {
+  flex: 0 1 auto; min-width: 0;
+  font-size: 15px; font-weight: 750; color: var(--ink); letter-spacing: -.01em;
+}
 
 /* Green "configured" chip shown once native connects a provider or web view
    points at a menu. */

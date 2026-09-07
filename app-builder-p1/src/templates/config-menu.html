@@ -6,7 +6,7 @@
     <div class="ms-title">Choose menu approach</div>
     <div class="ms-sub">Pick how your in-app menu is powered. You can change this anytime.</div>
 
-    <div class="ms-options">
+    <div class="ms-options" role="radiogroup" aria-label="Menu source">
       <button class="ms-option" type="button" data-approach="ordering">
         <span class="ms-option-ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 2.5L3.5 6.5V20a1.5 1.5 0 001.5 1.5h14a1.5 1.5 0 001.5-1.5V6.5L18 2.5z"/><path d="M3.5 6.5h17"/><path d="M16 10.5a4 4 0 01-8 0"/></svg></span>
         <span class="ms-option-text">
@@ -85,7 +85,7 @@
       </button>
       <div class="ms-status hidden" id="ms-webview-status">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M8.5 12.2l2.5 2.5 4.5-5"/></svg>
-        Looks good — page reachable and secure (https).
+        Menu website added.
       </div>
     </div>
 
@@ -157,6 +157,8 @@
         <div class="ms-drop-sub">or click to browse your files</div>
         <span class="ms-btn small">Choose file</span>
       </div>
+      <input type="file" id="ms-pdf-input" accept="application/pdf,.pdf" hidden />
+      <div class="gf-field-error" id="ms-pdf-error" role="status" aria-live="polite"></div>
       <div class="ms-hint" style="margin-top:10px">
         <span>PDF only · up to 20 MB · one file. Multi-page menus are supported.</span>
       </div>
@@ -188,44 +190,10 @@
     </button>
   </div>
 
-  <!-- ========== 4 · Online Ordering · choose integration ========== -->
-  <div class="ms-screen" data-ms="oo-integration">
-    <div class="ms-kicker">Menu source · Online Ordering
-      <button class="ms-kicker-link" type="button" data-ms-change>Change</button>
-    </div>
-    <div class="ms-title">Choose your ordering integration</div>
-    <div class="ms-sub">Both power the Order tab. A native integration syncs your menu automatically; a custom provider embeds any ordering web page.</div>
-
-    <div class="ms-options">
-      <button class="ms-option on" type="button" data-integration="native">
-        <span class="ms-option-ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M13 2.5L4 13.5h7l-1 8 9-11h-7z"/></svg></span>
-        <span class="ms-option-text">
-          <span class="ms-option-name">Native integration <span class="ms-badge">Recommended</span></span>
-          <span class="ms-option-desc">Syncs your menu, prices &amp; locations from a supported provider.</span>
-        </span>
-        <svg class="ms-chev" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="M9 6l6 6-6 6"/></svg>
-      </button>
-
-      <button class="ms-option" type="button" data-integration="custom">
-        <span class="ms-option-ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="9"/><path d="M3 12h18"/><path d="M12 3a15 15 0 010 18 15 15 0 010-18z"/></svg></span>
-        <span class="ms-option-text">
-          <span class="ms-option-name">Custom provider (web)</span>
-          <span class="ms-option-desc">Point the app at any ordering web page in an in-app browser.</span>
-        </span>
-        <svg class="ms-chev" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="M9 6l6 6-6 6"/></svg>
-      </button>
-    </div>
-
-    <button class="ms-help" type="button" data-ms-help>
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><circle cx="12" cy="12" r="3.4"/><path d="M14.4 9.6L18 6M9.6 14.4L6 18M14.4 14.4L18 18M9.6 9.6L6 6"/></svg>
-      Need help? Visit the Help Center
-    </button>
-  </div>
-
   <!-- ========== 5 · Online Ordering · custom provider webview ========== -->
   <div class="ms-screen" data-ms="oo-custom">
     <div class="ms-kicker">Online Ordering · Custom provider
-      <button class="ms-kicker-link" type="button" data-ms-back="oo-integration">Back</button>
+      <button class="ms-kicker-link" type="button" data-ms-change>Change</button>
     </div>
     <div class="ms-title">Custom provider setup</div>
     <div class="ms-sub">Connect your ordering site by its web address, then set how it behaves in the app.</div>
@@ -404,7 +372,7 @@
       <button class="ms-kicker-link" type="button" data-ms-change>Change</button>
     </div>
     <div class="ms-title">How do you want to build your menu?</div>
-    <div class="ms-sub">Start from scratch, import a file you already have, or let AI draft it for you.</div>
+    <div class="ms-sub">Create your menu from scratch. File import and AI drafting are coming soon.</div>
 
     <div class="ms-block">
       <div class="ms-card featured">
@@ -419,7 +387,8 @@
         </button>
       </div>
 
-      <div class="ms-card">
+      <div class="ms-card muted">
+        <div style="display:flex;justify-content:flex-end"><span class="ms-badge soon">Coming soon</span></div>
         <div class="ms-card-head">
           <span class="ms-option-ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 16V4"/><path d="M8 8l4-4 4 4"/><path d="M4 16v3a1.5 1.5 0 001.5 1.5h13A1.5 1.5 0 0020 19v-3"/></svg></span>
           <div class="ms-card-title">Import menu
@@ -432,7 +401,7 @@
           <span class="ms-chip-static">XLSX</span>
           <span class="ms-chip-static">Google Sheets</span>
         </div>
-        <button class="ms-btn" type="button" id="ms-build-import">Import from file</button>
+        <button class="ms-btn ghost" type="button" id="ms-build-import" disabled>Import from file</button>
       </div>
 
       <div class="ms-card muted">
@@ -454,9 +423,6 @@
 
   <!-- ========== 8 · Manual · categories ========== -->
   <div class="ms-screen" data-ms="build-categories">
-    <div class="ms-kicker accent">Menu source · Build manually
-      <button class="ms-kicker-link" type="button" data-ms-back="build-method">Back</button>
-    </div>
     <div class="ms-title">Build your menu</div>
     <div class="ms-sub">Create categories, then tap one to add its items. Add a hero image so your menu looks great.</div>
 
@@ -491,11 +457,6 @@
 
   <!-- ========== 9 · Manual · items inside a category ========== -->
   <div class="ms-screen" data-ms="build-items">
-    <button class="ms-back" type="button" id="ms-items-back">
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="M15 6l-6 6 6 6"/></svg>
-      All categories
-    </button>
-
     <div class="ms-title-row">
       <div class="ms-title" id="ms-items-title">Category</div>
       <button class="ms-icon-btn" type="button" id="ms-rename-category" title="Rename category">
@@ -513,7 +474,7 @@
     </div>
 
     <div class="ms-list" id="ms-item-list"></div>
-    <div class="ms-tip">Tap an item to edit its details on the right.</div>
+    <div class="ms-tip">Select an item to edit its details.</div>
 
     <button class="ms-help" type="button" data-ms-help>
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><circle cx="12" cy="12" r="3.4"/><path d="M14.4 9.6L18 6M9.6 14.4L6 18M14.4 14.4L18 18M9.6 9.6L6 6"/></svg>
@@ -521,13 +482,7 @@
     </button>
   </div>
 
-  <!-- ========== Item editor — moved into the third panel on open ========== -->
   <div class="cp-detail ms-item-editor" data-detail="menu-item" id="ms-item-editor">
-    <button class="ms-back" type="button" id="ms-item-back">
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="M15 6l-6 6 6 6"/></svg>
-      <span id="ms-item-back-label">Category</span>
-    </button>
-
     <div class="ms-editor-head">
       <div class="ms-editor-title" id="ms-item-heading">Item</div>
       <label class="ms-avail">Available <span class="toggle on" id="ms-item-available"></span></label>

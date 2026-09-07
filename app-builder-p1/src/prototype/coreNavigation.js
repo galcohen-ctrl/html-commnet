@@ -16,18 +16,18 @@ export function initCoreNavigation(ctx) {
 
   // ---------- Page navigation ----------
   function goToPage(page) {
-    let actualPage = page;
+    let actualPage = ctx.resolveAppScreen?.(page) || page;
     if (state.template === 'tpl-3') {
       if (page === 'home') actualPage = 'home-t3';
       if (page === 'menu') actualPage = 'qr';
     }
-    pageEls.forEach(p => p.classList.toggle('active', p.dataset.page === actualPage));
+    document.querySelectorAll('.app-page').forEach(p => p.classList.toggle('active', p.dataset.page === actualPage));
 
     const cpKey = page;
-    cpPages.forEach(cp => cp.style.display = cp.id === 'cp-' + cpKey ? 'flex' : 'none');
+    document.querySelectorAll('.cp-page').forEach(cp => cp.style.display = cp.id === 'cp-' + cpKey ? 'flex' : 'none');
 
-    navItems.forEach(n => n.classList.toggle('active', n.dataset.nav === page));
-    sideItems.forEach(s => s.classList.toggle('active', s.dataset.navPage === page));
+    document.querySelectorAll('.nav-item').forEach(n => n.classList.toggle('active', n.dataset.nav === page));
+    document.querySelectorAll('.side-item[data-nav-page]').forEach(s => s.classList.toggle('active', s.dataset.navPage === page));
     document.getElementById('app-shell').scrollTop = 0;
     state.page = page;
     // Reset any open drill in the config panel so we always land on master view
@@ -106,12 +106,16 @@ export function initCoreNavigation(ctx) {
     const def = SLOTS[mode] || SLOTS.menu;
     const svg = (cls) => `<svg${cls ? ` class="${cls}"` : ''} viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">${def.icon}</svg>`;
 
-    if (menuSlot) menuSlot.innerHTML = svg() + `<span>${def.label}</span>`;
+    const label = menuSlot?.dataset.customName || def.label;
+    if (menuSlot) {
+      menuSlot.innerHTML = svg();
+      const text = document.createElement('span'); text.textContent = label; menuSlot.appendChild(text);
+    }
     if (!sideMenuSlot) return;
     // Patch the label and tooltip in place. Replacing the whole button would
     // destroy its .step-dot, and the sidebar's step numbering lives in there.
     const lbl = sideMenuSlot.querySelector('.side-lbl');
-    if (lbl) lbl.textContent = def.label;
+    if (lbl) lbl.textContent = label;
     const tip = sideMenuSlot.querySelector('.side-tooltip');
     if (tip) tip.textContent = def.label;
     const ic = sideMenuSlot.querySelector('.side-ic');
@@ -530,9 +534,9 @@ export function initCoreNavigation(ctx) {
 
   // ---------- Profile icon: preview the real Account/Login page (phone only — config panel untouched) ----------
   function showPhonePage(key) {
-    let actualPage = key;
+    let actualPage = ctx.resolveAppScreen?.(key) || key;
     if (state.template === 'tpl-3' && key === 'home') actualPage = 'home-t3';
-    pageEls.forEach(p => p.classList.toggle('active', p.dataset.page === actualPage));
+    document.querySelectorAll('.app-page').forEach(p => p.classList.toggle('active', p.dataset.page === actualPage));
     document.getElementById('app-shell').scrollTop = 0;
     closeModal();
   }

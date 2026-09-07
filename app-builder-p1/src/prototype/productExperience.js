@@ -1,3 +1,6 @@
+import { initMemberActions } from './memberActions.js';
+import { checkScreenChange } from './screenRules.js';
+
 const ANALYTICS_KEY = 'como-app-builder-analytics:v1';
 const SCREEN_DEFS = {
   rewards: { label: 'Rewards', description: 'Gifts, Points Shop, and loyalty progress' },
@@ -58,7 +61,13 @@ export function initProductExperience(ctx) {
   }
 
   function applyScreenVisibility(key, enabled, options = {}) {
-    if (!(key in SCREEN_DEFS)) return;
+    if (!(key in screenState)) return false;
+    const blocked = checkScreenChange(screenState, key, enabled);
+    if (blocked === 'required') return false;
+    if (blocked === 'limit') {
+      document.dispatchEvent(new CustomEvent('como:screenlimit', { detail: { key } }));
+      return false;
+    }
     screenState[key] = !!enabled;
     document.body.classList.toggle(`screen-${key}-off`, !enabled);
     document.querySelectorAll(`[data-screen-toggle="${key}"]`).forEach((button) => setSwitchState(button, !!enabled));
@@ -69,7 +78,8 @@ export function initProductExperience(ctx) {
     // A hidden screen must leave the preview too, not just the tab strip.
     if (!enabled) {
       let wasActive = false;
-      document.querySelectorAll(`.app-page[data-page="${key}"]`).forEach((pageEl) => {
+      const target = ctx.resolveAppScreen?.(key) || key;
+      document.querySelectorAll(`.app-page[data-page="${target}"]`).forEach((pageEl) => {
         if (pageEl.classList.contains('active')) wasActive = true;
         pageEl.classList.remove('active');
       });
@@ -83,10 +93,12 @@ export function initProductExperience(ctx) {
       track('screen_visibility_changed', { screen: key, included: !!enabled });
     }
     document.dispatchEvent(new CustomEvent('como:screenstate', { detail: { key, enabled: !!enabled } }));
+    return true;
   }
 
   function createScreenControls() {
     Object.entries(SCREEN_DEFS).forEach(([key, definition]) => {
+      if (key === 'rewards') return;
       const page = document.getElementById(`cp-${key}`);
       if (!page || page.querySelector(`[data-screen-toggle="${key}"]`)) return;
       const control = document.createElement('button');
@@ -218,11 +230,13 @@ export function initProductExperience(ctx) {
       label.textContent = 'Sample member';
       home.querySelector('.app-top-header')?.after(label);
     }
-    document.querySelectorAll('.oa-widget, .ti-widget, .mc-widget, .phone-reels-chip').forEach((widget) => {
+    // Only the provider-fed widgets carry sample data. Menu Reels is excluded:
+    // its media is the merchant's own upload, so it is never a placeholder.
+    document.querySelectorAll('.oa-widget, .ti-widget, .mc-widget').forEach((widget) => {
       if (widget.querySelector('.px-ordering-sample-label')) return;
       const label = document.createElement('span');
       label.className = 'px-ordering-sample-label';
-      label.textContent = widget.classList.contains('phone-reels-chip') ? 'Sample' : 'Sample until connected';
+      label.textContent = 'Sample until connected';
       widget.prepend(label);
     });
   }
@@ -258,8 +272,8 @@ export function initProductExperience(ctx) {
     document.body.dataset.brandingSafe = String(safe);
     result.className = `px-contrast-result ${safe ? 'safe' : 'warning'}`;
     result.innerHTML = safe
-      ? `<strong>Accessible text contrast</strong><span>Primary ${primaryRatio.toFixed(1)}:1 · Secondary ${secondaryRatio.toFixed(1)}:1</span>`
-      : `<strong>Some text may be hard to read</strong><span>Primary ${primaryRatio.toFixed(1)}:1 · Secondary ${secondaryRatio.toFixed(1)}:1</span><button type="button" data-use-safe-text>Use recommended text</button>`;
+      ? '<strong>Text is easy to read</strong>'
+      : '<strong>Some text may be hard to read</strong><button type="button" data-use-safe-text>Use recommended text</button>';
   }
 
   function setColour(variable, value) {
@@ -276,7 +290,7 @@ export function initProductExperience(ctx) {
     setColour('--p-text', darkSurface ? '#ffffff' : '#1d1d28');
     setColour('--p-text-muted', darkSurface ? '#d6d3df' : '#5f5c6b');
     requestAnimationFrame(updateContrastFeedback);
-    showToast?.('Recommended accessible text colours applied');
+    showToast?.('Recommended text colours applied');
   });
   document.querySelectorAll('#gf-advanced-branding-section input[type="color"]').forEach((input) => input.addEventListener('input', () => requestAnimationFrame(updateContrastFeedback)));
 
@@ -323,15 +337,21 @@ export function initProductExperience(ctx) {
       const number = list?.querySelector(`.side-step[data-step="${key}"] .step-dot .n`);
       if (number) number.textContent = String(index + 4);
     });
+    document.querySelectorAll('.side-step[data-step]').forEach((item, index) => {
+      const number = item.querySelector('.step-dot .n');
+      if (number) number.textContent = String(index + 1);
+    });
+    ctx.syncGuidedScreenOrder?.(screenOrder());
   }
 
+  let dragKey = null;
   function initScreenReorder() {
     const list = document.getElementById('side-screen-list');
     if (!list) return;
-    let dragKey = null;
     list.querySelectorAll('.side-step[data-step]').forEach((item) => {
       const key = item.dataset.step;
-      if (key === 'home') return;
+      if (item.dataset.reorderWired === 'true') return;
+      item.dataset.reorderWired = 'true';
       item.draggable = true;
       item.addEventListener('dragstart', (event) => {
         dragKey = key;
@@ -387,6 +407,11 @@ export function initProductExperience(ctx) {
     }
     title.textContent = clean;
     if (title._renameBtn) title.appendChild(title._renameBtn);
+    const side = document.querySelector(`.side-step[data-step="${key}"]`);
+    side?.setAttribute('aria-label', clean);
+    if (navLabel) navLabel.parentElement.dataset.customName = clean;
+    ctx.renameGuidedScreen?.(key, clean);
+    document.dispatchEvent(new CustomEvent('como:screenname', { detail: { key, name: clean } }));
     markDirty?.('screens');
     track('screen_renamed', { screen: key, name: clean });
   }
@@ -465,16 +490,7 @@ export function initProductExperience(ctx) {
     showToast?.(restored ? 'Last published version restored as your draft' : 'No published version is available yet');
   });
 
-  document.addEventListener('click', (event) => {
-    const action = event.target.closest('[data-phone-action]');
-    if (action) showToast?.(action.dataset.phoneAction);
-    const copy = event.target.closest('[data-copy-referral]');
-    if (copy) {
-      navigator.clipboard?.writeText(document.getElementById('px-referral-code')?.textContent || 'FRIEND10').catch(() => {});
-      copy.textContent = 'Copied';
-      showToast?.('Invite code copied');
-    }
-  });
+  initMemberActions({ showToast });
   document.querySelectorAll('.app-page [role="button"][onclick]').forEach((element) => {
     element.addEventListener('keydown', (event) => {
       if (event.key === 'Enter' || event.key === ' ') {
@@ -483,27 +499,6 @@ export function initProductExperience(ctx) {
       }
     });
   });
-  document.querySelectorAll('.px-login-tabs [role="tab"]').forEach((tab) => {
-    tab.addEventListener('click', () => {
-      const email = tab.textContent.trim() === 'Email';
-      document.querySelectorAll('.px-login-tabs [role="tab"]').forEach((candidate) => {
-        const active = candidate === tab;
-        candidate.classList.toggle('active', active);
-        candidate.setAttribute('aria-selected', String(active));
-      });
-      const label = document.querySelector('.px-login-card > label');
-      const prefix = document.querySelector('.px-phone-field span');
-      const input = document.getElementById('login-input');
-      if (label) label.textContent = email ? 'Email address' : 'Phone number';
-      if (prefix) prefix.hidden = email;
-      if (input) {
-        input.type = email ? 'email' : 'tel';
-        input.inputMode = email ? 'email' : 'tel';
-        input.placeholder = email ? 'you@example.com' : '(555) 000-0000';
-      }
-    });
-  });
-
   createScreenControls();
   initScreenReorder();
   initScreenRenaming();
@@ -520,6 +515,8 @@ export function initProductExperience(ctx) {
   function exportProductExperience() {
     return {
       screenState: { ...screenState }, previewState, brandSource,
+      screenOrder: screenOrder(),
+      screenNames: Object.fromEntries([...document.querySelectorAll('#bottom-nav [data-nav]')].map((item) => [item.dataset.nav, item.querySelector('span')?.textContent])),
       deviceReviewed: document.getElementById('px-device-reviewed')?.checked || false,
       menuSimple: {
         layout: document.querySelector('[data-px-menu-layout].active')?.dataset.pxMenuLayout || 'grid',
@@ -529,6 +526,7 @@ export function initProductExperience(ctx) {
   }
 
   function importProductExperience(saved = {}) {
+    Object.keys(screenState).filter((key) => key !== 'rewards').forEach((key) => { screenState[key] = false; });
     Object.entries({ ...DEFAULT_SCREENS, ...(saved.screenState || {}) }).forEach(([key, enabled]) => applyScreenVisibility(key, enabled, { dirty: false }));
     setPreviewState(saved.previewState, { dirty: false });
     brandSource = saved.brandSource || 'manual';
@@ -545,10 +543,24 @@ export function initProductExperience(ctx) {
       menuHero.dispatchEvent(new Event('change', { bubbles: true }));
     }
     syncOrderingExperience();
+    (saved.screenOrder || []).forEach((key) => {
+      const item = document.querySelector(`#side-screen-list [data-step="${key}"]`);
+      if (item) item.parentElement.appendChild(item);
+    });
+    Object.entries(saved.screenNames || {}).forEach(([key, value]) => {
+      const title = document.querySelector(`#cp-${key} .cp-page-title`);
+      if (title) applyScreenName(key, value, SCREEN_DEFS[key]?.label || value, title);
+    });
+    syncScreenOrder();
   }
 
   return {
     track, screenState, getScreenState: (key) => screenState[key] !== false,
+    refreshScreenNavigation: () => { initScreenReorder(); initScreenRenaming(); syncScreenOrder(); },
+    renameAppScreen: (key, value) => {
+      const title = document.querySelector(`#cp-${key} .cp-page-title`);
+      if (title) applyScreenName(key, value, SCREEN_DEFS[key]?.label || value, title);
+    },
     applyScreenVisibility, exportProductExperience, importProductExperience,
   };
 }

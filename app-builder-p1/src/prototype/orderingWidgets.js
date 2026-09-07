@@ -1,17 +1,33 @@
 /**
  * Ordering widgets — Order Again, Top Items, Menu Categories, Menu Reels.
  *
- * All four are gated on the online-ordering native integration: their config
- * rows sit disabled until `settings.ordering.connected` is true. Clicking a
- * disabled row opens the Online Ordering wizard in the settings modal. When
- * the wizard finishes, `orderingWizardOrigin` steers where the merchant lands
- * next (see Ship 3 origin routing).
+ * The first three are gated on the online-ordering native integration: their
+ * config rows sit disabled until `settings.ordering.connected` is true, because
+ * their content comes from the provider. Clicking a disabled row opens the
+ * Online Ordering wizard in the settings modal. When the wizard finishes,
+ * `orderingWizardOrigin` steers where the merchant lands next (see Ship 3
+ * origin routing).
+ *
+ * Menu Reels is NOT gated. Its media is uploaded by the merchant, so it works
+ * on every ordering path — native, a linked website, or none at all.
  */
 
 import { LAST_ORDER, PAST_ORDERS, TOP_ITEMS, MENU_CATEGORIES, MENU_REELS, REELS_CHIP_DEFAULTS } from '../data/orderingMock.js';
 
-// Keys of every widget that requires online ordering to work.
-const OO_WIDGET_KEYS = ['order-again', 'top-items', 'menu-categories', 'menu-reels'];
+// Keys of every widget that requires online ordering to work. Menu Reels is
+// absent on purpose: the merchant supplies its media, so it needs no provider.
+const OO_WIDGET_KEYS = ['order-again', 'top-items', 'menu-categories'];
+
+// Reel media is either a clip or a still. A typed URL is classified by its
+// extension; an upload states its kind outright, so nothing has to be guessed.
+const VIDEO_URL = /\.(mp4|m4v|mov|webm)(\?|#|$)/i;
+function mediaKindFromUrl(url) {
+  if (!url) return 'video';
+  if (url.startsWith('data:video') || url.startsWith('blob:video')) return 'video';
+  if (url.startsWith('data:image')) return 'image';
+  return VIDEO_URL.test(url) ? 'video' : 'image';
+}
+const reelSource = (reel) => (reel.mediaType === 'image' ? reel.image : reel.video) || '';
 
 function escHtml(s) {
   const d = document.createElement('div');
@@ -20,7 +36,7 @@ function escHtml(s) {
 }
 
 export function initOrderingWidgets(ctx) {
-  const { showToast, markDirty, openDrill, closeL3Panel, openL3Panel } = ctx;
+  const { showToast, markDirty, openDrill, closeL3Panel, openL3Panel, openL4Panel, closeL4Panel } = ctx;
   const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)');
 
   const state = {
@@ -52,7 +68,7 @@ export function initOrderingWidgets(ctx) {
       chipLabel: REELS_CHIP_DEFAULTS.label,
       autoOpen: REELS_CHIP_DEFAULTS.autoOpen,
       dismissible: REELS_CHIP_DEFAULTS.dismissible,
-      items: MENU_REELS.map((r) => ({ ...r })),
+      items: MENU_REELS.map((r) => ({ mediaType: 'video', image: '', mediaName: '', ...r })),
       editing: null,
       activeIdx: 0,
       autoAdvanceTimer: null,
@@ -501,13 +517,20 @@ export function initOrderingWidgets(ctx) {
       frame.className = 'reels-frame';
       frame.dataset.reelId = reel.id;
       frame.dataset.reelIdx = idx;
+      // A still reel renders as a background-image frame, which is exactly what
+      // the press-and-hold image adjuster knows how to reframe. A video reel
+      // keeps its <video> and is left alone.
+      const media = reel.mediaType === 'image'
+        ? '<div class="reels-image" style="background-image:url(' + reel.image + ')"></div>'
+        : '<video class="reels-video" playsinline muted loop preload="metadata" poster="' + escHtml(reel.poster) + '"><source src="' + escHtml(reel.video) + '" type="video/mp4" /></video>';
       frame.innerHTML =
-        '<video class="reels-video" playsinline muted loop preload="metadata" poster="' + escHtml(reel.poster) + '"><source src="' + escHtml(reel.video) + '" type="video/mp4" /></video>'
+        media
         + '<div class="reels-overlay-top"><div class="reels-progress-ring" data-reel-progress><svg viewBox="0 0 40 40"><circle class="reels-ring-track" cx="20" cy="20" r="17" /><circle class="reels-ring-fill" cx="20" cy="20" r="17" /></svg></div><span class="reels-count">' + (idx + 1) + ' / ' + activeReels().length + '</span></div>'
         + '<div class="reels-overlay-bottom">'
         + '<div class="reels-title">' + escHtml(reel.title) + '</div>'
         + '<div class="reels-subtitle">' + escHtml(reel.subtitle) + '</div>'
-        + '<button class="reels-cta" data-reel-cta="' + escHtml(reel.ctaTarget) + '">' + escHtml(reel.ctaLabel) + '</button>'
+        + (reel.ctaTarget === 'none' ? ''
+          : '<button class="reels-cta" data-reel-cta="' + escHtml(reel.ctaTarget) + '">' + escHtml(reel.ctaLabel) + '</button>')
         + '</div>';
       reelsStack.appendChild(frame);
     });
@@ -536,8 +559,11 @@ export function initOrderingWidgets(ctx) {
     scheduleAutoAdvance();
   }
 
+  const adjustingImage = () => document.body.classList.contains('ia-adjusting');
+
   function scheduleAutoAdvance() {
     clearTimeout(state.menuReels.autoAdvanceTimer);
+    if (adjustingImage()) return;
     if (reduceMotion.matches) return;
     const reels = activeReels();
     const cur = reels[state.menuReels.activeIdx];
@@ -583,6 +609,9 @@ export function initOrderingWidgets(ctx) {
     let gesture = null;
     reelsStack.addEventListener('pointerdown', (e) => {
       if (e.target.closest('.reels-cta')) return;
+      // An open adjust session is dragging the image inside the frame; a swipe
+      // would fight it for the same pointer.
+      if (adjustingImage()) return;
       reelsStack.setPointerCapture(e.pointerId);
       gesture = { pointerId: e.pointerId, startY: e.clientY, lastY: e.clientY, lastTime: performance.now(), velocity: 0 };
       reelsStack.classList.add('dragging');
@@ -621,6 +650,13 @@ export function initOrderingWidgets(ctx) {
         setReelsActiveIndex(state.menuReels.activeIdx);
       }
     };
+    // While an image-adjust session is open the pointer belongs to it, and the
+    // stack must stay put underneath.
+    document.addEventListener('como:image-adjust', (event) => {
+      if (event.detail?.open) clearTimeout(state.menuReels.autoAdvanceTimer);
+      else scheduleAutoAdvance();
+    });
+
     reelsStack.addEventListener('pointerup', (e) => finish(e));
     reelsStack.addEventListener('pointercancel', (e) => finish(e, true));
     reelsStack.addEventListener('lostpointercapture', (e) => { if (gesture) finish(e, true); });
@@ -677,20 +713,114 @@ export function initOrderingWidgets(ctx) {
     document.getElementById('mr-item-title').textContent = reel.title || 'Edit reel';
     document.getElementById('mr-item-title-input').value = reel.title;
     document.getElementById('mr-item-subtitle').value = reel.subtitle;
-    document.getElementById('mr-item-video').value = reel.video;
-    document.getElementById('mr-item-poster').value = reel.poster;
+    document.getElementById('mr-item-poster').value = reel.poster || '';
+    paintReelMedia(reel);
     document.getElementById('mr-item-cta-label').value = reel.ctaLabel;
     document.getElementById('mr-item-cta-target').value = reel.ctaTarget;
     document.getElementById('mr-item-seconds').value = reel.seconds;
     document.getElementById('mr-item-seconds-value').textContent = reel.seconds + 's';
     document.getElementById('mr-item-expires').value = reel.expires || '';
-    const cpHome = document.getElementById('cp-home');
-    cpHome.querySelector('.cp-master').classList.add('hide');
-    cpHome.querySelectorAll('.cp-detail').forEach((d) => d.classList.toggle('show', d.dataset.detail === 'menu-reels'));
-    openL3Panel(document.querySelector('[data-detail="mr-item-edit"]'));
+    const reelsPanel = document.querySelector('[data-detail="menu-reels"]');
+    if (reelsPanel.parentElement.id !== 'l3-body' || !reelsPanel.classList.contains('show')) openL3Panel(reelsPanel);
+    openL4Panel(document.querySelector('[data-detail="mr-item-edit"]'));
+  }
+
+  // Mirrors the reel's current media into the editor: preview, remove button,
+  // the URL box, and whether a poster is worth asking for at all.
+  function paintReelMedia(reel) {
+    const zone = document.getElementById('mr-item-media-zone');
+    const img = document.getElementById('mr-item-media-preview');
+    const video = document.getElementById('mr-item-media-video');
+    const empty = document.getElementById('mr-item-media-empty');
+    const remove = document.getElementById('mr-item-media-remove');
+    const url = document.getElementById('mr-item-media-url');
+    const posterField = document.getElementById('mr-item-poster-field');
+    if (!zone || !img || !video || !empty || !remove || !url) return;
+
+    const src = reelSource(reel);
+    const isImage = reel.mediaType === 'image';
+    zone.classList.toggle('has-image', !!src);
+    empty.style.display = src ? 'none' : '';
+    remove.style.display = src ? '' : 'none';
+    img.style.display = src && isImage ? '' : 'none';
+    video.style.display = src && !isImage ? '' : 'none';
+    if (src && isImage) img.src = src;
+    if (src && !isImage) video.src = src;
+    // Don't clobber what the merchant is typing; only mirror an uploaded file.
+    if (document.activeElement !== url) url.value = /^(data:|blob:)/.test(src) ? '' : src;
+    url.placeholder = isImage ? 'https://…/reel.jpg' : 'https://…/reel.mp4';
+    if (posterField) posterField.hidden = isImage;
+  }
+
+  function setReelMedia(reel, src, kind, name = '') {
+    reel.mediaType = kind;
+    if (kind === 'image') reel.image = src;
+    else reel.video = src;
+    reel.mediaName = name;
+    paintReelMedia(reel);
+    renderReelsStack();
+    markDirty?.();
+  }
+
+  const editingReel = () => (state.menuReels.editing === null ? null : state.menuReels.items[state.menuReels.editing]);
+
+  function wireReelMedia() {
+    const zone = document.getElementById('mr-item-media-zone');
+    const file = document.getElementById('mr-item-media-file');
+    const remove = document.getElementById('mr-item-media-remove');
+    const url = document.getElementById('mr-item-media-url');
+    if (!zone || !file) return;
+
+    // A clip can run to tens of megabytes, which no draft in localStorage will
+    // survive — so videos become object URLs and only stills are inlined.
+    function acceptFile(chosen) {
+      const reel = editingReel();
+      if (!reel || !chosen) return;
+      if (chosen.type.startsWith('video/')) {
+        setReelMedia(reel, URL.createObjectURL(chosen), 'video', chosen.name);
+        showToast('Reel video added');
+        return;
+      }
+      if (!chosen.type.startsWith('image/')) return;
+      const reader = new FileReader();
+      reader.onload = () => {
+        setReelMedia(reel, String(reader.result), 'image', chosen.name);
+        showToast('Reel image added · press and hold it in the preview to reframe');
+      };
+      reader.readAsDataURL(chosen);
+    }
+
+    zone.addEventListener('click', () => file.click());
+    zone.addEventListener('dragover', (e) => { e.preventDefault(); zone.style.borderColor = 'var(--como)'; });
+    zone.addEventListener('dragleave', () => { zone.style.borderColor = ''; });
+    zone.addEventListener('drop', (e) => {
+      e.preventDefault();
+      zone.style.borderColor = '';
+      acceptFile(e.dataTransfer.files && e.dataTransfer.files[0]);
+    });
+    file.addEventListener('change', (e) => acceptFile(e.target.files && e.target.files[0]));
+
+    remove?.addEventListener('click', (e) => {
+      e.stopPropagation();
+      const reel = editingReel();
+      if (!reel) return;
+      file.value = '';
+      setReelMedia(reel, '', reel.mediaType);
+    });
+
+    url?.addEventListener('input', () => {
+      const reel = editingReel();
+      if (!reel) return;
+      const value = url.value.trim();
+      setReelMedia(reel, value, mediaKindFromUrl(value));
+    });
   }
 
   function wireMenuReels() {
+    document.querySelector('[data-detail="menu-reels"] .cp-back')?.addEventListener('click', () => {
+      state.menuReels.editing = null;
+      closeL3Panel();
+    });
     reelsChip?.addEventListener('click', (e) => {
       if (e.target.closest('.reels-chip-dismiss')) return;
       openReelsModal(0);
@@ -724,7 +854,7 @@ export function initOrderingWidgets(ctx) {
         id: 'reel-new-' + Date.now(),
         title: 'New reel', subtitle: 'Describe this reel',
         ctaLabel: 'Order now →', ctaTarget: 'ti-1',
-        video: MENU_REELS[0].video, poster: MENU_REELS[0].poster,
+        mediaType: 'video', video: '', image: '', poster: '', mediaName: '',
         seconds: 6, expires: '', visible: true,
       });
       renderReelsList();
@@ -739,15 +869,13 @@ export function initOrderingWidgets(ctx) {
       state.menuReels.items[idx].seconds = Number(e.target.value);
       markDirty?.();
     });
-    ['mr-item-title-input', 'mr-item-subtitle', 'mr-item-video', 'mr-item-poster', 'mr-item-cta-label', 'mr-item-cta-target', 'mr-item-expires'].forEach((id) => {
+    // Media has its own handlers in wireReelMedia(); these are the plain fields.
+    ['mr-item-title-input', 'mr-item-subtitle', 'mr-item-poster', 'mr-item-cta-label', 'mr-item-cta-target', 'mr-item-expires'].forEach((id) => {
       document.getElementById(id)?.addEventListener('input', () => {
-        const idx = state.menuReels.editing;
-        if (idx === null) return;
-        const r = state.menuReels.items[idx];
+        const r = editingReel();
         if (!r) return;
         r.title = document.getElementById('mr-item-title-input').value;
         r.subtitle = document.getElementById('mr-item-subtitle').value;
-        r.video = document.getElementById('mr-item-video').value;
         r.poster = document.getElementById('mr-item-poster').value;
         r.ctaLabel = document.getElementById('mr-item-cta-label').value;
         r.ctaTarget = document.getElementById('mr-item-cta-target').value;
@@ -757,9 +885,10 @@ export function initOrderingWidgets(ctx) {
         markDirty?.();
       });
     });
+    wireReelMedia();
     document.getElementById('mr-item-back')?.addEventListener('click', () => {
       state.menuReels.editing = null;
-      closeL3Panel();
+      closeL4Panel();
     });
   }
 
@@ -789,7 +918,13 @@ export function initOrderingWidgets(ctx) {
   }, 800);
 
   function exportOrderingWidgets() {
-    return JSON.parse(JSON.stringify(state, (key, value) => (/timer|editing/i.test(key) ? undefined : value)));
+    return JSON.parse(JSON.stringify(state, (key, value) => {
+      if (/timer|editing/i.test(key)) return undefined;
+      // An object URL is only valid for this document, so saving one would
+      // restore a reel pointing at nothing.
+      if (typeof value === 'string' && value.startsWith('blob:')) return '';
+      return value;
+    }));
   }
 
   function importOrderingWidgets(saved = {}) {

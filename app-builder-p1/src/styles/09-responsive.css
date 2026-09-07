@@ -74,6 +74,8 @@ body .cp-step-next,
 .config-column select {
   min-height: 44px;
 }
+body .cp-step-foot .cp-step-back,
+body .cp-step-foot .cp-step-next { min-height: 48px; }
 .topbar .close-btn { width: 44px; height: 44px; }
 .cp-widget-row .toggle,
 .w-edit-icon,

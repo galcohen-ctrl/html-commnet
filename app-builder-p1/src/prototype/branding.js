@@ -1,39 +1,15 @@
+import { initBrandingBackground } from './brandingBackground.js';
+import { initBrandingFonts } from './brandingFonts.js';
+
 export function initBranding(ctx) {
   const { markDirty, showToast, wireColorControl } = ctx;
 
-  // ---------- App background: Solid / Gradient + opacity ----------
-  (function initAppBg() {
-    const c1 = document.getElementById('appbg-color1');
-    const c2 = document.getElementById('appbg-color2');
-    const op = document.getElementById('appbg-opacity');
-    const opVal = document.getElementById('appbg-opacity-val');
-    const row2 = document.getElementById('appbg-row2');
-    const seg = document.getElementById('appbg-mode');
-    if (!c1 || !c2 || !op || !seg) return;
-    let mode = 'solid';
-    const hexToRgb = (h) => { const m = h.replace('#', ''); return [0, 2, 4].map(i => parseInt(m.slice(i, i + 2), 16)); };
-    const rgba = (h, a) => { const [r, g, b] = hexToRgb(h); return `rgba(${r},${g},${b},${a})`; };
-    function apply() {
-      const a = (+op.value) / 100;
-      const bg = mode === 'gradient'
-        ? `linear-gradient(180deg, ${rgba(c1.value, a)} 0%, ${rgba(c2.value, a)} 100%)`
-        : rgba(c1.value, a);
-      document.body.style.setProperty('--p-bg', bg);
-    }
-    wireColorControl(c1, apply);
-    wireColorControl(c2, apply);
-    op.addEventListener('input', () => { opVal.textContent = op.value + '%'; apply(); markDirty(); });
-    seg.querySelectorAll('.cp-seg-btn').forEach(b => {
-      b.addEventListener('click', () => {
-        seg.querySelectorAll('.cp-seg-btn').forEach(x => x.classList.remove('active'));
-        b.classList.add('active');
-        mode = b.dataset.mode;
-        row2.style.display = mode === 'gradient' ? '' : 'none';
-        apply();
-        markDirty();
-      });
-    });
-  })();
+  const brandingPage = document.querySelector('.branding-page');
+  ['.branding-logo-section', '.branding-accent-section', '.branding-colors', '.branding-font-section', '.branding-header-section'].forEach((selector) => {
+    const section = brandingPage?.querySelector(selector);
+    if (section) brandingPage.appendChild(section);
+  });
+  initBrandingBackground({ wireColorControl, markDirty });
 
   // ---------- Font picker (Branding drill: list + search + custom upload) ----------
   function applyFontFamily(font, role = 'both') {
@@ -43,6 +19,8 @@ export function initBranding(ctx) {
     }
     if (role === 'both' || role === 'title') document.body.style.setProperty('--p-font-title', font);
   }
+  initBrandingFonts({ applyFontFamily, markDirty });
+
   function activateFontItem(item) {
     document.querySelectorAll('.cp-font-item, .cp-font-card').forEach(x => x.classList.remove('active'));
     item.classList.add('active');

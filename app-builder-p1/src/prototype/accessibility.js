@@ -1,3 +1,5 @@
+const ACCESSIBILITY_RUNTIME = Symbol.for('como.app-builder.accessibility');
+
 const FOCUSABLE_SELECTOR = [
   'a[href]',
   'area[href]',
@@ -73,6 +75,8 @@ function setBooleanAttribute(element, name, value) {
  * original click handlers remain the single source of truth for product state.
  */
 export function initAccessibility(ctx = {}) {
+  if (document[ACCESSIBILITY_RUNTIME]) return document[ACCESSIBILITY_RUNTIME];
+  let disposed = false;
   let sequence = 0;
   const nextId = () => ++sequence;
   const enhanced = {
@@ -700,10 +704,11 @@ export function initAccessibility(ctx = {}) {
 
   let refreshQueued = false;
   function queueRefresh() {
-    if (refreshQueued) return;
+    if (refreshQueued || disposed) return;
     refreshQueued = true;
     queueMicrotask(() => {
       refreshQueued = false;
+      if (disposed) return;
       scan(document);
       syncCurrentStates();
       syncModalState();
@@ -722,9 +727,11 @@ export function initAccessibility(ctx = {}) {
   syncCurrentStates();
   syncModalState();
 
-  return {
+  const runtime = {
     announceAccessibility: announce,
     disposeAccessibility() {
+      if (disposed) return;
+      disposed = true;
       observer.disconnect();
       document.removeEventListener('keydown', trapModalKeydown, true);
       document.removeEventListener('como:navchange', announceNavigation);
@@ -732,6 +739,9 @@ export function initAccessibility(ctx = {}) {
       cancelAnimationFrame(announceFrame);
       liveRegion.remove();
       focusStyle.remove();
+      if (document[ACCESSIBILITY_RUNTIME] === runtime) delete document[ACCESSIBILITY_RUNTIME];
     },
   };
+  document[ACCESSIBILITY_RUNTIME] = runtime;
+  return runtime;
 }

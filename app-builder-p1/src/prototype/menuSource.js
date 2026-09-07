@@ -7,6 +7,9 @@
  * single `renderPhone()` pass that redraws the phone for the current state.
  */
 
+import { createMenuPanels } from './menuPanels.js';
+import { websiteUrl } from './websiteScreen.js';
+
 const ICON = {
   chev: '<svg class="ms-row-chev" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="M9 6l6 6-6 6"/></svg>',
   grip: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M8 6h.01M8 12h.01M8 18h.01M16 6h.01M16 12h.01M16 18h.01"/></svg>',
@@ -66,7 +69,7 @@ function seedCategories() {
 }
 
 export function initMenuSource(ctx) {
-  const { showToast, markDirty, openL3Panel, closeL3Panel, goToPage } = ctx;
+  const { showToast, markDirty, goToPage } = ctx;
 
   const page = document.getElementById('cp-menu');
   if (!page) return {};
@@ -80,43 +83,66 @@ export function initMenuSource(ctx) {
     screen: 'chooser',
     fromOrdering: false,
     webview: { url: 'https://velvetbistro.com/menu', connected: false, back: true, bottombar: true, inapp: true, hideheader: false, membersonly: false },
-    pdf: { uploaded: false },
+    pdf: { uploaded: false, name: '', data: '', size: 0 },
     custom: { url: 'https://order.velvetbistro.com', connected: false, back: true, bottombar: true, inapp: true, membersonly: true, theme: true, hideheader: true, color: '#6d28d9' },
     ordering: { layout: 'grid', color: '#6d28d9', allergens: true, banner: true, hero: 0 },
     manual: { started: false, categories: seedCategories(), activeCat: null, activeItem: null, hero: null },
   };
+  const panels = createMenuPanels(ctx, page, screens);
+
+  function reflectSelection() {
+    const ready = {
+      ordering: !!orderingApi().connected,
+      webview: state.webview.connected,
+      pdf: state.pdf.uploaded,
+      manual: state.manual.started && state.manual.categories.some((category) => category.items.length > 0),
+    };
+    page.querySelectorAll('[data-approach]').forEach((option) => {
+      const checked = option.dataset.approach === state.approach && !!ready[option.dataset.approach];
+      option.classList.toggle('on', checked);
+      option.setAttribute('role', 'radio');
+      option.setAttribute('aria-checked', String(checked));
+    });
+  }
 
   /* ------------------------------------------------------------- screens */
 
   function show(screen) {
     state.screen = screen;
-    screens.forEach(s => s.classList.toggle('active', s.dataset.ms === screen));
-    document.getElementById('config-panel').scrollTop = 0;
-    if (screen !== 'build-items') closeL3Panel();
+    if (screen === 'pdf' || screen === 'webview' && (state.fromOrdering || ctx.getOrderingMode?.() !== 'webview')) {
+      panels.open(screen);
+    } else if (screen === 'build-categories') {
+      panels.open(screen, 3, 'build-method');
+    } else if (screen === 'build-items') {
+      if (!panels.isOpen('build-categories')) panels.open('build-categories', 3, 'build-method');
+      panels.open(screen, 4, 'build-method');
+    } else {
+      panels.main(screen);
+    }
     renderPhone();
   }
 
-  function resetApproach() {
+  function resetApproach({ dirty = true } = {}) {
     state.approach = null;
     state.integration = null;
     state.manual.activeCat = null;
     state.manual.activeItem = null;
     page.querySelectorAll('[data-approach]').forEach(o => o.classList.remove('on'));
     show('chooser');
-    markDirty();
+    if (dirty) markDirty();
   }
 
   page.querySelectorAll('[data-approach]').forEach(opt => {
     opt.addEventListener('click', () => {
       const approach = opt.dataset.approach;
-      page.querySelectorAll('[data-approach]').forEach(o => o.classList.toggle('on', o === opt));
       state.approach = approach;
       state.fromOrdering = false;
       markDirty();
       if (approach === 'webview') { show('webview'); updateWebviewReturn(); }
       else if (approach === 'pdf') show('pdf');
-      else if (approach === 'ordering') show(orderingApi().connected ? 'oo-connected' : 'oo-integration');
+      else if (approach === 'ordering') openNativeSettings();
       else if (approach === 'manual') show(state.manual.started ? 'build-categories' : 'build-method');
+      reflectSelection();
     });
   });
 
@@ -132,6 +158,7 @@ export function initMenuSource(ctx) {
   const webStatus = document.getElementById('ms-webview-status');
   const webviewReturn = document.getElementById('ms-webview-return');
   const webviewReturnBtn = document.getElementById('ms-webview-return-btn');
+  let webviewRequest = 0;
   // Contextual banner: only present when the merchant reached this screen from the
   // Online ordering step, so the round-trip back to that step stays obvious.
   function updateWebviewReturn() {
@@ -151,6 +178,7 @@ export function initMenuSource(ctx) {
     document.dispatchEvent(new CustomEvent('como:menu-source', { detail: { approach: 'webview', connected: state.webview.connected, url: state.webview.url } }));
   }
   webUrl.addEventListener('input', () => {
+    webviewRequest += 1;
     state.webview.url = webUrl.value;
     state.webview.connected = false;
     webStatus.classList.add('hidden');
@@ -219,18 +247,20 @@ export function initMenuSource(ctx) {
   }
 
   connectBtn.addEventListener('click', () => {
-    const url = webUrl.value.trim();
+    const url = websiteUrl(webUrl.value.trim());
     if (!url) {
       webUrl.setAttribute('aria-invalid', 'true');
       webUrl.classList.add('cp-input-error');
       const urlErr = document.getElementById('ms-webview-url-error');
-      if (urlErr) urlErr.textContent = 'Please enter your ordering URL first.';
+      if (urlErr) urlErr.textContent = 'Enter a full website address starting with https://.';
       webUrl.focus();
       return;
     }
     setConnectState('loading');
     setReturnState('loading');
+    const request = ++webviewRequest;
     setTimeout(() => {
+      if (request !== webviewRequest) return;
       state.webview.url = url;
       state.webview.connected = true;
       webStatus.classList.remove('hidden');
@@ -247,39 +277,9 @@ export function initMenuSource(ctx) {
     }, 1000);
   });
 
-  // Remembers where #cp-menu normally lives so it can be returned to the config
-  // panel after being borrowed by the third (L3) panel for Step-2 webview setup.
-  let cpMenuHome = null;
-
-  // Move the Menu page into the third panel so the Online ordering step (Step 2)
-  // stays visible in the main config column beside it — the webview setup opens
-  // as a third panel instead of replacing Step 2.
-  function placeMenuInL3() {
-    const menu = document.getElementById('cp-menu');
-    const l3body = document.getElementById('l3-body');
-    if (!menu || !l3body) return false;
-    if (!cpMenuHome) cpMenuHome = { parent: menu.parentElement, next: menu.nextElementSibling };
-    l3body.appendChild(menu);
-    menu.style.display = 'flex';
-    document.body.classList.add('l3-open');
-    l3body.scrollTop = 0;
-    document.dispatchEvent(new CustomEvent('como:navchange'));
-    return true;
-  }
-
-  // Return #cp-menu to its home in the config panel and close the third panel.
-  // Idempotent, so any exit path (return button, sidebar nav) can call it safely.
   function exitWebviewL3() {
-    if (!cpMenuHome) return;
-    const menu = document.getElementById('cp-menu');
-    const home = cpMenuHome;
-    cpMenuHome = null;
-    if (menu) {
-      menu.style.display = '';
-      if (home.next && home.next.parentElement === home.parent) home.parent.insertBefore(menu, home.next);
-      else home.parent.appendChild(menu);
-    }
-    document.body.classList.remove('l3-open');
+    panels.close();
+    state.fromOrdering = false;
     document.body.classList.remove('oo-webview-from-step2');
   }
   // guidedFlow.goToStep() calls this on every navigation away, so the borrowed
@@ -291,17 +291,8 @@ export function initMenuSource(ctx) {
   function openWebviewSetup({ fromOrdering = false } = {}) {
     state.approach = 'webview';
     state.fromOrdering = fromOrdering;
-    page.querySelectorAll('[data-approach]').forEach(o => o.classList.toggle('on', o.dataset.approach === 'webview'));
     if (fromOrdering) {
-      document.body.classList.add('oo-webview-from-step2');
-      // show() closes any open L3, so borrow the Menu page into the third panel AFTER it.
       show('webview');
-      if (!placeMenuInL3()) {
-        // Fallback: if the third panel is unavailable, swap the config panel as before.
-        document.querySelectorAll('.cp-page').forEach((cp) => {
-          cp.style.display = (cp.id === 'cp-menu') ? 'flex' : 'none';
-        });
-      }
     } else {
       exitWebviewL3();
       document.body.classList.remove('oo-webview-from-step2');
@@ -345,16 +336,58 @@ export function initMenuSource(ctx) {
   const pdfFile = document.getElementById('ms-pdf-file');
   const pdfReplace = document.getElementById('ms-pdf-replace');
   const pdfDrop = document.getElementById('ms-pdf-drop');
+  const pdfInput = document.getElementById('ms-pdf-input');
+  const pdfError = document.getElementById('ms-pdf-error');
+  let pdfPreviewUrl = '';
+  function setPdfPreview(file) {
+    if (pdfPreviewUrl) URL.revokeObjectURL(pdfPreviewUrl);
+    pdfPreviewUrl = file ? URL.createObjectURL(file) : '';
+  }
   function setPdf(on) {
     state.pdf.uploaded = on;
     pdfFile.hidden = !on;
     pdfReplace.hidden = !on;
     pdfDrop.style.display = on ? 'none' : '';
+    pdfFile.querySelector('.ms-file-name').textContent = state.pdf.name || 'Menu.pdf';
+    pdfFile.querySelector('.ms-file-meta').textContent = `${(state.pdf.size / (1024 * 1024)).toFixed(1)} MB - Added to menu`;
     renderPhone();
   }
-  pdfDrop.addEventListener('click', () => { setPdf(true); markDirty(); showToast('velvet-bistro-dinner.pdf rendered in the preview'); });
-  document.getElementById('ms-pdf-remove').addEventListener('click', () => { setPdf(false); markDirty(); });
-  pdfReplace.addEventListener('click', () => { setPdf(false); });
+  async function loadPdf(file) {
+    if (!file) return;
+    pdfError.textContent = '';
+    if (!/\.pdf$/i.test(file.name) || file.size > 20 * 1024 * 1024) {
+      pdfError.textContent = 'Choose a PDF file under 20 MB.';
+      return;
+    }
+    try {
+      if (!(await file.slice(0, 1024).text()).includes('%PDF-')) throw new Error('Invalid PDF');
+      const reader = new FileReader();
+      reader.onload = () => {
+        state.pdf.name = file.name;
+        state.pdf.size = file.size;
+        state.pdf.data = String(reader.result).replace(/^data:[^;]*;/, 'data:application/pdf;');
+        setPdfPreview(new Blob([file], { type: 'application/pdf' }));
+        setPdf(true);
+        markDirty();
+        showToast('PDF menu added');
+      };
+      reader.onerror = () => { pdfError.textContent = 'This file could not be read. Choose another PDF.'; };
+      reader.readAsDataURL(file);
+    } catch {
+      pdfError.textContent = 'This file could not be read. Choose another PDF.';
+    }
+  }
+  pdfDrop.addEventListener('click', () => pdfInput.click());
+  pdfDrop.addEventListener('dragover', (event) => event.preventDefault());
+  pdfDrop.addEventListener('drop', (event) => { event.preventDefault(); loadPdf(event.dataTransfer.files?.[0]); });
+  pdfInput.addEventListener('change', () => loadPdf(pdfInput.files?.[0]));
+  document.getElementById('ms-pdf-remove').addEventListener('click', () => {
+    setPdfPreview(null);
+    state.pdf.data = ''; state.pdf.name = ''; state.pdf.size = 0;
+    pdfInput.value = ''; pdfError.textContent = '';
+    setPdf(false); markDirty();
+  });
+  pdfReplace.addEventListener('click', () => { pdfInput.value = ''; pdfInput.click(); });
 
   /* ----------------------------------------------- online ordering (both) */
 
@@ -362,19 +395,40 @@ export function initMenuSource(ctx) {
     return ctx.ordering || { connected: false, provider: { name: 'Deliverect', mark: 'D', color: '#0fa47f' } };
   }
 
-  page.querySelectorAll('[data-integration]').forEach(opt => {
-    opt.addEventListener('click', () => {
-      page.querySelectorAll('[data-integration]').forEach(o => o.classList.toggle('on', o === opt));
-      state.integration = opt.dataset.integration;
-      if (state.integration === 'native') {
-        if (orderingApi().connected) show('oo-connected');
-        else if (ctx.gotoOrderingStep) { ctx.gotoOrderingStep('chooser'); window.openSettings('online-ordering'); }
-      } else {
-        show('oo-custom');
-      }
-      markDirty();
-    });
-  });
+  function renderOrderingProvider(ordering) {
+    const logo = document.getElementById('ms-oo-logo');
+    logo.textContent = ordering.provider.mark;
+    logo.style.background = ordering.provider.color;
+    document.getElementById('ms-oo-name').textContent = ordering.provider.name;
+  }
+
+  function openNativeSettings() {
+    state.approach = 'ordering';
+    state.integration = 'native';
+    window.orderingWizardOrigin = 'menu-source';
+    ctx.openSettings('online-ordering', orderingApi().connected ? 'admin' : 'chooser');
+  }
+
+  function showMenuForOrdering(mode) {
+    state.fromOrdering = false;
+    updateWebviewReturn();
+    if (mode !== 'native' && mode !== 'webview') {
+      resetApproach({ dirty: false });
+      return;
+    }
+    state.approach = mode === 'native' ? 'ordering' : 'webview';
+    state.integration = mode === 'native' ? 'native' : null;
+    if (mode === 'native') {
+      const ordering = orderingApi();
+      renderOrderingProvider(ordering);
+      show(ordering.connected ? 'oo-connected' : 'chooser');
+    } else {
+      webUrl.value = state.webview.url;
+      setConnectState(state.webview.connected ? 'success' : 'idle');
+      webStatus.classList.toggle('hidden', !state.webview.connected);
+      show('webview');
+    }
+  }
 
   document.getElementById('ms-oo-manage').addEventListener('click', () => {
     if (ctx.gotoOrderingStep) { ctx.gotoOrderingStep('admin'); window.openSettings('online-ordering'); }
@@ -452,13 +506,6 @@ export function initMenuSource(ctx) {
     renderCategories();
     show('build-categories');
   });
-  document.getElementById('ms-build-import').addEventListener('click', () => {
-    state.manual.started = true;
-    markDirty();
-    renderCategories();
-    show('build-categories');
-    showToast('Imported velvet-menu.csv · 3 categories, 8 items mapped');
-  });
   document.getElementById('ms-build-ai').addEventListener('click', () => {
     showToast('We’ll email you when AI menu drafting ships');
   });
@@ -492,6 +539,11 @@ export function initMenuSource(ctx) {
         if (e.target.closest('[data-del-cat]')) {
           const id = row.dataset.cat;
           state.manual.categories = state.manual.categories.filter(c => c.id !== id);
+          if (state.manual.activeCat === id) {
+            state.manual.activeCat = null;
+            state.manual.activeItem = null;
+            ctx.closeL4Panel();
+          }
           renderCategories();
           markDirty();
           renderPhone();
@@ -559,16 +611,9 @@ export function initMenuSource(ctx) {
     document.getElementById('ms-items-meta').textContent =
       cat.items.length + ' item' + (cat.items.length === 1 ? '' : 's') + ' · ' + (cat.hero ? 'category hero image set' : 'no category hero image');
     renderItems();
+    document.getElementById('ms-item-editor').hidden = true;
     show('build-items');
   }
-
-  document.getElementById('ms-items-back').addEventListener('click', () => {
-    state.manual.activeCat = null;
-    state.manual.activeItem = null;
-    closeL3Panel();
-    renderCategories();
-    show('build-categories');
-  });
 
   document.getElementById('ms-rename-category').addEventListener('click', () => {
     const cat = activeCat();
@@ -615,7 +660,7 @@ export function initMenuSource(ctx) {
         if (e.target.closest('[data-drag]')) return;
         if (e.target.closest('[data-del-item]')) {
           cat.items = cat.items.filter(i => i.id !== row.dataset.item);
-          if (state.manual.activeItem === row.dataset.item) { state.manual.activeItem = null; closeL3Panel(); }
+          if (state.manual.activeItem === row.dataset.item) state.manual.activeItem = null;
           markDirty();
           openCategory(cat.id);
           renderPhone();
@@ -649,6 +694,10 @@ export function initMenuSource(ctx) {
   /* --------------------------------------------------------- item editor */
 
   const editor = document.getElementById('ms-item-editor');
+  editor.classList.remove('cp-detail');
+  editor.classList.add('menu-inline-item');
+  editor.hidden = true;
+  screens.find((screen) => screen.dataset.ms === 'build-items').appendChild(editor);
   const fName = document.getElementById('ms-item-name');
   const fDesc = document.getElementById('ms-item-desc');
   const fPrice = document.getElementById('ms-item-price');
@@ -662,7 +711,6 @@ export function initMenuSource(ctx) {
     const item = activeItem();
     if (!item) return;
 
-    document.getElementById('ms-item-back-label').textContent = cat.name;
     document.getElementById('ms-item-heading').textContent = item.name;
     fName.value = item.name;
     fDesc.value = item.desc;
@@ -690,7 +738,8 @@ export function initMenuSource(ctx) {
     tagWrap.querySelector('[data-tag-add]').addEventListener('click', () => showToast('Custom dietary tags come from your catalog settings'));
 
     itemList.querySelectorAll('.ms-row').forEach(r => r.classList.toggle('on', r.dataset.item === id));
-    openL3Panel(editor);
+    editor.hidden = false;
+    editor.scrollIntoView({ block: 'nearest', behavior: 'auto' });
     renderPhone();
   }
 
@@ -742,20 +791,13 @@ export function initMenuSource(ctx) {
     renderPhone();
   });
 
-  document.getElementById('ms-item-back').addEventListener('click', () => {
-    state.manual.activeItem = null;
-    closeL3Panel();
-    renderItems();
-    renderPhone();
-  });
-
   document.getElementById('ms-item-delete').addEventListener('click', () => {
     const cat = activeCat();
     const item = activeItem();
     if (!cat || !item) return;
     cat.items = cat.items.filter(i => i.id !== item.id);
     state.manual.activeItem = null;
-    closeL3Panel();
+    editor.hidden = true;
     markDirty();
     openCategory(cat.id);
     renderPhone();
@@ -933,6 +975,9 @@ export function initMenuSource(ctx) {
           <div class="pm-empty-title">No PDF uploaded</div>
           <div class="pm-empty-sub">Drop a PDF on the left and it renders here.</div>
         </div>`;
+    }
+    if (state.pdf.data?.startsWith('data:application/pdf;base64,')) {
+      return appHeader('MENU', state.pdf.name) + `<div class="pm-pdf-document"><iframe title="${escapeHtml(state.pdf.name)}" src="${pdfPreviewUrl || state.pdf.data}"></iframe><a href="${pdfPreviewUrl || state.pdf.data}" download="${escapeHtml(state.pdf.name)}">Download menu</a></div>`;
     }
     const rows = [
       ['STARTERS', [['Truffle Arancini', '14'], ['Burrata & Heirloom', '16'], ['Tuna Tartare', '18']]],
@@ -1116,6 +1161,7 @@ export function initMenuSource(ctx) {
   }
 
   function renderPhone() {
+    reflectSelection();
     if (!phoneRender) return;
     let html;
     let mode = 'none';
@@ -1143,14 +1189,13 @@ export function initMenuSource(ctx) {
     if (state.approach !== 'ordering') return;
     if (oo.connected) {
       state.integration = 'native';
-      const logo = document.getElementById('ms-oo-logo');
-      logo.textContent = oo.provider.mark;
-      logo.style.background = oo.provider.color;
-      document.getElementById('ms-oo-name').textContent = oo.provider.name;
+      renderOrderingProvider(oo);
+      if (window.orderingWizardOrigin === 'menu-source' && ctx.getOrderingMode?.() !== 'native') ctx.setOrderingMode?.('native');
       if (state.screen !== 'oo-connected') show('oo-connected');
     } else if (e.detail.reason === 'disconnect') {
-      show('oo-integration');
+      show('chooser');
     }
+    if (e.detail.reason === 'saved' && window.orderingWizardOrigin === 'menu-source') window.orderingWizardOrigin = null;
     renderPhone();
   });
 
@@ -1169,13 +1214,23 @@ export function initMenuSource(ctx) {
     if (!saved || typeof saved !== 'object') return;
     Object.assign(state, saved);
     renderCategories();
-    show(state.screen || 'build-categories');
+    setPdf(!!state.pdf.uploaded);
+    if (state.pdf.data?.startsWith('data:application/pdf;base64,')) {
+      const data = state.pdf.data;
+      fetch(data).then((response) => response.blob()).then((file) => {
+        if (!state.pdf.uploaded || state.pdf.data !== data) return;
+        setPdfPreview(file);
+        renderPhone();
+      }).catch(() => { pdfError.textContent = 'The saved PDF could not be loaded. Choose the file again.'; });
+    }
+    show(state.screen === 'oo-integration' ? 'chooser' : state.screen || 'chooser');
     renderPhone();
   }
 
   return {
     menuState: state,
     showMenuScreen: show,
+    showMenuForOrdering,
     renderMenuPhone: renderPhone,
     exportMenuSource,
     importMenuSource,

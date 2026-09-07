@@ -136,7 +136,7 @@
   }
   .pc-eyebrow.hidden-slot { display: none; }
   .promo-cards-widget[data-pc-corners="sharp"] .pc-card { border-radius: 4px; }
-  .promo-cards-widget[data-pc-corners="rounded"] .pc-card { border-radius: 14px; }
+  .promo-cards-widget[data-pc-corners="rounded"] .pc-card { border-radius: var(--p-card-radius, 14px); }
 
   /* Carousel layout (horizontal scroll) */
   .pc-carousel-wrap {

@@ -3,20 +3,24 @@
      IMAGE ADJUST — in-preview reposition / zoom / rotate / crop
      ============================================================ */
 
-  /* Logo edit: magnify the whole preview canvas so the tiny header logo is
-     comfortable to reposition and crop; reset when the session closes. */
-  #device-stage { transition: transform .32s cubic-bezier(0.23, 1, 0.32, 1); }
-  body.ia-logo-zoom #device-stage {
-    transform: scale(1.55);
-    transform-origin: 50% 9%;
-    position: relative;
-    z-index: 5;
-  }
+  /* Zoom-to-fit: imageAdjust.js sizes the magnification to the slot being
+     edited and writes the transform inline, so the header logo and a full-width
+     promo card both land at a comfortable working size. Reset on close. */
+  #device-stage { transition: transform .34s cubic-bezier(0.23, 1, 0.32, 1); }
+  body.ia-adjusting #device-stage { position: relative; z-index: 5; }
+  /* Lock the column while a session is open: the magnified stage would
+     otherwise grow the scroll area and shift the frame mid-edit. */
+  body.ia-adjusting .preview-area { overflow: hidden; }
 
+  /* --ia-zoom is written by imageAdjust.js while a session is magnified. Every
+     rule below divides by it so the editing chrome keeps the same on-screen
+     weight whether the frame is at 1x or 4x. */
   .ia-active {
+    --z: var(--ia-zoom, 1);
     position: relative;
-    outline: 3px solid var(--como);
-    box-shadow: 0 0 0 6px rgba(109, 40, 217, .18), 0 0 26px rgba(109, 40, 217, .45);
+    outline: calc(3px / var(--z)) solid var(--como);
+    box-shadow: 0 0 0 calc(6px / var(--z)) rgba(109, 40, 217, .18),
+      0 0 calc(26px / var(--z)) rgba(109, 40, 217, .45);
     cursor: grab;
     overflow: hidden;
     touch-action: none;
@@ -25,7 +29,7 @@
     content: "";
     position: absolute; inset: 0;
     pointer-events: none;
-    box-shadow: inset 0 0 0 2px rgba(255, 255, 255, .35);
+    box-shadow: inset 0 0 0 calc(2px / var(--z)) rgba(255, 255, 255, .35);
     animation: iaPulse 1.6s ease-in-out infinite;
   }
   @keyframes iaPulse { 0%, 100% { opacity: .35; } 50% { opacity: .9; } }
@@ -42,15 +46,21 @@
   }
   .ia-active.ia-animating .ia-layer { transition: transform .32s cubic-bezier(.2, .8, .2, 1); }
 
-  /* Crop launcher — subtle, expands to reveal the label */
+  /* Crop launcher — perches on the frame's top edge, set in from the corner so
+     a gap shows, and never covers the image it is there to crop. Lives on the
+     body because .ia-active clips its own children. */
   .ia-crop-fab {
-    position: absolute; top: 8px; right: 10px; z-index: 5;
+    position: fixed; z-index: 10002;
     display: inline-flex; align-items: center;
     height: 28px; width: 28px; padding: 0;
     border: none; border-radius: 999px;
-    background: rgba(18, 18, 26, .72); color: #fff;
+    background: rgba(18, 18, 26, .82); color: #fff;
+    box-shadow: 0 3px 10px rgba(12, 10, 22, .3);
     cursor: pointer; overflow: hidden; transition: width .18s;
   }
+  /* Fallback for a frame sitting flush against the top of the window — there is
+     no line to perch on, so it tucks into the corner instead. */
+  .ia-crop-fab.is-inside { background: rgba(18, 18, 26, .72); box-shadow: none; }
   .ia-crop-fab svg { width: 15px; height: 15px; flex: none; margin: 0 6.5px; }
   .ia-crop-fab span {
     white-space: nowrap; font-size: 11.5px; font-weight: 650;
@@ -58,12 +68,13 @@
   }
   .ia-crop-fab:hover { width: 78px; }
   .ia-crop-fab:hover span { max-width: 58px; opacity: 1; padding-right: 9px; }
-  .ia-cropping .ia-crop-fab { display: none; }
+  .ia-crop-fab.is-hidden { display: none; }
 
   /* Crop frame — starts on the whole image, pulled inward to subtract */
   .ia-cropbox {
+    --z: var(--ia-zoom, 1);
     position: absolute; z-index: 6; display: none;
-    border: 1.5px solid rgba(255, 255, 255, .95);
+    border: calc(1.5px / var(--z)) solid rgba(255, 255, 255, .95);
     box-shadow: 0 0 0 9999px rgba(12, 10, 22, .55);
     cursor: move; touch-action: none;
   }
@@ -77,25 +88,25 @@
   .ia-grid::before, .ia-grid::after { content: ""; position: absolute; }
   .ia-grid::before {
     left: 33.3%; right: 33.3%; top: 0; bottom: 0;
-    border-left: 1px solid rgba(255, 255, 255, .45);
-    border-right: 1px solid rgba(255, 255, 255, .45);
+    border-left: calc(1px / var(--z)) solid rgba(255, 255, 255, .45);
+    border-right: calc(1px / var(--z)) solid rgba(255, 255, 255, .45);
   }
   .ia-grid::after {
     top: 33.3%; bottom: 33.3%; left: 0; right: 0;
-    border-top: 1px solid rgba(255, 255, 255, .45);
-    border-bottom: 1px solid rgba(255, 255, 255, .45);
+    border-top: calc(1px / var(--z)) solid rgba(255, 255, 255, .45);
+    border-bottom: calc(1px / var(--z)) solid rgba(255, 255, 255, .45);
   }
   .ia-h { position: absolute; }
-  .ia-corner { width: 16px; height: 16px; }
-  .ia-nw { left: 0; top: 0; border-left: 3px solid #fff; border-top: 3px solid #fff; cursor: nwse-resize; }
-  .ia-ne { right: 0; top: 0; border-right: 3px solid #fff; border-top: 3px solid #fff; cursor: nesw-resize; }
-  .ia-se { right: 0; bottom: 0; border-right: 3px solid #fff; border-bottom: 3px solid #fff; cursor: nwse-resize; }
-  .ia-sw { left: 0; bottom: 0; border-left: 3px solid #fff; border-bottom: 3px solid #fff; cursor: nesw-resize; }
-  .ia-edge { background: rgba(255, 255, 255, .95); border-radius: 2px; }
-  .ia-n { top: 0; left: 50%; transform: translateX(-50%); width: 26px; height: 5px; cursor: ns-resize; }
-  .ia-s { bottom: 0; left: 50%; transform: translateX(-50%); width: 26px; height: 5px; cursor: ns-resize; }
-  .ia-w { left: 0; top: 50%; transform: translateY(-50%); width: 5px; height: 26px; cursor: ew-resize; }
-  .ia-e { right: 0; top: 50%; transform: translateY(-50%); width: 5px; height: 26px; cursor: ew-resize; }
+  .ia-corner { width: calc(16px / var(--z)); height: calc(16px / var(--z)); }
+  .ia-nw { left: 0; top: 0; border-left: calc(3px / var(--z)) solid #fff; border-top: calc(3px / var(--z)) solid #fff; cursor: nwse-resize; }
+  .ia-ne { right: 0; top: 0; border-right: calc(3px / var(--z)) solid #fff; border-top: calc(3px / var(--z)) solid #fff; cursor: nesw-resize; }
+  .ia-se { right: 0; bottom: 0; border-right: calc(3px / var(--z)) solid #fff; border-bottom: calc(3px / var(--z)) solid #fff; cursor: nwse-resize; }
+  .ia-sw { left: 0; bottom: 0; border-left: calc(3px / var(--z)) solid #fff; border-bottom: calc(3px / var(--z)) solid #fff; cursor: nesw-resize; }
+  .ia-edge { background: rgba(255, 255, 255, .95); border-radius: calc(2px / var(--z)); }
+  .ia-n { top: 0; left: 50%; transform: translateX(-50%); width: calc(26px / var(--z)); height: calc(5px / var(--z)); cursor: ns-resize; }
+  .ia-s { bottom: 0; left: 50%; transform: translateX(-50%); width: calc(26px / var(--z)); height: calc(5px / var(--z)); cursor: ns-resize; }
+  .ia-w { left: 0; top: 50%; transform: translateY(-50%); width: calc(5px / var(--z)); height: calc(26px / var(--z)); cursor: ew-resize; }
+  .ia-e { right: 0; top: 50%; transform: translateY(-50%); width: calc(5px / var(--z)); height: calc(26px / var(--z)); cursor: ew-resize; }
 
   /* Press-and-hold ring */
   .ia-ring {
@@ -159,6 +170,7 @@
   }
 
   @media (prefers-reduced-motion: reduce) {
+    #device-stage { transition: none; }
     .ia-active::after { animation: none; }
     .ia-active.ia-animating .ia-layer,
     .ia-active.ia-animating .ia-cropbox { transition: none; }

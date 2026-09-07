@@ -140,6 +140,7 @@ export function initGuidedFlow(ctx) {
   function goToStep(key) {
     const step = STEPS[indexOf(key)];
     if (!step) return;
+    document.dispatchEvent(new CustomEvent('como:beforestepchange', { detail: { step: key } }));
     flow.current = key;
     if (key === 'home') homeVisited = true;
     const onBusiness = key === 'business';
@@ -160,11 +161,24 @@ export function initGuidedFlow(ctx) {
       renderReview();
     }
     render();
+    document.dispatchEvent(new CustomEvent('como:stepchange', { detail: { step: key } }));
   }
   window.goToBrandingStep = () => goToStep('branding');
   window.goToStep = goToStep;
   window.getCurrentStep = () => flow.current;
   window.canRoutePhoneHeaderToBranding = () => done.has('branding') || indexOf(flow.current) > indexOf('branding');
+  function renameGuidedScreen(key, label) {
+    const step = STEPS.find((item) => item.key === key);
+    if (step) step.label = label;
+    render();
+  }
+  function syncGuidedScreenOrder(order) {
+    const setup = STEPS.filter((step) => step.kind === 'setup');
+    const screens = order.map((key) => STEPS.find((step) => step.key === key)).filter(Boolean);
+    const remainder = STEPS.filter((step) => !setup.includes(step) && !screens.includes(step));
+    STEPS.splice(0, STEPS.length, ...setup, ...screens, ...remainder);
+    render();
+  }
 
   /* ------------------------------------------------------------ rendering */
 
@@ -994,5 +1008,5 @@ export function initGuidedFlow(ctx) {
     render();
   }
 
-  return { goToStep, getReadiness: () => ({ missing: missingRequiredSteps(), ready: missingRequiredSteps().length === 0 }), exportDraft, importDraft };
+  return { goToStep, renameGuidedScreen, syncGuidedScreenOrder, getReadiness: () => ({ missing: missingRequiredSteps(), ready: missingRequiredSteps().length === 0 }), exportDraft, importDraft };
 }

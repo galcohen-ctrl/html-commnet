@@ -16,6 +16,9 @@ import { initAccessibility } from './accessibility.js';
 import { initDraftPersistence } from './draftPersistence.js';
 import { initResponsive } from './responsive.js';
 import { initProductExperience } from './productExperience.js';
+import { initReviewGallery } from './reviewGallery.js';
+import { initAppScreenSlot } from './appScreenSlot.js';
+import { initInbox } from './inbox.js';
 import { initImageAdjust } from './imageAdjust.js';
 
 let runtime;
@@ -45,5 +48,8 @@ export function initPrototype() {
   // Initialize last so keyboard and ARIA semantics reuse every feature's
   // existing click/drag handlers instead of creating parallel state paths.
   Object.assign(runtime, initAccessibility(runtime));
+  Object.assign(runtime, initAppScreenSlot(runtime));
+  Object.assign(runtime, initInbox(runtime));
+  Object.assign(runtime, initReviewGallery(runtime));
   return runtime;
 }

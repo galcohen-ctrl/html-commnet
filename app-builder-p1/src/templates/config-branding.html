@@ -1,14 +1,13 @@
-<div class="cp-master">
+<div class="cp-master branding-page">
   <h3 class="cp-head">Step 3</h3>
   <div class="cp-page-title">Branding</div>
-  <div class="cp-page-sub">Choose one global brand system. Every proven screen inherits it automatically.</div>
 
-  <div class="px-brand-source" id="px-brand-source" role="status">
+  <div class="px-brand-source" id="px-brand-source" role="status" hidden>
     <span class="px-brand-source-mark" aria-hidden="true">✓</span>
     <span><strong>Global branding</strong><small>Home, Rewards, Menu, Locations, Login, Profile, and More stay in sync.</small></span>
   </div>
 
-  <div class="cp-focus-recap">
+  <div class="cp-focus-recap" hidden>
     <div class="cp-focus-ic"></div>
     <div class="cp-focus-text">
       <div class="cp-focus-lbl">App focus</div>
@@ -24,10 +23,9 @@
     </div>
   </div>
 
-  <div class="cp-section open">
+  <div class="cp-section open branding-accent-section">
     <div class="cp-head-row">Brand colour <span class="chev">›</span></div>
     <div class="cp-body">
-      <div class="cp-hint-inline">Colour is the first thing customers notice. We apply it across every screen.</div>
       <div class="gf-swatch-row" id="gf-accent-row">
         <button class="gf-swatch selected" style="background:#6d28d9" data-accent="#6d28d9" type="button" aria-label="Purple"></button>
         <button class="gf-swatch" style="background:#d4a648" data-accent="#d4a648" type="button" aria-label="Gold"></button>
@@ -43,7 +41,7 @@
     </div>
   </div>
 
-  <div class="cp-section open">
+  <div class="cp-section open branding-logo-section">
     <div class="cp-head-row">Logo <span class="chev">›</span></div>
     <div class="cp-body">
       <div class="gf-logo-result" id="gf-logo-result" style="display:none;">
@@ -82,8 +80,8 @@
     </div>
   </div>
 
-  <div class="cp-section open">
-    <div class="cp-head-row">App header <span class="chev">›</span></div>
+  <div class="cp-section branding-header-section">
+    <div class="cp-head-row">App name <span class="chev">›</span></div>
     <div class="cp-body">
       <div class="cp-field">
         <label>Business name</label>
@@ -98,135 +96,160 @@
     </div>
   </div>
 
-  <div class="cp-section open">
-    <div class="cp-head-row">Typography <span class="chev">›</span></div>
+  <div class="cp-section branding-font-section">
+    <div class="cp-head-row">Fonts <span class="chev">›</span></div>
     <div class="cp-body">
-      <div class="cp-hint-inline">Pick one font for titles and one for body text. Two is usually the limit before an app starts to look busy.</div>
-      <div class="cp-subhead">Title font</div>
-      <div class="gf-chip-row" id="gf-title-font-row">
-        <button class="gf-chip selected" data-font="sans-serif" type="button">Sans-serif</button>
-        <button class="gf-chip" data-font="serif" type="button">Serif</button>
-        <button class="gf-chip" data-font="mono" type="button">Mono</button>
-        <button class="gf-chip" data-font="rounded" type="button">Rounded</button>
-        <button class="gf-chip" data-font="slab" type="button">Slab</button>
+      <div class="brand-font-picker" data-font-role="title">
+        <label for="brand-title-font-open">Titles</label>
+        <input type="hidden" id="brand-title-family" value="" />
+        <button class="brand-font-trigger" type="button" id="brand-title-font-open" data-font-open aria-expanded="false" aria-controls="brand-title-font-panel"><span data-font-label>Device default</span><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m6 9 6 6 6-6"/></svg></button>
+        <div class="brand-font-panel" id="brand-title-font-panel" data-font-panel hidden>
+          <input class="cp-input-text" id="brand-title-font-search" type="search" placeholder="Search Google Fonts" aria-label="Search title fonts" autocomplete="off" />
+          <div class="brand-font-results" data-font-results aria-label="Title fonts"></div>
+        </div>
+        <div class="brand-font-status" role="status" aria-live="polite"></div>
       </div>
-      <div class="cp-subhead">Body font</div>
-      <div class="gf-chip-row" id="gf-body-font-row">
-        <button class="gf-chip selected" data-font="sans-serif" type="button">Sans-serif</button>
-        <button class="gf-chip" data-font="serif" type="button">Serif</button>
-        <button class="gf-chip" data-font="mono" type="button">Mono</button>
-        <button class="gf-chip" data-font="rounded" type="button">Rounded</button>
-        <button class="gf-chip" data-font="slab" type="button">Slab</button>
+      <div class="brand-font-picker" data-font-role="body">
+        <label for="brand-body-font-open">Body text</label>
+        <input type="hidden" id="brand-body-family" value="" />
+        <button class="brand-font-trigger" type="button" id="brand-body-font-open" data-font-open aria-expanded="false" aria-controls="brand-body-font-panel"><span data-font-label>Device default</span><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m6 9 6 6 6-6"/></svg></button>
+        <div class="brand-font-panel" id="brand-body-font-panel" data-font-panel hidden>
+          <input class="cp-input-text" id="brand-body-font-search" type="search" placeholder="Search Google Fonts" aria-label="Search body fonts" autocomplete="off" />
+          <div class="brand-font-results" data-font-results aria-label="Body fonts"></div>
+        </div>
+        <div class="brand-font-status" role="status" aria-live="polite"></div>
       </div>
+      <details class="brand-custom-font"><summary>Have your own font?</summary><button type="button" class="gf-logo-action" id="px-request-font">Add in app submission</button></details>
     </div>
   </div>
 
-  <div class="cp-section" id="gf-advanced-branding-section">
-    <div class="cp-head-row">Advanced branding options <span class="chev">›</span></div>
-    <div class="cp-body">
-      <div class="cp-hint-inline">Fine-tune background, text, and card colours across the entire app.</div>
-
-      <div class="cp-field">
-        <label>App background</label>
+  <div class="branding-colors" id="gf-advanced-branding-section">
+    <div class="cp-section open">
+      <div class="cp-head-row">Background <span class="chev">›</span></div>
+      <div class="cp-body">
+        <div class="brand-background-sample" id="brand-background-sample" aria-hidden="true"><span>Aa</span></div>
         <div class="cp-seg" id="appbg-mode">
-          <button class="cp-seg-btn active" type="button" data-mode="solid">Solid</button>
-          <button class="cp-seg-btn" type="button" data-mode="gradient">Gradient</button>
+          <button class="cp-seg-btn active" type="button" data-mode="solid" aria-pressed="true">One colour</button>
+          <button class="cp-seg-btn" type="button" data-mode="gradient" aria-pressed="false">Gradient</button>
+        </div>
+        <input type="hidden" id="appbg-mode-value" value="solid" />
+        <input type="hidden" id="appbg-direction" value="135" />
+        <div class="brand-gradient-presets" aria-label="Background colour combinations">
+          <button type="button" data-bg-start="#f0faf5" data-bg-end="#c1e8dc" title="Mint" aria-label="Mint gradient" style="--gradient-start:#f0faf5;--gradient-end:#c1e8dc;"></button>
+          <button type="button" data-bg-start="#eff7ff" data-bg-end="#cddfed" title="Sky" aria-label="Sky gradient" style="--gradient-start:#eff7ff;--gradient-end:#cddfed;"></button>
+          <button type="button" data-bg-start="#fff6f2" data-bg-end="#f5d5bd" title="Peach" aria-label="Peach gradient" style="--gradient-start:#fff6f2;--gradient-end:#f5d5bd;"></button>
+          <button type="button" data-bg-start="#fff1f5" data-bg-end="#ead8e6" title="Rose" aria-label="Rose gradient" style="--gradient-start:#fff1f5;--gradient-end:#ead8e6;"></button>
         </div>
         <div class="cp-color-row">
           <div class="cp-color-swatch" style="background:#f2f2f7;">
-            <input type="color" value="#f2f2f7" id="appbg-color1" />
+            <input type="color" value="#f2f2f7" id="appbg-color1" aria-label="First background colour" />
           </div>
           <div class="cp-color-info">
-            <div class="cp-color-label" id="appbg-label1">Background</div>
-            <input class="cp-color-hex" value="#F2F2F7" spellcheck="false" maxlength="9" />
+            <div class="cp-color-label" id="appbg-label1">First colour</div>
+            <input class="cp-color-hex" value="#F2F2F7" spellcheck="false" maxlength="9" aria-label="First background colour code" />
           </div>
         </div>
-        <div class="cp-color-row" id="appbg-row2" style="display:none;">
+        <div class="cp-color-row" id="appbg-row2" hidden>
           <div class="cp-color-swatch" style="background:#e9e7f0;">
-            <input type="color" value="#e9e7f0" id="appbg-color2" />
+            <input type="color" value="#e9e7f0" id="appbg-color2" aria-label="Second background colour" />
           </div>
           <div class="cp-color-info">
-            <div class="cp-color-label">Gradient end</div>
-            <input class="cp-color-hex" value="#E9E7F0" spellcheck="false" maxlength="9" />
+            <div class="cp-color-label">Second colour</div>
+            <input class="cp-color-hex" value="#E9E7F0" spellcheck="false" maxlength="9" aria-label="Second background colour code" />
+          </div>
+        </div>
+        <div id="appbg-gradient-controls" hidden>
+          <div class="brand-direction-row" role="group" aria-label="Gradient direction">
+            <button type="button" data-bg-direction="135" aria-label="Diagonal" title="Diagonal" aria-pressed="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m5 5 14 14M9 19h10V9"/></svg></button>
+            <button type="button" data-bg-direction="180" aria-label="Top to bottom" title="Top to bottom" aria-pressed="false"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 4v16m-6-6 6 6 6-6"/></svg></button>
+            <button type="button" data-bg-direction="90" aria-label="Side to side" title="Side to side" aria-pressed="false"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 12h16m-6-6 6 6-6 6"/></svg></button>
+            <button type="button" id="appbg-swap" aria-label="Swap colours" title="Swap colours"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 7h16m-4-4 4 4-4 4M20 17H4m4-4-4 4 4 4"/></svg></button>
           </div>
         </div>
         <div class="cp-slider-row">
-          <span class="cp-mini-label">Opacity</span>
-          <input type="range" class="cp-slider" min="0" max="100" value="100" id="appbg-opacity" />
-          <span class="cp-slider-val" id="appbg-opacity-val">100%</span>
+          <label class="cp-mini-label" for="appbg-opacity">Colour strength</label>
+          <input type="range" class="cp-slider" min="0" max="100" value="100" id="appbg-opacity" aria-valuetext="Rich" />
+          <span class="cp-slider-val" id="appbg-opacity-val">Rich</span>
         </div>
+        <label class="brand-texture-option"><input type="checkbox" id="appbg-texture" /> Soft grain</label>
       </div>
+    </div>
 
-      <div class="px-contrast-result" id="px-contrast-result" role="status" aria-live="polite"></div>
-
+    <div class="cp-section">
+      <div class="cp-head-row">Text, cards and icons <span class="chev">›</span></div>
+      <div class="cp-body">
       <div class="cp-field">
-        <label>Card background</label>
         <div class="cp-color-row">
           <div class="cp-color-swatch" style="background:#1a1728;">
             <input type="color" value="#1a1728" data-bind-color="--p-panel" />
           </div>
           <div class="cp-color-info">
-            <div class="cp-color-label">Cards &amp; panels</div>
+            <div class="cp-color-label">Cards</div>
             <input class="cp-color-hex" value="#1A1728" spellcheck="false" maxlength="9" />
           </div>
         </div>
       </div>
 
       <div class="cp-field">
-        <label>Primary text</label>
         <div class="cp-color-row">
           <div class="cp-color-swatch" style="background:#ffffff;">
             <input type="color" value="#ffffff" data-bind-color="--p-text" />
           </div>
           <div class="cp-color-info">
-            <div class="cp-color-label">Headings &amp; body</div>
+            <div class="cp-color-label">Text</div>
             <input class="cp-color-hex" value="#FFFFFF" spellcheck="false" maxlength="9" />
           </div>
         </div>
       </div>
 
       <div class="cp-field">
-        <label>Secondary text</label>
         <div class="cp-color-row">
           <div class="cp-color-swatch" style="background:#9c98ac;">
             <input type="color" value="#9c98ac" data-bind-color="--p-text-muted" />
           </div>
           <div class="cp-color-info">
-            <div class="cp-color-label">Muted &amp; captions</div>
+            <div class="cp-color-label">Small text</div>
             <input class="cp-color-hex" value="#9C98AC" spellcheck="false" maxlength="9" />
           </div>
         </div>
       </div>
 
       <div class="cp-field">
-        <label>Navigation &amp; header background</label>
         <div class="cp-color-row">
           <div class="cp-color-swatch" style="background:#ffffff;">
             <input type="color" value="#ffffff" data-bind-color="--p-nav-bg" />
           </div>
           <div class="cp-color-info">
-            <div class="cp-color-label">Top header &amp; bottom bar</div>
+            <div class="cp-color-label">Top and bottom bars</div>
             <input class="cp-color-hex" value="#FFFFFF" spellcheck="false" maxlength="9" />
           </div>
         </div>
       </div>
 
-      <div class="cp-subhead">Icon style</div>
+      <div class="cp-color-row">
+        <div class="cp-color-swatch" style="background:#6b6b7b;"><input type="color" value="#6b6b7b" data-bind-color="--p-icon" aria-label="Icon colour" /></div>
+        <div class="cp-color-info"><div class="cp-color-label">Icons</div><input class="cp-color-hex" value="#6B6B7B" spellcheck="false" maxlength="9" aria-label="Icon colour code" /></div>
+      </div>
+      <div class="px-contrast-result" id="px-contrast-result" role="status" aria-live="polite"></div>
+      <div class="cp-subhead">Icon look</div>
       <div class="cp-icon-style-preview">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><path d="M3 10l9-7 9 7v10a2 2 0 01-2 2H5a2 2 0 01-2-2z"/></svg>
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><path d="M20 12v10H4V12M2 7h20v5H2zM12 22V7"/></svg>
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0118 0z"/><circle cx="12" cy="10" r="3"/></svg>
       </div>
       <div class="cp-radio-group">
-        <div class="cp-radio active" data-bind-radio="icon-style" data-value="outline">Outline</div>
-        <div class="cp-radio" data-bind-radio="icon-style" data-value="solid">Solid</div>
-        <div class="cp-radio" data-bind-radio="icon-style" data-value="duotone">Duotone</div>
+        <div class="cp-radio active" data-bind-radio="icon-style" data-value="outline">Line</div>
+        <div class="cp-radio" data-bind-radio="icon-style" data-value="solid">Filled</div>
+        <div class="cp-radio" data-bind-radio="icon-style" data-value="duotone">Soft fill</div>
       </div>
+      </div>
+    </div>
 
-      <div class="cp-subhead">Custom font</div>
-      <div class="px-font-request">
-        <span><strong>Need a licensed custom font?</strong><small>Fonts ship with the native app and require an app update.</small></span>
-        <button type="button" id="px-request-font">Request in App submission</button>
+    <div class="cp-section">
+      <div class="cp-head-row">Shapes <span class="chev">›</span></div>
+      <div class="cp-body">
+        <div class="brand-shape-control"><label for="brand-card-shape">Cards <span id="brand-card-shape-value">Soft</span></label><input class="cp-slider" id="brand-card-shape" type="range" min="0" max="2" value="1" aria-valuetext="Soft" /><div class="brand-range-labels"><span>Square</span><span>Soft</span><span>Round</span></div></div>
+        <div class="brand-shape-control"><label for="brand-button-shape">Buttons <span id="brand-button-shape-value">Soft</span></label><input class="cp-slider" id="brand-button-shape" type="range" min="0" max="2" value="1" aria-valuetext="Soft" /><div class="brand-range-labels"><span>Square</span><span>Soft</span><span>Round</span></div></div>
       </div>
     </div>
   </div>

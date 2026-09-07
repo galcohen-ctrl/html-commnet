@@ -11,16 +11,57 @@
 const HOLD_MS = 850;
 const RING_CIRCUMFERENCE = 157.1;
 
-// Every element in the preview that displays a merchant-uploaded image.
+// Every element in the preview that displays a merchant-uploaded image. The
+// native ordering widgets are deliberately absent: their imagery arrives from
+// the integration (Deliverect and friends), so there is nothing here to adjust.
 const TARGET_SELECTOR = [
   '.pc-card-img.has-upload',
   '.rw-img',
   '.hb-img',
   '.app-top-header .brand-mark.has-logo',
   '.rw-block-banner',
+  '.reels-image',
 ].join(', ');
 
+/* ------------------------------------------------------------------ zoom
+   A logo sits at ~56px in the preview; a promo card is ~290px wide. One fixed
+   magnification cannot serve both, so work out what THIS element needs and let
+   small slots zoom hard while large ones barely move.
+
+   Four things decide it:
+     · the browser viewport   — never zoom past what the window can show
+     · the preview column     — the real work area, narrower than the window
+     · the element's own box  — the smaller the slot, the more zoom it needs
+     · how the image fills it — a shape mismatch leaves more hidden image to
+                                drag through, which wants a little extra room
+*/
+const ZOOM_FILL = 0.46;   // share of the work area the frame should occupy
+const ZOOM_MIN = 1.08;    // under this the movement costs more than it gives
+const ZOOM_MAX = 4.6;     // ceiling, so the preview never turns to mush
+const ZOOM_PAD = 28;      // breathing room kept inside the work area
+
+// The crop control perches above the frame's top-right corner, set in from the
+// edge so a gap shows — a bird sitting on a power line, not on the corner.
+const FAB_GAP = 7;
+const FAB_INSET = 14;
+
 const clamp = (value, min, max) => Math.max(min, Math.min(max, value));
+
+// The usable canvas: the preview column, clipped to whatever the window shows.
+function workArea() {
+  const area = document.getElementById('preview-area');
+  const rect = area?.getBoundingClientRect();
+  const left = Math.max(0, rect ? rect.left : 0);
+  const top = Math.max(0, rect ? rect.top : 0);
+  const right = Math.min(window.innerWidth, rect ? rect.right : window.innerWidth);
+  const bottom = Math.min(window.innerHeight, rect ? rect.bottom : window.innerHeight);
+  return {
+    cx: (left + right) / 2,
+    cy: (top + bottom) / 2,
+    width: Math.max(160, right - left - ZOOM_PAD * 2),
+    height: Math.max(160, bottom - top - ZOOM_PAD * 2),
+  };
+}
 
 function backgroundUrlOf(element) {
   const value = getComputedStyle(element).backgroundImage;
@@ -30,7 +71,9 @@ function backgroundUrlOf(element) {
 
 export function initImageAdjust(ctx) {
   const { markDirty, showToast } = ctx;
-  const shell = document.getElementById('app-shell');
+  // The screen, not the page stack: full-screen overlays such as Menu Reels sit
+  // beside #app-shell, and their media is adjustable too.
+  const shell = document.querySelector('.device-screen') || document.getElementById('app-shell');
   if (!shell) return {};
 
   let session = null;
@@ -70,18 +113,115 @@ export function initImageAdjust(ctx) {
     return panel;
   }
 
+  // Both overlays hang off the LIVE box of the element, so they keep their
+  // relationship to it while the zoom animates and at whatever scale it lands.
   function positionToolbar(panel, target) {
     const rect = target.getBoundingClientRect();
     const width = panel.offsetWidth || 200;
     const height = panel.offsetHeight || 220;
-    const phone = document.getElementById('device-frame') || target.closest('.phone-shell') || target;
-    const phoneRect = phone.getBoundingClientRect();
-    let left = phoneRect.right + 16;
-    if (left + width > window.innerWidth - 12) left = Math.max(12, phoneRect.left - width - 16);
-    let top = rect.top + rect.height / 2 - height / 2;
-    top = clamp(top, 12, window.innerHeight - height - 12);
-    panel.style.left = `${left}px`;
-    panel.style.top = `${top}px`;
+    const gap = 18;
+    // Take whichever side of the element has more room, so the panel never
+    // ends up sitting on top of the thing being adjusted.
+    const left = window.innerWidth - rect.right >= rect.left
+      ? rect.right + gap
+      : rect.left - width - gap;
+    panel.style.left = `${clamp(left, 12, window.innerWidth - width - 12)}px`;
+    panel.style.top = `${clamp(rect.top + rect.height / 2 - height / 2, 12, window.innerHeight - height - 12)}px`;
+  }
+
+  function positionCropFab(fab, target) {
+    const rect = target.getBoundingClientRect();
+    const height = fab.offsetHeight || 28;
+    // Anchored by its right edge so the label can grow leftwards on hover
+    // without ever creeping past the corner it is perched on.
+    const right = clamp(window.innerWidth - (rect.right - FAB_INSET), 6, window.innerWidth - 48);
+    const perched = rect.top - height - FAB_GAP;
+    const inside = perched < 8;
+    fab.classList.toggle('is-inside', inside);
+    const top = inside ? rect.top + FAB_GAP : perched;
+    fab.style.right = `${right}px`;
+    fab.style.top = `${clamp(top, 6, window.innerHeight - height - 6)}px`;
+  }
+
+  function syncOverlays() {
+    if (!session) return;
+    positionCropFab(session.cropBtn, session.target);
+    positionToolbar(session.panel, session.target);
+  }
+
+  // Ride along with the zoom transition so the controls travel with the frame
+  // instead of snapping into place once it settles.
+  function pumpOverlays(ms = 460) {
+    if (!session) return;
+    cancelAnimationFrame(session.pumpFrame);
+    const until = performance.now() + ms;
+    const step = () => {
+      if (!session) return;
+      syncOverlays();
+      if (performance.now() < until) session.pumpFrame = requestAnimationFrame(step);
+    };
+    session.pumpFrame = requestAnimationFrame(step);
+  }
+
+  /* ----------------------------------------------------------- zoom-to-fit */
+
+  function computeZoom(base, layer) {
+    const { rect } = base;
+    if (!rect.width || !rect.height) return 1;
+    const area = workArea();
+
+    // Compare the frame and the work area by their geometric means rather than
+    // by one edge: a 40px logo and a wide, short promo card then land at a
+    // similar visual weight instead of the card being flung to full width.
+    let k = (Math.sqrt(area.width * area.height) * ZOOM_FILL) / Math.sqrt(rect.width * rect.height);
+
+    // A photo whose shape disagrees with its frame is cropped hard by `cover`,
+    // so there is more hidden image to drag through. Give that case slack.
+    const naturalW = layer?.naturalWidth || 0;
+    const naturalH = layer?.naturalHeight || 0;
+    if (naturalW && naturalH) {
+      const imageRatio = naturalW / naturalH;
+      const frameRatio = rect.width / rect.height;
+      const mismatch = Math.max(imageRatio / frameRatio, frameRatio / imageRatio);
+      k *= clamp(1 + (mismatch - 1) * 0.18, 1, 1.3);
+    }
+
+    // Whatever the maths asks for, the zoomed element still has to fit.
+    k = Math.min(k, area.width / rect.width, area.height / rect.height, ZOOM_MAX);
+    return k < ZOOM_MIN ? 1 : k;
+  }
+
+  function applyZoom() {
+    if (!session) return;
+    const stage = document.getElementById('device-stage');
+    const base = session.base;
+    if (!stage || !base) return;
+    const k = computeZoom(base, session.layer);
+    session.zoom = k;
+    if (k === 1) return;
+
+    const cx = base.rect.left + base.rect.width / 2;
+    const cy = base.rect.top + base.rect.height / 2;
+    const area = workArea();
+    // Scale about the element's own centre so that point holds still, then
+    // slide it into the middle of the work area. Order matters: the translate
+    // is composed outside the scale, so it stays in unscaled pixels.
+    stage.style.transformOrigin = `${((cx - base.stage.left) / (base.stage.width || 1)) * 100}% `
+      + `${((cy - base.stage.top) / (base.stage.height || 1)) * 100}%`;
+    stage.style.transform = `translate(${area.cx - cx}px, ${area.cy - cy}px) scale(${k})`;
+    // The zoom magnifies everything inside the stage, outlines and crop handles
+    // included. Publishing the factor lets the CSS divide it back out so the
+    // editing chrome keeps its real on-screen weight at any magnification.
+    document.documentElement.style.setProperty('--ia-zoom', String(k));
+    pumpOverlays();
+  }
+
+  function clearZoom() {
+    document.documentElement.style.removeProperty('--ia-zoom');
+    const stage = document.getElementById('device-stage');
+    if (!stage) return;
+    stage.style.transform = '';
+    stage.style.transformOrigin = '';
   }
 
   function showCoach(target) {
@@ -131,37 +271,57 @@ export function initImageAdjust(ctx) {
     cropBtn.innerHTML = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="6" cy="6" r="3"/><circle cx="6" cy="18" r="3"/><path d="M20 4L8.12 15.88"/><path d="M14.47 14.48L20 20"/><path d="M8.12 8.12L12 12"/></svg><span>Crop</span>`;
 
     target.classList.add('ia-active');
-    target.append(layer, cropBox, cropBtn);
+    target.append(layer, cropBox);
+    // The control perches OUTSIDE the frame, and the frame clips its children,
+    // so it lives on the body and is positioned against the element's box.
+    document.body.appendChild(cropBtn);
+
+    // Freeze the preview column first: locking its scrollbar away now means the
+    // measurements below describe the layout the zoom will actually land in.
+    document.body.classList.add('ia-adjusting');
 
     const panel = buildToolbar();
+    const stage = document.getElementById('device-stage');
     session = {
       target, layer, cropBox, cropBtn, panel, src,
       state: { x: 0, y: 0, scale: 1, rot: 0, src },
       history: [], index: -1, cropping: false, crop: null, fitTimer: null,
+      zoom: 1, pumpFrame: 0,
+      // Untransformed geometry, captured once — every zoom calculation reads
+      // these so a recompute never measures its own previous scale.
+      base: {
+        rect: target.getBoundingClientRect(),
+        stage: stage ? stage.getBoundingClientRect() : null,
+      },
     };
     commit();
     render();
-    // The logo sits in a tiny header slot; magnify the whole preview so it is
-    // comfortable to reposition and crop. close() resets it.
-    if (target.classList.contains('brand-mark')) {
-      document.body.classList.add('ia-logo-zoom');
-      session.isLogo = true;
-    }
-    positionToolbar(panel, target);
-    if (session.isLogo) setTimeout(() => { if (session) positionToolbar(session.panel, session.target); }, 340);
+    syncOverlays();
+
+    // Every editable image gets the magnifier, not just the logo — but sized to
+    // the slot. The natural dimensions sharpen it, so wait for the decode.
+    if (layer.complete && layer.naturalWidth) applyZoom();
+    else layer.addEventListener('load', applyZoom, { once: true });
+
+    // Anything that animates the preview on its own — the reels stack, for one —
+    // needs to hold still while the merchant is working inside it.
+    document.dispatchEvent(new CustomEvent('como:image-adjust', { detail: { open: true, target } }));
     wireSession();
   }
 
   function close() {
     if (!session) return;
     clearTimeout(session.fitTimer);
+    cancelAnimationFrame(session.pumpFrame);
     session.layer.remove();
     session.cropBox.remove();
     session.cropBtn.remove();
     session.panel.remove();
     session.target.classList.remove('ia-active', 'ia-cropping');
-    document.body.classList.remove('ia-logo-zoom');
+    clearZoom();
+    document.body.classList.remove('ia-adjusting');
     session = null;
+    document.dispatchEvent(new CustomEvent('como:image-adjust', { detail: { open: false } }));
   }
 
   function render() {
@@ -251,6 +411,7 @@ export function initImageAdjust(ctx) {
   function enterCrop() {
     session.cropping = true;
     session.target.classList.add('ia-cropping');
+    session.cropBtn.classList.add('is-hidden');
     session.panel.classList.add('is-cropping');
     session.crop = { x1: 0, y1: 0, x2: session.target.clientWidth, y2: session.target.clientHeight };
     layoutCrop();
@@ -260,6 +421,7 @@ export function initImageAdjust(ctx) {
     clearTimeout(session.fitTimer);
     session.cropping = false;
     session.target.classList.remove('ia-cropping', 'ia-animating');
+    session.cropBtn.classList.remove('is-hidden');
     session.panel.classList.remove('is-cropping');
   }
 
@@ -467,6 +629,11 @@ export function initImageAdjust(ctx) {
     shell.addEventListener(type, () => { if (holding) stopHold(); });
   });
   shell.addEventListener('pointermove', () => { if (holding && !session) stopHold(); });
+
+  // The overlays are pinned to the element's on-screen box, so anything that
+  // moves that box has to move them too.
+  window.addEventListener('resize', syncOverlays);
+  document.getElementById('preview-area')?.addEventListener('scroll', syncOverlays, { passive: true });
 
   window.addEventListener('keydown', (event) => {
     if (!session) return;
