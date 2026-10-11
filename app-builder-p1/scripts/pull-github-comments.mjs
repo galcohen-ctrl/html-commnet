@@ -1,9 +1,13 @@
 import { mkdir, rm, writeFile } from 'node:fs/promises';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
+import { DEFAULT_COMMENT_CONFIG } from '../src/comments/config.js';
 
-const repository = 'galcohen-ctrl/html-commnet';
-const issuePrefix = '[APP-BUILDER-P1]';
+const repository = DEFAULT_COMMENT_CONFIG.repository;
+// Each app tags its issues "[<PAGE>] …" (see src/comments/config.js).
+// COMMENT_PAGE=app-builder-vision pulls another app's comments.
+const commentPage = process.env.COMMENT_PAGE || DEFAULT_COMMENT_CONFIG.page;
+const issuePrefix = `[${commentPage.toUpperCase()}]`;
 const outputDirectory = path.resolve(
   path.dirname(fileURLToPath(import.meta.url)),
   '../review-comments',

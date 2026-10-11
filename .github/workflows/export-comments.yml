@@ -40,10 +40,10 @@ jobs:
         run: |
           gh api \
             "repos/${{ github.repository }}/issues?state=open&per_page=100" \
-            --jq '[.[] | select(.title | startswith("[PRD]") or startswith("[PROTOTYPE]") or startswith("[APP-BUILDER-P1]")) | {
+            --jq '[.[] | select(.title | startswith("[PRD]") or startswith("[PROTOTYPE]") or startswith("[APP-BUILDER-P1]") or startswith("[APP-BUILDER-VISION]")) | {
               id: .number,
               title: .title,
-              page: (if (.title | startswith("[PRD]")) then "prd" elif (.title | startswith("[PROTOTYPE]")) then "prototype" else "app-builder-p1" end),
+              page: (if (.title | startswith("[PRD]")) then "prd" elif (.title | startswith("[PROTOTYPE]")) then "prototype" elif (.title | startswith("[APP-BUILDER-VISION]")) then "app-builder-vision" else "app-builder-p1" end),
               author: .user.login,
               created_at: .created_at,
               body: .body,
