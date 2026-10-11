@@ -564,6 +564,8 @@ export function initOrderingWidgets(ctx) {
   function scheduleAutoAdvance() {
     clearTimeout(state.menuReels.autoAdvanceTimer);
     if (adjustingImage()) return;
+    // Merchant is editing this reel: keep it still so they can review the frame.
+    if (document.body.classList.contains('reel-editing')) return;
     if (reduceMotion.matches) return;
     const reels = activeReels();
     const cur = reels[state.menuReels.activeIdx];
@@ -665,7 +667,11 @@ export function initOrderingWidgets(ctx) {
       if (cta) {
         e.stopPropagation();
         closeReelsModal();
-        showToast('Added ' + (cta.textContent || 'item') + ' to cart');
+        const target = cta.dataset.reelCta;
+        if (target === 'webview') showToast('Web link would open here');
+        else if (target === 'inbox') window.openModal?.('inbox');
+        else if (target === 'account') window.openAccountPage?.();
+        else if (target && target !== 'none') window.showPhonePage?.(target);
       }
     });
   }
@@ -723,6 +729,11 @@ export function initOrderingWidgets(ctx) {
     const reelsPanel = document.querySelector('[data-detail="menu-reels"]');
     if (reelsPanel.parentElement.id !== 'l3-body' || !reelsPanel.classList.contains('show')) openL3Panel(reelsPanel);
     openL4Panel(document.querySelector('[data-detail="mr-item-edit"]'));
+    // Show the reel modal on the phone at this index; freeze auto-advance so
+    // the merchant can look at the frame while they edit it.
+    document.body.classList.add('reel-editing');
+    openReelsModal(idx);
+    reelsStack?.querySelectorAll('video').forEach((v) => v.pause());
   }
 
   // Mirrors the reel's current media into the editor: preview, remove button,
@@ -812,7 +823,15 @@ export function initOrderingWidgets(ctx) {
       const reel = editingReel();
       if (!reel) return;
       const value = url.value.trim();
-      setReelMedia(reel, value, mediaKindFromUrl(value));
+      // Show a brief loading skin on the current phone reel while the merchant
+      // is still typing, then apply the URL and remove the skin.
+      const activeFrame = reelsStack?.querySelector('.reels-frame[data-reel-idx="' + state.menuReels.activeIdx + '"]');
+      activeFrame?.classList.add('reels-loading');
+      clearTimeout(url._debounce);
+      url._debounce = setTimeout(() => {
+        setReelMedia(reel, value, mediaKindFromUrl(value));
+        activeFrame?.classList.remove('reels-loading');
+      }, 500);
     });
   }
 
@@ -853,7 +872,7 @@ export function initOrderingWidgets(ctx) {
       state.menuReels.items.push({
         id: 'reel-new-' + Date.now(),
         title: 'New reel', subtitle: 'Describe this reel',
-        ctaLabel: 'Order now →', ctaTarget: 'ti-1',
+        ctaLabel: 'Order now →', ctaTarget: 'menu',
         mediaType: 'video', video: '', image: '', poster: '', mediaName: '',
         seconds: 6, expires: '', visible: true,
       });
@@ -888,6 +907,8 @@ export function initOrderingWidgets(ctx) {
     wireReelMedia();
     document.getElementById('mr-item-back')?.addEventListener('click', () => {
       state.menuReels.editing = null;
+      document.body.classList.remove('reel-editing');
+      closeReelsModal();
       closeL4Panel();
     });
   }

@@ -132,9 +132,9 @@ export function createWebsiteEditor(ctx, { key, host, page, saved = {}, onChange
   });
   editor.querySelectorAll('[data-web-opt]').forEach((toggle) => {
     const option = toggle.dataset.webOpt;
-    if (['inapp', 'hideheader'].includes(option)) {
+    if (['inapp', 'showurl'].includes(option)) {
       toggle.setAttribute('aria-disabled', 'true');
-      toggle.closest('.ms-toggle-row').title = 'Requires support from your website; unavailable in this browser preview.';
+      toggle.closest('.ms-toggle-row').title = 'Not available for member web pages in this preview.';
       toggle.closest('.ms-toggle-row').classList.add('website-option-unavailable');
       toggle.setAttribute('role', 'switch');
       toggle.setAttribute('aria-checked', 'false');

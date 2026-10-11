@@ -1,0 +1,105 @@
+<!-- Rich, opinionated member experiences. Merchants include or exclude them;
+     content and colour inherit the single global brand system. -->
+<div class="app-page px-member-experience" data-page="gifts">
+  <header class="px-phone-page-head">
+    <button class="px-phone-back" type="button" onclick="showPhonePage('rewards')" aria-label="Back to Rewards">‹</button>
+    <div><strong>My Gifts</strong><span>Rewards ready to enjoy</span></div>
+    <button class="icon-btn px-profile-icon" type="button" onclick="openAccountPage()" aria-label="Open profile"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9"><circle cx="12" cy="8" r="3.5"/><path d="M5 21a7 7 0 0114 0"/></svg></button>
+  </header>
+  <div class="px-member-scroll">
+    <section class="px-gift-hero">
+      <span class="px-sample-label">Sample member</span>
+      <strong>3 gifts are waiting</strong>
+      <p>Use a gift in store or add it to your next order.</p>
+    </section>
+    <div class="px-filter-row" role="group" aria-label="Gift status">
+      <button class="active" type="button">Available</button><button type="button">Used</button><button type="button">Expired</button>
+    </div>
+    <section class="px-gift-list" aria-label="Available gifts">
+      <article class="px-gift-pass">
+        <div class="px-gift-art coffee"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M5 8h12v7a5 5 0 01-5 5H10a5 5 0 01-5-5z"/><path d="M17 10h1a3 3 0 010 6h-1M8 4v2M12 4v2"/></svg></div>
+        <div class="px-gift-copy"><span class="px-gift-kind">Birthday gift</span><strong>Any handcrafted drink</strong><small>Expires in 12 days</small></div>
+        <button type="button" data-phone-action="Gift ready to redeem">Use gift</button>
+      </article>
+      <article class="px-gift-pass">
+        <div class="px-gift-art pastry"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M4 18c1-7 5-11 8-11s7 4 8 11z"/><path d="M7 14h10M9 10l2 2 2-2 2 2"/></svg></div>
+        <div class="px-gift-copy"><span class="px-gift-kind">Loyalty reward</span><strong>Pastry on us</strong><small>Valid for 30 days</small></div>
+        <button type="button" data-phone-action="Gift added to the next order">Add</button>
+      </article>
+      <article class="px-gift-pass">
+        <div class="px-gift-art friend"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="9" cy="8" r="3"/><circle cx="17" cy="10" r="2.5"/><path d="M3 20a6 6 0 0112 0M14 20a5 5 0 018-1"/></svg></div>
+        <div class="px-gift-copy"><span class="px-gift-kind">Friend bonus</span><strong>$10 order credit</strong><small>No minimum spend</small></div>
+        <button type="button" data-phone-action="Credit applied">Apply</button>
+      </article>
+    </section>
+  </div>
+</div>
+
+<div class="app-page px-member-experience" data-page="point-shop">
+  <header class="px-phone-page-head">
+    <button class="px-phone-back" type="button" onclick="showPhonePage('rewards')" aria-label="Back to Rewards">‹</button>
+    <div><strong>Points Shop</strong><span>Turn points into something good</span></div>
+    <button class="icon-btn px-profile-icon" type="button" onclick="openAccountPage()" aria-label="Open profile"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9"><circle cx="12" cy="8" r="3.5"/><path d="M5 21a7 7 0 0114 0"/></svg></button>
+  </header>
+  <div class="px-member-scroll">
+    <section class="px-points-wallet">
+      <span class="px-sample-label">Sample member</span>
+      <div><span>Available balance</span><strong>1,240</strong><small>points</small></div>
+      <div class="px-points-progress"><span style="width:82%"></span></div>
+      <p>260 points until your next premium reward.</p>
+    </section>
+    <div class="px-section-head"><strong>Popular rewards</strong><button type="button">How points work</button></div>
+    <section class="px-shop-grid">
+      <article class="px-shop-card"><div class="px-shop-art drink"></div><span>450 pts</span><strong>Any regular drink</strong><button type="button" data-phone-action="Drink reward selected">Choose</button></article>
+      <article class="px-shop-card"><div class="px-shop-art lunch"></div><span>800 pts</span><strong>Lunch upgrade</strong><button type="button" data-phone-action="Lunch reward selected">Choose</button></article>
+      <article class="px-shop-card"><div class="px-shop-art bonus"></div><span>1,000 pts</span><strong>$15 order credit</strong><button type="button" data-phone-action="Order credit selected">Choose</button></article>
+      <article class="px-shop-card locked"><div class="px-shop-art event"></div><span>1,500 pts</span><strong>Tasting event</strong><button type="button" disabled>260 to go</button></article>
+    </section>
+  </div>
+</div>
+
+<div class="app-page px-member-experience" data-page="referral">
+  <header class="px-phone-page-head">
+    <button class="px-phone-back" type="button" onclick="showPhonePage('more')" aria-label="Back to More">‹</button>
+    <div><strong>Refer a Friend</strong><span>Share something worth returning to</span></div>
+    <button class="icon-btn px-profile-icon" type="button" onclick="openAccountPage()" aria-label="Open profile"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9"><circle cx="12" cy="8" r="3.5"/><path d="M5 21a7 7 0 0114 0"/></svg></button>
+  </header>
+  <div class="px-member-scroll">
+    <section class="px-referral-hero">
+      <span class="px-sample-label">Sample offer</span>
+      <div class="px-referral-people" aria-hidden="true"><span>Y</span><i></i><span>F</span></div>
+      <strong>Give $10. Get $10.</strong>
+      <p>Your friend gets credit on their first visit. You get yours after they join and purchase.</p>
+      <div class="px-referral-code"><span>Your invite code</span><strong id="px-referral-code">FRIEND10</strong><button type="button" data-copy-referral>Copy</button></div>
+      <button class="px-referral-share" type="button" data-phone-action="Share options opened">Share invite</button>
+    </section>
+    <section class="px-how-it-works">
+      <strong>How it works</strong>
+      <ol><li><span>1</span><div><b>Send your link</b><small>Share it anywhere you already chat.</small></div></li><li><span>2</span><div><b>Your friend joins</b><small>Their $10 credit appears automatically.</small></div></li><li><span>3</span><div><b>You both get rewarded</b><small>Your credit arrives after their first purchase.</small></div></li></ol>
+    </section>
+    <div class="px-referral-stats"><span><strong>4</strong><small>Friends joined</small></span><span><strong>$40</strong><small>Credit earned</small></span></div>
+  </div>
+</div>
+
+<div class="app-page px-member-experience" data-page="orders">
+  <header class="px-phone-page-head">
+    <button class="px-phone-back" type="button" onclick="showPhonePage('more')" aria-label="Back to More">‹</button>
+    <div><strong>My Orders</strong><span>Track, reorder, and get help</span></div>
+    <button class="icon-btn px-profile-icon" type="button" onclick="openAccountPage()" aria-label="Open profile"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9"><circle cx="12" cy="8" r="3.5"/><path d="M5 21a7 7 0 0114 0"/></svg></button>
+  </header>
+  <div class="px-member-scroll">
+    <span class="px-sample-label px-orders-sample">Sample member</span>
+    <section class="px-active-order">
+      <div class="px-order-state"><span></span><strong>Ready for pickup</strong><small>Downtown · Order #1048</small></div>
+      <div class="px-order-progress"><span class="done"></span><span class="done"></span><span class="done"></span></div>
+      <p>1 × Creamy Pesto Rigatoni<br/>1 × Sparkling water</p>
+      <div><strong>$22.50</strong><button type="button" data-phone-action="Pickup details opened">View details</button></div>
+    </section>
+    <div class="px-section-head"><strong>Previous orders</strong><button type="button">Filter</button></div>
+    <section class="px-order-history">
+      <article><div class="px-order-thumb pasta"></div><div><strong>Downtown</strong><span>Aug 21 · 3 items</span><small>Rigatoni, salad, sparkling water</small></div><button type="button" data-phone-action="Order added to basket">Reorder</button></article>
+      <article><div class="px-order-thumb bowl"></div><div><strong>Riverside</strong><span>Aug 12 · 2 items</span><small>Green bowl, cold brew</small></div><button type="button" data-phone-action="Order added to basket">Reorder</button></article>
+      <article><div class="px-order-thumb coffee"></div><div><strong>Downtown</strong><span>Jul 29 · 2 items</span><small>Latte, almond croissant</small></div><button type="button" data-phone-action="Order added to basket">Reorder</button></article>
+    </section>
+  </div>
+</div>

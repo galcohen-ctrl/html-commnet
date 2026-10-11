@@ -1,12 +1,31 @@
 import { createWebsiteEditor } from './websiteScreen.js';
 
 const CHOICES = [
-  ['menu', 'Menu'], ['account', 'My Account'], ['orders', 'My Orders'], ['referral', 'Refer a Friend'],
+  ['menu', 'Menu'], ['account', 'My Account'], ['referral', 'Refer a Friend'],
   ['gifts', 'My Gifts'], ['point-shop', 'Point Shop'], ['story', 'Our Story'], ['contact', 'Contact Us'],
   ['about', 'About Us'], ['share-credit', 'Share Credit'], ['locations', 'Locations'], ['more', 'More'],
   ['custom', 'Custom Screen'], ['website', 'Your Web Page'],
 ];
 const labelFor = (key) => CHOICES.find(([value]) => value === key)?.[1] || 'Menu';
+// Already their own tabs, so offering them here shows the same screen twice.
+const ALREADY_A_TAB = new Set(['locations', 'more']);
+const SLOT_CHOICES = CHOICES.filter(([key]) => !ALREADY_A_TAB.has(key));
+
+const NAV_ICONS = {
+  menu: '<path d="M4 4h16v16H4z"/><path d="M4 9h16M9 4v16"/>',
+  account: '<circle cx="12" cy="8" r="4"/><path d="M4 21v-1a8 8 0 0116 0v1"/>',
+  referral: '<circle cx="18" cy="5" r="2.5"/><circle cx="6" cy="12" r="2.5"/><circle cx="18" cy="19" r="2.5"/><path d="M8.3 10.7l7.4-4.4M8.3 13.3l7.4 4.4"/>',
+  gifts: '<rect x="3" y="8" width="18" height="4" rx="1"/><path d="M4 12h16v9a1 1 0 01-1 1H5a1 1 0 01-1-1v-9zM12 8v14"/><path d="M12 8c-1.4-3.6-6-3.4-6-.9 0 2 3 1.4 6 .9zM12 8c1.4-3.6 6-3.4 6-.9 0 2-3 1.4-6 .9z"/>',
+  'point-shop': '<path d="M4 8h16l-1.5 12a2 2 0 01-2 1.7H7.5a2 2 0 01-2-1.7L4 8z"/><path d="M8 8V6a4 4 0 018 0v2"/><path d="M9.5 13l1.5 1.5L15 11"/>',
+  story: '<path d="M12 6c-1.5-1.3-4-2-7-2v14c3 0 5.5.7 7 2 1.5-1.3 4-2 7-2V4c-3 0-5.5.7-7 2z"/><path d="M12 6v14"/>',
+  contact: '<path d="M21 11.5a8.5 8.5 0 01-8.5 8.5 8.3 8.3 0 01-3.9-.9L3 21l1.9-5.6A8.4 8.4 0 013 11.5 8.5 8.5 0 0111.5 3 8.5 8.5 0 0121 11.5z"/>',
+  about: '<circle cx="12" cy="12" r="9"/><path d="M12 8h.01M11 11h1v5h1"/>',
+  'share-credit': '<path d="M12 20.5C7 17 3 14 3 9.8 3 7 5.2 5 8 5c1.6 0 3.1.9 4 2.3C12.9 5.9 14.4 5 16 5c2.8 0 5 2 5 4.8 0 4.2-4 7.2-9 10.7z"/><path d="M9 12h6M12 9v6"/>',
+  locations: '<path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0118 0z"/><circle cx="12" cy="10" r="3"/>',
+  more: '<circle cx="6" cy="12" r="1.5"/><circle cx="12" cy="12" r="1.5"/><circle cx="18" cy="12" r="1.5"/>',
+  custom: '<rect x="3" y="3" width="18" height="18" rx="2"/><path d="M12 8v8M8 12h8"/>',
+  website: '<circle cx="12" cy="12" r="9"/><path d="M3 12h18"/><path d="M12 3a15 15 0 010 18M12 3a15 15 0 000 18"/>',
+};
 
 export function initAppScreenSlot(ctx) {
   const panel = document.getElementById('cp-menu');
@@ -15,36 +34,64 @@ export function initAppScreenSlot(ctx) {
   if (!panel || !phone || !navItem) return {};
   let type = 'menu';
   let name = navItem.querySelector('span').textContent;
-  let orderingName = name;
-  let orderingMode = ctx.getOrderingMode?.();
+  let lastScreenType = 'account';
   let syncingName = false;
   let website;
   let savedWebsite;
   let legacy = [];
   const widgets = [];
-  const canReplaceScreen = () => ctx.getOrderingMode?.() === 'skip';
-  const defaultOrderingName = () => ['native', 'webview'].includes(ctx.getOrderingMode?.()) ? 'Order' : 'Menu';
+
+  const SLOT_OPTIONS = [
+    ['menu', 'Your menu', 'Show your food and drinks. Link a website, upload a PDF, or build it here.', 'Best for food &amp; drink',
+      '<path d="M7 3v7a2 2 0 002 2 2 2 0 002-2V3"/><path d="M9 12v9"/><path d="M17.5 3c-1.6 1.6-2.2 3.2-2.2 5.2V11h4.4V8.2c0-2-.6-3.6-2.2-5.2z"/><path d="M17.5 11v10"/>'],
+    ['screen', 'Another screen', 'Use this tab for something else — Refer a Friend, Our Story, Point Shop.', '',
+      '<rect x="3" y="3" width="18" height="18" rx="2"/><path d="M3 9h18"/><path d="M9 21V9"/>'],
+    ['none', 'Nothing', 'Leave this tab out. Your app will have three tabs instead of four.', '',
+      '<circle cx="12" cy="12" r="9"/><path d="M5.6 5.6l12.8 12.8"/>'],
+  ];
 
   const header = document.createElement('div');
   header.className = 'menu-slot-header';
-  header.innerHTML = '<h1 class="cp-page-title"></h1><div class="cp-field"><label for="menu-screen-choice">Screen</label><select class="cp-select" id="menu-screen-choice"></select></div><div class="cp-field"><label for="menu-screen-name">Tab name</label><input class="cp-input-text" id="menu-screen-name" maxlength="24" /></div>';
+  header.innerHTML = '<h1 class="cp-page-title"></h1>'
+    + '<div class="slot-pick">'
+    + '<div class="ms-title">What goes in this tab?</div>'
+    + '<div class="ms-sub">Members reach it from the fourth spot in the bottom bar.</div>'
+    + '<div class="ms-options" role="radiogroup" aria-label="Fourth tab content">'
+    + SLOT_OPTIONS.map(([key, label, desc, badge, icon]) =>
+      '<button class="ms-option" type="button" role="radio" aria-checked="false" data-slot="' + key + '">'
+      + '<span class="ms-option-ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round">' + icon + '</svg></span>'
+      + '<span class="ms-option-text"><span class="ms-option-name">' + label
+      + (badge ? '<span class="slot-option-badge">' + badge + '</span>' : '') + '</span>'
+      + '<span class="ms-option-desc">' + desc + '</span></span>'
+      + '<span class="ms-radio"></span></button>').join('')
+    + '</div></div>'
+    + '<div class="slot-screen-fields" hidden>'
+    + '<div class="cp-field"><label for="menu-screen-choice">Screen</label><select class="cp-select" id="menu-screen-choice"></select></div>'
+    + '<div class="cp-field"><label for="menu-screen-name">Tab name</label><input class="cp-input-text" id="menu-screen-name" maxlength="24" /></div>'
+    + '</div>'
+    + '<div class="slot-none-note" hidden>This tab is hidden. Members can still reach these screens from <strong>More</strong>.</div>';
   const title = header.querySelector('.cp-page-title'); title.textContent = name;
+  // The Show-in-app switch is now the "Nothing" option, but it stays in the DOM
+  // because it is the source of truth productExperience and the sidebar read.
   const include = panel.querySelector('[data-screen-toggle="menu"]');
-  if (include) {
-    title.after(include);
-    include.querySelector('strong').textContent = 'Show in app';
-    include.querySelector('small')?.remove();
-    include.setAttribute('aria-label', 'Show this screen in app');
-  }
+  if (include) include.hidden = true;
   panel.prepend(header);
+  const slotOptions = [...header.querySelectorAll('[data-slot]')];
+  const screenFields = header.querySelector('.slot-screen-fields');
+  const noneNote = header.querySelector('.slot-none-note');
   const choice = header.querySelector('select');
   const nameInput = header.querySelector('input'); nameInput.value = name;
-  CHOICES.forEach(([value, label]) => {
+  const included = () => ctx.getScreenState('menu') !== false;
+  const currentSlot = () => (!included() ? 'none' : type === 'menu' ? 'menu' : 'screen');
+  function setIncluded(next) {
+    if (include && included() !== next) include.click();
+  }
+  SLOT_CHOICES.forEach(([value, label]) => {
     const option = document.createElement('option'); option.value = value; option.textContent = label;
     choice.appendChild(option);
   });
   const customHost = document.createElement('div'); customHost.className = 'custom-screen-config'; customHost.hidden = true;
-  customHost.innerHTML = '<div class="custom-widget-list"></div><div class="cp-add-widget-wrap"><button class="cp-add-widget-btn" type="button" data-custom-add>+ Add widget</button><div class="cp-add-widget-menu"><button type="button" data-custom-widget="promo">Promo Cards</button><button type="button" data-custom-widget="divider">Text Divider</button><button type="button" data-custom-widget="image">Image Banner</button></div></div>';
+  customHost.innerHTML = '<div class="custom-widget-list"></div><div class="cp-add-widget-wrap"><button class="cp-add-widget-btn" type="button" data-custom-add>+ Add widget</button><div class="cp-add-widget-menu"><button type="button" data-custom-widget="promo">Promo Cards</button><button type="button" data-custom-widget="divider">Text Divider</button><button type="button" data-custom-widget="image">Image Banner</button><button type="button" data-custom-widget="social">Social Links</button></div></div>';
   const websiteHost = document.createElement('div'); websiteHost.className = 'screen-website-host'; websiteHost.hidden = true;
   header.after(customHost, websiteHost);
   const customPage = document.createElement('div');
@@ -57,7 +104,6 @@ export function initAppScreenSlot(ctx) {
   const empty = customPage.querySelector('.custom-screen-empty');
 
   function target() {
-    if (!canReplaceScreen()) return 'menu';
     if (type === 'custom' || type === 'website') return `${type}-menu`;
     if (type === 'account' && document.body.dataset.memberPreview === 'guest') return 'login';
     return type;
@@ -72,7 +118,7 @@ export function initAppScreenSlot(ctx) {
   }
 
   function addWidget(kind, saved, restoring = false) {
-    const factory = { promo: ctx.createPromoInstance, divider: ctx.createTextDivider, image: ctx.createImageBanner }[kind];
+    const factory = { promo: ctx.createPromoInstance, divider: ctx.createTextDivider, image: ctx.createImageBanner, social: ctx.createSocialInstance }[kind];
     if (!factory) return;
     widgets.push(factory({ stage, config: panel, list, saved, restoring }));
     reorder();
@@ -87,85 +133,93 @@ export function initAppScreenSlot(ctx) {
   }));
 
   function syncVisibleName() {
-    const visibleName = canReplaceScreen() ? name : orderingName;
-    if (document.activeElement !== nameInput) nameInput.value = visibleName;
-    if (navItem.querySelector('span').textContent === visibleName && title.textContent.trim() === visibleName) return;
+    if (document.activeElement !== nameInput) nameInput.value = name;
+    if (navItem.querySelector('span').textContent === name && title.textContent.trim() === name) return;
     syncingName = true;
-    try { ctx.renameAppScreen('menu', visibleName); }
+    try { ctx.renameAppScreen('menu', name); }
     finally { syncingName = false; }
   }
 
   function applyName() {
-    if (canReplaceScreen()) name = nameInput.value.trim() || labelFor(type);
-    else orderingName = nameInput.value.trim() || defaultOrderingName();
+    name = nameInput.value.trim() || labelFor(type);
     syncVisibleName();
     customPage.querySelector('.app-top-header strong').textContent = name;
     if (website) { website.state.name = name; website.render(); }
   }
 
-  function render({ preview = true, resetMenu = false, syncOrdering = false } = {}) {
-    const allowed = canReplaceScreen();
-    const visibleType = allowed ? type : 'menu';
-    panel.dataset.screenType = visibleType;
-    choice.closest('.cp-field').hidden = !allowed;
-    nameInput.closest('.cp-field').hidden = !allowed;
-    choice.disabled = !allowed;
-    nameInput.disabled = !allowed;
-    choice.title = allowed ? '' : 'Available when online ordering is set to Not yet.';
-    choice.value = visibleType;
-    customHost.hidden = visibleType !== 'custom';
-    websiteHost.hidden = visibleType !== 'website';
+  function render({ preview = true, resetMenu = false } = {}) {
+    const slot = currentSlot();
+    panel.dataset.slot = slot;
+    panel.dataset.screenType = type;
+    slotOptions.forEach((button) => {
+      const on = button.dataset.slot === slot;
+      button.classList.toggle('on', on);
+      button.setAttribute('aria-checked', String(on));
+    });
+    screenFields.hidden = slot !== 'screen';
+    noneNote.hidden = slot !== 'none';
+    choice.value = type === 'menu' ? lastScreenType : type;
+    customHost.hidden = !(slot === 'screen' && type === 'custom');
+    websiteHost.hidden = !(slot === 'screen' && type === 'website');
     syncVisibleName();
-    if (visibleType === 'website') {
+    if (slot === 'screen' && type === 'website') {
       if (!website) website = createWebsiteEditor(ctx, { key: 'menu-slot', host: websiteHost, page: websitePage, saved: { ...savedWebsite, name } });
       else website.render();
     }
-    if (visibleType === 'menu' && (resetMenu || syncOrdering)) {
-      panel.classList.add('px-show-advanced');
-      ctx.showMenuForOrdering(ctx.getOrderingMode?.());
-    }
+    if (slot === 'menu' && resetMenu) panel.classList.add('px-show-advanced');
     if (preview) {
       window.showPhonePage(target());
       document.querySelectorAll('#bottom-nav .nav-item').forEach((item) => item.classList.toggle('active', item === navItem));
     }
+    const navIcon = navItem.querySelector('svg');
+    if (navIcon) navIcon.innerHTML = NAV_ICONS[type] || NAV_ICONS.menu;
   }
 
-  choice.addEventListener('change', () => {
-    if (!canReplaceScreen()) { render({ preview: false }); return; }
+  slotOptions.forEach((button) => button.addEventListener('click', () => {
+    const slot = button.dataset.slot;
+    if (slot === currentSlot()) return;
+    window.closeL3Panel?.();
+    if (slot === 'none') {
+      setIncluded(false);
+    } else {
+      setIncluded(true);
+      applyScreenChange(slot === 'menu' ? 'menu' : lastScreenType);
+      return;
+    }
+    render();
+    ctx.markDirty();
+  }));
+
+  choice.addEventListener('change', () => applyScreenChange(choice.value));
+
+  function applyScreenChange(nextValue) {
     const previous = type;
-    type = choice.value;
+    type = nextValue;
+    if (type !== 'menu') lastScreenType = type;
     if (name === labelFor(previous) || ['Menu', 'Order'].includes(name) || !nameInput.value.trim()) nameInput.value = labelFor(type);
     window.closeL3Panel?.();
     applyName();
     render({ resetMenu: type === 'menu' });
     ctx.markDirty();
-  });
+  }
   nameInput.addEventListener('input', () => { applyName(); ctx.markDirty(); });
   document.addEventListener('como:screenname', (event) => {
     if (event.detail.key !== 'menu' || syncingName) return;
-    if (canReplaceScreen()) name = event.detail.name;
-    else orderingName = event.detail.name;
+    name = event.detail.name;
     if (document.activeElement !== nameInput) nameInput.value = event.detail.name;
     customPage.querySelector('.app-top-header strong').textContent = name;
     if (website) { website.state.name = name; website.render(); }
   });
   document.addEventListener('como:screenstate', (event) => {
-    if (event.detail.key === 'menu' && event.detail.enabled && window.getCurrentStep() === 'menu') render();
+    if (event.detail.key === 'menu' && window.getCurrentStep() === 'menu') render({ preview: event.detail.enabled });
   });
   document.addEventListener('como:stepchange', (event) => {
-    if (event.detail.step === 'menu') render({ syncOrdering: !canReplaceScreen() });
+    if (event.detail.step === 'menu') render();
   });
   document.querySelectorAll('.px-preview-state [data-member-state]').forEach((button) => button.addEventListener('click', () => {
     website?.render();
     if (window.getCurrentStep() === 'menu') render();
   }));
-  document.addEventListener('como:ordering-mode', (event) => {
-    const nextMode = event.detail.mode;
-    const changed = nextMode !== orderingMode;
-    if (changed && nextMode !== 'skip') orderingName = defaultOrderingName();
-    orderingMode = nextMode;
-    render({ preview: window.getCurrentStep() === 'menu', syncOrdering: changed });
-  });
 
   function refreshOriginalLabels() {
     document.querySelectorAll('#side-screen-list .side-step').forEach((button) => {
@@ -187,17 +241,22 @@ export function initAppScreenSlot(ctx) {
   });
   [['share-credit', 'Share Credit', 'Send a little treat'], ['gifts', 'My Gifts', 'Your gifts in one place'], ['point-shop', 'Point Shop', 'Choose your next reward']].forEach(([key, label, subtitle]) => {
     const tile = document.querySelector('.more-tile:nth-child(7)').cloneNode(true);
-    tile.removeAttribute('onclick'); tile.dataset.memberPage = key; tile.classList.remove('hidden-slot');
+    tile.removeAttribute('onclick'); tile.dataset.memberPage = key; tile.dataset.moreKey = key; tile.classList.remove('hidden-slot');
     tile.querySelector('.t-name').textContent = label; tile.querySelector('.t-sub').textContent = subtitle;
+    const tileIcon = tile.querySelector('.t-ic svg');
+    if (tileIcon && NAV_ICONS[key]) tileIcon.innerHTML = NAV_ICONS[key];
     document.querySelector('.more-grid').appendChild(tile);
-    const row = document.createElement('div'); row.className = 'cp-toggle-row';
+    const row = document.createElement('div'); row.className = 'cp-toggle-row'; row.dataset.moreKey = key;
+    const handle = document.createElement('span'); handle.className = 'handle'; handle.title = 'Drag to reorder'; handle.textContent = '⠿';
     const text = document.createElement('span'); text.className = 'lbl'; text.textContent = label;
-    const toggle = document.createElement('span'); toggle.className = 'toggle on'; toggle.dataset.bind = `.more-tile[data-member-page="${key}"]`;
+    const toggle = document.createElement('span'); toggle.className = 'toggle on'; toggle.dataset.bind = `.more-tile[data-more-key="${key}"]`;
     toggle.setAttribute('role', 'switch'); toggle.setAttribute('aria-label', label); toggle.setAttribute('aria-checked', 'true'); toggle.tabIndex = 0;
     ctx.wireToggle(toggle);
     toggle.addEventListener('click', () => toggle.setAttribute('aria-checked', String(toggle.classList.contains('on'))));
     toggle.addEventListener('keydown', (event) => { if ([' ', 'Enter'].includes(event.key)) { event.preventDefault(); toggle.click(); } });
-    row.append(text, toggle); document.querySelector('#cp-more .cp-toggle-row').parentElement.appendChild(row);
+    row.append(handle, text, toggle);
+    document.getElementById('more-tiles-list')?.appendChild(row);
+    ctx.wireMoreDragRow?.(row);
   });
   const required = document.createElement('span'); required.className = 'screen-required'; required.textContent = 'Always in your app';
   document.querySelector('#cp-rewards .cp-page-title')?.after(required);
@@ -206,7 +265,7 @@ export function initAppScreenSlot(ctx) {
 
   function capture() {
     return [{
-      key: 'menu', type, name, orderingName,
+      key: 'menu', type, name, lastScreenType,
       website: website?.state || savedWebsite,
       widgets: [...list.querySelectorAll('.cp-widget-row')].map((row) => widgets.find((widget) => widget.row === row)).filter(Boolean).map((widget) => widget.capture()),
       legacy,
@@ -217,9 +276,9 @@ export function initAppScreenSlot(ctx) {
     const data = saved.find((item) => item.key === 'menu') || saved[0];
     if (!data) return;
     legacy = data.legacy || saved.filter((item) => item !== data);
-    type = CHOICES.some(([key]) => key === data.type) ? data.type : 'menu';
+    type = SLOT_CHOICES.some(([key]) => key === data.type) ? data.type : 'menu';
     name = data.name || labelFor(type); nameInput.value = name;
-    orderingName = ['native', 'webview'].includes(ctx.getOrderingMode?.()) ? 'Order' : data.orderingName || defaultOrderingName();
+    lastScreenType = data.lastScreenType || (type !== 'menu' ? type : 'account');
     [...list.querySelectorAll('.w-del-icon')].forEach((button) => button.click());
     widgets.length = 0;
     const restoredWidgets = data.widgets?.length ? data.widgets : legacy.find((item) => item.type === 'custom')?.widgets || [];

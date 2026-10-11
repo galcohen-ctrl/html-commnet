@@ -1,0 +1,95 @@
+.launch-section-heading { display: flex; flex-direction: column; gap: 4px; }
+.launch-section-heading small { font-size: 12px; font-weight: 400; color: var(--muted); }
+.launch-help { margin: 0 0 18px; font-size: 13px; line-height: 1.55; color: var(--muted); }
+.launch-upload {
+  width: 100%; display: flex; flex-direction: column; align-items: center; gap: 10px;
+  padding: 24px 14px; border: 1px dashed #bcb5d4; border-radius: 8px;
+  background: color-mix(in srgb, var(--como) 4%, white); color: var(--como); font: inherit; text-align: center; cursor: pointer;
+}
+.launch-upload svg { width: 24px; height: 24px; }
+.launch-upload strong { font-size: 13px; font-weight: 600; }
+.launch-upload span { color: var(--muted); font-size: 12px; line-height: 1.5; }
+.launch-upload:hover, .launch-upload.drag-over { border-color: var(--como); background: var(--como-soft); }
+.launch-file-note { margin: 8px 0 0; color: var(--muted); font-size: 11px; line-height: 1.5; }
+.launch-upload-result { display: flex; align-items: center; gap: 12px; margin-top: 12px; }
+.launch-upload-thumb { width: 48px; height: 68px; flex: none; overflow: hidden; border-radius: 6px; background: var(--bg); }
+.launch-upload-meta { display: flex; flex-direction: column; align-items: flex-start; gap: 8px; min-width: 0; }
+.launch-upload[aria-busy="true"] { opacity: .65; }
+#launch-file-name { font-size: 12px; color: var(--ink); overflow-wrap: anywhere; }
+.launch-error { color: var(--danger); font-size: 12px; line-height: 1.5; margin: 12px 0; }
+.launch-play {
+  width: 100%; display: flex; align-items: center; justify-content: center; gap: 8px;
+  margin-top: 20px; padding: 10px 12px; border: 1px solid var(--line); border-radius: 8px;
+  background: var(--panel); color: var(--ink); font: inherit; font-size: 13px; font-weight: 600; cursor: pointer;
+}
+.launch-play svg { width: 18px; height: 18px; }
+.launch-play:hover { border-color: var(--como); color: var(--como); }
+.launch-play:disabled { opacity: .6; cursor: wait; }
+.launch-upload:focus-visible, .launch-play:focus-visible, #launch-reset:focus-visible { outline: 2px solid var(--como); outline-offset: 3px; }
+.launch-preview-flow, .launch-preview-end { display: contents; }
+.launch-preview-start, .launch-preview-arrow, .launch-preview-label { display: none; }
+.launch-preview-active .launch-preview-flow { display: flex; align-items: flex-start; gap: 16px; }
+.launch-preview-active .launch-preview-start, .launch-preview-active .launch-preview-end { display: block; }
+.launch-preview-active .launch-preview-label {
+  display: block; height: 36px; text-align: center; color: var(--ink); font-size: 13px; font-weight: 600;
+}
+.launch-preview-active .launch-preview-arrow { display: flex; align-self: stretch; align-items: center; width: 24px; padding-top: 36px; color: var(--muted); }
+.launch-preview-arrow svg { width: 24px; height: 24px; }
+.preview-area.launch-preview-active { padding-top: 76px; }
+.launch-device-stage { position: relative; width: 320px; height: 660px; }
+.launch-device-frame {
+  position: absolute; inset: 0 auto auto 0; width: 320px; height: 660px; padding: 12px;
+  border-radius: 44px; background: #111; transform: scale(var(--launch-device-scale, 1)); transform-origin: top left;
+  box-shadow: 0 40px 80px rgba(0,0,0,.25), 0 10px 30px rgba(0,0,0,.15);
+}
+.launch-device-frame::before {
+  content: ''; position: absolute; top: 12px; left: 50%; transform: translateX(-50%);
+  width: 92px; height: 24px; background: #111; border-radius: 0 0 14px 14px; z-index: 2;
+}
+.launch-screen-content {
+  width: 100%; height: 100%; border-radius: 34px; overflow: hidden; display: grid; place-items: center;
+  background: var(--p-bg); color: var(--p-text); position: relative;
+}
+.launch-brand-mark {
+  width: 140px; height: 140px; background-position: center; background-size: contain; background-repeat: no-repeat;
+  display: grid; place-items: center; font-family: var(--p-font-title, inherit); font-size: 54px; font-weight: 650; color: var(--p-accent);
+}
+.launch-screen-media { display: block; width: 100%; height: 100%; object-fit: cover; }
+.launch-screen-image { background-size: cover; background-position: center; background-repeat: no-repeat; }
+.launch-playback {
+  position: absolute; inset: 0; z-index: 100;
+  transform-origin: center;
+  transition: opacity .35s ease-out, transform .35s cubic-bezier(.2, .8, .2, 1);
+  will-change: opacity, transform;
+}
+.launch-playback.is-exiting { opacity: 0; transform: scale(1.04); }
+
+/* Indeterminate loading hairline — a thin sweep at the bottom that reads as
+   "opening, not stuck." Hidden for videos so it never sits on top of the media. */
+.launch-loading-hairline {
+  position: absolute; left: 0; right: 0; bottom: 26px;
+  height: 2px; overflow: hidden;
+  border-radius: 999px;
+  opacity: .55;
+  pointer-events: none;
+}
+.launch-loading-hairline::before {
+  content: ''; position: absolute; inset: 0;
+  border-radius: inherit;
+  background: linear-gradient(90deg, transparent 0%, var(--p-accent, #6d28d9) 50%, transparent 100%);
+  transform: translateX(-100%);
+  animation: launchHairline 1.15s cubic-bezier(.5, 0, .5, 1) infinite;
+}
+@keyframes launchHairline {
+  0% { transform: translateX(-100%); }
+  100% { transform: translateX(100%); }
+}
+@media (prefers-reduced-motion: reduce) {
+  .launch-loading-hairline::before { animation: none; opacity: .35; transform: none; }
+  .launch-playback { transition: none; }
+}
+.launch-preview-active .px-preview-state { max-width: calc(100% - 24px); }
+@media (max-width: 767.98px) {
+  .preview-area.launch-preview-active { padding-top: 76px; }
+  .launch-preview-active .launch-preview-label { font-size: 12px; }
+}

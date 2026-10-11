@@ -59,6 +59,7 @@ function capture(ctx) {
     ordering: plainClone(ctx.exportOrderingState?.() || ctx.ordering || {}),
     orderingWidgets: plainClone(ctx.exportOrderingWidgets?.() || {}),
     rewards: plainClone(ctx.rwTiles || {}),
+    launchScreen: plainClone(ctx.exportLaunchScreen?.() || {}),
     controls: serializeControls(),
     toggles: serializeToggles(),
     theme: serializeTheme(),
@@ -146,6 +147,7 @@ export function initDraftPersistence(ctx) {
       restoreToggles(payload.toggles);
       restoreTheme(payload.theme);
       ctx.importProductExperience?.(payload.product);
+      ctx.importLaunchScreen?.(payload.launchScreen);
     } finally {
       document.body.classList.remove('gf-restoring', 'gf-applying-preset');
     }

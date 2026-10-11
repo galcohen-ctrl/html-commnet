@@ -66,7 +66,7 @@
   }
   .side-brand-logo {
     width: 30px; height: 30px; border-radius: 9px;
-    background: linear-gradient(135deg, var(--como), #a855f7);
+    background: linear-gradient(135deg, var(--como), var(--como-2));
     display: grid; place-items: center;
     color: #fff; font-weight: 800; font-size: 13px;
     flex: none;
@@ -116,8 +116,8 @@
   }
   .side-item.active {
     color: #fff;
-    background: linear-gradient(90deg, rgba(109,40,217,.28) 0%, rgba(109,40,217,.08) 100%);
-    box-shadow: inset 0 0 0 1px rgba(168,85,247,.2);
+    background: linear-gradient(90deg, color-mix(in srgb, var(--como) 28%, transparent) 0%, color-mix(in srgb, var(--como) 8%, transparent) 100%);
+    box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--como-2) 20%, transparent);
   }
   .side-item .side-ic {
     width: 22px; height: 22px; flex: none;
@@ -148,8 +148,28 @@
 
   .side-toggle-btn:focus-visible,
   .side-item:focus-visible {
-    outline: 2px solid #c4b5fd;
+    outline: 2px solid var(--como-focus-on-dark);
     outline-offset: 2px;
+  }
+
+  /* ---------- Orphaned ordering-link warning (under Step 2) ---------- */
+  .side-orphan-banner {
+    display: flex; align-items: flex-start; gap: 8px;
+    margin: 2px 4px 6px; padding: 8px 9px;
+    border: 1px solid rgba(230, 160, 40, .35); border-radius: 9px;
+    background: rgba(230, 160, 40, .12); color: #f2c879;
+    font-size: 11px; font-weight: 650; line-height: 1.4;
+    text-align: left; cursor: pointer;
+  }
+  .side-orphan-banner[hidden] { display: none; }
+  .side-orphan-banner svg { width: 15px; height: 15px; flex: none; margin-top: 1px; }
+  .side-orphan-banner:hover { background: rgba(230, 160, 40, .2); }
+  body.side-collapsed .side-orphan-banner { display: none; }
+  /* Collapsed rail: a small dot on the Online ordering step stands in for the banner. */
+  body.side-collapsed .side-step[data-step="online-ordering"].has-warning .step-dot::after {
+    content: ""; position: absolute; top: -1px; right: -1px;
+    width: 8px; height: 8px; border-radius: 50%;
+    background: #e6a028; border: 1.5px solid #1d1a2b;
   }
 
   @media (hover: hover) and (pointer: fine) {

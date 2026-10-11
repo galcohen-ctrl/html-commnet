@@ -6,6 +6,8 @@
  * gives Rewards the same compose-your-own-page model Home already has.
  */
 
+import { openWebsitePreview, websiteUrl } from './websiteScreen.js';
+
 const BLOCK_DEFS = {
   text: {
     label: 'Text block',
@@ -25,8 +27,8 @@ const BLOCK_DEFS = {
   },
   image: {
     label: 'Image banner',
-    fields: ['image', 'heading', 'cta'],
-    make: () => ({ heading: '', imgData: '', cta: '' }),
+    fields: ['image', 'layout', 'heading', 'cta', 'tapAction', 'webviewUrl'],
+    make: () => ({ heading: '', imgData: '', cta: '', layout: 'wide', action: 'none', url: '', connected: false, options: { back: true, showurl: true, bottombar: true, inapp: true, membersonly: false } }),
   },
 };
 
@@ -88,11 +90,33 @@ export function initRewardsBlocks(ctx) {
       el.innerHTML = (b.heading ? `<div class="rw-block-h">${esc(b.heading)}</div>` : '')
         + `<div class="rw-block-cards">${cards}</div>`;
     } else {
-      el.innerHTML = `<div class="rw-block-banner"${b.imgData ? ` style="background-image:url(${b.imgData})"` : ''}>
-          ${b.imgData ? '' : '<span class="rw-block-banner-ph">🖼 Image banner</span>'}
-          ${b.heading ? `<span class="rw-block-banner-h">${esc(b.heading)}</span>` : ''}
-        </div>`
-        + (b.cta ? `<button class="rw-block-card-btn wide">${esc(b.cta)}</button>` : '');
+      const layout = b.layout || 'wide';
+      const bgStyle = b.imgData ? ` style="background-image:url(${b.imgData})"` : '';
+      const placeholder = b.imgData ? '' : '<span class="rw-block-banner-ph">🖼 Image banner</span>';
+      const heading = b.heading ? `<div class="rw-block-h">${esc(b.heading)}</div>` : '';
+      const cta = b.cta ? `<button class="rw-block-card-btn wide">${esc(b.cta)}</button>` : '';
+      const cap = (heading || cta) ? `<div class="rw-block-banner-cap">${heading}${cta}</div>` : '';
+      el.innerHTML = `<div class="rw-block-banner-wrap" data-hb-layout="${layout}">
+          <div class="rw-block-banner"${bgStyle}>${placeholder}</div>
+          ${cap}
+        </div>`;
+      const action = b.action || 'none';
+      // Exposed so the orphaned-ordering-link scanner can find tap actions without reaching into module state.
+      el.dataset.rwAction = action;
+      if (action !== 'none') {
+        el.classList.add('rw-block-tappable');
+        const activate = (event) => {
+          event.stopPropagation();
+          if (action === 'webview') {
+            if (!openWebsitePreview(b.url, b.options || {}, undefined, el.closest('.app-page')?.dataset.page)) showToast?.('Add a website address first.');
+          } else if (action === 'inbox') window.openModal?.('inbox');
+          else if (action === 'account') window.openAccountPage?.();
+          else window.showPhonePage?.(action);
+        };
+        const btn = el.querySelector('.rw-block-card-btn');
+        if (btn) btn.addEventListener('click', activate);
+        else el.addEventListener('click', activate);
+      }
     }
     return el;
   }
@@ -106,15 +130,16 @@ export function initRewardsBlocks(ctx) {
   /* ------------------------------------------------------------ config */
 
   function blockName(b) {
-    if (b.type === 'text') return b.heading || 'Text Block';
-    if (b.type === 'promo') return b.heading || 'Promo Cards';
-    return b.heading || 'Image Banner';
+    // Row name is always the type label — renumberRewardsWidgets appends the
+    // position so the merchant can tell multiple of the same type apart.
+    return BLOCK_DEFS[b.type].label;
   }
 
   function addBlockRow(b) {
     const row = document.createElement('div');
     row.className = 'cp-widget-row on rw-row-block';
     row.dataset.rwBlock = b.id;
+    row.dataset.rwBlockType = b.type;
     // A text block is just a headline and a paragraph, so it is edited in place
     // rather than sending the merchant into a panel for two fields.
     const inline = b.type === 'text'
@@ -144,7 +169,6 @@ export function initRewardsBlocks(ctx) {
     row.querySelectorAll('[data-inline]').forEach((field) => {
       field.addEventListener('input', () => {
         b[field.dataset.inline] = field.value;
-        refreshBlockRow(b);
         renderPhone();
         markDirty?.();
       });
@@ -162,8 +186,11 @@ export function initRewardsBlocks(ctx) {
 
   function showFieldsFor(type) {
     const visible = BLOCK_DEFS[type].fields;
+    // Toggle the [hidden] attribute so the .cp-field[hidden] {display:none} rule
+    // wins over the field's default display:flex, and stays consistent with the
+    // action-dependent overrides below.
     drill.querySelectorAll('[data-rw-field]').forEach((f) => {
-      f.style.display = visible.includes(f.dataset.rwField) ? '' : 'none';
+      f.hidden = !visible.includes(f.dataset.rwField);
     });
   }
 
@@ -237,7 +264,19 @@ export function initRewardsBlocks(ctx) {
     gid('rw-block-body').value = b.body || '';
     gid('rw-block-cta').value = b.cta || '';
     if (b.type === 'promo') renderCardEditors(b);
-    if (b.type === 'image') paintImage(b);
+    if (b.type === 'image') {
+      paintImage(b);
+      const currentLayout = b.layout || 'wide';
+      drill.querySelectorAll('[data-rw-layout]').forEach((r) => {
+        r.classList.toggle('active', r.dataset.rwLayout === currentLayout);
+      });
+      const tapSelect = gid('rw-block-tap-action');
+      if (tapSelect) tapSelect.value = b.action || 'none';
+      const urlInput = gid('rw-block-webview-url');
+      if (urlInput) urlInput.value = b.url || 'https://';
+      updateWebviewFieldVisibility(b);
+      syncBlockWebviewUI(b);
+    }
     window.openL3Panel?.(drill);
     list.querySelectorAll('.cp-widget-row').forEach((r) => {
       r.classList.toggle('l3-active', r === row);
@@ -251,12 +290,106 @@ export function initRewardsBlocks(ctx) {
       const b = byId(editingId);
       if (!b) return;
       b[field] = el.value;
-      gid('rw-block-title').textContent = blockName(b);
-      refreshBlockRow(b);
       renderPhone();
       markDirty?.();
     });
   });
+
+  drill.querySelectorAll('[data-rw-layout]').forEach((r) => {
+    r.addEventListener('click', () => {
+      const b = byId(editingId);
+      if (!b) return;
+      drill.querySelectorAll('[data-rw-layout]').forEach((x) => x.classList.remove('active'));
+      r.classList.add('active');
+      b.layout = r.dataset.rwLayout;
+      renderPhone();
+      markDirty?.();
+    });
+  });
+
+  function updateWebviewFieldVisibility(b) {
+    if (!b || b.type !== 'image') return;
+    const wvField = drill.querySelector('[data-rw-field="webviewUrl"]');
+    const ctaField = drill.querySelector('[data-rw-field="cta"]');
+    if (wvField) wvField.hidden = b.action !== 'webview';
+    if (ctaField) ctaField.hidden = b.action === 'none';
+  }
+
+  function syncBlockWebviewUI(b) {
+    if (!b || b.type !== 'image') return;
+    const wvConnect = gid('rw-block-webview-connect');
+    const wvLabel = wvConnect?.querySelector('.ms-btn-label');
+    const wvStatus = gid('rw-block-webview-status');
+    const wvDisplay = gid('rw-block-webview-display');
+    const wvDisplayLabel = gid('rw-block-webview-display-label');
+    const connected = !!b.connected;
+    wvConnect?.classList.toggle('is-success', connected);
+    if (wvLabel) wvLabel.textContent = connected ? 'Reload preview' : 'Add & preview';
+    wvStatus?.classList.toggle('hidden', !connected);
+    if (wvDisplay) wvDisplay.hidden = !connected;
+    if (wvDisplayLabel) wvDisplayLabel.hidden = !connected;
+    const options = b.options || {};
+    drill.querySelectorAll('#rw-block-webview-display [data-wv-opt]').forEach((toggle) => {
+      const defaultOn = ['back', 'showurl', 'bottombar', 'inapp'].includes(toggle.dataset.wvOpt);
+      const on = options[toggle.dataset.wvOpt] ?? defaultOn;
+      toggle.classList.toggle('on', on);
+    });
+  }
+
+  gid('rw-block-tap-action')?.addEventListener('change', (event) => {
+    const b = byId(editingId);
+    if (!b) return;
+    b.action = event.target.value;
+    updateWebviewFieldVisibility(b);
+    renderPhone();
+    markDirty?.();
+  });
+
+  gid('rw-block-webview-url')?.addEventListener('input', (event) => {
+    const b = byId(editingId);
+    if (!b) return;
+    b.url = event.target.value;
+    b.connected = false;
+    syncBlockWebviewUI(b);
+    renderPhone();
+    markDirty?.();
+  });
+
+  gid('rw-block-webview-connect')?.addEventListener('click', () => {
+    const b = byId(editingId);
+    if (!b || b.type !== 'image') return;
+    const url = websiteUrl((gid('rw-block-webview-url')?.value || '').trim());
+    if (!url) { showToast?.('Enter a website address starting with https://.'); gid('rw-block-webview-url')?.focus(); return; }
+    b.url = url;
+    b.connected = true;
+    b.options ||= { back: true, showurl: true, bottombar: true, inapp: true, membersonly: false };
+    syncBlockWebviewUI(b);
+    openWebsitePreview(url, b.options, undefined, 'rewards');
+    renderPhone();
+    markDirty?.();
+  });
+
+  // Two options are prototype-only unavailable — mark them so clicks are absorbed.
+  drill.querySelectorAll('#rw-block-webview-display [data-wv-opt="inapp"], #rw-block-webview-display [data-wv-opt="showurl"]').forEach((toggle) => {
+    toggle.setAttribute('aria-disabled', 'true');
+    toggle.closest('.ms-toggle-row').classList.add('website-option-unavailable');
+    toggle.closest('.ms-toggle-row').title = 'Requires support from your website; unavailable in this browser preview.';
+    toggle.addEventListener('click', (event) => event.stopImmediatePropagation(), true);
+  });
+
+  drill.querySelectorAll('#rw-block-webview-display [data-wv-opt]').forEach((toggle) => {
+    toggle.addEventListener('click', () => {
+      const b = byId(editingId);
+      if (!b || b.type !== 'image') return;
+      toggle.classList.toggle('on');
+      b.options ||= { back: true, showurl: true, bottombar: true, inapp: true, membersonly: false };
+      b.options[toggle.dataset.wvOpt] = toggle.classList.contains('on');
+      if (b.connected) openWebsitePreview(b.url, b.options, undefined, 'rewards');
+      markDirty?.();
+    });
+  });
+
+  drill.querySelector('[data-rw-webview-help]')?.addEventListener('click', () => showToast?.('The Help Center would open in a new tab'));
 
   gid('rw-block-add-card')?.addEventListener('click', () => {
     const b = byId(editingId);
@@ -334,8 +467,25 @@ export function initRewardsBlocks(ctx) {
   // covers both. DOM order in the list is the source of truth for the phone.
   ctx.initReorderable?.(list, () => {
     layoutRewardsStage();
+    renumberRewardsWidgets();
     markDirty?.();
   });
+
+  // Rewards widget rows renumber by position, same pattern as Home. Scoped by
+  // data-rw-block-type so the built-in reward tiles are untouched.
+  const RW_LABELS = { text: 'Text Block', promo: 'Promo Cards', image: 'Image Banner' };
+  function renumberRewardsWidgets() {
+    const counters = { text: 0, promo: 0, image: 0 };
+    list.querySelectorAll('.cp-widget-row[data-rw-block-type]').forEach((row) => {
+      const type = row.dataset.rwBlockType;
+      if (!(type in counters)) return;
+      counters[type] += 1;
+      const newName = RW_LABELS[type] + ' ' + counters[type];
+      const nameEl = row.querySelector('.w-name');
+      if (nameEl && nameEl.textContent !== newName) nameEl.textContent = newName;
+    });
+  }
+  new MutationObserver(renumberRewardsWidgets).observe(list, { childList: true });
 
   layoutRewardsStage();
   window.layoutRewardsStage = layoutRewardsStage;

@@ -104,11 +104,20 @@ export function initResponsive() {
       }
     }
 
-    const rawScale = Math.min(1, inlineSpace / 320, blockSpace / 660);
-    const scale = Math.max(0.42, Number.isFinite(rawScale) ? rawScale : 1);
+    const launchActive = preview.classList.contains('launch-preview-active');
+    const rawScale = launchActive
+      ? Math.min(1, (inlineSpace - 56) / 640, (blockSpace - 36) / 660)
+      : Math.min(1, inlineSpace / 320, blockSpace / 660);
+    const scale = Math.max(launchActive ? 0.2 : 0.42, Number.isFinite(rawScale) ? rawScale : 1);
     device.style.setProperty('--preview-device-scale', scale.toFixed(4));
     stage.style.width = `${Math.round(320 * scale)}px`;
     stage.style.height = `${Math.round(660 * scale)}px`;
+    const launchStage = document.getElementById('launch-device-stage');
+    if (launchStage && launchActive) {
+      launchStage.style.width = `${Math.round(320 * scale)}px`;
+      launchStage.style.height = `${Math.round(660 * scale)}px`;
+      launchStage.style.setProperty('--launch-device-scale', scale.toFixed(4));
+    }
     preview.dataset.previewScale = scale.toFixed(2);
   }
 
@@ -138,6 +147,7 @@ export function initResponsive() {
     : null;
   if (preview) previewObserver?.observe(preview);
   document.addEventListener('como:responsiveviewchange', () => requestAnimationFrame(updatePreviewFit));
+  document.addEventListener('como:launch-previewchange', () => requestAnimationFrame(updatePreviewFit));
   window.addEventListener('resize', updatePreviewFit, { passive: true });
   setResponsiveView(currentView, { persist: false });
   syncLayoutMode();

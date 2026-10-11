@@ -54,10 +54,13 @@ export function initBrandingBackground({ wireColorControl, markDirty }) {
     });
     gradientControls.hidden = mode.value !== 'gradient';
     document.getElementById('appbg-row2').hidden = mode.value !== 'gradient';
+    const presets = document.getElementById('appbg-presets');
+    if (presets) presets.dataset.mode = mode.value;
+    const label1 = document.getElementById('appbg-label1');
+    if (label1) label1.textContent = mode.value === 'gradient' ? 'First colour' : 'App background';
     const strengthName = Number(strength.value) < 34 ? 'Light' : Number(strength.value) < 67 ? 'Balanced' : 'Rich';
     document.getElementById('appbg-opacity-val').textContent = strengthName;
     strength.setAttribute('aria-valuetext', strengthName);
-    document.getElementById('brand-background-sample').style.background = document.body.style.getPropertyValue('--p-bg');
   }
 
   function setColor(input, value) {
@@ -79,11 +82,16 @@ export function initBrandingBackground({ wireColorControl, markDirty }) {
     apply();
     markDirty();
   }));
+  // In solid mode a preset is a single colour, so it must not silently flip the
+  // merchant into gradient mode behind the segmented control.
   document.querySelectorAll('[data-bg-start]').forEach((button) => button.addEventListener('click', () => {
-    setColor(start, button.dataset.bgStart);
-    setColor(end, button.dataset.bgEnd);
-    mode.value = 'gradient';
-    direction.value = '135';
+    if (mode.value === 'gradient') {
+      setColor(start, button.dataset.bgStart);
+      setColor(end, button.dataset.bgEnd);
+      direction.value = '135';
+    } else {
+      setColor(start, button.dataset.bgSolid || button.dataset.bgStart);
+    }
     strength.value = '100';
     apply();
     markDirty();
@@ -109,5 +117,4 @@ export function initBrandingBackground({ wireColorControl, markDirty }) {
     input.addEventListener('input', () => { paint(); markDirty(); });
     paint();
   });
-  document.getElementById('brand-background-sample').style.background = getComputedStyle(document.body).getPropertyValue('--p-bg');
 }

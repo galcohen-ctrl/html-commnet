@@ -1,0 +1,168 @@
+  /* Screen reorder + rename */
+  .side-step.dragging { opacity: .45; }
+  .side-step.drop-target { box-shadow: inset 0 2px 0 var(--como); }
+  .side-lbl-orig {
+    display: block; font-size: 9.5px; font-weight: 600;
+    color: var(--muted); margin-top: 1px; letter-spacing: .2px;
+  }
+
+  /* ============================================================
+     WORKSPACE
+     ============================================================ */
+  .workspace {
+    flex: 1;
+    min-width: 0;
+    min-height: 0;
+    display: grid;
+    grid-template-columns: 216px minmax(360px, 400px) 0 0 minmax(360px, 1fr);
+    overflow: hidden;
+    position: relative;
+  }
+  /* Each workbench surface owns a stable track. At mid-size desktop widths the
+     L3 editor becomes an absolute drawer, which removes it from Grid's auto-
+     placement algorithm; without explicit placement, the preview falls into
+     the deliberately collapsed third track and the real preview track is left
+     empty. Compact/mobile rules can still remap these tracks below. */
+  :where(.workspace) > .side-nav { grid-column: 1; grid-row: 1; }
+  :where(.workspace) > .config-column { grid-column: 2; grid-row: 1; }
+  :where(.workspace) > .preview-area { grid-column: 5; grid-row: 1; }
+  body.side-collapsed .workspace {
+    grid-template-columns: 64px minmax(360px, 400px) 0 0 minmax(360px, 1fr);
+  }
+  /* L3 changes the layout immediately; its content supplies the transform/opacity
+     transition, so opening a deep editor never animates grid width. */
+  body.l3-open .workspace {
+    grid-template-columns: 216px minmax(360px, 400px) 360px 0 minmax(360px, 1fr);
+  }
+  body.l3-open.side-collapsed .workspace {
+    grid-template-columns: 64px minmax(360px, 400px) 360px 0 minmax(360px, 1fr);
+  }
+  /* L4 (deepest editor, e.g. a single promo card): collapse the step nav and
+     shift the phone right so the fourth panel fits between config and preview. */
+  body.l4-open .workspace,
+  body.l4-open.side-collapsed .workspace {
+    grid-template-columns: 64px minmax(320px, 360px) 320px 360px minmax(280px, 1fr);
+  }
+
+  /* ============================================================
+     LEFT SIDEBAR (dark, page navigation)
+     ============================================================ */
+  .side-nav {
+    background: #131022;
+    color: #fff;
+    border-right: 1px solid #26223a;
+    display: flex; flex-direction: column;
+    padding: 16px 10px 14px;
+    overflow: hidden;
+    min-height: 0;
+    position: relative;
+  }
+  .side-brand {
+    display: flex; align-items: center; gap: 10px;
+    padding: 4px 8px 18px;
+    border-bottom: 1px solid #26223a;
+    margin-bottom: 14px;
+    min-height: 44px;
+  }
+  .side-brand-logo {
+    width: 30px; height: 30px; border-radius: 9px;
+    background: linear-gradient(135deg, var(--como), var(--como-2));
+    display: grid; place-items: center;
+    color: #fff; font-weight: 800; font-size: 13px;
+    flex: none;
+  }
+  .side-brand-name {
+    font-weight: 700; font-size: 14px; letter-spacing: -.2px;
+    white-space: nowrap; overflow: hidden;
+    opacity: 1; transition: opacity .2s;
+  }
+  body.side-collapsed .side-brand-name { opacity: 0; }
+
+  /* ---------- Top-right expand/collapse icon toggle ---------- */
+  .side-toggle-btn {
+    position: absolute; top: 14px; right: 10px;
+    width: 44px; height: 44px; border-radius: 9px;
+    display: grid; place-items: center;
+    background: transparent; border: none; color: #8d88a3;
+    cursor: pointer; transition: background .12s, color .12s;
+    z-index: 5;
+  }
+  .side-toggle-btn svg { width: 16px; height: 16px; }
+  body.side-collapsed .side-toggle-btn { position: static; margin: 0 auto 6px; }
+
+  .side-kicker {
+    font-size: 10px; text-transform: uppercase; letter-spacing: .8px;
+    color: #6f6a86; font-weight: 800;
+    padding: 4px 12px 8px;
+    white-space: nowrap; overflow: hidden;
+    transition: opacity .2s;
+  }
+  body.side-collapsed .side-kicker { opacity: 0; height: 8px; padding-top: 0; padding-bottom: 0; }
+
+  .side-items { display: flex; flex-direction: column; gap: 3px; }
+  .side-divider { height: 1px; background: #26223a; margin: 10px 6px; }
+
+  .side-item {
+    position: relative;
+    display: flex; align-items: center; gap: 12px;
+    padding: 10px 12px;
+    min-height: 44px;
+    border: none; background: transparent;
+    color: #b0acc4; font-size: 13.5px; font-weight: 600;
+    border-radius: 10px;
+    cursor: pointer;
+    text-align: left; width: 100%;
+    transition: color .15s, background .15s;
+  }
+  .side-item.active {
+    color: #fff;
+    background: linear-gradient(90deg, color-mix(in srgb, var(--como) 28%, transparent) 0%, color-mix(in srgb, var(--como) 8%, transparent) 100%);
+    box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--como-2) 20%, transparent);
+  }
+  .side-item .side-ic {
+    width: 22px; height: 22px; flex: none;
+    display: grid; place-items: center;
+  }
+  .side-item .side-ic svg { width: 18px; height: 18px; }
+  .side-item .side-lbl {
+    white-space: nowrap; overflow: hidden;
+    opacity: 1; transition: opacity .2s;
+  }
+  body.side-collapsed .side-item .side-lbl { opacity: 0; }
+  body.side-collapsed .side-item { justify-content: center; padding: 9px; }
+
+  /* ---------- Hover tooltip (collapsed state only) ---------- */
+  .side-tooltip {
+    position: absolute; left: calc(100% + 10px); top: 50%; transform: translateY(-50%);
+    background: #1d1a2b; color: #fff; font-size: 11.5px; font-weight: 650;
+    padding: 5px 10px; border-radius: 6px; white-space: nowrap;
+    box-shadow: 0 6px 16px rgba(0,0,0,.35);
+    opacity: 0; pointer-events: none; transition: opacity .12s;
+    z-index: 400;
+  }
+  body:not(.side-collapsed) .side-tooltip { display: none; }
+  body.side-collapsed .side-item:focus-visible .side-tooltip { opacity: 1; }
+  /* Tooltips sit outside the rail, so the rail can't clip them while collapsed */
+  body.side-collapsed .side-nav { overflow: visible; }
+  body.side-collapsed .side-item .side-lbl { pointer-events: none; }
+
+  .side-toggle-btn:focus-visible,
+  .side-item:focus-visible {
+    outline: 2px solid var(--como-focus-on-dark);
+    outline-offset: 2px;
+  }
+
+  @media (hover: hover) and (pointer: fine) {
+    .side-toggle-btn:hover { color: #fff; background: rgba(255,255,255,.06); }
+    .side-item:hover { color: #fff; background: rgba(255,255,255,.04); }
+    body.side-collapsed .side-item:hover .side-tooltip { opacity: 1; }
+  }
+
+  .side-check { margin-left: auto; width: 16px; height: 16px; color: #22c55e; flex: none; }
+  .side-check svg { width: 16px; height: 16px; }
+  .side-completed { color: var(--muted); }
+  .side-completed .side-ic { opacity: .7; }
+  body.side-collapsed .side-check { display: none; }
+
+  .side-spacer { flex: 1; cursor: default; }
+  body.side-collapsed .side-spacer { cursor: pointer; }

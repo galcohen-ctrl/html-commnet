@@ -334,9 +334,7 @@ export function initReordering(ctx = {}) {
     const orderedKeys = Array.from(container.querySelectorAll('.cp-widget-row'))
       .map((row) => row.querySelector('.toggle'))
       .filter(Boolean)
-      .map((toggle) => toggle.dataset.widgetToggle)
-      // Reels is visually pinned above the phone header.
-      .filter((key) => key !== 'menu-reels');
+      .map((toggle) => toggle.dataset.widgetToggle);
     let previous = anchor;
     orderedKeys.forEach((key) => {
       if (key === 'promo-webview') return;

@@ -5,16 +5,11 @@ import promoFeaturedHtml from '../templates/config/promo-featured.html?raw';
 import promoMoreCardHtml from '../templates/config/promo-more-card.html?raw';
 import promoMoreHtml from '../templates/config/promo-more.html?raw';
 import socialHtml from '../templates/config/social.html?raw';
-import orderAgainHtml from '../templates/config/order-again.html?raw';
-import topItemsHtml from '../templates/config/top-items.html?raw';
-import menuCategoriesHtml from '../templates/config/menu-categories.html?raw';
-import menuReelsHtml from '../templates/config/menu-reels.html?raw';
 import locationsHtml from '../templates/config-locations.html?raw';
 import menuHtml from '../templates/config-menu.html?raw';
 import moreHtml from '../templates/config-more.html?raw';
 import rewardsHtml from '../templates/config-rewards.html?raw';
 import businessHtml from '../templates/config-business.html?raw';
-import onlineOrderingHtml from '../templates/config-online-ordering.html?raw';
 import brandingStepHtml from '../templates/config-branding.html?raw';
 import publishHtml from '../templates/config-publish.html?raw';
 import StaticMarkup from './StaticMarkup';
@@ -27,10 +22,6 @@ const homeHtml = [
   promoMoreHtml,
   promoMoreCardHtml,
   socialHtml,
-  orderAgainHtml,
-  topItemsHtml,
-  menuCategoriesHtml,
-  menuReelsHtml,
 ].join('\n');
 
 const pageInner = (html) => {
@@ -98,14 +89,6 @@ export default function ConfigPanel() {
         <StaticMarkup
           as="div"
           className="cp-page"
-          id="cp-online-ordering"
-          data-comment-anchor="config-online-ordering"
-          style={{ display: 'none' }}
-          html={onlineOrderingHtml}
-        />
-        <StaticMarkup
-          as="div"
-          className="cp-page"
           id="cp-branding"
           data-comment-anchor="config-branding-step"
           style={{ display: 'none' }}
@@ -129,11 +112,6 @@ export default function ConfigPanel() {
         <button className="cp-step-next" id="gf-step-next" type="button">
           <span id="gf-step-next-label">Save &amp; continue</span>
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.6" strokeLinecap="round" strokeLinejoin="round"><path d="M5 12h14M13 6l6 6-6 6" /></svg>
-        </button>
-        <button className="gf-oo-return-btn" id="gf-oo-return-btn" type="button">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.6" strokeLinecap="round" strokeLinejoin="round"><path d="M19 12H5M11 18l-6-6 6-6" /></svg>
-          <span className="ms-btn-spinner" aria-hidden="true"></span>
-          <span>Back to Online ordering</span>
         </button>
       </div>
     </div>

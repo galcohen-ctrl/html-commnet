@@ -1,0 +1,26 @@
+@import "./00-tokens-base.css";
+@import "./01-editor-topbar.css";
+@import "./02-editor-sidebar.css";
+@import "./03-config-panel.css";
+@import "./04-phone-shell.css";
+@import "./05-phone-content.css";
+@import "./06-phone-overlays.css";
+@import "./07-editor-third-panel.css";
+@import "./08-setup-wizard.css";
+@import "./09-responsive.css";
+@import "./10-settings-modal.css";
+@import "./11-menu-source.css";
+@import "./12-phone-menu.css";
+@import "./13-guided-flow.css";
+@import "./14-hover-ghost.css";
+@import "./15-ordering-widgets.css";
+@import "./16-rewards-blocks.css";
+@import "./17-product-experience.css";
+@import "./18-ordering-setup.css";
+@import "./19-image-adjust.css";
+@import "./20-branding.css";
+@import "./21-review-gallery.css";
+@import "./22-app-screens.css";
+@import "./23-inbox.css";
+@import "./24-launch-screen.css";
+@import "./vega.css"; /* Vega DS editor theme. Remove this line to return to the Como look. */

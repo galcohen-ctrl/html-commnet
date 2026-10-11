@@ -3,105 +3,34 @@
         <div class="cp-page-title">Home</div>
         <div class="cp-page-sub">Click any widget to edit it. Every change reflects live on the phone.</div>
 
-        <div class="cp-focus-recap" id="cp-focus-recap">
-          <div class="cp-focus-ic" id="cp-focus-ic"></div>
-          <div class="cp-focus-text">
-            <div class="cp-focus-lbl">App focus</div>
-            <div class="cp-focus-val" id="cp-focus-val">Not chosen yet</div>
-          </div>
-          <button class="cp-focus-change" id="cp-focus-change" type="button" aria-haspopup="menu" aria-expanded="false">
-            Change
-            <svg viewBox="0 0 24 24" width="12" height="12" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round"><path d="M6 9l6 6 6-6"/></svg>
-          </button>
-          <div class="cp-focus-menu" id="cp-focus-menu" role="menu" aria-label="Change app focus">
-            <button type="button" role="menuitemradio" aria-checked="false" data-focus="loyalty">Lead with loyalty</button>
-            <button type="button" role="menuitemradio" aria-checked="false" data-focus="ordering">Lead with ordering</button>
-          </div>
-        </div>
-
-        <div class="px-ordering-dependency" id="px-ordering-dependency" hidden>
-          <span class="px-ordering-lock" aria-hidden="true">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round"><rect x="5" y="10" width="14" height="10" rx="2"/><path d="M8.5 10V7.5a3.5 3.5 0 017 0V10"/></svg>
-          </span>
-          <span><strong>Connect ordering to activate this layout</strong><small>The phone shows a clearly labelled sample until your provider is connected.</small></span>
-          <button type="button" id="px-connect-ordering">Connect</button>
-        </div>
-
         <div class="cp-section open" id="cp-home-widgets" data-pendo-guide-id="home-widget-composition">
-          <div class="cp-head-row">Home widgets <span class="chev">›</span></div>
           <div class="cp-body">
-            <div class="cp-widget-row off">
+            <div class="cp-widget-row off" data-core-widget="profile">
               <span class="handle">⠿</span>
               <span class="w-name" data-drill="profile">Profile &amp; Loyalty</span>
               <span class="toggle" data-bind=".greet-row, .loyalty-card" data-widget-toggle="profile" title="Add to Home">
                 <svg class="i-plus" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M10 4v12M4 10h12"/></svg>
                 <svg class="i-check" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M4 10l4 4 8-8"/></svg>
               </span>
+              <button class="w-del-icon w-del-core" type="button" title="Remove widget"><svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"><path d="M4 6h12M8 6V4h4v2M6 6v10a1 1 0 001 1h6a1 1 0 001-1V6"/></svg></button>
             </div>
-            <div class="cp-widget-row off">
+            <div class="cp-widget-row off" data-core-widget="promo-featured">
               <span class="handle">⠿</span>
               <span class="w-name" data-drill="promo-cards">Promo Cards — Featured</span>
               <span class="toggle" data-bind=".promo-cards-widget[data-widget='promo-cards']" data-widget-toggle="promo-cards" title="Add to Home">
                 <svg class="i-plus" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M10 4v12M4 10h12"/></svg>
                 <svg class="i-check" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M4 10l4 4 8-8"/></svg>
               </span>
-
+              <button class="w-del-icon w-del-core" type="button" title="Remove widget"><svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"><path d="M4 6h12M8 6V4h4v2M6 6v10a1 1 0 001 1h6a1 1 0 001-1V6"/></svg></button>
             </div>
-            <div class="cp-widget-row off">
+            <div class="cp-widget-row off" data-core-widget="social">
               <span class="handle">⠿</span>
               <span class="w-name" data-drill="social">Social Links</span>
               <span class="toggle" data-bind=".social-strip" data-widget-toggle="social" title="Add to Home">
                 <svg class="i-plus" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M10 4v12M4 10h12"/></svg>
                 <svg class="i-check" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M4 10l4 4 8-8"/></svg>
               </span>
-
-            </div>
-            <div class="cp-widget-row off cp-oo-widget" data-oo-widget="order-again">
-              <span class="handle">⠿</span>
-              <span class="w-name" data-drill="order-again">Order Again</span>
-              <span class="toggle" data-bind=".oa-widget" data-widget-toggle="order-again" title="Add to Home">
-                <svg class="i-plus" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M10 4v12M4 10h12"/></svg>
-                <svg class="i-check" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M4 10l4 4 8-8"/></svg>
-              </span>
-
-              <span class="w-oo-lock" title="Connect online ordering to enable">
-                <svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"><rect x="4.5" y="9" width="11" height="7.5" rx="1.5"/><path d="M7 9V6.5a3 3 0 016 0V9"/></svg>
-              </span>
-            </div>
-            <div class="cp-widget-row off cp-oo-widget" data-oo-widget="top-items">
-              <span class="handle">⠿</span>
-              <span class="w-name" data-drill="top-items">Top Items</span>
-              <span class="toggle" data-bind=".ti-widget" data-widget-toggle="top-items" title="Add to Home">
-                <svg class="i-plus" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M10 4v12M4 10h12"/></svg>
-                <svg class="i-check" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M4 10l4 4 8-8"/></svg>
-              </span>
-
-              <span class="w-oo-lock" title="Connect online ordering to enable">
-                <svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"><rect x="4.5" y="9" width="11" height="7.5" rx="1.5"/><path d="M7 9V6.5a3 3 0 016 0V9"/></svg>
-              </span>
-            </div>
-
-            <div class="cp-widget-row off cp-oo-widget" data-oo-widget="menu-categories">
-              <span class="handle">⠿</span>
-              <span class="w-name" data-drill="menu-categories">Menu Categories</span>
-              <span class="toggle" data-bind=".mc-widget" data-widget-toggle="menu-categories" title="Add to Home">
-                <svg class="i-plus" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M10 4v12M4 10h12"/></svg>
-                <svg class="i-check" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M4 10l4 4 8-8"/></svg>
-              </span>
-
-              <span class="w-oo-lock" title="Connect online ordering to enable">
-                <svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"><rect x="4.5" y="9" width="11" height="7.5" rx="1.5"/><path d="M7 9V6.5a3 3 0 016 0V9"/></svg>
-              </span>
-            </div>
-
-            <div class="cp-widget-row off cp-fixed-slot" title="Reels chip is pinned to the top of the phone">
-              <span class="handle handle-locked" title="Reels chip position is fixed at the top">⠿</span>
-              <span class="w-name" data-drill="menu-reels">Menu Reels chip</span>
-              <span class="toggle" data-bind=".phone-reels-chip" data-widget-toggle="menu-reels" title="Add reels chip to Home">
-                <svg class="i-plus" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M10 4v12M4 10h12"/></svg>
-                <svg class="i-check" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M4 10l4 4 8-8"/></svg>
-              </span>
-
+              <button class="w-del-icon w-del-core" type="button" title="Remove widget"><svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"><path d="M4 6h12M8 6V4h4v2M6 6v10a1 1 0 001 1h6a1 1 0 001-1V6"/></svg></button>
             </div>
             <div class="cp-hint-inline">Select a row to edit its content. Use Show to include it in the app.</div>
             <div class="cp-add-widget-wrap">
@@ -110,6 +39,8 @@
                 Add widget
               </button>
               <div class="cp-add-widget-menu" id="add-widget-menu">
+                <button type="button" data-add="profile" data-restore-core="profile" hidden><span class="aw-ic">👤</span> Profile &amp; Loyalty</button>
+                <button type="button" data-add="social" data-restore-core="social" hidden><span class="aw-ic">☍</span> Social Links</button>
                 <button type="button" data-add="promo"><span class="aw-ic">▤</span> Promo Cards</button>
                 <button type="button" data-add="divider"><span class="aw-ic">—</span> Text Divider</button>
                 <button type="button" data-add="image"><span class="aw-ic">🖼</span> Image Banner</button>

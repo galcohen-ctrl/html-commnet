@@ -19,8 +19,8 @@
     --z: var(--ia-zoom, 1);
     position: relative;
     outline: calc(3px / var(--z)) solid var(--como);
-    box-shadow: 0 0 0 calc(6px / var(--z)) rgba(109, 40, 217, .18),
-      0 0 calc(26px / var(--z)) rgba(109, 40, 217, .45);
+    box-shadow: 0 0 0 calc(6px / var(--z)) color-mix(in srgb, var(--como) 18%, transparent),
+      0 0 calc(26px / var(--z)) color-mix(in srgb, var(--como) 45%, transparent);
     cursor: grab;
     overflow: hidden;
     touch-action: none;

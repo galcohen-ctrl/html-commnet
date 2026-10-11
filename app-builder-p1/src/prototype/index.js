@@ -8,10 +8,8 @@ import { initReordering } from './reordering.js';
 import { initGuidedFlow } from './guidedFlow.js';
 import { initSettingsModal } from './settingsModal.js';
 import { initMenuSource } from './menuSource.js';
-import { initOrderingWidgets } from './orderingWidgets.js';
 import { initRewardsBlocks } from './rewardsBlocks.js';
 import { initGhostPreview } from './ghostPreview.js';
-import { initOrderingSetup } from './orderingSetup.js';
 import { initAccessibility } from './accessibility.js';
 import { initDraftPersistence } from './draftPersistence.js';
 import { initResponsive } from './responsive.js';
@@ -20,6 +18,7 @@ import { initReviewGallery } from './reviewGallery.js';
 import { initAppScreenSlot } from './appScreenSlot.js';
 import { initInbox } from './inbox.js';
 import { initImageAdjust } from './imageAdjust.js';
+import { initLaunchScreen } from './launchScreen.js';
 
 let runtime;
 
@@ -36,14 +35,13 @@ export function initPrototype() {
   Object.assign(runtime, initReordering(runtime));
   Object.assign(runtime, initSettingsModal(runtime));
   Object.assign(runtime, initMenuSource(runtime));
-  Object.assign(runtime, initOrderingWidgets(runtime));
   Object.assign(runtime, initRewardsBlocks(runtime));
-  Object.assign(runtime, initOrderingSetup(runtime));
   Object.assign(runtime, initGuidedFlow(runtime));
   Object.assign(runtime, initProductExperience(runtime));
   Object.assign(runtime, initImageAdjust(runtime));
   Object.assign(runtime, initGhostPreview(runtime));
   Object.assign(runtime, initResponsive(runtime));
+  Object.assign(runtime, initLaunchScreen(runtime));
   Object.assign(runtime, initDraftPersistence(runtime));
   // Initialize last so keyboard and ARIA semantics reuse every feature's
   // existing click/drag handlers instead of creating parallel state paths.

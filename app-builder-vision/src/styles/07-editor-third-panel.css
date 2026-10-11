@@ -1,0 +1,77 @@
+  /* ============================================================
+     THIRD PANEL (L3) — deep drill (individual card editor)
+     ============================================================ */
+  .l3-panel {
+    background: var(--panel);
+    border-left: 1px solid var(--line);
+    box-shadow: -10px 0 24px -18px rgba(20,20,40,.35);
+    overflow: hidden;
+    display: flex; flex-direction: column;
+    min-width: 0;
+    pointer-events: none;
+  }
+  .l3-inner {
+    flex: 1;
+    padding: 20px 18px;
+    overflow-y: auto;
+    overflow-x: hidden;
+    width: 100%;
+    min-width: 0;
+    opacity: 0;
+    transform: translate3d(10px, 0, 0);
+    transition: opacity 180ms cubic-bezier(0.23, 1, 0.32, 1), transform 180ms cubic-bezier(0.23, 1, 0.32, 1);
+  }
+  body.l3-open .l3-panel { pointer-events: auto; }
+  body.l3-open .l3-inner { opacity: 1; transform: translate3d(0, 0, 0); }
+  .l3-inner::-webkit-scrollbar { width: 8px; }
+  .l3-inner::-webkit-scrollbar-thumb { background: #e0e0ea; border-radius: 8px; }
+
+  /* Fourth panel (L4) — deepest editor; mirrors the third panel. */
+  .l4-panel {
+    background: var(--panel);
+    border-left: 1px solid var(--line);
+    box-shadow: -10px 0 24px -18px rgba(20, 20, 40, .35);
+    overflow: hidden;
+    display: flex; flex-direction: column;
+    min-width: 0;
+    pointer-events: none;
+  }
+  .l4-inner {
+    flex: 1;
+    padding: 20px 18px;
+    overflow-y: auto;
+    overflow-x: hidden;
+    width: 100%;
+    min-width: 0;
+    opacity: 0;
+    transform: translate3d(10px, 0, 0);
+    transition: opacity 180ms cubic-bezier(0.23, 1, 0.32, 1), transform 180ms cubic-bezier(0.23, 1, 0.32, 1);
+  }
+  body.l4-open .l4-panel { pointer-events: auto; }
+  body.l4-open .l4-inner { opacity: 1; transform: translate3d(0, 0, 0); }
+  .l4-inner::-webkit-scrollbar { width: 8px; }
+  .l4-inner::-webkit-scrollbar-thumb { background: #e0e0ea; border-radius: 8px; }
+  /* Tiny "you are here" kicker at the top of the third panel */
+  .l3-kicker {
+    display: flex; align-items: center; gap: 6px;
+    font-size: 10px; text-transform: uppercase; letter-spacing: .6px;
+    color: var(--como); font-weight: 800;
+    margin-bottom: 12px;
+  }
+  .l3-kicker::before {
+    content: ""; width: 6px; height: 6px; border-radius: 50%;
+    background: var(--como);
+  }
+  /* Active card row in the level-2 list while its editor is open in L3 */
+  .pc-item.l3-active {
+    background: var(--como-soft);
+    box-shadow: inset 3px 0 0 var(--como);
+  }
+  .pc-item.l3-active .pc-item-name { color: var(--como); font-weight: 700; }
+
+  @media (prefers-reduced-motion: reduce) {
+    .l3-inner {
+      transform: none;
+      transition: opacity 100ms linear;
+    }
+  }

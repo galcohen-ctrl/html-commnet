@@ -147,8 +147,9 @@ export function initOrderingSetup(ctx = {}) {
     mode = target;
     applyMode(target);
     reflect();
-    // A committed mode fills the phone preview, so we leave the header-only state.
-    document.body.classList.remove('phone-header-only');
+    // A committed mode fills the phone preview, so we leave the header-only state
+    // and shed the branding-step mock preview class.
+    document.body.classList.remove('phone-header-only', 'branding-mock-preview');
     document.dispatchEvent(new CustomEvent('como:ordering-mode', { detail: { mode: target, focus: MODE_FOCUS[target] } }));
     ctx.markDirty?.();
     if (!launchConfig) return;
@@ -318,6 +319,18 @@ export function initOrderingSetup(ctx = {}) {
   });
 
   window.getOrderingMode = () => mode;
+  // Used by the App Focus recap on Home/Branding: runs the same disconnect
+  // guard as clicking a tile in Step 2, so switches feel consistent everywhere.
+  window.requestOrderingModeChange = (target) => {
+    if (target === mode) return;
+    const guard = switchGuardFor(target);
+    if (!guard) { commit(target); return; }
+    confirmSwitch(guard).then((ok) => {
+      if (!ok) return;
+      guard.onConfirm?.();
+      commit(target);
+    });
+  };
 
   return {
     getOrderingMode: () => mode,

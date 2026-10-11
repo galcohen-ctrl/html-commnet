@@ -26,17 +26,16 @@
 
         <div class="cp-section open">
           <div class="cp-head-row">More tiles <span class="chev">›</span></div>
-          <div class="cp-body">
-            <div class="cp-toggle-row"><span class="lbl">Home</span><span class="toggle" data-bind=".more-tile:nth-child(1)"></span></div>
-            <div class="cp-toggle-row"><span class="lbl">My Account</span><span class="toggle" data-bind=".more-tile:nth-child(2)"></span></div>
-            <div class="cp-toggle-row"><span class="lbl">My Orders</span><span class="toggle" data-bind=".more-tile:nth-child(3)"></span></div>
-            <div class="cp-toggle-row"><span class="lbl">Loyalty Rewards</span><span class="toggle" data-bind=".more-tile:nth-child(4)"></span></div>
-            <div class="cp-toggle-row"><span class="lbl">Our Menu</span><span class="toggle" data-bind=".more-tile:nth-child(5)"></span></div>
-            <div class="cp-toggle-row"><span class="lbl">Find a Cafe</span><span class="toggle" data-bind=".more-tile:nth-child(6)"></span></div>
-            <div class="cp-toggle-row"><span class="lbl">Refer a Friend</span><span class="toggle" data-bind=".more-tile:nth-child(7)"></span></div>
-            <div class="cp-toggle-row"><span class="lbl">Our Story</span><span class="toggle" data-bind=".more-tile:nth-child(8)"></span></div>
-            <div class="cp-toggle-row"><span class="lbl">Contact Us</span><span class="toggle" data-bind=".more-tile:nth-child(9)"></span></div>
-            <div class="cp-toggle-row"><span class="lbl">About Us</span><span class="toggle" data-bind=".more-tile:nth-child(10)"></span></div>
+          <div class="cp-body" id="more-tiles-list">
+            <div class="cp-toggle-row" data-more-key="home"><span class="handle" title="Drag to reorder">⠿</span><span class="lbl">Home</span><span class="toggle" data-bind=".more-tile[data-more-key='home']"></span></div>
+            <div class="cp-toggle-row" data-more-key="account"><span class="handle" title="Drag to reorder">⠿</span><span class="lbl">My Account</span><span class="toggle" data-bind=".more-tile[data-more-key='account']"></span></div>
+            <div class="cp-toggle-row" data-more-key="rewards"><span class="handle" title="Drag to reorder">⠿</span><span class="lbl">Loyalty Rewards</span><span class="toggle" data-bind=".more-tile[data-more-key='rewards']"></span></div>
+            <div class="cp-toggle-row" data-more-key="menu"><span class="handle" title="Drag to reorder">⠿</span><span class="lbl">Our Menu</span><span class="toggle" data-bind=".more-tile[data-more-key='menu']"></span></div>
+            <div class="cp-toggle-row" data-more-key="locations"><span class="handle" title="Drag to reorder">⠿</span><span class="lbl">Find a Cafe</span><span class="toggle" data-bind=".more-tile[data-more-key='locations']"></span></div>
+            <div class="cp-toggle-row" data-more-key="referral"><span class="handle" title="Drag to reorder">⠿</span><span class="lbl">Refer a Friend</span><span class="toggle" data-bind=".more-tile[data-more-key='referral']"></span></div>
+            <div class="cp-toggle-row" data-more-key="story"><span class="handle" title="Drag to reorder">⠿</span><span class="lbl">Our Story</span><span class="toggle" data-bind=".more-tile[data-more-key='story']"></span></div>
+            <div class="cp-toggle-row" data-more-key="contact"><span class="handle" title="Drag to reorder">⠿</span><span class="lbl">Contact Us</span><span class="toggle" data-bind=".more-tile[data-more-key='contact']"></span></div>
+            <div class="cp-toggle-row" data-more-key="about"><span class="handle" title="Drag to reorder">⠿</span><span class="lbl">About Us</span><span class="toggle" data-bind=".more-tile[data-more-key='about']"></span></div>
           </div>
         </div>
 

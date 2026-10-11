@@ -76,6 +76,8 @@ export function initPromoWidgets(ctx) {
           if (c.action === 'webview') {
             if (!openWebsitePreview(c.webviewUrl, c.webviewOptions, undefined, pcWidget.closest('.app-page')?.dataset.page)) showToast('Add a website address first.');
           }
+          else if (c.action === 'inbox') window.openModal?.('inbox');
+          else if (c.action === 'account') window.openAccountPage?.();
           else if (c.action && c.action !== 'none') window.showPhonePage?.(c.action);
         };
         if (hasButton) body.querySelector('.pc-card-btn')?.addEventListener('click', activate);
@@ -406,7 +408,7 @@ export function initPromoWidgets(ctx) {
     pcRenderPhone();
     pcRenderItemList();
     pcUpdateCount();
-    return { cards: pcCards, renderPhone: pcRenderPhone };
+    return { cards: pcCards, renderPhone: pcRenderPhone, openCardEdit: pcOpenCardEdit };
   }
 
   function escHtml(s) {
@@ -504,6 +506,36 @@ export function initPromoWidgets(ctx) {
   const addWidgetWrap = addWidgetBtn ? addWidgetBtn.closest('.cp-add-widget-wrap') : null;
   const widgetsListBody = addWidgetWrap ? addWidgetWrap.parentElement : null;
 
+  // Names for dynamic widgets follow their live position in the list, not the
+  // monotonic dynWidgetSeq. Runs on any add/remove/reorder inside the list.
+  const DYN_TYPES = [
+    { prefix: 'promo-cards-', label: 'Promo Cards' },
+    { prefix: 'text-divider-', label: 'Text Divider' },
+    { prefix: 'image-banner-', label: 'Image Banner' },
+  ];
+  function renumberDynamicWidgets() {
+    if (!widgetsListBody) return;
+    const counters = new Map(DYN_TYPES.map((t) => [t.prefix, 0]));
+    widgetsListBody.querySelectorAll('.cp-widget-row[data-dynamic="1"]').forEach((row) => {
+      const key = row.querySelector('[data-widget-toggle]')?.dataset.widgetToggle || '';
+      const type = DYN_TYPES.find((t) => key.startsWith(t.prefix));
+      if (!type) return;
+      const next = counters.get(type.prefix) + 1;
+      counters.set(type.prefix, next);
+      const newName = type.label + ' ' + next;
+      const nameEl = row.querySelector('.w-name');
+      if (nameEl && nameEl.textContent !== newName) nameEl.textContent = newName;
+      const drillKey = nameEl?.dataset.drill;
+      if (drillKey) {
+        const drillTitle = document.querySelector('.cp-detail[data-detail="' + drillKey + '"] .cp-detail-title');
+        if (drillTitle && drillTitle.textContent !== newName) drillTitle.textContent = newName;
+      }
+    });
+  }
+  if (widgetsListBody) {
+    new MutationObserver(renumberDynamicWidgets).observe(widgetsListBody, { childList: true });
+  }
+
   function wireDrillNode(node) {
     node.querySelectorAll('.cp-head-row').forEach(h => {
       h.addEventListener('click', () => h.parentElement.classList.toggle('open'));
@@ -524,7 +556,7 @@ export function initPromoWidgets(ctx) {
       + '<svg class="i-plus" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M10 4v12M4 10h12"/></svg>'
       + '<svg class="i-check" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M4 10l4 4 8-8"/></svg>'
       + '</span>'
-      + '<button class="w-edit-icon w-del" title="Remove widget"><svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M4 6h12M8 6V4h4v2M6 6v10a1 1 0 001 1h6a1 1 0 001-1V6"/></svg></button>';
+      + '<button class="w-del-icon w-del" title="Remove widget"><svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M4 6h12M8 6V4h4v2M6 6v10a1 1 0 001 1h6a1 1 0 001-1V6"/></svg></button>';
     const toggle = row.querySelector('.toggle');
     wireToggle(toggle);
     row.querySelector('.w-del').addEventListener('click', (e) => {
@@ -585,7 +617,7 @@ export function initPromoWidgets(ctx) {
       +       '<button class="pc-edit-image-remove" id="' + idp + '-edit-image-remove" style="display:none;">✕ Remove image</button>'
       +       '<div class="cp-upload-note">Recommended 1200 × 800 px (3:2) · shown crisp on all screens</div>'
       +     '</div>'
-      +     '<div class="cp-field"><label>Tap action</label><select class="cp-select" id="' + idp + '-edit-action"><option value="none">None</option><option value="home">Go to: Home</option><option value="rewards">Go to: Rewards</option><option value="locations">Go to: Locations</option><option value="menu">Go to: Menu</option><option value="more">Go to: More</option><option value="webview">Open web link</option></select></div>'
+      +     '<div class="cp-field"><label>Tap action</label><select class="cp-select" id="' + idp + '-edit-action"><option value="none">None</option><option value="home">Go to: Home</option><option value="account">Go to: My Account</option><option value="rewards">Go to: Loyalty Rewards</option><option value="menu">Go to: Menu</option><option value="locations">Go to: Locations</option><option value="more">Go to: More</option><option value="gifts">Go to: My Gifts</option><option value="point-shop">Go to: Point Shop</option><option value="referral">Go to: Refer a Friend</option><option value="story">Go to: Our Story</option><option value="contact">Go to: Contact Us</option><option value="about">Go to: About Us</option><option value="share-credit">Go to: Share Credit</option><option value="inbox">Open Notifications</option><option value="webview">Open web link</option></select></div>'
       +     '<div class="cp-field"><label>Button text</label><input class="cp-input-text" id="' + idp + '-edit-btn-text" placeholder="e.g. View Menu →" /></div>'
       +     '<div class="cp-field pc-webview-cfg" id="' + idp + '-webview-cfg" hidden>'
       +       '<label>Web link address</label>'
@@ -635,7 +667,7 @@ export function initPromoWidgets(ctx) {
     nodes.forEach(node => { configEl.appendChild(node); wireDrillNode(node); });
     const mainDrill = configEl.querySelector('[data-detail="' + drill + '"]');
     if (onRewards) mainDrill.dataset.l3 = 'true';
-    mainDrill.querySelector('.cp-back').addEventListener('click', () => (onRewards ? closeL3Panel() : closeDrill('cp-home')));
+    mainDrill.querySelector('.cp-back').addEventListener('click', () => closeL3Panel());
 
     // Rewards-only section heading drives the phone heading above the carousel.
     if (onRewards) {
@@ -658,14 +690,19 @@ export function initPromoWidgets(ctx) {
     };
 
     // Config row
-    const row = onRewards ? buildRewardsPromoRow(title, key, drill, onDelete, opts.list) : null;
+    const row = onRewards
+      ? buildRewardsPromoRow(title, key, drill, onDelete, opts.list)
+      : buildWidgetRow(title, key, drill, '.promo-cards-widget[data-widget=\'' + key + '\']', onDelete);
     if (row) row.dataset.widgetKey = key;
-    if (!onRewards) buildWidgetRow(title, key, drill, '.promo-cards-widget[data-widget=\'' + key + '\']', onDelete);
 
     // Behaviour
+    // A shortcut caller (the orphaned-webview-link flow) seeds a card already
+    // pointed at the merchant's ordering site, so the merchant only has to confirm it.
     const instance = initPromoCards({
       key, idp, drill, editDrill,
-      seed: opts.saved?.cards || [{ id: 0, headline: 'New promo', desc: 'Describe this offer', img: 'beef', imgData: null, action: 'none', btnText: 'Learn more →', visible: true }]
+      seed: opts.saved?.cards || (opts.seedWebviewUrl
+        ? [{ id: 0, headline: 'Order online', desc: 'Delivery or pickup — earn points on every order', img: 'delivery', imgData: null, action: 'webview', webviewUrl: opts.seedWebviewUrl, btnText: 'Order now →', visible: true }]
+        : [{ id: 0, headline: 'New promo', desc: 'Describe this offer', img: 'beef', imgData: null, action: 'none', btnText: 'Learn more →', visible: true }])
     });
     if (opts.saved) {
       Object.assign(widget.dataset, opts.saved.presentation || {});
@@ -680,7 +717,22 @@ export function initPromoWidgets(ctx) {
     } else {
       reorderPhoneWidgets();
       updateHomeEmptyState();
-      openDrill('cp-home', drill);
+      // openWidgetRowConfig routes L3-marked drills into the third panel and
+      // sets l3-active on the row, matching how built-in rows behave.
+      if (!opts.restoring && row) window.openWidgetRowConfig?.(row);
+      // Orphaned-webview-link shortcut: jump straight into the seeded card's
+      // editor (L4) with the URL field highlighted for a final confirm.
+      if (opts.seedWebviewUrl && !opts.restoring) {
+        instance.openCardEdit(0);
+        setTimeout(() => {
+          const urlField = document.getElementById(idp + '-webview-url');
+          if (!urlField) return;
+          urlField.focus();
+          urlField.select();
+          urlField.classList.add('highlight-target');
+          setTimeout(() => urlField.classList.remove('highlight-target'), 1800);
+        }, 0);
+      }
     }
     markDirty();
     return { key, row, element: widget, capture: () => ({ type: 'promo', cards: instance.cards, heading: mainDrill.querySelector('.pc-rw-heading-input')?.value || '', presentation: { pcDisplay: widget.dataset.pcDisplay, pcImage: widget.dataset.pcImage, pcCta: widget.dataset.pcCta, pcCorners: widget.dataset.pcCorners }, style: widget.style.cssText }) };
@@ -694,6 +746,7 @@ export function initPromoWidgets(ctx) {
     const row = document.createElement('div');
     row.className = 'cp-widget-row on rw-row-block';
     row.dataset.rwBlock = key;
+    row.dataset.rwBlockType = 'promo';
     row.dataset.dynamic = '1';
     row.innerHTML = '<div class="rw-row-head">'
       + '<span class="handle">⠿</span>'
@@ -726,61 +779,6 @@ export function initPromoWidgets(ctx) {
       renumberPromoWidgetLabels();
   }
   window.positionWebviewPromo = positionWebviewPromoRow;
-
-  function ensureWebviewPromoInstance(options = {}) {
-    const dirty = options.dirty !== false;
-    if (document.querySelector('[data-widget-toggle="promo-webview"]')) {
-      positionWebviewPromoRow();
-      reorderPhoneWidgets();
-      return;
-    }
-    const idp = 'pcw';
-    const key = 'promo-webview';
-    const drill = 'promo-webview';
-    const editDrill = 'pcw-card-edit';
-    const title = 'Promo Cards — Online ordering';
-
-    const widget = document.createElement('div');
-    widget.className = 'promo-cards-widget';
-    widget.dataset.widget = key;
-    widget.dataset.pcDisplay = 'carousel';
-    widget.dataset.pcImage = 'behind';
-    widget.dataset.pcCta = 'filled';
-    widget.dataset.pcCorners = 'rounded';
-    widget.innerHTML = '<div class="pc-carousel-wrap" id="pcw-carousel-wrap"></div><div class="pc-dots" id="pcw-dots"></div>';
-    homePageEl.appendChild(widget);
-
-    const holder = document.createElement('div');
-    holder.innerHTML = promoDrillMarkup(idp, key, drill, editDrill, title);
-    Array.from(holder.children).forEach(node => { cpHomeEl.appendChild(node); wireDrillNode(node); });
-    const mainDrill = cpHomeEl.querySelector('[data-detail="' + drill + '"]');
-    mainDrill.querySelector('.cp-back').addEventListener('click', () => closeDrill('cp-home'));
-
-    const row = buildWidgetRow(title, key, drill, '.promo-cards-widget[data-widget=\'' + key + '\']', () => {
-      closeL3Panel();
-      widget.remove();
-      document.querySelectorAll('[data-detail="' + drill + '"], [data-detail="' + editDrill + '"]').forEach(d => d.remove());
-    });
-    positionWebviewPromoRow();
-
-    initPromoCards({
-      key, idp, drill, editDrill,
-      seed: [{ id: 0, headline: 'Order online', desc: 'Delivery or pickup — earn points on every order', img: 'delivery', imgData: null, action: 'webview', btnText: 'Order now →', visible: true }]
-    });
-    reorderPhoneWidgets();
-    requestAnimationFrame(() => {
-      positionWebviewPromoRow();
-      reorderPhoneWidgets();
-    });
-    updateHomeEmptyState();
-    if (dirty) markDirty();
-  }
-  window.ensureWebviewPromoInstance = ensureWebviewPromoInstance;
-
-  document.addEventListener('como:ordering-mode', (event) => {
-    if (event.detail?.mode !== 'webview') return;
-    ensureWebviewPromoInstance();
-  });
 
   function createTextDivider(opts = {}) {
     const n = dynWidgetSeq++;
@@ -870,12 +868,41 @@ export function initPromoWidgets(ctx) {
     addWidgetMenu.querySelectorAll('button[data-add]').forEach(b => {
       b.addEventListener('click', () => {
         addWidgetMenu.classList.remove('open');
+        const restoreKey = b.dataset.restoreCore;
+        if (restoreKey) {
+          const row = document.querySelector(`#cp-home-widgets [data-core-widget="${restoreKey}"]`);
+          if (row) {
+            row.hidden = false;
+            const toggle = row.querySelector('.toggle');
+            if (toggle && !toggle.classList.contains('on')) toggle.click();
+          }
+          b.hidden = true;
+          markDirty();
+          return;
+        }
         if (b.dataset.add === 'promo') createPromoInstance();
         else if (b.dataset.add === 'divider') createTextDivider();
         else if (b.dataset.add === 'image') createImageBanner();
       });
     });
   }
+
+  // Trash on built-in rows hides the row and unhides its restore entry in +Add.
+  // Delegated so HMR module reloads and re-rendered rows keep working.
+  document.addEventListener('click', (e) => {
+    const trash = e.target.closest('#cp-home-widgets [data-core-widget] .w-del-core');
+    if (!trash) return;
+    e.stopPropagation();
+    const row = trash.closest('[data-core-widget]');
+    if (!row) return;
+    const key = row.dataset.coreWidget;
+    const toggle = row.querySelector('.toggle');
+    if (toggle?.classList.contains('on')) toggle.click();
+    row.hidden = true;
+    const restore = document.querySelector(`#add-widget-menu [data-restore-core="${key}"]`);
+    if (restore) restore.hidden = false;
+    markDirty();
+  });
 
   /**
    * Image banner — ported from the Rewards block palette so Home and Rewards
@@ -891,6 +918,7 @@ export function initPromoWidgets(ctx) {
     const el = document.createElement('div');
     el.className = 'hb-banner';
     el.dataset.widget = key;
+    el.dataset.hbLayout = 'wide';
     el.innerHTML = '<div class="hb-img is-empty"></div><div class="hb-cap"><div class="hb-h"></div><button class="hb-cta" hidden></button></div>';
     (opts.stage || homePageEl).appendChild(el);
 
@@ -908,14 +936,28 @@ export function initPromoWidgets(ctx) {
       +         '</div></div>'
       +         '<input type="file" accept="image/*" class="hb-file" hidden />'
       +       '</div></div>'
+      +     '<div class="cp-field"><label>Layout</label><div class="cp-radio-group">'
+      +       '<div class="cp-radio active" data-hb-layout="wide">Wide</div>'
+      +       '<div class="cp-radio" data-hb-layout="tall">Tall</div>'
+      +       '<div class="cp-radio" data-hb-layout="cover">Cover</div>'
+      +     '</div></div>'
       +     '<div class="cp-field"><label>Headline</label><input class="cp-input-text hb-head" placeholder="Leave empty to hide the caption" /></div>'
-      +     '<div class="cp-field"><label>Tap action</label><select class="cp-select hb-action"><option value="none">None</option><option value="home">Go to: Home</option><option value="rewards">Go to: Rewards</option><option value="locations">Go to: Locations</option><option value="menu">Go to: Menu</option><option value="more">Go to: More</option><option value="webview">Open web link</option></select></div>'
-      +     '<div class="cp-field"><label>Button text</label><input class="cp-input-text hb-btn" placeholder="Leave empty to hide the button" /></div>'
+      +     '<div class="cp-field"><label>Tap action</label><select class="cp-select hb-action"><option value="none">None</option><option value="home">Go to: Home</option><option value="account">Go to: My Account</option><option value="rewards">Go to: Loyalty Rewards</option><option value="menu">Go to: Menu</option><option value="locations">Go to: Locations</option><option value="more">Go to: More</option><option value="gifts">Go to: My Gifts</option><option value="point-shop">Go to: Point Shop</option><option value="referral">Go to: Refer a Friend</option><option value="story">Go to: Our Story</option><option value="contact">Go to: Contact Us</option><option value="about">Go to: About Us</option><option value="share-credit">Go to: Share Credit</option><option value="inbox">Open Notifications</option><option value="webview">Open web link</option></select></div>'
+      +     '<div class="cp-field hb-btn-field"><label>Button text</label><input class="cp-input-text hb-btn" placeholder="Leave empty to hide the button" /></div>'
       +     '<div class="cp-field pc-webview-cfg hb-webview-cfg" hidden>'
       +       '<label>Web link address</label>'
       +       '<div class="ms-input-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M10 13a5 5 0 007.5.5l3-3a5 5 0 00-7-7l-1.7 1.7"/><path d="M14 11a5 5 0 00-7.5-.5l-3 3a5 5 0 007 7l1.7-1.7"/></svg><input class="ms-input hb-webview-url" type="url" value="https://" /></div>'
       +       '<button class="ms-btn hb-webview-connect" type="button"><svg class="ms-btn-ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/><path d="M7 10l5 5 5-5"/><path d="M12 15V3"/></svg><span class="ms-btn-spinner" aria-hidden="true"></span><span class="ms-btn-label">Add &amp; preview</span></button>'
       +       '<div class="ms-status hidden hb-webview-status"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M8.5 12.2l2.5 2.5 4.5-5"/></svg> Looks good — page reachable and secure (https).</div>'
+      +       '<div class="ms-section-label hb-display-label" hidden>Display options</div>'
+      +       '<div class="ms-toggle-card hb-display" hidden>'
+      +         '<div class="ms-toggle-row"><div class="ms-toggle-text"><div class="ms-toggle-name">Show back button</div></div><span class="toggle on" data-wv-opt="back"></span></div>'
+      +         '<div class="ms-toggle-row"><div class="ms-toggle-text"><div class="ms-toggle-name">Show site URL <button class="ms-info" type="button" data-tip="Shows the website address bar above the page so members can see where they are.">i</button></div></div><span class="toggle on" data-wv-opt="showurl"></span></div>'
+      +         '<div class="ms-toggle-row"><div class="ms-toggle-text"><div class="ms-toggle-name">Show app bottom bar</div></div><span class="toggle on" data-wv-opt="bottombar"></span></div>'
+      +         '<div class="ms-toggle-row"><div class="ms-toggle-text"><div class="ms-toggle-name">Open external links in-app <button class="ms-info" type="button" data-tip="Links inside the page open in the app\'s browser instead of bouncing members out to Safari or Chrome.">i</button></div></div><span class="toggle on" data-wv-opt="inapp"></span></div>'
+      +         '<div class="ms-toggle-row"><div class="ms-toggle-text"><div class="ms-toggle-name">Members only <button class="ms-info" type="button" data-tip="Guests see a sign-in prompt instead of the page. Useful for member-only pricing.">i</button></div></div><span class="toggle" data-wv-opt="membersonly"></span></div>'
+      +       '</div>'
+      +       '<button class="ms-help" type="button" data-hb-help><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><circle cx="12" cy="12" r="3.4"/><path d="M14.4 9.6L18 6M9.6 14.4L6 18M14.4 14.4L18 18M9.6 9.6L6 6"/></svg> Need help? Visit the Help Center</button>'
       +     '</div>'
       +   '</div></div>'
       + '</div>';
@@ -937,6 +979,9 @@ export function initPromoWidgets(ctx) {
     const bannerWvConnect = drillNode.querySelector('.hb-webview-connect');
     const bannerWvStatus = drillNode.querySelector('.hb-webview-status');
     const bannerWvLabel = bannerWvConnect?.querySelector('.ms-btn-label');
+    const bannerWvDisplay = drillNode.querySelector('.hb-display');
+    const bannerWvDisplayLabel = drillNode.querySelector('.hb-display-label');
+    const bannerOptions = { back: true, showurl: true, bottombar: true, inapp: true, membersonly: false };
     zone.addEventListener('click', () => file.click());
     file.addEventListener('change', () => {
       const chosen = file.files && file.files[0];
@@ -964,23 +1009,31 @@ export function initPromoWidgets(ctx) {
       markDirty();
     });
     // Tap action — same targets as promo cards.
+    const bannerBtnField = drillNode.querySelector('.hb-btn-field');
+    const syncActionDependentFields = () => {
+      if (bannerBtnField) bannerBtnField.hidden = bannerAction === 'none';
+      if (bannerWvCfg) bannerWvCfg.hidden = bannerAction !== 'webview';
+    };
     drillNode.querySelector('.hb-action').addEventListener('change', (e) => {
       bannerAction = e.target.value;
       delete el.dataset.previewPage; delete el.dataset.previewUrl;
       if (bannerAction === 'webview') el.dataset.previewUrl = bannerWvUrl.value;
       else if (bannerAction !== 'none') el.dataset.previewPage = bannerAction;
       el.classList.toggle('hb-tappable', bannerAction !== 'none');
-      if (bannerWvCfg) bannerWvCfg.hidden = bannerAction !== 'webview';
+      syncActionDependentFields();
       markDirty();
     });
+    syncActionDependentFields();
     bannerWvConnect?.addEventListener('click', () => {
       const url = websiteUrl((bannerWvUrl?.value || '').trim());
       if (!url) { showToast('Enter a website address starting with https://.'); bannerWvUrl?.focus(); return; }
       bannerWvConnect.classList.add('is-success');
       if (bannerWvLabel) bannerWvLabel.textContent = 'Reload preview';
       if (bannerWvStatus) { bannerWvStatus.textContent = 'Page added'; bannerWvStatus.classList.remove('hidden'); }
+      if (bannerWvDisplay) bannerWvDisplay.hidden = false;
+      if (bannerWvDisplayLabel) bannerWvDisplayLabel.hidden = false;
       el.dataset.previewUrl = url;
-      openWebsitePreview(url, {}, undefined, el.closest('.app-page')?.dataset.page);
+      openWebsitePreview(url, bannerOptions, undefined, el.closest('.app-page')?.dataset.page);
       markDirty();
     });
     bannerWvUrl?.addEventListener('input', () => {
@@ -988,16 +1041,46 @@ export function initPromoWidgets(ctx) {
       bannerWvConnect?.classList.remove('is-success');
       if (bannerWvLabel) bannerWvLabel.textContent = 'Add & preview';
       bannerWvStatus?.classList.add('hidden');
+      if (bannerWvDisplay) bannerWvDisplay.hidden = true;
+      if (bannerWvDisplayLabel) bannerWvDisplayLabel.hidden = true;
     });
+    bannerWvDisplay?.querySelectorAll('[data-wv-opt="inapp"], [data-wv-opt="showurl"]').forEach((toggle) => {
+      toggle.setAttribute('aria-disabled', 'true');
+      toggle.closest('.ms-toggle-row').classList.add('website-option-unavailable');
+      toggle.closest('.ms-toggle-row').title = 'Requires support from your website; unavailable in this browser preview.';
+      toggle.addEventListener('click', (event) => event.stopImmediatePropagation(), true);
+    });
+    bannerWvDisplay?.querySelectorAll('[data-wv-opt]').forEach((toggle) => {
+      toggle.addEventListener('click', () => {
+        toggle.classList.toggle('on');
+        bannerOptions[toggle.dataset.wvOpt] = toggle.classList.contains('on');
+        if (bannerWvConnect?.classList.contains('is-success')) {
+          openWebsitePreview(bannerWvUrl.value, bannerOptions, undefined, el.closest('.app-page')?.dataset.page);
+        }
+        markDirty();
+      });
+    });
+    drillNode.querySelector('[data-hb-help]')?.addEventListener('click', () => showToast('The Help Center would open in a new tab'));
     const navigateBanner = (event) => {
       event.stopPropagation();
       if (bannerAction === 'none') return;
       if (bannerAction === 'webview') {
-        if (!openWebsitePreview(bannerWvUrl.value, {}, undefined, el.closest('.app-page')?.dataset.page)) showToast('Add a website address first.');
-      } else window.showPhonePage?.(bannerAction);
+        if (!openWebsitePreview(bannerWvUrl.value, bannerOptions, undefined, el.closest('.app-page')?.dataset.page)) showToast('Add a website address first.');
+      } else if (bannerAction === 'inbox') window.openModal?.('inbox');
+      else if (bannerAction === 'account') window.openAccountPage?.();
+      else window.showPhonePage?.(bannerAction);
     };
     bannerCta.addEventListener('click', navigateBanner);
     el.addEventListener('click', (event) => { if (bannerCta.hidden && bannerAction !== 'none') navigateBanner(event); });
+
+    drillNode.querySelectorAll('[data-hb-layout]').forEach((r) => {
+      r.addEventListener('click', () => {
+        drillNode.querySelectorAll('[data-hb-layout]').forEach((x) => x.classList.remove('active'));
+        r.classList.add('active');
+        el.dataset.hbLayout = r.dataset.hbLayout;
+        markDirty();
+      });
+    });
 
     const remove = () => {
       el.remove();
@@ -1008,6 +1091,12 @@ export function initPromoWidgets(ctx) {
       : buildWidgetRow('Image Banner', key, drill, '.hb-banner[data-widget=\'' + key + '\']', remove);
     if (row) row.dataset.widgetKey = key;
     if (opts.saved) {
+      if (opts.saved.layout) {
+        el.dataset.hbLayout = opts.saved.layout;
+        drillNode.querySelectorAll('[data-hb-layout]').forEach((r) => {
+          r.classList.toggle('active', r.dataset.hbLayout === opts.saved.layout);
+        });
+      }
       [['.hb-head', opts.saved.heading], ['.hb-btn', opts.saved.button], ['.hb-action', opts.saved.action], ['.hb-webview-url', opts.saved.url]].forEach(([selector, value]) => {
         const field = drillNode.querySelector(selector);
         field.value = value || (selector === '.hb-action' ? 'none' : '');
@@ -1026,9 +1115,35 @@ export function initPromoWidgets(ctx) {
     updateHomeEmptyState();
     markDirty();
     if (!opts.restoring) openL3Panel(drillNode);
-    return { key, row, element: el, capture: () => ({ type: 'image', heading: drillNode.querySelector('.hb-head').value, button: drillNode.querySelector('.hb-btn').value, action: bannerAction, url: bannerWvUrl.value, image: bannerImg.style.backgroundImage, imageSource: preview.getAttribute('src') }) };
+    return { key, row, element: el, capture: () => ({ type: 'image', layout: el.dataset.hbLayout || 'wide', heading: drillNode.querySelector('.hb-head').value, button: drillNode.querySelector('.hb-btn').value, action: bannerAction, url: bannerWvUrl.value, image: bannerImg.style.backgroundImage, imageSource: preview.getAttribute('src') }) };
+  }
+
+  // Minimal Social Links instance for the Custom Screen slot on Step 7.
+  // Homepage's Social Links widget stays authoritative; this is a display-only clone.
+  function createSocialInstance(opts = {}) {
+    const n = dynWidgetSeq++;
+    const key = 'social-' + n;
+    const drill = 'social-widget-' + n;
+    const el = document.createElement('div');
+    el.className = 'social-strip';
+    el.dataset.widget = key;
+    el.innerHTML = ''
+      + '<span title="Instagram"><svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="1.9"><rect x="3" y="3" width="18" height="18" rx="5"/><circle cx="12" cy="12" r="4"/><circle cx="17.2" cy="6.8" r="1.1" fill="currentColor" stroke="none"/></svg></span>'
+      + '<span title="Facebook"><svg viewBox="0 0 24 24" width="18" height="18"><path d="M14 8.5V6.8c0-.7.2-1.1 1.2-1.1h1.6V2.9c-.3 0-1.2-.1-2.3-.1-2.3 0-3.9 1.4-3.9 4v1.7H8.2v3h2.4V21h3.4v-8.5h2.4l.4-3H14z" fill="currentColor"/></svg></span>'
+      + '<span title="TikTok"><svg viewBox="0 0 24 24" width="18" height="18"><path d="M16.5 3c.4 2.1 1.8 3.6 4 3.8v2.9c-1.5.1-2.9-.3-4.2-1.1v5.6c0 4.4-3.5 6.8-7 5.7-3.1-1-4.4-4.9-2.6-7.7 1-1.5 2.8-2.4 4.8-2.2v3c-.4-.1-.8-.1-1.2 0-1.4.2-2.1 1.4-1.8 2.6.3 1.2 1.6 1.9 2.8 1.4.9-.3 1.5-1.1 1.5-2.1V3h3.7z" fill="currentColor"/></svg></span>'
+      + '<span title="YouTube"><svg viewBox="0 0 24 24" width="18" height="18"><path d="M21.6 7.2c-.2-.9-.9-1.6-1.8-1.8C18.2 5 12 5 12 5s-6.2 0-7.8.4c-.9.2-1.6.9-1.8 1.8C2 8.8 2 12 2 12s0 3.2.4 4.8c.2.9.9 1.6 1.8 1.8C5.8 19 12 19 12 19s6.2 0 7.8-.4c.9-.2 1.6-.9 1.8-1.8.4-1.6.4-4.8.4-4.8s0-3.2-.4-4.8z" fill="currentColor"/><path d="M10.2 15.1l5.2-3.1-5.2-3.1z" fill="var(--p-panel)"/></svg></span>';
+    (opts.stage || homePageEl).appendChild(el);
+    const remove = () => { el.remove(); };
+    const row = opts.list
+      ? buildRewardsPromoRow('Social Links', key, drill, remove, opts.list)
+      : buildWidgetRow('Social Links', key, drill, '.social-strip[data-widget=\'' + key + '\']', remove);
+    if (row) row.dataset.widgetKey = key;
+    reorderPhoneWidgets();
+    updateHomeEmptyState();
+    markDirty();
+    return { key, row, element: el, capture: () => ({ type: 'social' }) };
   }
 
 
-  return { initPromoCards, escHtml, readImageFile, openGridPicker, wireDrillNode, buildWidgetRow, promoDrillMarkup, createPromoInstance, createTextDivider, createImageBanner };
+  return { initPromoCards, escHtml, readImageFile, openGridPicker, wireDrillNode, buildWidgetRow, promoDrillMarkup, createPromoInstance, createTextDivider, createImageBanner, createSocialInstance };
 }

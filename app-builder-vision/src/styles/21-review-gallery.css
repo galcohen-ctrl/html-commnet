@@ -1,0 +1,41 @@
+body.review-gallery-active #device-stage { display: none; }
+body.review-gallery-active .preview-area { overflow: auto; padding: 0; align-items: stretch; justify-content: flex-start; }
+body.review-gallery-active[data-responsive-view="preview"] .preview-area { display: block; }
+@media (min-width: 1180px) {
+  body.review-gallery-active .preview-area { display: block; }
+}
+.review-gallery[hidden] { display: none; }
+.review-gallery {
+  display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); align-items: start;
+  gap: 24px; width: 100%; padding: 72px 24px 24px;
+}
+.review-phone-item { min-width: 0; width: 100%; max-width: 300px; justify-self: center; }
+.review-phone-heading { display: flex; align-items: center; justify-content: space-between; gap: 8px; margin-bottom: 10px; }
+.review-phone-heading h3 { margin: 0; font-size: 14px; font-weight: 650; letter-spacing: 0; color: var(--ink); overflow-wrap: anywhere; }
+.review-phone-heading h3 { margin-right: auto; }
+.review-expand, .review-dialog-heading button {
+  display: grid; place-items: center; width: 44px; height: 44px; flex: none;
+  background: var(--panel); color: var(--ink); border: 1px solid var(--line); border-radius: 6px; cursor: pointer;
+}
+.review-expand svg, .review-dialog-heading svg { width: 18px; height: 18px; }
+.review-toast { position: fixed; left: 20px; right: 20px; bottom: 82px; z-index: 1000; padding: 12px; border-radius: 8px; background: var(--ink); color: var(--panel); font-size: 13px; line-height: 1.4; text-align: center; }
+.review-toast[hidden] { display: none; }
+.review-phone-wrap { position: relative; width: 100%; aspect-ratio: 360 / 760; overflow: hidden; border-radius: 28px; }
+.review-phone-frame { position: absolute; inset: 0; width: 360px; height: 760px; border: 0; transform: scale(var(--review-scale, .7)); transform-origin: top left; }
+.review-preview-dialog { max-width: calc(100vw - 24px); max-height: calc(100dvh - 24px); padding: 12px; border: 1px solid var(--line); border-radius: 8px; background: var(--panel); color: var(--ink); }
+.review-preview-dialog::backdrop { background: rgb(0 0 0 / .5); }
+.review-dialog-heading { display: flex; align-items: center; justify-content: space-between; gap: 16px; margin-bottom: 10px; }
+.review-dialog-heading h2 { font-size: 16px; font-weight: 650; letter-spacing: 0; margin: 0; }
+.review-preview-dialog .review-phone-wrap { width: min(360px, calc(100vw - 50px), calc((100dvh - 110px) * .473684)); }
+body.review-phone { display: block; min-width: 0; width: 360px; height: 760px; overflow: hidden; padding: 0; margin: 0; background: transparent; }
+body.review-phone #root { display: block; width: 100%; height: 100%; }
+body.review-phone #device-frame { display: flex !important; width: 100% !important; height: 100% !important; margin: 0; padding: 10px; transform: none !important; box-shadow: none; border-radius: 38px; }
+body.review-phone .device-screen { display: flex; flex-direction: column; width: 100%; height: 100%; min-height: 0; position: relative; }
+body.review-phone #app-shell { display: block !important; flex: 1; min-height: 0; height: auto; overflow-y: auto; font-family: var(--p-font-body, inherit); }
+body.review-phone .status-bar, body.review-phone .bottom-nav { flex: none; }
+body.review-phone .header-tap-target { cursor: default; }
+body.review-phone .app-page { display: none; }
+body.review-phone .app-page.active { display: block; }
+@media (max-width: 600px) {
+  .review-gallery { grid-template-columns: minmax(0, 1fr); padding: 64px 16px 20px; }
+}

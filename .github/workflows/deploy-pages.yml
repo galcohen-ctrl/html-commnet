@@ -28,7 +28,9 @@ jobs:
         with:
           node-version: 22
           cache: npm
-          cache-dependency-path: app-builder-p1/package-lock.json
+          cache-dependency-path: |
+            app-builder-p1/package-lock.json
+            app-builder-vision/package-lock.json
 
       - name: Configure GitHub Pages
         uses: actions/configure-pages@v5
@@ -41,6 +43,14 @@ jobs:
         working-directory: app-builder-p1
         run: npm run build
 
+      - name: Install App Builder Vision dependencies
+        working-directory: app-builder-vision
+        run: npm ci
+
+      - name: Build App Builder Vision
+        working-directory: app-builder-vision
+        run: npm run build
+
       - name: Assemble the complete Pages site
         run: |
           mkdir -p _site
@@ -50,9 +60,12 @@ jobs:
             --exclude '/.gitignore' \
             --exclude '_site/' \
             --exclude 'app-builder-p1/' \
+            --exclude 'app-builder-vision/' \
             ./ _site/
           mkdir -p _site/app-builder-p1
           cp -R app-builder-p1/dist/. _site/app-builder-p1/
+          mkdir -p _site/app-builder-vision
+          cp -R app-builder-vision/dist/. _site/app-builder-vision/
 
       - name: Upload Pages artifact
         uses: actions/upload-pages-artifact@v4

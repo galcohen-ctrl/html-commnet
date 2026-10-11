@@ -20,7 +20,9 @@ const TARGET_SELECTOR = [
   '.hb-img',
   '.app-top-header .brand-mark.has-logo',
   '.rw-block-banner',
-  '.reels-image',
+  // Only the launch canvas — the same node is cloned into the config-panel
+  // thumbnail and the playback overlay, and neither is editable.
+  '#launch-screen-content .launch-screen-image',
 ].join(', ');
 
 /* ------------------------------------------------------------------ zoom
@@ -75,6 +77,9 @@ export function initImageAdjust(ctx) {
   // beside #app-shell, and their media is adjustable too.
   const shell = document.querySelector('.device-screen') || document.getElementById('app-shell');
   if (!shell) return {};
+  // The launch screen previews on its own device beside the phone, so it needs
+  // the same press-and-hold entry point.
+  const holdRoots = [shell, document.getElementById('launch-device-stage')].filter(Boolean);
 
   let session = null;
   let coachShown = false;
@@ -193,9 +198,9 @@ export function initImageAdjust(ctx) {
 
   function applyZoom() {
     if (!session) return;
-    const stage = document.getElementById('device-stage');
+    const stage = session.stage;
     const base = session.base;
-    if (!stage || !base) return;
+    if (!stage || !base?.stage) return;
     const k = computeZoom(base, session.layer);
     session.zoom = k;
     if (k === 1) return;
@@ -218,7 +223,7 @@ export function initImageAdjust(ctx) {
 
   function clearZoom() {
     document.documentElement.style.removeProperty('--ia-zoom');
-    const stage = document.getElementById('device-stage');
+    const stage = session?.stage;
     if (!stage) return;
     stage.style.transform = '';
     stage.style.transformOrigin = '';
@@ -281,9 +286,12 @@ export function initImageAdjust(ctx) {
     document.body.classList.add('ia-adjusting');
 
     const panel = buildToolbar();
-    const stage = document.getElementById('device-stage');
+    // The launch screen has its own device, and its frame is already scaled by
+    // responsive.js — leave it alone rather than compose a second transform.
+    // A full-screen launch image needs no magnification anyway.
+    const stage = target.closest('#launch-device-stage') ? null : document.getElementById('device-stage');
     session = {
-      target, layer, cropBox, cropBtn, panel, src,
+      target, layer, cropBox, cropBtn, panel, src, stage,
       state: { x: 0, y: 0, scale: 1, rot: 0, src },
       history: [], index: -1, cropping: false, crop: null, fitTimer: null,
       zoom: 1, pumpFrame: 0,
@@ -591,7 +599,7 @@ export function initImageAdjust(ctx) {
     ring = null;
   }
 
-  shell.addEventListener('pointerdown', (event) => {
+  function beginHold(event) {
     if (session) return;
     const target = event.target.closest(TARGET_SELECTOR);
     if (!target || !backgroundUrlOf(target)) return;
@@ -624,11 +632,15 @@ export function initImageAdjust(ctx) {
     holdFrame = requestAnimationFrame(step);
     // Guard against the rect going stale if the layout shifts mid-hold.
     void rect;
+  }
+
+  holdRoots.forEach((root) => {
+    root.addEventListener('pointerdown', beginHold);
+    ['pointerup', 'pointercancel', 'pointerleave'].forEach((type) => {
+      root.addEventListener(type, () => { if (holding) stopHold(); });
+    });
+    root.addEventListener('pointermove', () => { if (holding && !session) stopHold(); });
   });
-  ['pointerup', 'pointercancel', 'pointerleave'].forEach((type) => {
-    shell.addEventListener(type, () => { if (holding) stopHold(); });
-  });
-  shell.addEventListener('pointermove', () => { if (holding && !session) stopHold(); });
 
   // The overlays are pinned to the element's on-screen box, so anything that
   // moves that box has to move them too.

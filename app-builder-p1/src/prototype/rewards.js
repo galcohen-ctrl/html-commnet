@@ -8,7 +8,7 @@ export function initRewards(ctx) {
   const rwTiles = {
     gifts: { name: 'My Gifts', headline: 'Active Rewards ready to be redeemed', desc: '3 rewards available · Tap to view', btnText: '', imgData: null },
     points: { name: 'My Points Shop', headline: '1 pt per AED spent', desc: 'Trade points for gifts, discounts, and exclusive perks', btnText: '', imgData: null },
-    punch: { name: 'Punch Card', headline: 'Coffee Punch Card', desc: '7 of 10 · Free coffee after 10 stamps', btnText: '', imgData: null },
+    punch: { name: 'Punch Card', headline: 'Coffee Punch Card', desc: '7 of 10 · Free coffee after 10 stamps', btnText: '', imgData: null, emptyText: 'Start collecting stamps on your next visit' },
   };
   let rwEditKey = null;
 
@@ -65,10 +65,23 @@ export function initRewards(ctx) {
     }
     rwEditKey = key;
     document.getElementById('rw-edit-title').textContent = t.name;
-    document.getElementById('rw-edit-headline').value = t.headline;
-    document.getElementById('rw-edit-desc').value = t.desc;
-    document.getElementById('rw-edit-btn-text').value = t.btnText;
-    rwPaintImageState(t.imgData);
+    // Punch cards are member-driven (like points) — no image/copy to configure,
+    // only the empty-state text a member sees when they hold no active cards.
+    const isPunch = key === 'punch';
+    const drill = document.querySelector('[data-detail="rw-tile"]');
+    const standardBlock = drill?.querySelector('[data-rw-mode="standard"]');
+    const punchBlock = drill?.querySelector('[data-rw-mode="punch"]');
+    if (standardBlock) standardBlock.hidden = isPunch;
+    if (punchBlock) punchBlock.hidden = !isPunch;
+    if (isPunch) {
+      const emptyInput = document.getElementById('rw-punch-empty');
+      if (emptyInput) emptyInput.value = t.emptyText || '';
+    } else {
+      document.getElementById('rw-edit-headline').value = t.headline;
+      document.getElementById('rw-edit-desc').value = t.desc;
+      document.getElementById('rw-edit-btn-text').value = t.btnText;
+      rwPaintImageState(t.imgData);
+    }
     // Editing one reward card is an item-level edit, so it opens in the third
     // panel and the reward list stays visible beside it.
     const node = document.querySelector('[data-detail="rw-tile"]');
@@ -93,7 +106,7 @@ export function initRewards(ctx) {
     const el = document.getElementById(id);
     if (!el) return;
     el.addEventListener('input', () => {
-      if (!rwEditKey) return;
+      if (!rwEditKey || rwEditKey === 'punch') return;
       const t = rwTiles[rwEditKey];
       t.headline = document.getElementById('rw-edit-headline').value;
       t.desc = document.getElementById('rw-edit-desc').value;
@@ -101,6 +114,11 @@ export function initRewards(ctx) {
       rwRenderPhone(rwEditKey);
       markDirty();
     });
+  });
+
+  document.getElementById('rw-punch-empty')?.addEventListener('input', (e) => {
+    rwTiles.punch.emptyText = e.target.value;
+    markDirty();
   });
 
   const rwImageZone = document.getElementById('rw-edit-image-zone');

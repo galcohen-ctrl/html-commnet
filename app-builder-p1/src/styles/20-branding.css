@@ -1,21 +1,123 @@
 .branding-page { display: flex; flex-direction: column; gap: 0; }
 .branding-page [hidden] { display: none !important; }
+/* The drills render outside .branding-page once they move into the third panel. */
+.brand-drill [hidden] { display: none !important; }
 .branding-page .cp-section { border-radius: 8px; }
 .branding-page .cp-head-row { letter-spacing: 0; }
 .branding-page .cp-page-title { margin-bottom: 20px; }
 .branding-page .gf-swatch-row { flex-wrap: wrap; }
-.brand-background-sample {
-  height: 92px; border-radius: 6px; display: grid; place-items: center;
-  margin-bottom: 14px; background: var(--p-bg); color: var(--p-text);
-  border: 1px solid var(--line);
+
+/* ---------- Basics list (Logo / Brand colour / Background) ---------- */
+.brand-basics { display: flex; flex-direction: column; gap: 6px; margin-bottom: 14px; }
+.brand-basics .brand-tune-row { padding: 12px 12px 12px 14px; }
+.brand-accent-row { position: relative; cursor: pointer; overflow: hidden; }
+.brand-accent-circle {
+  width: 22px; height: 22px; flex: none;
+  border-radius: 50%; background: var(--p-accent);
+  box-shadow: inset 0 0 0 1px rgba(0,0,0,0.08);
 }
-.brand-background-sample span { font-size: 28px; font-weight: 700; font-family: var(--p-font-title, inherit); }
+.brand-accent-edit { width: 14px; height: 14px; flex: none; color: var(--muted); }
+.brand-accent-row:hover .brand-accent-edit { color: var(--ink); }
+/* Sits above the invisible colour input that covers the row, so it can take focus and paste. */
+.brand-accent-hex-input {
+  position: relative; z-index: 1;
+  width: 84px; padding: 4px 6px; margin: -4px 0;
+  border: 1px solid transparent; border-radius: 6px; background: transparent;
+  font: inherit; font-size: 12px; font-weight: 500; color: var(--muted);
+  text-align: right; text-transform: uppercase; cursor: text;
+}
+.brand-accent-hex-input:hover { border-color: var(--line); }
+.brand-accent-hex-input:focus { outline: none; border-color: var(--como); background: #fff; color: var(--ink); }
+.brand-accent-hex-input.invalid { border-color: #d14343; }
+/* The native picker is the interaction; hide it visually but keep it focusable. */
+.brand-accent-input {
+  position: absolute; inset: 0;
+  opacity: 0; width: 100%; height: 100%; padding: 0;
+  border: 0; cursor: pointer;
+}
+.brand-tune-swatch {
+  width: 22px; height: 22px; flex: none;
+  border-radius: 50%; background: var(--p-bg);
+  box-shadow: inset 0 0 0 1px rgba(0,0,0,0.08);
+}
+
+/* Splash screen — lives in .brand-basics but earns its own emphasis because
+   it is the merchant's most missable moment: the first frame customers see. */
+.brand-splash-row {
+  background: linear-gradient(180deg, var(--como-soft) 0%, #fff 65%);
+  border-color: color-mix(in oklch, var(--como) 22%, var(--line));
+}
+.brand-splash-row:hover { border-color: color-mix(in oklch, var(--como) 45%, var(--line)); }
+.brand-splash-row .w-name { color: var(--ink); font-weight: 650; }
+.brand-splash-row .chev { color: var(--como); }
+.brand-splash-ic {
+  width: 30px; height: 30px; flex: none;
+  display: grid; place-items: center;
+  border-radius: 8px;
+  background: var(--como-soft);
+  color: var(--como);
+  box-shadow: inset 0 0 0 1px color-mix(in oklch, var(--como) 18%, transparent);
+}
+.brand-splash-ic svg { width: 18px; height: 18px; display: block; }
+
+/* ---------- Info dots ---------- */
+/* Sections clip their children, so a tooltip owner has to opt out and restore its own corners. */
+.branding-page .cp-section:has(.ms-info) { overflow: visible; }
+.branding-page .cp-section:has(.ms-info) .cp-head-row { border-radius: 8px 8px 0 0; }
+.branding-page .cp-section:has(.ms-info):not(.open) .cp-head-row { border-radius: 8px; }
+.branding-page .cp-head-row .ms-info { margin-left: 7px; }
+.branding-page .cp-mini-label { display: inline-flex; align-items: center; gap: 6px; }
+.brand-drill .cp-field label { display: flex; align-items: center; gap: 6px; }
+.brand-drill .cp-detail-header .ms-info { margin-left: 7px; }
+/* The tooltip is anchored to the row that owns it, not to the 14px dot, so it can
+   never overflow the panel sideways. Panels are tall, so it drops below. */
+.branding-page .cp-head-row,
+.branding-page .cp-slider-row,
+.brand-drill .cp-detail-header { position: relative; }
+.branding-page .ms-info,
+.branding-page button.ms-info,
+.brand-drill .ms-info,
+.brand-drill button.ms-info { position: static; }
+.branding-page .ms-info::after,
+.brand-drill .ms-info::after {
+  top: calc(100% + 8px); bottom: auto;
+  left: 0; right: 0; width: auto;
+}
+
+/* ---------- Fine-tune rows (open the third panel) ---------- */
+.brand-tune-row { cursor: pointer; }
+.brand-tune-row.l3-active { border-color: var(--como); background: var(--como-soft); }
+.brand-tune-val {
+  font-size: 12px; font-weight: 500; color: var(--muted);
+  max-width: 45%; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
+}
+.brand-tune-dots { display: inline-flex; gap: 3px; }
+.brand-tune-dots i { width: 13px; height: 13px; border-radius: 50%; border: 1px solid var(--line); }
+.brand-tune-row .chev {
+  flex: none; width: 18px; text-align: center;
+  font-size: 17px; line-height: 1; color: var(--muted);
+}
+.brand-tune-row:hover .chev { color: var(--ink); }
+.brand-tune-warn { display: none; }
+body[data-branding-touched="true"][data-branding-safe="false"] .brand-tune-warn {
+  display: inline-flex; align-items: center;
+  padding: 3px 8px; border-radius: 999px;
+  background: #fdf1d8; color: #8a5a00;
+  font-size: 11px; font-weight: 700;
+}
+body[data-branding-touched="true"][data-branding-safe="false"] .brand-tune-dots,
+body[data-branding-touched="true"][data-branding-safe="false"] .brand-tune-row:has(.brand-tune-warn) .brand-tune-val,
+body[data-branding-touched="true"][data-branding-safe="false"] .brand-tune-row:has(.brand-tune-warn) .brand-tune-swatch { display: none; }
+body[data-branding-touched="true"][data-branding-safe="false"] .brand-tune-row:has(.brand-tune-warn) { border-color: #e6ca8b; }
 .brand-gradient-presets { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 8px; margin: 14px 0; }
 .brand-gradient-presets button {
   min-width: 0; height: 44px; border: 1px solid var(--line); border-radius: 6px; cursor: pointer;
   background: linear-gradient(135deg, var(--gradient-start), var(--gradient-end));
   background: linear-gradient(135deg in oklch, var(--gradient-start), var(--gradient-end));
 }
+/* A gradient chip under a "Solid colour" segment contradicts the mode the
+   merchant just picked, so solid mode shows the start colour flat. */
+.brand-gradient-presets[data-mode="solid"] button { background: var(--gradient-solid, var(--gradient-start)); }
 .brand-gradient-presets button:hover { border-color: var(--como); }
 .brand-direction-row { display: flex; gap: 8px; margin: 12px 0; }
 .brand-direction-row button {
@@ -57,6 +159,12 @@
 .brand-font-picker[aria-busy="true"] .brand-font-trigger { opacity: .65; }
 .brand-custom-font { margin-top: 18px; font-size: 12px; color: var(--muted); }
 .brand-custom-font summary { min-height: 44px; display: flex; align-items: center; cursor: pointer; }
+.brand-custom-font-help { margin: 6px 0 10px; font-size: 11.5px; color: var(--muted); line-height: 1.5; }
+#brand-custom-font-btn { min-height: 40px; }
+.font-legal-check { display: flex; gap: 10px; align-items: flex-start; padding: 12px; border: 1px solid var(--line); border-radius: 10px; background: var(--como-soft); font-size: 12.5px; line-height: 1.45; color: var(--ink); cursor: pointer; }
+.font-legal-check input { margin-top: 2px; accent-color: var(--como); flex: none; }
+.brand-custom-font-help { margin: 6px 0 10px; font-size: 11.5px; color: var(--muted); line-height: 1.5; }
+#brand-custom-font-btn { min-height: 40px; }
 .app-shell :is(.loyalty-card, .stat-tile, .pc-card, .prog-card, .punch-card, .oa-card, .ti-card, .mc-card, .loc-card, .rw-block-banner, .px-login-card) {
   border-radius: var(--p-card-radius, 12px);
 }

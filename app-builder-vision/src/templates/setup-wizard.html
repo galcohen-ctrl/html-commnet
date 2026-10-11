@@ -1,0 +1,25 @@
+<!-- ============================================================
+     SETUP WIZARD (full-screen onboarding — shown on load)
+     ============================================================ -->
+<div class="setup-wizard" id="setup-wizard">
+  <header class="sw-topbar">
+    <div class="sw-brand"><span class="sw-brand-logo">✦</span> Como <b>App Studio</b></div>
+    <button class="sw-skip" id="sw-skip" type="button">Skip setup →</button>
+  </header>
+  <div class="sw-body">
+    <div class="sw-left">
+      <div class="sw-progress" id="sw-progress"></div>
+      <div class="sw-steps" id="sw-steps"><!-- rendered by the setup-wizard feature module --></div>
+      <div class="sw-footer">
+        <button class="sw-back" id="sw-back" type="button">Back</button>
+        <button class="sw-next" id="sw-next" type="button">Continue</button>
+      </div>
+    </div>
+    <aside class="sw-preview">
+      <div class="sw-preview-inner">
+        <div class="sw-phone-slot" id="sw-phone-slot"><!-- real device-frame moves here during setup --></div>
+        <p class="sw-preview-cap">Live preview — updates as you choose</p>
+      </div>
+    </aside>
+  </div>
+</div>

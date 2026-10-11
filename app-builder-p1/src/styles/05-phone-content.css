@@ -31,7 +31,9 @@
 
   /* ---------- Logo position layouts ---------- */
   .header-group { display: flex; align-items: center; gap: 10px; }
-  .app-top-header.pos-right .header-group { flex-direction: row-reverse; flex: 1; justify-content: center; }
+  .app-top-header.pos-right .header-tap-target { order: 2; }
+  .app-top-header.pos-right .icon-btn { order: 1; }
+  .app-top-header.pos-right .header-group { flex-direction: row-reverse; }
   .app-top-header.pos-right .brand-text .name,
   .app-top-header.pos-right .brand-text .sub { text-align: right; }
   .app-top-header.pos-center .header-group { flex-direction: column; align-items: center; justify-content: center; flex: 1; gap: 4px; }
@@ -214,7 +216,6 @@
   .loc-card .name {
     font-family: var(--p-font-title, inherit);
   }
-  .app-top-header { background: var(--p-header-bg, transparent); }
   .pc-card.pc-hidden { display: none; }
 
   /* ── Image mode: COVER (full-width image on top, text below) ── */

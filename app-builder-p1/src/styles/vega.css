@@ -1,0 +1,116 @@
+/* ============================================================
+   VEGA DESIGN SYSTEM — editor chrome only (light mode).
+   Source: "Vega DS.tokens.json" (Figma export, 2026-10-11).
+
+   Loaded last from index.css. Remove that one @import to return to the
+   original Como look; everything below only re-points tokens or overrides
+   editor selectors.
+
+   Deliberately untouched: the merchant's phone (--p-* tokens, phone templates,
+   brand defaults such as the Branding colour picker). That is the merchant's
+   brand, not ours.
+
+   This file is unlayered. Some base files sit in @layer components, which an
+   unlayered rule always beats, so every override below carries its own states
+   (hover / active / focus) instead of relying on the base rule's.
+   ============================================================ */
+
+:root {
+  /* Surfaces and text */
+  --bg: #f0f3f7;                      /* background-light */
+  --panel: #fcfcfc;                   /* card-light */
+  --ink: rgba(4, 4, 28, .95);         /* foreground-light */
+  --muted: rgba(4, 4, 28, .64);       /* muted-foreground-light */
+
+  /* Lines. Vega's border-light (#ABC6D8) is heavy on every row, so everyday
+     lines use divider-secondary (#C7D9E5 at 60%) flattened onto the panel; the
+     full border colour is kept for form fields (--line-strong). */
+  --line: #dce7ee;
+  --line-soft: #e4ecf1;
+  --line-strong: #abc6d8;
+  --line-hover: #abc6d8;
+  --line-hover-soft: #c7d9e5;
+
+  /* Accent */
+  --como: #262aff;                    /* primary-light / colors/vega/action */
+  --como-2: #3d40ff;                  /* accent-light / action-hover */
+  --como-hover: #1d20d6;              /* pressed/hover fill: action, 16% darker */
+  --como-soft: rgba(38, 42, 255, .1);
+  --como-focus-on-dark: #4cbeff;      /* accent-dark, for outlines on dark chips */
+  --focus-ring: rgba(61, 64, 255, .4);/* ring-light */
+
+  /* Status */
+  --danger: #bd2947;                  /* destructive-light */
+  --danger-soft: #fef2f2;             /* destructive-foreground-light */
+  /* Vega exports no success / warning tokens: keep Como's --ok / --warning. */
+
+  /* Shape and depth */
+  --radius: 12px;                     /* radius-xl */
+  --shadow-sm: 0 1px 2px rgba(0, 0, 0, .05);                                  /* shadow-xs */
+  --shadow: 0 4px 6px -1px rgba(0, 0, 0, .1), 0 2px 4px -2px rgba(0, 0, 0, .1); /* shadow-md */
+
+  --font-vega: 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+  --font-device: -apple-system, BlinkMacSystemFont, "SF Pro Display", "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+}
+
+/* ---------- Typography: Inter for the editor, device font for the phone ----------
+   The phone inherits the page font when the merchant keeps "Device default";
+   a merchant-chosen font is set inline on .app-shell and still wins. */
+body { font-family: var(--font-vega); }
+.device-frame,
+.launch-device-frame,
+body.review-phone { font-family: var(--font-device); }
+
+/* ---------- Form fields keep the full Vega border ---------- */
+:is(.cp-input-text, .cp-select, .ms-input, .ms-textarea, .ms-select,
+    .sm-input, .sm-select, .sm-textarea, .sw-input):not(:focus):not([aria-invalid="true"]):not(.cp-input-error) {
+  border-color: var(--line-strong);
+}
+
+/* ============================================================
+   LIGHT SIDEBAR
+   Vega's sidebar-light (#FCFCFC) equals the config panel, so the two columns
+   merged. The rail sits one step darker than the page (#F0F3F7) instead, and
+   the active row lifts to the panel colour.
+   ============================================================ */
+.side-nav {
+  --side-bg: #e8eef3;
+  --side-hover: rgba(4, 4, 28, .05);
+  --side-active: #fcfcfc;
+  background: var(--side-bg);
+  color: var(--ink);                  /* sidebar-foreground-light */
+  border-right: 1px solid #d3dfe7;
+}
+body.side-collapsed .side-nav { border-bottom-color: var(--line); }
+.side-nav .side-brand,
+.side-nav .side-foot { border-color: var(--line); }
+.side-nav .side-divider { background: var(--line); }
+.side-nav .side-kicker { color: var(--muted); }
+
+.side-nav .side-toggle-btn { color: var(--muted); }
+.side-nav .side-item { color: var(--muted); }
+.side-nav .side-item.active,
+.side-nav .side-item.active .side-lbl {
+  color: var(--como);                 /* sidebar-primary-foreground-light */
+}
+.side-nav .side-item.active {
+  background: var(--side-active);
+  box-shadow: 0 1px 2px rgba(4, 4, 28, .06), inset 0 0 0 1px #d3dfe7;
+  font-weight: 650;
+}
+.side-nav .side-item.side-completed { color: var(--muted); }
+
+@media (hover: hover) and (pointer: fine) {
+  .side-nav .side-toggle-btn:hover { color: var(--ink); background: var(--side-hover); }
+  .side-nav .side-item:hover { color: var(--ink); background: var(--side-hover); }
+  .side-nav .side-item.active:hover { color: var(--como); background: var(--side-active); }
+}
+
+.side-nav .side-toggle-btn:focus-visible,
+.side-nav .side-item:focus-visible { outline: 2px solid var(--focus-ring); }
+
+/* Orphaned-link warning was amber-on-dark */
+.side-nav .side-orphan-banner { color: var(--warning); }
+body.side-collapsed .side-step[data-step="online-ordering"].has-warning .step-dot::after {
+  border-color: var(--panel);
+}

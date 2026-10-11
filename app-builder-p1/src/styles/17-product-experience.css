@@ -20,9 +20,9 @@
   gap: 12px;
   margin: 18px 0 24px;
   padding: 16px;
-  border: 1px solid #ddd7ec;
+  border: 1px solid var(--line);
   border-radius: 14px;
-  background: #f8f6fd;
+  background: color-mix(in srgb, var(--como) 5%, white);
   box-shadow: 0 8px 22px rgba(37, 27, 70, .06);
 }
 .px-import-copy { display: grid; gap: 5px; }
@@ -47,7 +47,7 @@
 .px-import-primary { color: #fff; background: var(--como); }
 .px-import-divider { display: flex; align-items: center; gap: 10px; color: #908ca0; font-size: 11px; }
 .px-import-divider::before,
-.px-import-divider::after { content: ""; flex: 1; height: 1px; background: #e6e1ef; }
+.px-import-divider::after { content: ""; flex: 1; height: 1px; background: var(--line); }
 .px-import-url { display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: 8px; }
 .px-import-url input {
   min-width: 0;
@@ -60,7 +60,7 @@
   font: inherit;
   font-size: 13px;
 }
-.px-import-url button { color: var(--como); background: #ede7fb; }
+.px-import-url button { color: var(--como); background: color-mix(in srgb, var(--como) 11%, white); }
 .px-import-status { display: none; gap: 3px; font-size: 12px; line-height: 1.45; color: #286144; }
 .px-import-status:not(:empty) { display: grid; }
 .px-import-status span { color: #4f6f60; }
@@ -261,6 +261,7 @@
 .px-preview-toggle { display: inline-flex; align-items: center; gap: 2px; padding: 2px; border-radius: 8px; background: rgba(20,20,40,.05); }
 .px-preview-state button { min-height: 28px; border: 0; border-radius: 6px; padding: 0 9px; color: #6f6a79; background: transparent; font: inherit; font-size: 10.5px; font-weight: 700; cursor: pointer; }
 .px-preview-state button.active { color: var(--ink); background: #fff; box-shadow: 0 1px 3px rgba(20,20,40,.11); }
+body:has(#l3-body [data-detail="profile"].show) .px-preview-state { display: none; }
 .px-sample-label,
 .px-ordering-sample-label {
   width: max-content;
@@ -489,10 +490,10 @@ body.oo-connected .px-ordering-sample-label { display: none; }
 }
 
 @media (hover: hover) and (pointer: fine) {
-  .px-screen-switch:hover { border-color: #cfc8df; background: #fcfbfe; }
-  .px-import-primary:hover { background: #5f21c3; }
+  .px-screen-switch:hover { border-color: var(--line-hover-soft); background: color-mix(in srgb, var(--como) 2%, white); }
+  .px-import-primary:hover { background: color-mix(in srgb, var(--como) 87%, black); }
   .px-import-url button:hover,
-  .px-font-request button:hover { background: #e5dcfa; }
+  .px-font-request button:hover { background: color-mix(in srgb, var(--como) 16%, white); }
   .px-gift-pass > button:hover,
   .px-shop-card button:not(:disabled):hover,
   .px-order-history button:hover { filter: brightness(.94); }

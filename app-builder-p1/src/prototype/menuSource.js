@@ -82,17 +82,15 @@ export function initMenuSource(ctx) {
     integration: null,
     screen: 'chooser',
     fromOrdering: false,
-    webview: { url: 'https://velvetbistro.com/menu', connected: false, back: true, bottombar: true, inapp: true, hideheader: false, membersonly: false },
+    webview: { url: 'https://velvetbistro.com/menu', connected: false, back: true, showurl: true, bottombar: true, inapp: true, membersonly: false },
     pdf: { uploaded: false, name: '', data: '', size: 0 },
     custom: { url: 'https://order.velvetbistro.com', connected: false, back: true, bottombar: true, inapp: true, membersonly: true, theme: true, hideheader: true, color: '#6d28d9' },
-    ordering: { layout: 'grid', color: '#6d28d9', allergens: true, banner: true, hero: 0 },
     manual: { started: false, categories: seedCategories(), activeCat: null, activeItem: null, hero: null },
   };
   const panels = createMenuPanels(ctx, page, screens);
 
   function reflectSelection() {
     const ready = {
-      ordering: !!orderingApi().connected,
       webview: state.webview.connected,
       pdf: state.pdf.uploaded,
       manual: state.manual.started && state.manual.categories.some((category) => category.items.length > 0),
@@ -109,7 +107,7 @@ export function initMenuSource(ctx) {
 
   function show(screen) {
     state.screen = screen;
-    if (screen === 'pdf' || screen === 'webview' && (state.fromOrdering || ctx.getOrderingMode?.() !== 'webview')) {
+    if (screen === 'pdf' || screen === 'webview') {
       panels.open(screen);
     } else if (screen === 'build-categories') {
       panels.open(screen, 3, 'build-method');
@@ -132,18 +130,18 @@ export function initMenuSource(ctx) {
     if (dirty) markDirty();
   }
 
+  function commitApproach(approach) {
+    state.approach = approach;
+    state.fromOrdering = false;
+    markDirty();
+    if (approach === 'webview') { show('webview'); updateWebviewReturn(); }
+    else if (approach === 'pdf') show('pdf');
+    else if (approach === 'manual') show(state.manual.started ? 'build-categories' : 'build-method');
+    reflectSelection();
+  }
+
   page.querySelectorAll('[data-approach]').forEach(opt => {
-    opt.addEventListener('click', () => {
-      const approach = opt.dataset.approach;
-      state.approach = approach;
-      state.fromOrdering = false;
-      markDirty();
-      if (approach === 'webview') { show('webview'); updateWebviewReturn(); }
-      else if (approach === 'pdf') show('pdf');
-      else if (approach === 'ordering') openNativeSettings();
-      else if (approach === 'manual') show(state.manual.started ? 'build-categories' : 'build-method');
-      reflectSelection();
-    });
+    opt.addEventListener('click', () => commitApproach(opt.dataset.approach));
   });
 
   page.querySelectorAll('[data-ms-change]').forEach(b => b.addEventListener('click', resetApproach));
@@ -159,21 +157,11 @@ export function initMenuSource(ctx) {
   const webviewReturn = document.getElementById('ms-webview-return');
   const webviewReturnBtn = document.getElementById('ms-webview-return-btn');
   let webviewRequest = 0;
-  // Contextual banner: only present when the merchant reached this screen from the
-  // Online ordering step, so the round-trip back to that step stays obvious.
   function updateWebviewReturn() {
     if (!webviewReturn) return;
-    webviewReturn.hidden = !state.fromOrdering;
-    const done = state.webview.connected;
-    webviewReturn.classList.toggle('done', done);
-    const label = webviewReturn.querySelector('[data-return-label]');
-    if (label) label.textContent = done
-      ? 'Menu connected. Head back to Online ordering to finish.'
-      : 'You are setting up online ordering. Add your menu, then head back.';
-    if (webviewReturnBtn) webviewReturnBtn.textContent = done ? 'Return to Online ordering' : 'Back to Online ordering';
+    webviewReturn.hidden = true;
   }
-  webviewReturnBtn?.addEventListener('click', () => { window.goToStep?.('online-ordering'); });
-  // Tell the Online ordering step whether the web-view menu is wired up.
+  // Tell other modules whether the web-view menu is wired up.
   function announceWebview() {
     document.dispatchEvent(new CustomEvent('como:menu-source', { detail: { approach: 'webview', connected: state.webview.connected, url: state.webview.url } }));
   }
@@ -286,44 +274,16 @@ export function initMenuSource(ctx) {
   // Menu page is always restored no matter how the merchant leaves.
   window.__exitWebviewL3 = exitWebviewL3;
 
-  // Entry point used by the Online ordering step's "Web view" choice: open the
-  // Menu screen's web-view setup as a third panel while Step 2 stays put.
-  function openWebviewSetup({ fromOrdering = false } = {}) {
+  function openWebviewSetup() {
     state.approach = 'webview';
-    state.fromOrdering = fromOrdering;
-    if (fromOrdering) {
-      show('webview');
-    } else {
-      exitWebviewL3();
-      document.body.classList.remove('oo-webview-from-step2');
-      window.goToStep?.('menu');
-      show('webview');
-    }
+    state.fromOrdering = false;
+    exitWebviewL3();
+    window.goToStep?.('menu');
+    show('webview');
     updateWebviewReturn();
     markDirty();
   }
 
-  // The bottom-nav "Back to Online ordering" button — replaces Back/Continue while
-  // the merchant is here from Step 2. Validates the URL before allowing return.
-  const ooReturnBtn = document.getElementById('gf-oo-return-btn');
-  ooReturnBtn?.addEventListener('click', () => {
-    const urlValue = (webUrl?.value || '').trim();
-    const urlError = document.getElementById('ms-webview-url-error');
-    if (!urlValue) {
-      webUrl?.setAttribute('aria-invalid', 'true');
-      webUrl?.classList.add('cp-input-error');
-      if (urlError) urlError.textContent = 'Please enter your ordering URL before returning.';
-      webUrl?.focus();
-      return;
-    }
-    webUrl?.setAttribute('aria-invalid', 'false');
-    webUrl?.classList.remove('cp-input-error');
-    if (urlError) urlError.textContent = '';
-    document.body.classList.remove('oo-webview-from-step2');
-    // Phone returns to the Home preview since Online ordering is a Home-level choice.
-    showPhonePage('home');
-    window.goToStep?.('online-ordering');
-  });
   page.querySelectorAll('[data-web-opt]').forEach(t => {
     t.addEventListener('click', () => {
       state.webview[t.dataset.webOpt] = t.classList.contains('on');
@@ -389,82 +349,7 @@ export function initMenuSource(ctx) {
   });
   pdfReplace.addEventListener('click', () => { pdfInput.value = ''; pdfInput.click(); });
 
-  /* ----------------------------------------------- online ordering (both) */
-
-  function orderingApi() {
-    return ctx.ordering || { connected: false, provider: { name: 'Deliverect', mark: 'D', color: '#0fa47f' } };
-  }
-
-  function renderOrderingProvider(ordering) {
-    const logo = document.getElementById('ms-oo-logo');
-    logo.textContent = ordering.provider.mark;
-    logo.style.background = ordering.provider.color;
-    document.getElementById('ms-oo-name').textContent = ordering.provider.name;
-  }
-
-  function openNativeSettings() {
-    state.approach = 'ordering';
-    state.integration = 'native';
-    window.orderingWizardOrigin = 'menu-source';
-    ctx.openSettings('online-ordering', orderingApi().connected ? 'admin' : 'chooser');
-  }
-
-  function showMenuForOrdering(mode) {
-    state.fromOrdering = false;
-    updateWebviewReturn();
-    if (mode !== 'native' && mode !== 'webview') {
-      resetApproach({ dirty: false });
-      return;
-    }
-    state.approach = mode === 'native' ? 'ordering' : 'webview';
-    state.integration = mode === 'native' ? 'native' : null;
-    if (mode === 'native') {
-      const ordering = orderingApi();
-      renderOrderingProvider(ordering);
-      show(ordering.connected ? 'oo-connected' : 'chooser');
-    } else {
-      webUrl.value = state.webview.url;
-      setConnectState(state.webview.connected ? 'success' : 'idle');
-      webStatus.classList.toggle('hidden', !state.webview.connected);
-      show('webview');
-    }
-  }
-
-  document.getElementById('ms-oo-manage').addEventListener('click', () => {
-    if (ctx.gotoOrderingStep) { ctx.gotoOrderingStep('admin'); window.openSettings('online-ordering'); }
-  });
-
-  page.querySelectorAll('[data-ordering-opt]').forEach(t => {
-    t.addEventListener('click', () => {
-      state.ordering[t.dataset.orderingOpt] = t.classList.contains('on');
-      renderPhone();
-    });
-  });
-  page.querySelectorAll('[data-layouts="ordering"] .ms-layout').forEach(btn => {
-    btn.addEventListener('click', () => {
-      page.querySelectorAll('[data-layouts="ordering"] .ms-layout').forEach(b => b.classList.toggle('on', b === btn));
-      state.ordering.layout = btn.dataset.layout;
-      markDirty();
-      renderPhone();
-    });
-  });
-  wireSwatches('ordering', (hex) => { state.ordering.color = hex; renderPhone(); });
   wireSwatches('custom', (hex) => { state.custom.color = hex; renderPhone(); });
-
-  const orderingHeroThumb = document.getElementById('ms-ordering-hero-thumb');
-  const orderingHeroName = document.getElementById('ms-ordering-hero-name');
-  function renderOrderingHeroControl() {
-    const hero = HEROES[state.ordering.hero];
-    orderingHeroThumb.style.backgroundImage = hero.background;
-    orderingHeroName.textContent = hero.name;
-  }
-  document.getElementById('ms-ordering-hero-replace').addEventListener('click', () => {
-    state.ordering.hero = (state.ordering.hero + 1) % HEROES.length;
-    renderOrderingHeroControl();
-    markDirty();
-    renderPhone();
-    showToast('Header image replaced in the live ordering preview');
-  });
 
   function wireSwatches(group, apply) {
     page.querySelectorAll('[data-swatches="' + group + '"] .ms-swatch').forEach(sw => {
@@ -505,9 +390,6 @@ export function initMenuSource(ctx) {
     markDirty();
     renderCategories();
     show('build-categories');
-  });
-  document.getElementById('ms-build-ai').addEventListener('click', () => {
-    showToast('We’ll email you when AI menu drafting ships');
   });
 
   const catList = document.getElementById('ms-category-list');
@@ -915,10 +797,10 @@ export function initMenuSource(ctx) {
     </div>`;
   }
 
-  function browserChrome(url, showBack) {
+  function browserChrome(url, showBack, showUrl = true) {
     return `<div class="pm-chrome">
       ${showBack ? '<span class="pm-chrome-btn">' + ICON.back + '</span>' : ''}
-      <span class="pm-url">${ICON.lock}${escapeHtml(hostOf(url))}</span>
+      ${showUrl ? `<span class="pm-url">${ICON.lock}${escapeHtml(hostOf(url))}</span>` : '<span style="flex:1"></span>'}
       <span class="pm-chrome-btn">${ICON.reload}</span>
     </div>`;
   }
@@ -943,7 +825,7 @@ export function initMenuSource(ctx) {
         </div>`;
     }
     if (w.membersonly) {
-      return `<div class="pm-browser">${browserChrome(w.url, w.back)}
+      return `<div class="pm-browser">${browserChrome(w.url, w.back, w.showurl)}
         <div class="pm-gate">
           <div class="pm-gate-ic">${ICON.lock}</div>
           <div class="pm-gate-title">Members only</div>
@@ -957,9 +839,9 @@ export function initMenuSource(ctx) {
       ['Wood-Fired Branzino', 'Fennel, citrus, olive oil', '$29'],
       ['Dark Chocolate Tart', 'Sea salt, crème fraîche', '$14'],
     ];
-    return `<div class="pm-browser">${browserChrome(w.url, w.back)}
+    return `<div class="pm-browser">${browserChrome(w.url, w.back, w.showurl)}
       <div class="pm-site">
-        ${w.hideheader ? '' : `<div class="pm-site-hero"><div class="n">VELVET BISTRO</div><div class="s">Seasonal · Wood-fired · Est. 2012</div></div>`}
+        <div class="pm-site-hero"><div class="n">VELVET BISTRO</div><div class="s">Seasonal · Wood-fired · Est. 2012</div></div>
         <div class="pm-site-body">
           <div class="pm-site-h">Our Menu</div>
           ${dishes.map(([n, d, p]) => `<div class="pm-site-item"><span><span class="n">${n}</span><span class="d">${d}</span></span><span class="p">${p}</span></div>`).join('')}
@@ -1027,60 +909,6 @@ export function initMenuSource(ctx) {
   function dietBadges(tags, on) {
     if (!on || !tags.length) return '';
     return '<div class="pm-tagrow">' + tags.map(t => `<span class="pm-dtag">${t}</span>`).join('') + '</div>';
-  }
-
-  function renderOrdering() {
-    const o = state.ordering;
-    const cats = [
-      { name: 'Starters', items: [
-        { name: 'Truffle Arancini', desc: 'Crispy · shaved parmesan', price: '$14', color: SWATCH[0], badge: 'Vegan', tags: ['Gluten'] },
-        { name: 'Burrata', desc: 'Basil oil · sea salt', price: '$16', color: SWATCH[1], tags: ['Veg'] },
-      ] },
-      { name: 'Mains', items: [
-        { name: 'Wagyu Stack', desc: 'Aged cheddar · brioche', price: '$42', color: SWATCH[1], tags: ['Gluten', 'Dairy'] },
-        { name: 'Sea Bass', desc: 'Fennel · citrus', price: '$36', color: SWATCH[5], badge: 'GF', tags: [] },
-      ] },
-    ];
-    const head = appHeader('MENU', 'Powered by ' + orderingApi().provider.name);
-    const banner = o.banner ? `<div class="pm-banner">
-      <span class="pm-banner-ic">${ICON.star}</span>
-      <span><span class="pm-banner-title">You have 240 points</span><span class="pm-banner-sub">60 more to unlock $5 off</span></span>
-    </div>` : '';
-    const hero = `<div class="pm-hero" style="background-image:${HEROES[o.hero].background}">
-      <div class="pm-hero-txt"><div class="pm-hero-title">Order for pickup</div><div class="pm-hero-sub">Ready in ~15 min</div></div>
-    </div>`;
-
-    const body = cats.map(cat => {
-      const sec = `<div class="pm-sec">${cat.name.toUpperCase()}</div>`;
-      if (o.layout === 'list') {
-        return sec + cat.items.map(i => `<div class="pm-list-item">
-          <span class="im" style="background:${i.color}"></span>
-          <span class="tx"><span class="nm">${i.name}</span><span class="ds">${i.desc}</span>${dietBadges(i.tags, o.allergens)}</span>
-          <span class="pr">${i.price}</span>
-        </div>`).join('');
-      }
-      if (o.layout === 'hero') {
-        return sec + cat.items.map(i => `<div class="pm-show">
-          <div class="pm-show-img" style="background:${i.color}">${o.allergens && i.badge ? '<span class="pm-badge">' + i.badge + '</span>' : ''}</div>
-          <div class="pm-show-body">
-            <div class="pm-show-name">${i.name}</div>
-            <div class="pm-show-desc">${i.desc}</div>
-            ${dietBadges(i.tags, o.allergens)}
-            <div class="pm-show-foot"><span class="pm-card-price">${i.price}</span><button class="pm-add">+</button></div>
-          </div>
-        </div>`).join('');
-      }
-      return sec + '<div class="pm-grid">' + cat.items.map(i => `<div class="pm-card">
-        <div class="pm-card-img" style="background:${i.color}">${o.allergens && i.badge ? '<span class="pm-badge">' + i.badge + '</span>' : ''}</div>
-        <div class="pm-card-body">
-          <div class="pm-card-name">${i.name}</div>
-          ${dietBadges(i.tags, o.allergens)}
-          <div class="pm-card-foot"><span class="pm-card-price">${i.price}</span><button class="pm-add">+</button></div>
-        </div>
-      </div>`).join('') + '</div>';
-    }).join('');
-
-    return `<div style="--pm-accent:${o.color}">${head}${banner}${hero}${body}</div>`;
   }
 
   function renderManual() {
@@ -1168,11 +996,7 @@ export function initMenuSource(ctx) {
     if (state.approach === 'webview') { mode = 'webview'; html = renderWebview(); }
     else if (state.approach === 'pdf') { mode = 'pdf'; html = renderPdf(); }
     else if (state.approach === 'manual') { mode = 'manual'; html = renderManual(); }
-    else if (state.approach === 'ordering') {
-      if (state.integration === 'custom') { mode = 'custom'; html = renderCustom(); }
-      else if (orderingApi().connected) { mode = 'ordering'; html = renderOrdering(); }
-      else { mode = 'none'; html = renderNone(); }
-    } else { html = renderNone(); }
+    else { html = renderNone(); }
 
     phonePage.dataset.menuMode = mode;
     phoneRender.innerHTML = html;
@@ -1182,27 +1006,9 @@ export function initMenuSource(ctx) {
     setBottomNav(!hideNav);
   }
 
-  /* --------------------------------------- react to the settings-modal flow */
-
-  document.addEventListener('como:ordering', (e) => {
-    const oo = e.detail.ordering;
-    if (state.approach !== 'ordering') return;
-    if (oo.connected) {
-      state.integration = 'native';
-      renderOrderingProvider(oo);
-      if (window.orderingWizardOrigin === 'menu-source' && ctx.getOrderingMode?.() !== 'native') ctx.setOrderingMode?.('native');
-      if (state.screen !== 'oo-connected') show('oo-connected');
-    } else if (e.detail.reason === 'disconnect') {
-      show('chooser');
-    }
-    if (e.detail.reason === 'saved' && window.orderingWizardOrigin === 'menu-source') window.orderingWizardOrigin = null;
-    renderPhone();
-  });
-
   /* --------------------------------------------------------------- startup */
 
   renderCategories();
-  renderOrderingHeroControl();
   renderManualHeroControl();
   renderPhone();
 
@@ -1230,12 +1036,12 @@ export function initMenuSource(ctx) {
   return {
     menuState: state,
     showMenuScreen: show,
-    showMenuForOrdering,
     renderMenuPhone: renderPhone,
     exportMenuSource,
     importMenuSource,
     openMenuTab: () => goToPage('menu'),
     openWebviewSetup,
     isWebviewConfigured: () => state.webview.connected,
+    resetMenuApproach: resetApproach,
   };
 }

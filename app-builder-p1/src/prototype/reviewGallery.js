@@ -3,7 +3,7 @@ import { openWebsitePreview } from './websiteScreen.js';
 import { initInbox } from './inbox.js';
 
 const PAGE_ACTIONS = new Set(['showPhonePage', 'goToPage']);
-const CONTROL_ACTIONS = new Set(['closeModal', 'openAccountPage', 'openBusinessNameSettings', 'closeReelsModal']);
+const CONTROL_ACTIONS = new Set(['closeModal', 'openAccountPage', 'openBusinessNameSettings']);
 
 function phoneSnapshot(ctx) {
   const source = document.getElementById('device-frame');
@@ -22,10 +22,6 @@ function phoneSnapshot(ctx) {
       if (attribute.name.startsWith('on')) element.removeAttribute(attribute.name);
     });
     element.classList.remove('highlight-target', 'widget-ghost', 'ia-active');
-  });
-  frame.querySelectorAll('.reels-frame').forEach((element) => {
-    const reel = ctx.orderingWidgetState?.menuReels.items.find((item) => String(item.id) === element.dataset.reelId);
-    element.dataset.reelSeconds = String(Math.max(3, Number(reel?.seconds) || 6));
   });
   const properties = {};
   const styles = getComputedStyle(document.body);
@@ -199,9 +195,6 @@ export function initReviewPhone(initialPage) {
   let currentPage = initialPage;
   let screenTargets = {};
   let websiteVisit;
-  let reelIndex = 0;
-  let reelTimer;
-  let gesture;
   let toastTimer;
   const toast = document.createElement('div');
   toast.className = 'review-toast';
@@ -218,38 +211,8 @@ export function initReviewPhone(initialPage) {
   const inbox = initInbox({ showPage, closeModal });
 
   function closeModal() {
-    document.querySelectorAll('.phone-modal, .reels-modal').forEach((modal) => modal.classList.remove('open'));
+    document.querySelectorAll('.phone-modal').forEach((modal) => modal.classList.remove('open'));
     document.querySelectorAll('video').forEach((video) => video.pause());
-    document.body.classList.remove('reels-open');
-    clearTimeout(reelTimer);
-  }
-
-  function showReel(index) {
-    const stack = document.getElementById('reels-stack');
-    const frames = [...(stack?.querySelectorAll('.reels-frame') || [])];
-    if (!frames.length) return;
-    if (index < 0 || index >= frames.length) { closeModal(); return; }
-    reelIndex = index;
-    stack.style.transform = `translateY(${-index * 100}%)`;
-    clearTimeout(reelTimer);
-    const reducedMotion = matchMedia('(prefers-reduced-motion: reduce)').matches;
-    frames.forEach((frame, position) => {
-      const video = frame.querySelector('video');
-      if (!video) return;
-      video.controls = reducedMotion;
-      if (position === index && !reducedMotion) video.play().catch(() => {});
-      else video.pause();
-    });
-    if (!reducedMotion) {
-      const seconds = Number(frames[index].dataset.reelSeconds) || 6;
-      reelTimer = setTimeout(() => showReel(index + 1), seconds * 1000);
-    }
-  }
-
-  function openReels(index = 0) {
-    document.querySelector('.reels-modal')?.classList.add('open');
-    document.body.classList.add('reels-open');
-    showReel(index);
   }
 
   function showPage(key) {
@@ -299,8 +262,7 @@ export function initReviewPhone(initialPage) {
       tab?.click();
       document.getElementById('login-input').value = loginState.value;
     }
-    if (previousModal === 'reels') openReels(reelIndex);
-    else if (previousModal) document.querySelector(`.phone-modal[data-modal="${CSS.escape(previousModal)}"]`)?.classList.add('open');
+    if (previousModal) document.querySelector(`.phone-modal[data-modal="${CSS.escape(previousModal)}"]`)?.classList.add('open');
     inbox.refreshInbox(payload.inbox);
     const inboxList = document.querySelector('[data-inbox-scroll]');
     const inboxDetail = document.querySelector('[data-inbox-detail]');
@@ -315,7 +277,7 @@ export function initReviewPhone(initialPage) {
     if (event.data?.type === 'como:review:reset') showPage(event.data.page);
   });
   document.addEventListener('click', (event) => {
-    const target = event.target.closest('[data-nav], [data-review-page]:not(body), [data-preview-page], [data-preview-url], [data-review-modal], [data-review-control], .pc-dot, .reels-chip-dismiss, .reels-cta, .phone-reels-chip, .phone-modal');
+    const target = event.target.closest('[data-nav], [data-review-page]:not(body), [data-preview-page], [data-preview-url], [data-review-modal], [data-review-control], .pc-dot, .phone-modal');
     if (!target) return;
     if ('previewUrl' in target.dataset) {
       event.preventDefault();
@@ -330,40 +292,15 @@ export function initReviewPhone(initialPage) {
       document.querySelectorAll('.phone-modal').forEach((modal) => modal.classList.toggle('open', modal.dataset.modal === target.dataset.reviewModal));
     } else if (target.dataset.reviewControl === 'openAccountPage') {
       showPage(document.body.dataset.memberPreview === 'guest' ? 'login' : 'account');
-    } else if (target.dataset.reviewControl === 'closeModal' || target.dataset.reviewControl === 'closeReelsModal' || event.target === target && target.classList.contains('phone-modal')) {
+    } else if (target.dataset.reviewControl === 'closeModal' || event.target === target && target.classList.contains('phone-modal')) {
       closeModal();
     } else if (target.classList.contains('pc-dot')) {
       const carousel = target.closest('.promo-cards-widget')?.querySelector('.pc-carousel-wrap');
       carousel?.scrollTo({ left: Number(target.dataset.dot) * carousel.clientWidth, behavior: 'auto' });
-    } else if (target.classList.contains('phone-reels-chip')) {
-      openReels();
-    } else if (target.classList.contains('reels-chip-dismiss')) {
-      target.closest('.phone-reels-chip').hidden = true;
-    } else if (target.classList.contains('reels-cta')) {
-      closeModal();
-      showToast(`Added ${target.textContent || 'item'} to cart`);
     }
   });
-  document.addEventListener('pointerdown', (event) => {
-    const stack = event.target.closest('#reels-stack');
-    if (!stack || event.target.closest('button') || event.target.closest('video')?.controls) return;
-    stack.setPointerCapture(event.pointerId);
-    gesture = { pointerId: event.pointerId, start: event.clientY };
-    clearTimeout(reelTimer);
-  });
-  document.addEventListener('pointerup', (event) => {
-    if (!gesture || gesture.pointerId !== event.pointerId) return;
-    const distance = event.clientY - gesture.start;
-    gesture = null;
-    showReel(reelIndex + (distance < -40 ? 1 : distance > 40 ? -1 : 0));
-  });
-  document.addEventListener('pointercancel', () => { gesture = null; });
   document.addEventListener('keydown', (event) => {
     if (event.key === 'Escape') closeModal();
-    if (document.body.classList.contains('reels-open') && ['ArrowDown', 'ArrowUp'].includes(event.key)) {
-      event.preventDefault();
-      showReel(reelIndex + (event.key === 'ArrowDown' ? 1 : -1));
-    }
     if (['Enter', ' '].includes(event.key) && event.target.matches('[role="button"]')) { event.preventDefault(); event.target.click(); }
   });
   document.addEventListener('submit', (event) => event.preventDefault());

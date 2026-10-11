@@ -14,6 +14,13 @@
     --warning: #9a5b00;
     --warning-soft: #fff7e6;
     --focus-ring: rgba(109, 40, 217, .3);
+    /* Editor accent companions. vega.css re-points these; defaults are the
+       original Como values so the editor looks unchanged without it. */
+    --como-2: #a855f7;
+    --como-hover: #5b1eb5;
+    --como-focus-on-dark: #c4b5fd;
+    --line-hover: #bdb9cc;
+    --line-hover-soft: #c9c4d8;
     --radius: 14px;
     --shadow-sm: 0 1px 2px rgba(20,20,40,.06);
     --shadow: 0 1px 2px rgba(20,20,40,.06), 0 8px 24px rgba(20,20,40,.06);
@@ -36,7 +43,9 @@
     --p-panel: #ffffff;
     --p-panel-2: #e9e9f0;
     --p-text: #1d1d28;
-    --p-text-muted: #8a8798;
+    /* 4.8:1 on white. #8a8798 was 3.5:1, which tripped the contrast warning on a
+       brand-new app before the merchant had changed anything. */
+    --p-text-muted: #5f5c6b;
     --p-accent: #6d28d9;
     --p-accent-2: #5b1eb5;
     --p-danger: #dc2626;

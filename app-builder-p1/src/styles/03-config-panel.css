@@ -128,6 +128,8 @@
   .cp-field { display: flex; flex-direction: column; gap: 5px; margin-bottom: 12px; position: relative; }
   /* A .cp-field with [hidden] must stay hidden — the class's display:flex otherwise wins over the UA [hidden] rule. */
   .cp-field[hidden] { display: none; }
+  /* Same reason for widget rows — trash on a core widget sets row.hidden=true and it must actually hide. */
+  .cp-widget-row[hidden] { display: none; }
   .cp-field label {
     font-size: 11px; font-weight: 700; color: var(--muted);
     text-transform: uppercase; letter-spacing: .4px;
@@ -177,6 +179,12 @@
   }
   .cp-toggle-row:first-child { border-top: none; padding-top: 4px; }
   .cp-toggle-row .lbl { font-weight: 600; }
+  /* Rows with a drag handle put the label between handle and toggle; keep it left-aligned instead of centred by space-between. */
+  .cp-toggle-row:has(.handle) { gap: 8px; }
+  .cp-toggle-row:has(.handle) .lbl { flex: 1; text-align: left; }
+  /* Drag-reorder cues for More tiles (mirror the .cp-social-item pattern). */
+  #more-tiles-list .cp-toggle-row .handle { cursor: grab; color: #b9b9c6; font-size: 14px; }
+  #more-tiles-list .cp-toggle-row.dragging { opacity: .5; }
 
   /* ---------- Social icon row: toggle reveals an indented URL input below it ---------- */
   .cp-social-item { border-top: 1px solid var(--line-soft); }
@@ -351,10 +359,10 @@
   /* + Add widget button + menu */
   .cp-add-widget-wrap { position: relative; margin-top: 8px; }
   .cp-add-widget-btn {
-    display: flex; align-items: center; justify-content: center; gap: 4px;
-    width: 100%; padding: 9px;
-    border: 1.5px dashed var(--line); border-radius: 9px;
-    font-size: 12.5px; font-weight: 650; color: var(--como);
+    display: inline-flex; align-items: center; justify-content: center; gap: 4px;
+    padding: 6px 12px;
+    border: 1.5px dashed var(--line); border-radius: 8px;
+    font-size: 11.5px; font-weight: 650; color: var(--como);
     background: transparent; cursor: pointer; font-family: inherit;
   }
   .cp-add-widget-btn:hover { border-color: var(--como); background: var(--como-soft); }
@@ -372,6 +380,7 @@
   }
   .cp-add-widget-menu button:hover { background: var(--como-soft); color: var(--como); }
   .cp-add-widget-menu button .aw-ic { width: 18px; text-align: center; flex: none; color: var(--como); }
+  .cp-add-widget-menu button[hidden] { display: none !important; }
 
   /* ---------- Promo Cards item list (config panel) ---------- */
   .pc-count {
@@ -543,11 +552,11 @@
     font-size: 13px; font-weight: 600;
     transition: border-color .15s, background-color .15s, box-shadow .15s;
   }
-  .cp-widget-row:hover { border-color: #c7bfe3; }
+  .cp-widget-row:hover { border-color: color-mix(in srgb, var(--como) 47%, white); }
   .cp-widget-row.on {
     border-color: var(--como);
     background: linear-gradient(90deg, var(--como-soft) 0%, #fff 70%);
-    box-shadow: 0 1px 3px rgba(109,40,217,.08);
+    box-shadow: 0 1px 3px color-mix(in srgb, var(--como) 8%, transparent);
   }
   .cp-widget-row .handle { color: #c7c7d4; cursor: grab; opacity: 0; transition: opacity .12s; font-size: 14px; }
   .cp-widget-row.on .handle { opacity: 1; }
@@ -591,16 +600,16 @@
     background: var(--como);
     border-color: var(--como);
     color: #fff;
-    box-shadow: 0 2px 6px rgba(109,40,217,.28);
+    box-shadow: 0 2px 6px color-mix(in srgb, var(--como) 28%, transparent);
   }
   .cp-widget-row { cursor: pointer; }
   .cp-widget-row.off { cursor: default; }
   .cp-widget-row .handle { cursor: grab; }
   @keyframes cpToggleNudge { 0%, 100% { transform: scale(1); } 30% { transform: scale(1.28); } 60% { transform: scale(1.12); } }
-  .cp-widget-row .toggle.cp-toggle-nudge { animation: cpToggleNudge .6s ease; box-shadow: 0 0 0 4px rgba(109, 40, 217, .22); }
+  .cp-widget-row .toggle.cp-toggle-nudge { animation: cpToggleNudge .6s ease; box-shadow: 0 0 0 4px color-mix(in srgb, var(--como) 22%, transparent); }
   .cp-social-item .cp-toggle-row .handle { cursor: grab; margin-right: 2px; color: #b9b9c6; }
   .cp-social-item.dragging { opacity: .5; }
-  .cp-widget-row .toggle.on:hover { background: #5b1eb5; border-color: #5b1eb5; }
+  .cp-widget-row .toggle.on:hover { background: var(--como-hover); border-color: var(--como-hover); }
   .cp-widget-row .toggle.on .i-plus { display: none; }
   .cp-widget-row .toggle.on .i-check { display: block; }
 

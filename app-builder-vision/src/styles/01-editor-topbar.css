@@ -1,0 +1,138 @@
+  /* ============================================================
+     TOP BAR (Toast-style)
+     ============================================================ */
+  .topbar {
+    height: 60px;
+    background: var(--panel);
+    border-bottom: 1px solid var(--line);
+    display: flex; align-items: center; gap: 14px;
+    padding: 0 18px;
+    flex: none;
+    position: relative;
+    z-index: 100;
+  }
+  .brand { display: flex; align-items: center; gap: 10px; }
+  .brand-logo {
+    width: 30px; height: 30px; border-radius: 9px;
+    background: linear-gradient(135deg, var(--como), var(--como-2));
+    display: grid; place-items: center;
+    color: #fff; font-weight: 800; font-size: 13px;
+  }
+  .brand-name { font-weight: 700; font-size: 14px; letter-spacing: -.2px; }
+  .brand-sub { font-size: 10.5px; color: var(--muted); margin-top: 1px; }
+
+  .page-select {
+    display: flex; align-items: center; gap: 8px;
+    margin-left: 16px;
+  }
+  .page-select .lbl { font-size: 10.5px; text-transform: uppercase; color: var(--muted); font-weight: 700; letter-spacing: .5px; }
+  .page-select select {
+    appearance: none;
+    border: 1.5px solid var(--como);
+    border-radius: 9px;
+    padding: 7px 32px 7px 12px;
+    font-weight: 650; font-size: 13px;
+    background: #fff url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='10' height='7' viewBox='0 0 10 7'><path d='M1 1l4 4 4-4' stroke='%236d28d9' stroke-width='1.5' fill='none' stroke-linecap='round'/></svg>") right 10px center no-repeat;
+    color: var(--como);
+    cursor: pointer;
+    min-width: 130px;
+  }
+
+  .seg {
+    display: flex; align-items: center; gap: 2px;
+    border: 1px solid var(--line);
+    border-radius: 9px; padding: 3px;
+    background: #fff;
+  }
+  .seg button {
+    border: none; background: transparent;
+    padding: 5px 11px; border-radius: 6px;
+    font-size: 12px; font-weight: 650; color: var(--muted);
+    cursor: pointer; transition: background-color .15s, color .15s, box-shadow .15s;
+  }
+  .seg button.active { background: var(--ink); color: #fff; }
+
+  .top-spacer { flex: 1; }
+
+  .save-btn {
+    border: none; border-radius: 9px;
+    padding: 8px 16px; font-weight: 650; font-size: 13px;
+    background: var(--como); color: #fff;
+    cursor: pointer; transition: opacity .15s;
+  }
+  .save-btn[data-state="saving"] { background: var(--como-soft); color: var(--como); cursor: progress; }
+  .save-btn[data-state="error"] { background: var(--danger-soft); color: var(--danger); cursor: pointer; }
+  .save-btn.disabled { background: #ececf2; color: #666675; cursor: default; }
+  .close-btn {
+    border: 1px solid var(--line); background: #fff;
+    width: 34px; height: 34px; border-radius: 8px;
+    color: var(--muted); font-size: 16px; cursor: pointer;
+    display: grid; place-items: center;
+  }
+
+  /* ---------- Confirm-before-switch modal ---------- */
+  .top-qr-btn {
+    display: inline-flex; align-items: center; gap: 7px;
+    flex: none; padding: 7px 13px;
+    background: #fff; border: 1px solid var(--line); border-radius: 999px;
+    font: inherit; font-size: 12.5px; font-weight: 650; color: var(--ink);
+    cursor: pointer; transition: .12s;
+  }
+  .top-qr-btn:hover { border-color: var(--como); color: var(--como); }
+  .top-qr-btn svg { width: 15px; height: 15px; }
+
+  .confirm-overlay {
+    position: fixed; inset: 0; background: rgba(15,13,23,.45);
+    display: flex; align-items: center; justify-content: center;
+    z-index: 500; opacity: 0; pointer-events: none; transition: opacity .15s;
+  }
+  .confirm-overlay.open { opacity: 1; pointer-events: auto; }
+  .confirm-box {
+    width: 340px; background: #fff; border-radius: 14px;
+    padding: 20px; box-shadow: 0 20px 50px rgba(0,0,0,.25);
+    transform: translateY(8px) scale(.985);
+    transition: transform .18s cubic-bezier(.2,.8,.2,1);
+  }
+  .confirm-overlay.open .confirm-box { transform: none; }
+  .confirm-title { font-size: 15px; font-weight: 750; margin-bottom: 8px; }
+  .confirm-body { font-size: 12.5px; color: var(--muted); line-height: 1.5; margin-bottom: 18px; }
+  .confirm-actions { display: flex; justify-content: flex-end; gap: 8px; }
+  .confirm-cancel {
+    border: 1px solid var(--line); background: #fff; color: var(--ink);
+    border-radius: 8px; padding: 8px 14px; font-size: 12.5px; font-weight: 650; cursor: pointer;
+  }
+  .confirm-ok {
+    border: none; background: var(--como); color: #fff;
+    border-radius: 8px; padding: 8px 14px; font-size: 12.5px; font-weight: 650; cursor: pointer;
+  }
+
+  @media (max-width: 767px) {
+    .topbar { gap: 8px; padding-inline: 10px; }
+    .brand-sub, .preset-prefix { display: none; }
+    .preset-btn { max-width: 150px; }
+    #preset-btn-label { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+    .save-btn { padding-inline: 10px; }
+    .close-btn { width: 40px; height: 40px; }
+  }
+
+  /* ---------- Config hint text + @ variable dropdown ---------- */
+  .cp-hint { font-size: 11px; color: var(--muted); line-height: 1.5; margin-top: -6px; margin-bottom: 14px; }
+  .cp-hint code { background: var(--como-soft); color: var(--como); padding: 1px 4px; border-radius: 4px; font-size: 10.5px; }
+  .var-dropdown {
+    position: absolute; top: 100%; left: 0; right: 0; margin-top: 4px;
+    background: #fff; border: 1px solid var(--line); border-radius: 9px;
+    box-shadow: 0 10px 24px rgba(0,0,0,.16); z-index: 60;
+    padding: 4px; max-height: 180px; overflow-y: auto;
+  }
+  .var-dropdown-item {
+    padding: 7px 9px; font-size: 12px; font-weight: 600; color: var(--ink);
+    border-radius: 6px; cursor: pointer;
+  }
+  .var-dropdown-item:hover, .var-dropdown-item.active { background: var(--como-soft); color: var(--como); }
+  .var-dropdown-empty { padding: 8px 9px; font-size: 11.5px; color: var(--muted); font-style: italic; }
+
+  /* ---------- Sub-menu (drill-in) breadcrumb indicator ---------- */
+  .cp-crumb {
+    font-size: 10px; text-transform: uppercase; letter-spacing: .6px;
+    color: var(--como); font-weight: 700; margin-bottom: 6px;
+  }

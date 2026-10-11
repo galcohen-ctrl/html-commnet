@@ -17,25 +17,18 @@
   </div>
 
   <div class="gf-fieldset">
-    <label class="gf-field-label">Your logo</label>
-    <div class="gf-logo-result" id="gf-step1-logo-result" style="display:none;">
-      <div class="gf-logo-thumb"><img id="gf-step1-logo-preview" src="data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///ywAAAAAAQABAAACAUwAOw==" alt="Uploaded logo" /></div>
-      <div class="gf-logo-meta">
-        <div class="gf-logo-status">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6L9 17l-5-5"/></svg>
-          Uploaded
-        </div>
-        <div class="gf-logo-filename" id="gf-step1-logo-filename">logo.png</div>
-        <div class="gf-logo-actions">
-          <button class="gf-logo-action" id="gf-step1-logo-replace" type="button">Replace</button>
-        </div>
-      </div>
+    <label class="gf-field-label" id="gf-cat-label">Primary industry</label>
+    <div class="gf-chip-row" id="gf-cat-row" role="group" aria-labelledby="gf-cat-label" aria-describedby="gf-cat-hint">
+      <button class="gf-chip" data-cat="Beauty and Spa" type="button">Beauty and Spa</button>
+      <button class="gf-chip" data-cat="Entertainment" type="button">Entertainment</button>
+      <button class="gf-chip" data-cat="Food &amp; Drink" type="button">Food &amp; Drink</button>
+      <button class="gf-chip" data-cat="Groceries &amp; Market" type="button">Groceries &amp; Market</button>
+      <button class="gf-chip" data-cat="Health &amp; Fitness" type="button">Health &amp; Fitness</button>
+      <button class="gf-chip" data-cat="Retail &amp; Fashion" type="button">Retail &amp; Fashion</button>
+      <button class="gf-chip" data-cat="Services" type="button">Services</button>
+      <button class="gf-chip" data-cat="Travel" type="button">Travel</button>
+      <button class="gf-chip" data-cat="Other" type="button">Other</button>
     </div>
-    <div class="cp-upload-zone" id="gf-step1-logo-zone">
-      <div class="cp-upload-btn">+ Upload from Computer</div>
-      <div class="cp-upload-hint">or drag &amp; drop files here</div>
-    </div>
-    <input type="file" id="gf-step1-logo-file" accept="image/png,image/jpeg,image/jpg,image/webp" style="display:none;" />
-    <div class="cp-upload-note">Sits in the app header above your name, and becomes your app icon in the stores. Supported: png, jpg, jpeg, webp. Max 5MB. Position and size are set in Branding.</div>
+    <div class="gf-field-hint" id="gf-cat-hint">Pick every industry you operate in — a restaurant with a convenience store counts as both.</div>
   </div>
 </div>

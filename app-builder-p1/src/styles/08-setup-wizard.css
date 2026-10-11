@@ -23,7 +23,7 @@
   .sw-brand b { font-weight: 800; }
   .sw-brand-logo {
     width: 28px; height: 28px; border-radius: 8px;
-    background: linear-gradient(135deg, var(--como), #a855f7);
+    background: linear-gradient(135deg, var(--como), var(--como-2));
     display: grid; place-items: center; color: #fff; font-size: 14px;
   }
   .sw-skip {
@@ -47,7 +47,7 @@
     height: 5px; width: 46px; border-radius: 3px;
     background: var(--line); transition: background .3s ease;
   }
-  .sw-progress .p-dot.done { background: #c9b4f5; }
+  .sw-progress .p-dot.done { background: color-mix(in srgb, var(--como) 33%, white); }
   .sw-progress .p-dot.now { background: var(--como); }
 
   .sw-steps { flex: 1; }
@@ -70,7 +70,7 @@
     transition: border-color .18s, box-shadow .18s, transform .18s;
     display: flex; flex-direction: column; gap: 10px;
   }
-  .sw-goal-card:hover { border-color: #cfc3ea; box-shadow: var(--shadow); transform: translateY(-2px); }
+  .sw-goal-card:hover { border-color: color-mix(in srgb, var(--como) 39%, white); box-shadow: var(--shadow); transform: translateY(-2px); }
   .sw-goal-card.selected { border-color: var(--como); box-shadow: 0 0 0 4px var(--como-soft); }
   .sw-goal-ic {
     width: 44px; height: 44px; border-radius: 12px;
@@ -94,7 +94,7 @@
   }
   .sw-blank-link svg { flex: none; width: 20px; height: 20px; border-radius: 6px; padding: 2px; color: var(--muted); }
   .sw-blank-box { flex: none; width: 18px; height: 18px; border-radius: 5px; border: 2px solid var(--line); }
-  .sw-blank-link:hover { border-color: #bdb9cc; color: var(--ink); }
+  .sw-blank-link:hover { border-color: var(--line-hover); color: var(--ink); }
   .sw-blank-link.selected {
     border-color: var(--como); background: var(--como-soft); color: var(--como);
   }
@@ -122,7 +122,7 @@
     font-size: 13px; font-weight: 500; color: var(--muted);
     background: var(--panel); cursor: pointer; transition: background-color .15s, border-color .15s, color .15s;
   }
-  .sw-chip:hover { border-color: #bdb9cc; color: var(--ink); }
+  .sw-chip:hover { border-color: var(--line-hover); color: var(--ink); }
   .sw-chip.selected { background: var(--como); border-color: var(--como); color: #fff; font-weight: 600; }
 
   /* Brand step */
@@ -175,9 +175,9 @@
     background: var(--como); color: #fff; border: none; cursor: pointer;
     font-weight: 700; font-size: 14.5px; padding: 12px 26px; border-radius: 10px;
     transition: background .18s, transform .12s, box-shadow .18s;
-    box-shadow: 0 6px 16px -6px rgba(109,40,217,.6);
+    box-shadow: 0 6px 16px -6px color-mix(in srgb, var(--como) 60%, transparent);
   }
-  .sw-next:hover { background: #5b1eb5; }
+  .sw-next:hover { background: var(--como-hover); }
   .sw-next:active { transform: scale(.97); }
   .sw-next:disabled { opacity: .4; cursor: not-allowed; box-shadow: none; }
 
@@ -192,8 +192,8 @@
     border-left: 1px solid var(--line);
     background: #ebecf0;
     background-image:
-      radial-gradient(circle at 20% 30%, rgba(109,40,217,.04) 0%, transparent 40%),
-      radial-gradient(circle at 80% 70%, rgba(168,85,247,.04) 0%, transparent 40%);
+      radial-gradient(circle at 20% 30%, color-mix(in srgb, var(--como) 4%, transparent) 0%, transparent 40%),
+      radial-gradient(circle at 80% 70%, color-mix(in srgb, var(--como-2) 4%, transparent) 0%, transparent 40%);
   }
   .sw-preview-inner { display: flex; flex-direction: column; align-items: center; }
   .sw-phone-slot { display: flex; align-items: flex-start; justify-content: center; }

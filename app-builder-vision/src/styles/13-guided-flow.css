@@ -1,0 +1,538 @@
+@layer components {
+  /* ============================================================
+     GUIDED FLOW — welcome modal, sidebar stepper, step footer.
+     The wizard is gone: the sidebar itself is the stepper now.
+     ============================================================ */
+
+  /* ---------- Welcome modal ---------- */
+  .gf-welcome-overlay {
+    position: fixed; inset: 0; z-index: 900;
+    background: rgba(20, 18, 34, .55);
+    backdrop-filter: blur(3px);
+    display: none; place-items: center;
+    padding: max(12px, env(safe-area-inset-top)) max(12px, env(safe-area-inset-right)) max(12px, env(safe-area-inset-bottom)) max(12px, env(safe-area-inset-left));
+    overflow-y: auto;
+  }
+  .gf-welcome-overlay.open { display: grid; }
+  .gf-welcome {
+    width: 520px; max-width: calc(100vw - 40px);
+    background: var(--panel); border-radius: 20px;
+    box-shadow: 0 24px 60px rgba(0, 0, 0, .28);
+    padding: 34px 34px 26px; text-align: center;
+    animation: gfPop .32s cubic-bezier(0.2, 0.8, 0.2, 1);
+    max-height: calc(100dvh - 24px);
+    overflow-y: auto;
+    overscroll-behavior: contain;
+  }
+  @keyframes gfPop { from { opacity: 0; transform: translateY(14px) scale(.97); } to { opacity: 1; transform: none; } }
+  .gf-welcome-logo {
+    width: 54px; height: 54px; margin: 0 auto 16px;
+    border-radius: 15px; display: grid; place-items: center;
+    background: var(--como); color: #fff; font-size: 26px;
+  }
+  .gf-welcome h1 {
+    max-width: 19ch; margin: 0 auto 8px; color: var(--ink);
+    font-size: 24px; font-weight: 800; letter-spacing: -.02em; text-wrap: balance;
+  }
+  .gf-welcome p { font-size: 14.5px; color: var(--muted); line-height: 1.55; margin-bottom: 22px; }
+  .gf-welcome-list { text-align: left; margin: 0 0 24px; display: flex; flex-direction: column; gap: 10px; }
+  .gf-welcome-item { display: flex; align-items: center; gap: 11px; font-size: 13.5px; color: var(--ink); }
+  .gf-welcome-item .n {
+    width: 22px; height: 22px; border-radius: 50%; flex: none;
+    background: var(--como-soft); color: var(--como);
+    display: grid; place-items: center; font-size: 11.5px; font-weight: 800;
+  }
+  .gf-welcome-actions { display: flex; gap: 10px; justify-content: center; }
+  .gf-help-link {
+    display: inline-flex; margin: -8px 0 18px; color: var(--como);
+    font-size: 13px; font-weight: 650; text-underline-offset: 3px;
+  }
+  .gf-btn {
+    padding: 11px 20px; border-radius: 10px; font-size: 14px; font-weight: 650;
+    cursor: pointer; border: 1.5px solid transparent; transition: filter .15s, background .15s;
+  }
+  .gf-btn.primary { background: var(--como); color: #fff; }
+  .gf-btn.primary:hover { filter: brightness(1.08); }
+  .gf-btn.ghost { background: var(--panel); border-color: var(--line); color: var(--muted); }
+  .gf-btn.ghost:hover { border-color: var(--line-hover); color: var(--ink); }
+
+  /* ---------- Sidebar stepper ---------- */
+  .side-step { position: relative; }
+  .side-step .step-dot {
+    width: 22px; height: 22px; border-radius: 50%; flex: none;
+    display: grid; place-items: center; position: relative;
+    border: 1.5px solid var(--line); background: var(--panel);
+    font-size: 11px; font-weight: 800; color: var(--muted);
+    transition: background .18s, border-color .18s, color .18s;
+  }
+  .side-step .step-dot .tick { width: 12px; height: 12px; display: none; }
+  .side-step .screen-dot { border-radius: 7px; font-size: 13px; }
+  .side-step.done .step-dot {
+    background: #16a34a; border-color: #16a34a; color: #fff;
+  }
+  .side-step.done .step-dot .n { display: none; }
+  .side-step.done .step-dot .tick { display: block; }
+  .side-step.active .step-dot {
+    background: var(--como); border-color: var(--como); color: #fff;
+  }
+  .side-step.done .side-lbl { color: var(--muted); }
+
+  /* Connector line between consecutive steps */
+  .side-steps { position: relative; }
+  .side-steps .side-step + .side-step::before {
+    content: ""; position: absolute; left: 21px; top: -7px; height: 7px;
+    width: 1.5px; background: var(--line);
+  }
+  .side-steps .side-step.done + .side-step::before { background: #86d5a3; }
+  body.side-collapsed .side-steps .side-step + .side-step::before { display: none; }
+
+  /* ---------- Step footer (always-visible bar below the scrollable config panel) ---------- */
+  .cp-step-foot {
+    flex: 0 0 auto;
+    background: var(--panel);
+    border-top: 1px solid var(--line);
+    border-right: 1px solid var(--line);
+    padding: 14px 18px;
+    display: flex; align-items: center; gap: 10px;
+    z-index: 5;
+  }
+  .cp-step-foot .cp-step-count { font-size: 12px; color: var(--muted); font-weight: 600; margin-right: auto; }
+  .cp-step-skip {
+    margin-right: auto;
+    background: none; border: none; cursor: pointer;
+    color: var(--muted); font-size: 13px; font-weight: 600; padding: 8px 10px; border-radius: 8px;
+  }
+  .cp-step-skip:hover { color: var(--ink); background: #f4f3f8; }
+  .cp-step-next {
+    margin-left: auto;
+    background: var(--como); color: #fff; border: none; cursor: pointer;
+    font-size: 14px; font-weight: 650; padding: 13px 20px; border-radius: 8px;
+    display: inline-flex; align-items: center; gap: 7px;
+  }
+  .cp-step-next:hover { filter: brightness(1.08); }
+  .cp-step-next svg { width: 16px; height: 16px; flex: none; }
+
+  /* ---------- App focus card (shown on the Home step) ---------- */
+  .cp-focus-card {
+    display: flex; align-items: center; gap: 12px; position: relative;
+    background: var(--como-soft); border: 1px solid color-mix(in srgb, var(--como) 22%, white);
+    border-radius: 12px; padding: 12px 14px; margin-bottom: 16px;
+  }
+  .cp-focus-ic {
+    width: 34px; height: 34px; border-radius: 9px; flex: none;
+    background: var(--como); color: #fff; display: grid; place-items: center;
+  }
+  .cp-focus-ic svg { width: 18px; height: 18px; }
+  .cp-focus-text { min-width: 0; margin-right: auto; }
+  .cp-focus-lbl { font-size: 10.5px; font-weight: 800; letter-spacing: .07em; text-transform: uppercase; color: var(--como); }
+  .cp-focus-val { font-size: 13.5px; font-weight: 700; color: var(--ink); }
+  .cp-focus-change {
+    background: var(--panel); border: 1.5px solid color-mix(in srgb, var(--como) 22%, white); color: var(--como);
+    font-size: 12px; font-weight: 700; padding: 6px 11px; border-radius: 8px;
+    cursor: pointer; display: inline-flex; align-items: center; gap: 5px; flex: none;
+  }
+  .cp-focus-change:hover { border-color: var(--como); }
+  .cp-focus-menu {
+    position: absolute; right: 12px; top: calc(100% - 4px); z-index: 30;
+    background: var(--panel); border: 1px solid var(--line); border-radius: 11px;
+    box-shadow: 0 12px 30px rgba(0, 0, 0, .16); padding: 5px; min-width: 200px;
+    display: none;
+  }
+  .cp-focus-menu.open { display: block; }
+  .cp-focus-menu button {
+    display: block; width: 100%; text-align: left; background: none; border: none;
+    padding: 9px 11px; border-radius: 7px; cursor: pointer;
+    font-size: 13px; font-weight: 600; color: var(--ink);
+  }
+  .cp-focus-menu button:hover { background: #f4f3f8; }
+  .cp-focus-menu button.active { color: var(--como); background: var(--como-soft); }
+
+  /* ---------- Simple step pages (business / branding / publish) ---------- */
+  .gf-swatch-row { display: flex; gap: 10px; align-items: center; flex-wrap: wrap; }
+  .gf-swatch {
+    width: 40px; height: 40px; border-radius: 50%; cursor: pointer; border: 2.5px solid transparent;
+    box-shadow: inset 0 0 0 2px rgba(255,255,255,.9), var(--shadow-sm);
+    transition: transform .15s, box-shadow .15s;
+  }
+  .gf-swatch:hover { transform: scale(1.1); }
+  .gf-swatch.selected { box-shadow: inset 0 0 0 3px #fff, 0 0 0 2.5px var(--ink); }
+  .gf-swatch-row .sw-swatch-custom.selected {
+    border-style: solid; border-color: var(--ink);
+    box-shadow: inset 0 0 0 3px #fff, 0 0 0 2.5px var(--ink);
+  }
+  .gf-chip-row { display: flex; flex-wrap: wrap; gap: 7px; }
+  .gf-chip {
+    padding: 7px 13px; border: 1.5px solid var(--line); border-radius: 100px;
+    font-size: 12.5px; font-weight: 500; color: var(--muted);
+    background: var(--panel); cursor: pointer; transition: background-color .15s, border-color .15s, color .15s;
+  }
+  .gf-chip:hover { border-color: var(--line-hover); color: var(--ink); }
+  .gf-chip.selected { background: var(--como); border-color: var(--como); color: #fff; font-weight: 600; }
+  .gf-chip.disabled { opacity: .4; cursor: not-allowed; }
+  .gf-chip.disabled:hover { border-color: var(--line); color: var(--muted); }
+  .gf-optional { font-weight: 600; color: var(--muted); }
+  .gf-advanced-link {
+    display: inline-flex; align-items: center; gap: 6px; margin-top: 4px;
+    background: none; border: none; cursor: pointer; padding: 0;
+    color: var(--como); font-size: 12.5px; font-weight: 650;
+  }
+  .gf-advanced-link:hover { text-decoration: underline; }
+
+  /* Review & publish */
+  .gf-review-row {
+    display: flex; align-items: center; gap: 11px;
+    padding: 11px 13px; border: 1px solid var(--line); border-radius: 11px; margin-bottom: 8px;
+  }
+  .gf-review-row .rv-tick {
+    width: 20px; height: 20px; border-radius: 50%; flex: none; display: grid; place-items: center;
+    background: #eef0f4; color: #9a9aab;
+  }
+  .gf-review-row.done .rv-tick { background: #16a34a; color: #fff; }
+  .gf-review-row .rv-tick svg { width: 11px; height: 11px; }
+  .gf-review-name { font-size: 13.5px; font-weight: 650; color: var(--ink); margin-right: auto; }
+  .gf-review-state {
+    border-radius: 999px; padding: 4px 8px; font-size: 10.5px; font-weight: 750;
+    background: #f0f0f5; color: var(--muted);
+  }
+  .gf-review-state.ready, .gf-review-state.reviewed { background: var(--ok-soft); color: #13723a; }
+  .gf-review-state.missing { background: var(--danger-soft); color: var(--danger); }
+  .gf-review-edit { background: none; border: none; cursor: pointer; color: var(--como); font-size: 12.5px; font-weight: 650; }
+  .gf-review-edit:hover { text-decoration: underline; }
+  .gf-publish-btn {
+    width: 100%; margin-top: 14px; background: var(--como); color: #fff; border: none;
+    padding: 13px; border-radius: 12px; font-size: 14.5px; font-weight: 700; cursor: pointer;
+  }
+  .gf-publish-btn:hover { filter: brightness(1.08); }
+  .gf-publish-btn:disabled { background: #cfcdd8; cursor: not-allowed; }
+  .gf-publish-btn[data-state="published"]:disabled {
+    background: var(--ok-soft); color: #13723a; border: 1px solid #b9e5c9;
+  }
+  .gf-publish-btn:disabled:hover { filter: none; }
+  .gf-publish-status {
+    display: flex; align-items: center; gap: 11px; margin: 14px 0;
+    padding: 12px 13px; border: 1px solid var(--line); border-radius: 12px;
+    background: #fafafe; color: var(--ink);
+  }
+  .gf-publish-status-dot { width: 10px; height: 10px; border-radius: 50%; flex: none; background: var(--warning); }
+  .gf-publish-status[data-state="publishing"] .gf-publish-status-dot { background: var(--como); }
+  .gf-publish-status[data-state="live"] .gf-publish-status-dot { background: var(--ok); }
+  .gf-publish-status span:last-child { display: flex; flex-direction: column; gap: 2px; }
+  .gf-publish-status b { font-size: 13px; }
+  .gf-publish-status small { color: var(--muted); line-height: 1.35; }
+  .gf-submission-card {
+    display: flex; align-items: center; gap: 12px; margin-top: 18px; padding: 14px;
+    border: 1px solid color-mix(in srgb, var(--como) 25%, white); border-radius: 13px; background: color-mix(in srgb, var(--como) 3%, white);
+  }
+  .gf-submission-copy { display: flex; flex: 1; flex-direction: column; gap: 4px; min-width: 0; }
+  .gf-submission-copy strong { font-size: 13px; }
+  .gf-submission-copy span { color: var(--muted); font-size: 11.5px; line-height: 1.45; }
+  .gf-secondary-btn {
+    min-height: 40px; flex: none; border: 1px solid var(--como); border-radius: 9px;
+    background: var(--panel); color: var(--como); padding: 8px 12px; font-size: 12px; font-weight: 700; cursor: pointer;
+  }
+
+  /* ---------- Tour speech bubble ---------- */
+  .gf-tour-bubble {
+    position: fixed; z-index: 950;
+    background: #fff; border-radius: 14px;
+    box-shadow: 0 8px 32px rgba(0, 0, 0, .18), 0 2px 8px rgba(0, 0, 0, .08);
+    padding: 20px 22px 16px; width: 320px; max-width: calc(100vw - 40px);
+    animation: gfPop .25s cubic-bezier(0.2, 0.8, 0.2, 1);
+  }
+  .gf-tour-bubble::before {
+    content: ''; position: absolute; top: var(--gf-arrow-y, 50%); left: -8px;
+    transform: translateY(-50%);
+    border: 8px solid transparent; border-right-color: #fff;
+    border-left: none;
+  }
+  .gf-tour-bubble.arrow-right::before {
+    left: auto; right: -8px;
+    border-right: none; border-left-color: #fff;
+  }
+  .gf-tour-header {
+    font-size: 14px; font-weight: 750; color: var(--ink); margin-bottom: 6px;
+    display: flex; align-items: center; gap: 8px;
+  }
+  .gf-tour-count { font-size: 12px; font-weight: 600; color: var(--muted); margin-left: auto; }
+  .gf-tour-body { font-size: 13.5px; color: var(--muted); line-height: 1.55; margin-bottom: 16px; }
+  .gf-tour-actions { display: flex; gap: 10px; align-items: center; }
+  .gf-tour-exit {
+    background: none; border: none; font-size: 13px; font-weight: 600;
+    color: var(--muted); cursor: pointer;
+  }
+  .gf-tour-exit:hover { color: var(--ink); }
+  .gf-tour-prev {
+    background: none; border: 1.5px solid var(--line); border-radius: 8px;
+    padding: 7px 14px; font-size: 13px; font-weight: 650; color: var(--muted);
+    cursor: pointer; margin-left: auto;
+  }
+  .gf-tour-prev:hover { border-color: var(--line-hover); color: var(--ink); }
+  .gf-tour-next { font-size: 13px; padding: 8px 16px; border-radius: 8px; margin-left: auto; }
+  .gf-tour-prev + .gf-tour-next { margin-left: 0; }
+  .gf-tour-dots {
+    display: flex; gap: 6px; justify-content: center; margin-top: 12px;
+  }
+  .gf-tour-dot {
+    width: 7px; height: 7px; border-radius: 50%; background: #ddd;
+  }
+  .gf-tour-dot.active { background: var(--como); }
+
+  /* Spotlight ring drawn over the element the current tour step describes.
+     The 9999px outer shadow dims everything except the ring's interior. */
+  .gf-tour-highlight {
+    position: fixed; z-index: 940; pointer-events: none;
+    border-radius: 12px;
+    box-shadow: 0 0 0 3px var(--como), 0 0 0 9999px rgba(20, 18, 34, .55);
+    animation: gfFade .25s ease;
+  }
+
+  /* ---------- App Focus step (Celia-style option cards) ---------- */
+  .gf-focus-options { display: flex; flex-direction: column; gap: 12px; margin-top: 4px; }
+  .gf-focus-note {
+    display: flex; align-items: flex-start; gap: 8px; margin: 12px 0 14px; padding: 10px 11px;
+    border-radius: 10px; background: #f5f3fa; color: var(--muted); font-size: 11.5px; line-height: 1.45;
+  }
+  .gf-focus-note svg { width: 16px; height: 16px; flex: none; margin-top: 1px; color: var(--como); }
+  .gf-focus-option {
+    text-align: left; background: var(--panel); cursor: pointer;
+    border: 1.5px solid var(--line); border-radius: 14px; padding: 16px 16px 14px;
+    display: flex; flex-direction: column; gap: 8px; transition: border-color .15s, box-shadow .15s;
+  }
+  .gf-focus-option:hover { border-color: var(--line-hover-soft); }
+  .gf-focus-option.selected { border-color: var(--como); box-shadow: 0 0 0 3px var(--como-soft); }
+  .gf-focus-option-head { display: flex; align-items: center; gap: 11px; }
+  .gf-focus-option-ic {
+    width: 38px; height: 38px; border-radius: 11px; flex: none;
+    background: var(--como-soft); color: var(--como);
+    display: grid; place-items: center;
+  }
+  .gf-focus-option-ic svg { width: 20px; height: 20px; }
+  .gf-focus-option-name { font-size: 15px; font-weight: 750; color: var(--ink); letter-spacing: -.01em; }
+  .gf-focus-option-desc { font-size: 13px; color: var(--muted); line-height: 1.5; }
+  .gf-focus-outcome { color: var(--como); font-size: 11.5px; font-weight: 800; letter-spacing: .02em; text-transform: uppercase; }
+  .gf-focus-tags { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 2px; }
+  .gf-focus-tag {
+    font-size: 11.5px; font-weight: 600; color: var(--como);
+    background: var(--como-soft); border-radius: 999px; padding: 4px 10px;
+  }
+  .gf-focus-option-blank { flex-direction: row; align-items: center; }
+  .gf-focus-option-blank .gf-focus-option-head { flex: 1; }
+  .gf-focus-option-blank .gf-focus-option-name { font-size: 14px; font-weight: 650; }
+
+  /* ---------- App focus recap card (Home step) ---------- */
+  .cp-focus-recap {
+    display: flex; align-items: center; gap: 11px; position: relative;
+    background: var(--como-soft); border: 1px solid var(--line);
+    border-radius: 12px; padding: 11px 13px; margin-bottom: 12px;
+  }
+  .cp-focus-recap .cp-focus-ic {
+    width: 34px; height: 34px; border-radius: 9px; flex: none;
+    background: #fff; color: var(--como); display: grid; place-items: center;
+  }
+  .cp-focus-recap .cp-focus-ic svg { width: 18px; height: 18px; }
+  .cp-focus-recap .cp-focus-text { flex: 1; min-width: 0; }
+  .cp-focus-recap .cp-focus-lbl { font-size: 10.5px; font-weight: 700; text-transform: uppercase; letter-spacing: .04em; color: var(--como); }
+  .cp-focus-recap .cp-focus-val { font-size: 13.5px; font-weight: 700; color: var(--ink); }
+  .cp-focus-recap .cp-focus-change {
+    background: #fff; border: 1px solid var(--line); border-radius: 8px;
+    padding: 6px 11px; font-size: 12.5px; font-weight: 650; color: var(--ink);
+    cursor: pointer; display: flex; align-items: center; gap: 4px; flex: none;
+  }
+  .cp-focus-recap .cp-focus-change:hover { border-color: var(--como); color: var(--como); }
+
+  /* Inline focus dropdown on the Home recap card. */
+  .cp-focus-recap .cp-focus-menu {
+    position: absolute; top: calc(100% + 4px); right: 13px; z-index: 40;
+    background: #fff; border: 1px solid var(--line); border-radius: 10px;
+    box-shadow: 0 8px 24px rgba(0, 0, 0, .12); padding: 5px; min-width: 190px;
+    display: none;
+  }
+  .cp-focus-recap .cp-focus-menu.open { display: block; }
+  .cp-focus-recap .cp-focus-menu button {
+    display: block; width: 100%; text-align: left; background: none; border: none;
+    padding: 9px 11px; border-radius: 7px; font-size: 13px; font-weight: 600;
+    color: var(--ink); cursor: pointer;
+  }
+  .cp-focus-recap .cp-focus-menu button:hover { background: var(--como-soft); }
+  .cp-focus-recap .cp-focus-menu button.active { background: var(--como-soft); color: var(--como); }
+
+  /* Ordering-only widgets (Order Again, Top Items) only show when the app
+     focus is Online ordering — hidden for Loyalty and Blank canvas. */
+  body:not(.focus-ordering) #cp-home .cp-widget-row.cp-oo-widget { display: none !important; }
+  body:not(.focus-ordering) #add-widget-menu [data-add="menu-categories"] { display: none !important; }
+
+  /* ---------- Step 1 plain fields (Celia-style, no accordion) ---------- */
+  .gf-fieldset { margin: 0 0 18px; padding: 0; }
+  .gf-fieldset-reset { border: 0; min-width: 0; }
+  .gf-field-label {
+    display: block; font-size: 13px; font-weight: 700; color: var(--ink);
+    margin-bottom: 8px; letter-spacing: -.01em;
+  }
+  .gf-req { color: #d6336c; font-weight: 700; }
+  .gf-field-hint { font-size: 11.5px; color: var(--muted); margin-top: 7px; line-height: 1.5; }
+  .gf-field-error { min-height: 18px; margin-top: 5px; color: var(--danger); font-size: 11.5px; font-weight: 650; line-height: 1.4; }
+  [aria-invalid="true"] { border-color: var(--danger) !important; }
+  .gf-biztype-cards { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+  .gf-biztype-card {
+    display: flex; flex-direction: column; align-items: center; gap: 10px;
+    text-align: center; cursor: pointer; background: var(--panel);
+    border: 1.5px solid var(--line); border-radius: 12px; padding: 18px 12px;
+    transition: border-color .15s, box-shadow .15s;
+  }
+  .gf-biztype-card:hover { border-color: var(--line-hover-soft); }
+  .gf-biztype-card.selected { border-color: var(--como); box-shadow: 0 0 0 3px var(--como-soft); }
+  .gf-biztype-ic { color: var(--ink); }
+  .gf-biztype-ic svg { width: 26px; height: 26px; }
+  .gf-biztype-card.selected .gf-biztype-ic { color: var(--como); }
+  .gf-biztype-name { font-size: 12.5px; font-weight: 650; color: var(--ink); line-height: 1.3; }
+
+  /* ---------- Step footer back button ---------- */
+  .cp-step-back {
+    display: inline-flex; align-items: center; gap: 4px;
+    min-width: 0; max-width: 60%;
+    background: var(--panel); border: 1.5px solid var(--line); border-radius: 8px;
+    padding: 13px 18px; font-size: 14px; font-weight: 650; color: var(--ink);
+    cursor: pointer; transition: border-color .15s, color .15s;
+  }
+  .cp-step-back svg { width: 16px; height: 16px; flex: none; }
+  .cp-step-back:hover { border-color: var(--line-hover); color: var(--ink); }
+
+  /* ---------- Select dropdown ---------- */
+  .cp-select {
+    width: 100%; padding: 10px 14px; border-radius: 10px;
+    border: 1.5px solid var(--line); background: var(--panel);
+    font-size: 13.5px; color: var(--ink); cursor: pointer;
+    appearance: none;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%236b6b80' stroke-width='2.5' stroke-linecap='round'%3E%3Cpath d='M6 9l6 6 6-6'/%3E%3C/svg%3E");
+    background-repeat: no-repeat; background-position: right 12px center;
+  }
+  .cp-select:focus { border-color: var(--como); outline: none; }
+
+  @media (max-width: 520px) {
+    .gf-welcome { width: 100%; max-width: 100%; padding: 18px 16px 16px; border-radius: 16px; text-align: left; }
+    .gf-welcome-logo { width: 44px; height: 44px; margin-bottom: 10px; border-radius: 13px; font-size: 22px; }
+    .gf-welcome h1 { margin-bottom: 6px; font-size: 21px; line-height: 1.15; text-align: center; }
+    .gf-welcome p { margin-bottom: 14px; font-size: 13px; line-height: 1.42; }
+    .gf-welcome-list { margin-bottom: 14px; gap: 7px; }
+    .gf-welcome-item { gap: 9px; font-size: 12.5px; line-height: 1.3; }
+    .gf-welcome-item .n { width: 20px; height: 20px; }
+    .gf-help-link { display: flex; justify-content: center; margin: 0 0 12px; font-size: 12.5px; }
+    .gf-welcome-actions { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+    .gf-btn { min-height: 44px; padding: 9px 8px; font-size: 12.5px; }
+    .gf-tour-bubble.is-mobile-sheet {
+      inset: auto 12px 12px !important;
+      width: auto; max-width: none; padding: 16px;
+      border-radius: 16px;
+    }
+    .gf-tour-bubble.is-mobile-sheet::before { display: none; }
+    .gf-tour-bubble.is-mobile-sheet .gf-tour-actions { flex-wrap: wrap; }
+    .gf-tour-badge { display: none; }
+    .gf-biztype-cards { grid-template-columns: 1fr; }
+    .gf-submission-card { align-items: stretch; flex-direction: column; }
+    .gf-secondary-btn { width: 100%; min-height: 44px; }
+    .gf-review-row { flex-wrap: wrap; }
+    .gf-review-name { min-width: calc(100% - 42px); }
+    .gf-review-edit { margin-left: 31px; }
+  }
+
+  @media (hover: none) {
+    .gf-swatch:hover { transform: none; }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .gf-welcome, .gf-tour-bubble, .gf-tour-highlight, .gf-tour-badge-dot, .cp-master, .cp-detail {
+      animation: none !important; transition-duration: .01ms !important;
+    }
+  }
+
+  /* ---------- Logo upload result state ---------- */
+  .gf-logo-result {
+    display: flex; gap: 13px; align-items: center;
+    border: 1.5px solid var(--line); border-radius: 12px; padding: 12px;
+    background: var(--panel); margin-bottom: 10px;
+  }
+  /* Checkerboard so a white logo is still visible against the card. */
+  .gf-logo-thumb {
+    width: 58px; height: 58px; flex: none; border-radius: 10px; overflow: hidden;
+    border: 1px solid var(--line);
+    background-color: #fff;
+    background-image:
+      linear-gradient(45deg, #e9e7f0 25%, transparent 25%, transparent 75%, #e9e7f0 75%),
+      linear-gradient(45deg, #e9e7f0 25%, transparent 25%, transparent 75%, #e9e7f0 75%);
+    background-size: 12px 12px;
+    background-position: 0 0, 6px 6px;
+    display: grid; place-items: center;
+  }
+  .gf-logo-thumb img { max-width: 100%; max-height: 100%; object-fit: contain; display: block; }
+  .gf-logo-meta { min-width: 0; flex: 1; }
+  .gf-logo-status {
+    display: flex; align-items: center; gap: 5px;
+    font-size: 12px; font-weight: 750; color: #0f9d58; margin-bottom: 3px;
+  }
+  .gf-logo-status svg { width: 12px; height: 12px; }
+  .gf-logo-filename {
+    font-size: 12.5px; color: var(--ink); margin-bottom: 8px;
+    white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+  }
+  .gf-logo-actions { display: flex; gap: 8px; }
+  .gf-logo-controls {
+    margin-top: 12px; padding-top: 12px; border-top: 1px solid var(--line);
+  }
+  .gf-logo-action {
+    background: none; border: 1.5px solid var(--line); border-radius: 8px;
+    padding: 5px 11px; font-size: 12px; font-weight: 650; color: var(--muted); cursor: pointer;
+  }
+  .gf-logo-action:hover { border-color: var(--line-hover); color: var(--ink); }
+  .gf-logo-action.danger:hover { border-color: #f0a9bd; color: #d6336c; }
+
+  /* ---------- Blocking tour ---------- */
+  /* The tour used to sit over a live editor, so reviewers typed into real fields
+     believing they were setting up. During a tour the app is inert. The dim is
+     drawn by the spotlight's outer shadow, which leaves the target itself lit. */
+  body.gf-touring #root { pointer-events: none; user-select: none; }
+  @keyframes gfFade { from { opacity: 0; } to { opacity: 1; } }
+  .gf-tour-badge {
+    position: fixed; top: 14px; left: 50%; transform: translateX(-50%);
+    z-index: 960; display: flex; align-items: center; gap: 12px;
+    background: var(--ink); color: #fff; border-radius: 999px;
+    padding: 8px 8px 8px 16px; font-size: 12.5px; font-weight: 650;
+    box-shadow: 0 6px 20px rgba(0, 0, 0, .25);
+  }
+  .gf-tour-badge .gf-tour-badge-dot {
+    width: 7px; height: 7px; border-radius: 50%; background: #7ee2a8;
+    animation: gfPulse 1.6s ease-in-out infinite;
+  }
+  @keyframes gfPulse { 0%, 100% { opacity: 1; } 50% { opacity: .35; } }
+  .gf-tour-badge-exit {
+    background: rgba(255, 255, 255, .16); border: none; color: #fff;
+    border-radius: 999px; padding: 5px 13px; font-size: 12px; font-weight: 650; cursor: pointer;
+  }
+  .gf-tour-badge-exit:hover { background: rgba(255, 255, 255, .28); }
+  .gf-tour-bubble, .gf-tour-badge { pointer-events: auto; }
+
+  /* ---------- Config breadcrumb (hierarchy indicator) ---------- */
+  .cp-breadcrumb {
+    display: flex; align-items: center; gap: 5px;
+    padding: 10px 18px; border-bottom: 1px solid var(--line);
+    background: var(--panel); font-size: 12px; flex: none; min-width: 0;
+    overflow-x: auto; scrollbar-width: none;
+  }
+  .cp-breadcrumb::-webkit-scrollbar { display: none; }
+  .cp-crumb-item {
+    background: none; border: none; padding: 2px 4px; border-radius: 6px;
+    font-size: 12px; font-weight: 600; color: var(--muted); cursor: pointer;
+    white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+    max-width: 118px; flex: 0 1 auto;
+  }
+  .cp-crumb-item.current { max-width: 160px; }
+  .cp-crumb-item:hover { color: var(--como); background: var(--como-soft); }
+  .cp-crumb-item.current { color: var(--ink); font-weight: 750; cursor: default; }
+  .cp-crumb-item.current:hover { background: none; color: var(--ink); }
+  .cp-crumb-sep { color: #c4c0d2; font-size: 11px; flex: none; }
+  .cp-crumb-level {
+    margin-left: auto; flex: none; font-size: 10px; font-weight: 700; letter-spacing: .04em;
+    text-transform: uppercase; color: var(--como);
+    background: var(--como-soft); border-radius: 999px; padding: 3px 8px;
+    position: sticky; right: 0;
+  }
+}

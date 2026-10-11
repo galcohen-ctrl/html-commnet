@@ -27,7 +27,7 @@
     background var(--motion-fast) var(--ease-out);
 }
 
-.oo-opt:hover { border-color: #c9c4d8; }
+.oo-opt:hover { border-color: var(--line-hover-soft); }
 .oo-opt:focus-visible { outline: none; border-color: var(--como); box-shadow: 0 0 0 3px var(--focus-ring); }
 .oo-opt.selected { border-color: var(--como); box-shadow: 0 0 0 3px var(--como-soft); }
 
@@ -67,7 +67,7 @@
 }
 .gf-confirm-overlay.is-open { opacity: 1; }
 .gf-confirm {
-  width: min(430px, 92vw);
+  width: min(500px, 92vw);
   background: var(--panel, #fff); color: var(--ink, #1d1d28);
   border-radius: 16px; padding: 22px 22px 18px;
   box-shadow: 0 24px 60px -20px rgba(20, 20, 40, .55);
@@ -79,14 +79,27 @@
 .gf-confirm-body { margin: 0 0 18px; font-size: 13.5px; line-height: 1.55; color: var(--muted, #5b5b6b); }
 .gf-confirm-btns { display: flex; justify-content: flex-end; gap: 10px; }
 .gf-confirm-btns button {
-  min-height: 40px; padding: 0 16px; border-radius: 10px;
+  min-height: 40px; padding: 0 14px; border-radius: 10px;
   font: inherit; font-size: 13.5px; font-weight: 700; cursor: pointer;
   border: 1px solid var(--line, #e6e6ee);
+  white-space: nowrap;
 }
-.gf-confirm-cancel { background: #fff; color: var(--ink, #1d1d28); }
-.gf-confirm-cancel:hover { background: #f4f4f8; }
+.gf-confirm-cancel { background: transparent; color: var(--muted, #5b5b6b); border-color: transparent; padding: 0 10px; }
+.gf-confirm-cancel:hover { background: #f4f4f8; color: var(--ink, #1d1d28); }
 .gf-confirm-ok { background: var(--danger, #c7355a); color: #fff; border-color: var(--danger, #c7355a); }
 .gf-confirm-ok:hover { filter: brightness(1.05); }
+/* Three-way variant — three tiers: tertiary Cancel, secondary "Later", primary "Now". */
+.gf-confirm-btns.three-way { flex-wrap: nowrap; }
+.gf-confirm-btns.three-way .gf-confirm-cancel { margin-right: auto; }
+.gf-confirm-secondary { background: #fff; color: var(--ink, #1d1d28); border-color: var(--line, #e6e6ee); }
+.gf-confirm-secondary:hover { background: #f4f4f8; border-color: #d0d0dc; }
+.gf-confirm-primary { background: var(--como); color: #fff; border-color: var(--como); }
+.gf-confirm-primary:hover { filter: brightness(1.05); }
+@media (max-width: 460px) {
+  .gf-confirm-btns.three-way { flex-wrap: wrap; }
+  .gf-confirm-btns.three-way .gf-confirm-primary { flex: 1 1 100%; order: -1; }
+  .gf-confirm-btns.three-way .gf-confirm-cancel { margin-right: auto; }
+}
 /* ---- body ---- */
 .oo-opt-body { display: flex; flex-direction: column; gap: 6px; min-width: 0; flex: 1; }
 
@@ -235,9 +248,6 @@
   to   { opacity: 1; transform: translateY(0); }
 }
 
-/* Reels chip must never appear during Online ordering step 2. */
-body.on-step-online-ordering .phone-reels-chip { display: none !important; }
-
 @media (prefers-reduced-motion: reduce) {
   .oo-opt,
   .oo-opt-mark,
@@ -255,6 +265,19 @@ body.on-step-online-ordering .phone-reels-chip { display: none !important; }
 .hb-cap { padding: 11px 13px; display: flex; flex-direction: column; gap: 8px; }
 .hb-h { font-size: 14px; font-weight: 750; color: var(--ink); }
 .hb-h:empty { display: none; }
+
+/* Image Banner layouts — Wide (default) | Tall (portrait) | Cover (text overlaid on image). */
+.hb-banner[data-hb-layout="tall"] .hb-img { aspect-ratio: 4 / 5; }
+.hb-banner[data-hb-layout="cover"] { position: relative; }
+.hb-banner[data-hb-layout="cover"] .hb-img { aspect-ratio: 3 / 2; }
+.hb-banner[data-hb-layout="cover"] .hb-cap {
+  position: absolute; left: 0; right: 0; bottom: 0;
+  padding: 34px 14px 14px;
+  background: linear-gradient(to top, rgba(0,0,0,.78) 15%, rgba(0,0,0,.35) 60%, rgba(0,0,0,0) 100%);
+  gap: 10px;
+}
+.hb-banner[data-hb-layout="cover"] .hb-h { color: #fff; font-size: 16px; text-shadow: 0 1px 2px rgba(0,0,0,.25); }
+.hb-banner[data-hb-layout="cover"] .hb-cta { align-self: flex-start; }
 .hb-cta {
   align-self: flex-start;
   font-size: 12.5px;

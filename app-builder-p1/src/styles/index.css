@@ -13,7 +13,6 @@
 @import "./12-phone-menu.css";
 @import "./13-guided-flow.css";
 @import "./14-hover-ghost.css";
-@import "./15-ordering-widgets.css";
 @import "./16-rewards-blocks.css";
 @import "./17-product-experience.css";
 @import "./18-ordering-setup.css";
@@ -22,3 +21,5 @@
 @import "./21-review-gallery.css";
 @import "./22-app-screens.css";
 @import "./23-inbox.css";
+@import "./24-launch-screen.css";
+@import "./vega.css"; /* Vega DS editor theme. Remove this line to return to the Como look. */

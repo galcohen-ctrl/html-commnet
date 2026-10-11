@@ -34,6 +34,9 @@ body.side-collapsed .side-item .side-chev { display: none; }
 }
 .account-menu.open { display: block; }
 body.side-collapsed .account-menu { left: 4px; width: 240px; }
+/* Sidebar's overflow:hidden clips the popover and the config-column grid sibling
+   paints over it. Escape both when the popover is open. */
+.side-nav:has(.account-menu.open) { overflow: visible; z-index: 300; }
 @keyframes amPop { from { opacity: 0; transform: translateY(6px); } to { opacity: 1; transform: none; } }
 
 .am-user {
@@ -42,7 +45,7 @@ body.side-collapsed .account-menu { left: 4px; width: 240px; }
 }
 .am-avatar {
   width: 36px; height: 36px; border-radius: 10px; flex: none;
-  background: linear-gradient(135deg, var(--como), #a855f7);
+  background: linear-gradient(135deg, var(--como), var(--como-2));
   color: #fff; font-weight: 800; font-size: 15px;
   display: grid; place-items: center;
 }
@@ -125,7 +128,7 @@ body.side-collapsed .account-menu { left: 4px; width: 240px; }
   background: var(--panel); border: 1px solid var(--line); border-radius: 10px;
   transition: border-color .12s, box-shadow .12s;
 }
-.sm-search:focus-within { border-color: var(--como); box-shadow: 0 0 0 3px rgba(109, 40, 217, .12); }
+.sm-search:focus-within { border-color: var(--como); box-shadow: 0 0 0 3px color-mix(in srgb, var(--como) 12%, transparent); }
 .sm-search svg { width: 16px; height: 16px; color: var(--muted); flex: none; }
 .sm-search input {
   border: none; background: transparent; outline: none;
@@ -147,7 +150,7 @@ body.side-collapsed .account-menu { left: 4px; width: 240px; }
   transition: background .12s, color .12s;
 }
 .sm-nav svg { width: 17px; height: 17px; color: var(--muted); flex: none; }
-.sm-nav:hover { background: rgba(109, 40, 217, .07); }
+.sm-nav:hover { background: color-mix(in srgb, var(--como) 7%, transparent); }
 .sm-nav.active { background: var(--como-soft); color: var(--como); font-weight: 800; }
 .sm-nav.active svg { color: var(--como); }
 .sm-nav.no-match { display: none; }
@@ -228,9 +231,9 @@ body.side-collapsed .account-menu { left: 4px; width: 240px; }
 .sm-btn.ghost { background: var(--panel); border-color: var(--line); color: var(--ink); }
 .sm-btn.ghost:hover { border-color: #d3d3e0; }
 .sm-btn.primary { background: var(--como); color: #fff; }
-.sm-btn.primary:hover { background: #5d22c8; }
+.sm-btn.primary:hover { background: color-mix(in srgb, var(--como) 87%, black); }
 .sm-btn.primary:disabled,
-.sm-btn.primary.busy { background: #c9b5f2; cursor: default; transform: none; }
+.sm-btn.primary.busy { background: color-mix(in srgb, var(--como) 35%, white); cursor: default; transform: none; }
 
 /* ---------- Form primitives ---------- */
 .sm-section + .sm-section { margin-top: 28px; }
@@ -261,7 +264,7 @@ body.side-collapsed .account-menu { left: 4px; width: 240px; }
   padding-right: 34px; cursor: pointer;
 }
 .sm-input:focus, .sm-select:focus, .sm-textarea:focus {
-  border-color: var(--como); box-shadow: 0 0 0 3px rgba(109, 40, 217, .12);
+  border-color: var(--como); box-shadow: 0 0 0 3px color-mix(in srgb, var(--como) 12%, transparent);
 }
 .sm-input::placeholder, .sm-textarea::placeholder { color: #a5a5b6; }
 .sm-hint { font-size: 12px; color: var(--muted); margin-top: 7px; line-height: 1.5; }
@@ -387,7 +390,7 @@ body.side-collapsed .account-menu { left: 4px; width: 240px; }
   font-size: 11.5px; font-weight: 800;
 }
 .sm-step .n svg { width: 13px; height: 13px; }
-.sm-step.active { background: var(--como-soft); color: var(--como); box-shadow: inset 0 0 0 1px rgba(109, 40, 217, .28); }
+.sm-step.active { background: var(--como-soft); color: var(--como); box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--como) 28%, transparent); }
 .sm-step.active .n { background: var(--como); }
 .sm-step.done { background: transparent; color: var(--ink); }
 .sm-step.done .n { background: var(--ok); }
@@ -406,7 +409,7 @@ body.side-collapsed .account-menu { left: 4px; width: 240px; }
   cursor: pointer; text-align: left;
   transition: border-color .12s, box-shadow .12s;
 }
-.sm-combo.open .sm-combo-btn { border-color: var(--como); box-shadow: 0 0 0 3px rgba(109, 40, 217, .12); }
+.sm-combo.open .sm-combo-btn { border-color: var(--como); box-shadow: 0 0 0 3px color-mix(in srgb, var(--como) 12%, transparent); }
 .sm-combo-btn .ph { color: #a5a5b6; flex: 1; }
 .sm-combo-btn .sel-text { flex: 1; min-width: 0; }
 .sm-combo-btn .sel-name { font-weight: 750; }
@@ -426,7 +429,7 @@ body.side-collapsed .account-menu { left: 4px; width: 240px; }
   display: flex; align-items: center; gap: 12px;
   padding: 10px; border-radius: 9px; cursor: pointer;
 }
-.sm-provider:hover { background: #f7f5fd; }
+.sm-provider:hover { background: color-mix(in srgb, var(--como) 5%, white); }
 .sm-provider.sel { background: var(--como-soft); }
 .sm-provider-text { flex: 1; min-width: 0; }
 .sm-provider-name { font-size: 13.5px; font-weight: 750; }
@@ -494,7 +497,7 @@ body.side-collapsed .account-menu { left: 4px; width: 240px; }
   margin-bottom: 12px; overflow: hidden;
   transition: border-color .12s, box-shadow .12s;
 }
-.sm-loc.on { border-color: var(--como); box-shadow: 0 0 0 1px rgba(109, 40, 217, .18); }
+.sm-loc.on { border-color: var(--como); box-shadow: 0 0 0 1px color-mix(in srgb, var(--como) 18%, transparent); }
 .sm-loc.closed { background: var(--bg); }
 .sm-loc-row { display: flex; align-items: center; gap: 13px; padding: 15px; }
 .sm-tick {
@@ -559,7 +562,7 @@ body.side-collapsed .account-menu { left: 4px; width: 240px; }
 
 .sm-plan {
   border: 1px solid var(--line); border-radius: 14px; padding: 18px;
-  background: linear-gradient(140deg, #faf7ff 0%, var(--panel) 62%);
+  background: linear-gradient(140deg, color-mix(in srgb, var(--como) 2%, white) 0%, var(--panel) 62%);
 }
 .sm-plan-top { display: flex; align-items: flex-start; gap: 12px; }
 .sm-plan-name { font-size: 18px; font-weight: 800; letter-spacing: -.35px; }
@@ -570,7 +573,7 @@ body.side-collapsed .account-menu { left: 4px; width: 240px; }
 .sm-meter-head .k { font-weight: 700; }
 .sm-meter-head .v { color: var(--muted); }
 .sm-meter-bar { height: 7px; border-radius: 999px; background: #ececf4; overflow: hidden; }
-.sm-meter-fill { height: 100%; border-radius: 999px; background: linear-gradient(90deg, var(--como), #a855f7); }
+.sm-meter-fill { height: 100%; border-radius: 999px; background: linear-gradient(90deg, var(--como), var(--como-2)); }
 
 .sm-swatches { display: flex; align-items: center; gap: 11px; }
 .sm-swatch {
@@ -605,7 +608,9 @@ body.side-collapsed .account-menu { left: 4px; width: 240px; }
 /* Larger toggle inside the settings modal (design uses a 44x24 switch) */
 .sm-overlay .toggle { width: 44px; height: 24px; }
 .sm-overlay .toggle::after { width: 18px; height: 18px; top: 3px; left: 3px; }
-.sm-overlay .toggle.on::after { left: 23px; }
+/* The shared .toggle.on::after already slides by transform, so a left offset here
+   would be added on top and push the knob outside the track. */
+.sm-overlay .toggle.on::after { left: 3px; transform: translateX(20px); }
 
 /* ---------- App submission guide ---------- */
 .sm-nav-badge {
@@ -620,7 +625,7 @@ body.side-collapsed .account-menu { left: 4px; width: 240px; }
   white-space: nowrap;
 }
 .sm-nav-badge.ready { background: #e1f6eb; color: #176b49; }
-.sm-nav.active .sm-nav-badge { box-shadow: inset 0 0 0 1px rgba(109, 40, 217, .18); }
+.sm-nav.active .sm-nav-badge { box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--como) 18%, transparent); }
 
 .sm-submission-nav {
   display: grid;
@@ -689,7 +694,7 @@ body.side-collapsed .account-menu { left: 4px; width: 240px; }
   margin-bottom: 20px;
   padding: 19px 20px;
   border-radius: 15px;
-  background: linear-gradient(135deg, #f7f1ff, #f2f7ff);
+  background: linear-gradient(135deg, color-mix(in srgb, var(--como) 4%, white), #f2f7ff);
 }
 .sm-submission-intro > div { flex: 1; min-width: 0; }
 .sm-submission-intro p { max-width: 570px; margin: 7px 0 0; color: #5f5d70; font-size: 13px; line-height: 1.55; }
@@ -702,7 +707,7 @@ body.side-collapsed .account-menu { left: 4px; width: 240px; }
   display: grid;
   place-content: center;
   border-radius: 50%;
-  background: conic-gradient(var(--como) var(--progress), rgba(109, 40, 217, .13) 0);
+  background: conic-gradient(var(--como) var(--progress), color-mix(in srgb, var(--como) 13%, transparent) 0);
   color: var(--ink);
   text-align: center;
 }
@@ -773,7 +778,7 @@ body.side-collapsed .account-menu { left: 4px; width: 240px; }
 .sm-asset-card:hover { border-color: var(--como); }
 .sm-asset-card.added { border-style: solid; border-color: #9fd4ba; background: #f4fbf7; }
 .sm-asset-preview { width: 48px; height: 48px; flex: 0 0 48px; display: grid; place-items: center; border-radius: 11px; background: #282331; color: #fff; font-size: 12px; font-weight: 850; }
-.sm-asset-preview.screens { background: #eee8fb; color: var(--como); letter-spacing: 2px; }
+.sm-asset-preview.screens { background: color-mix(in srgb, var(--como) 11%, white); color: var(--como); letter-spacing: 2px; }
 .sm-asset-card > span:nth-child(2) { flex: 1; min-width: 0; }
 .sm-asset-card strong,
 .sm-asset-card small { display: block; }
@@ -792,7 +797,7 @@ body.side-collapsed .account-menu { left: 4px; width: 240px; }
 .sm-check-row,
 .sm-submit-store { min-height: 54px; display: flex; align-items: flex-start; gap: 12px; padding: 12px 13px; border: 1px solid var(--line); border-radius: 11px; cursor: pointer; }
 .sm-check-row:hover,
-.sm-submit-store:hover { border-color: #c7b2ee; background: #fcfaff; }
+.sm-submit-store:hover { border-color: color-mix(in srgb, var(--como) 40%, white); background: color-mix(in srgb, var(--como) 1%, white); }
 .sm-check-row input,
 .sm-submit-store input { width: 19px; height: 19px; flex: 0 0 19px; margin: 2px 0 0; accent-color: var(--como); }
 .sm-check-row > span,
@@ -811,7 +816,7 @@ body.side-collapsed .account-menu { left: 4px; width: 240px; }
 .sm-test-build h3 { margin-top: 8px; font-size: 15px; }
 .sm-test-build p { margin: 4px 0 0; color: var(--muted); font-size: 12px; }
 .sm-submit-store { align-items: center; }
-.sm-submit-confirm { display: flex; align-items: center; gap: 18px; margin-top: 18px; padding: 16px; border: 1px solid #c7b2ee; border-radius: 13px; background: #faf7ff; }
+.sm-submit-confirm { display: flex; align-items: center; gap: 18px; margin-top: 18px; padding: 16px; border: 1px solid color-mix(in srgb, var(--como) 40%, white); border-radius: 13px; background: color-mix(in srgb, var(--como) 2%, white); }
 .sm-submit-confirm > div:first-child { flex: 1; min-width: 0; }
 .sm-submit-confirm strong { font-size: 13.5px; }
 .sm-submit-confirm p { margin: 5px 0 0; color: var(--muted); font-size: 12px; line-height: 1.5; }
@@ -819,7 +824,7 @@ body.side-collapsed .account-menu { left: 4px; width: 240px; }
 .sm-submission-step[data-submission-step="history"] .sm-note { margin-top: 15px; }
 
 .sm-overlay :is(button, a, input, textarea, select):focus-visible {
-  outline: 3px solid rgba(109, 40, 217, .3);
+  outline: 3px solid color-mix(in srgb, var(--como) 30%, transparent);
   outline-offset: 2px;
 }
 .sm-nav,

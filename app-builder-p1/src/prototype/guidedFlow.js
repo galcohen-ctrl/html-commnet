@@ -8,7 +8,6 @@
 
 const STEPS = [
   { key: 'business', label: 'Business details', kind: 'setup' },
-  { key: 'online-ordering', label: 'Online ordering', kind: 'setup' },
   { key: 'branding', label: 'Branding', kind: 'setup' },
   { key: 'home', label: 'Home', kind: 'screen' },
   { key: 'rewards', label: 'Rewards', kind: 'screen' },
@@ -20,12 +19,10 @@ const STEPS = [
 
 const FOCUS_LABELS = {
   loyalty: 'Lead with loyalty',
-  ordering: 'Lead with ordering',
 };
 
 const FOCUS_ICONS = {
-  loyalty: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M20 12v10H4V12M2 7h20v5H2zM12 22V7"/><path d="M12 7H7.5a2.5 2.5 0 010-5C11 2 12 7 12 7zM12 7h4.5a2.5 2.5 0 000-5C13 2 12 7 12 7z"/></svg>',
-  ordering: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M6 2 3 6v14a2 2 0 002 2h14a2 2 0 002-2V6l-3-4z"/><path d="M3 6h18"/><path d="M16 10a4 4 0 01-8 0"/></svg>',
+  loyalty: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M12 21s-7-4.35-7-10a4 4 0 017-2.65A4 4 0 0119 11c0 5.65-7 10-7 10z"/></svg>',
 };
 
 export function initGuidedFlow(ctx) {
@@ -39,7 +36,7 @@ export function initGuidedFlow(ctx) {
   const stepButtons = [...document.querySelectorAll('.side-step[data-step]')];
   const indexOf = (key) => STEPS.findIndex((s) => s.key === key);
 
-  const REQUIRED_STEPS = ['business', 'online-ordering', 'branding', 'home'];
+  const REQUIRED_STEPS = ['business', 'branding', 'home'];
 
   function activeHomeWidgetCount() {
     return document.querySelectorAll('#cp-home [data-widget-toggle].on').length;
@@ -59,20 +56,6 @@ export function initGuidedFlow(ctx) {
       if (showErrors || !nameMissing) setFieldError(name, 'gf-biz-name-error', nameMissing ? 'Enter your company name.' : '');
       if (focusFirst && nameMissing) name?.focus();
       return !nameMissing;
-    }
-    if (key === 'online-ordering') {
-      const chosen = ctx.getOrderingMode?.();
-      // "Not yet" is a real answer; native and web view also need their provider
-      // or menu wired up before the step is genuinely done.
-      const complete = ctx.isOrderingStepComplete ? ctx.isOrderingStepComplete() : Boolean(chosen);
-      let message = 'Choose how customers place online orders.';
-      if (chosen === 'native') message = 'Connect your online ordering provider to finish, or choose Not yet.';
-      else if (chosen === 'webview') message = 'Add your menu web address to finish, or choose Not yet.';
-      const error = document.getElementById('oo-choice-error');
-      if (error && (showErrors || complete)) error.textContent = complete ? '' : message;
-      document.getElementById('oo-choice')?.setAttribute('aria-invalid', complete ? 'false' : 'true');
-      if (!complete && focusFirst) document.querySelector('#oo-choice [data-oo-mode]')?.focus();
-      return complete;
     }
     if (key === 'home') {
       const valid = homeVisited && activeHomeWidgetCount() > 0;
@@ -144,12 +127,16 @@ export function initGuidedFlow(ctx) {
     flow.current = key;
     if (key === 'home') homeVisited = true;
     const onBusiness = key === 'business';
-    const onOrdering = key === 'online-ordering';
+    const onBranding = key === 'branding';
     document.body.classList.toggle('phone-preview-blank', onBusiness && !businessEdited);
-    // On business (post-edit) and initial ordering step, keep the phone in header-only mode
-    // until the merchant commits an ordering choice that fills the preview.
-    document.body.classList.toggle('phone-header-only', (onBusiness && businessEdited) || (onOrdering && !window.getOrderingMode?.()));
-    document.body.classList.toggle('on-step-online-ordering', onOrdering);
+    // Branding needs a real-looking home to paint onto, so it loads the loyalty
+    // layout as a mock. The app is loyalty-led everywhere now, so it never unloads.
+    if (onBranding) {
+      document.body.classList.remove('phone-header-only', 'phone-preview-blank');
+      document.body.classList.add('branding-mock-preview');
+      window.applyGoalPreset?.('loyalty', { emit: false, source: 'branding-mock' });
+    }
+    document.body.classList.toggle('phone-header-only', onBusiness && businessEdited);
     // Any navigation exits the "arrived from ordering to configure webview" state
     // and returns the Menu page from the third panel to its home in the config panel.
     window.__exitWebviewL3?.();
@@ -597,7 +584,11 @@ export function initGuidedFlow(ctx) {
     if (businessEdited) return;
     businessEdited = true;
     document.body.classList.remove('phone-preview-blank');
-    document.body.classList.add('phone-header-only');
+    // Only clamp the phone to a header if nothing else is already painting it.
+    // The Branding mock preview and any committed ordering mode own their own layout.
+    const owned = document.body.classList.contains('branding-mock-preview')
+      || document.body.classList.contains('oo-mode-skip');
+    if (!owned) document.body.classList.add('phone-header-only');
   }
 
   const nameInput = document.getElementById('gf-biz-name');
@@ -678,12 +669,6 @@ export function initGuidedFlow(ctx) {
       c.setAttribute('aria-pressed', on ? 'true' : 'false');
       c.disabled = !on && atCap;
     });
-    const badge = document.querySelector('.app-page[data-page="home"] .category-badge');
-    if (badge) {
-      const [first, ...rest] = flow.categories;
-      badge.textContent = first ? (rest.length ? `${first} +${rest.length}` : first) : '';
-      badge.classList.toggle('hidden-slot', !first);
-    }
     const hint = document.getElementById('gf-cat-hint');
     if (hint) {
       hint.textContent = atCap
@@ -727,10 +712,14 @@ export function initGuidedFlow(ctx) {
     flow.accent = hex;
     document.body.style.setProperty('--p-accent', hex);
     window.syncColorVar?.('--p-accent', hex);
+    let matched = false;
     document.querySelectorAll('#gf-accent-row [data-accent]').forEach((s) => {
-      s.classList.toggle('selected', s.dataset.accent.toLowerCase() === hex.toLowerCase());
-      s.setAttribute('aria-pressed', s.dataset.accent.toLowerCase() === hex.toLowerCase() ? 'true' : 'false');
+      const isMatch = s.dataset.accent.toLowerCase() === hex.toLowerCase();
+      s.classList.toggle('selected', isMatch);
+      s.setAttribute('aria-pressed', isMatch ? 'true' : 'false');
+      if (isMatch) matched = true;
     });
+    document.querySelector('#gf-accent-row .sw-swatch-custom')?.classList.toggle('selected', !matched);
     markDirty?.();
   }
   document.querySelectorAll('#gf-accent-row [data-accent]').forEach((sw) => {
@@ -744,11 +733,6 @@ export function initGuidedFlow(ctx) {
   const logoThumb = document.getElementById('gf-logo-thumb-img');
   const logoFilename = document.getElementById('gf-logo-filename');
   const logoControls = document.getElementById('gf-logo-controls');
-  const step1LogoZone = document.getElementById('gf-step1-logo-zone');
-  const step1LogoFile = document.getElementById('gf-step1-logo-file');
-  const step1LogoResult = document.getElementById('gf-step1-logo-result');
-  const step1LogoPreview = document.getElementById('gf-step1-logo-preview');
-  const step1LogoFilename = document.getElementById('gf-step1-logo-filename');
 
   function paintLogoTargets(dataUrl) {
     document.querySelectorAll('.app-page .app-top-header .brand-mark, #brand-logo').forEach((el) => {
@@ -788,10 +772,6 @@ export function initGuidedFlow(ctx) {
       const dataUrl = e.target.result;
       paintLogoTargets(dataUrl);
       showLogoResult(dataUrl, file.name);
-      if (step1LogoPreview) step1LogoPreview.src = dataUrl;
-      if (step1LogoFilename) step1LogoFilename.textContent = file.name;
-      if (step1LogoResult) step1LogoResult.style.display = '';
-      if (step1LogoZone) step1LogoZone.style.display = 'none';
       revealPhonePreview();
       markDirty?.();
       showToast?.('Logo uploaded');
@@ -813,18 +793,6 @@ export function initGuidedFlow(ctx) {
     document.getElementById('gf-logo-remove')?.addEventListener('click', clearLogoResult);
   }
 
-  if (step1LogoZone && step1LogoFile) {
-    step1LogoZone.addEventListener('click', () => step1LogoFile.click());
-    step1LogoZone.addEventListener('dragover', (e) => { e.preventDefault(); step1LogoZone.classList.add('drag-over'); });
-    step1LogoZone.addEventListener('dragleave', () => step1LogoZone.classList.remove('drag-over'));
-    step1LogoZone.addEventListener('drop', (e) => {
-      e.preventDefault();
-      step1LogoZone.classList.remove('drag-over');
-      readLogoFile(e.dataTransfer.files?.[0]);
-    });
-    step1LogoFile.addEventListener('change', () => readLogoFile(step1LogoFile.files?.[0]));
-    document.getElementById('gf-step1-logo-replace')?.addEventListener('click', () => step1LogoFile.click());
-  }
   const FONT_STACKS = {
     'sans-serif': '-apple-system, BlinkMacSystemFont, "SF Pro Display", sans-serif',
     serif: 'Georgia, "Times New Roman", serif',
@@ -853,7 +821,7 @@ export function initGuidedFlow(ctx) {
   /* --------------------------------------------------------- app focus step */
 
   function reflectFocus(goal) {
-    flow.focus = goal === 'loyalty' || goal === 'ordering' ? goal : null;
+    flow.focus = goal === 'loyalty' ? goal : null;
     // The recap appears on more than one step, so every instance is kept in sync.
     document.querySelectorAll('.cp-focus-val').forEach((el) => {
       el.textContent = FOCUS_LABELS[flow.focus] || 'Not chosen yet';
@@ -868,16 +836,9 @@ export function initGuidedFlow(ctx) {
     });
     document.body.classList.remove('focus-loyalty', 'focus-ordering', 'focus-blank');
     document.body.classList.add(flow.focus ? 'focus-' + flow.focus : 'focus-blank');
-    validateStep('online-ordering');
     updatePublishReadiness();
     render();
   }
-
-  document.addEventListener('como:ordering-mode', (event) => {
-    validateStep('online-ordering');
-    updatePublishReadiness();
-    render();
-  });
 
   document.addEventListener('como:focus-changed', (event) => {
     reflectFocus(event.detail?.goal);
@@ -896,29 +857,6 @@ export function initGuidedFlow(ctx) {
     });
   });
 
-  // Home and Branding both carry a recap so the merchant can switch focus without
-  // going back a step. Wire every instance the same way.
-  document.querySelectorAll('.cp-focus-recap').forEach((recap) => {
-    const changeBtn = recap.querySelector('.cp-focus-change');
-    const menu = recap.querySelector('.cp-focus-menu');
-    if (!changeBtn || !menu) return;
-    changeBtn.addEventListener('click', (e) => {
-      e.stopPropagation();
-      const wasOpen = menu.classList.contains('open');
-      document.querySelectorAll('.cp-focus-menu.open').forEach((m) => m.classList.remove('open'));
-      menu.classList.toggle('open', !wasOpen);
-      document.querySelectorAll('.cp-focus-change').forEach((button) => button.setAttribute('aria-expanded', 'false'));
-      changeBtn.setAttribute('aria-expanded', !wasOpen ? 'true' : 'false');
-    });
-    menu.querySelectorAll('[data-focus]').forEach((b) => {
-      b.addEventListener('click', (e) => {
-        e.stopPropagation();
-        menu.classList.remove('open');
-        changeBtn.setAttribute('aria-expanded', 'false');
-        requestFocus(b.dataset.focus);
-      });
-    });
-  });
   document.addEventListener('click', () => {
     document.querySelectorAll('.cp-focus-menu.open').forEach((m) => m.classList.remove('open'));
     document.querySelectorAll('.cp-focus-change').forEach((button) => button.setAttribute('aria-expanded', 'false'));

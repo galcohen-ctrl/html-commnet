@@ -1,5 +1,5 @@
 <div class="cp-master branding-page">
-  <h3 class="cp-head">Step 3</h3>
+  <h3 class="cp-head">Step 2</h3>
   <div class="cp-page-title">Branding</div>
 
   <div class="px-brand-source" id="px-brand-source" role="status" hidden>
@@ -7,250 +7,300 @@
     <span><strong>Global branding</strong><small>Home, Rewards, Menu, Locations, Login, Profile, and More stay in sync.</small></span>
   </div>
 
-  <div class="cp-focus-recap" hidden>
-    <div class="cp-focus-ic"></div>
-    <div class="cp-focus-text">
-      <div class="cp-focus-lbl">App focus</div>
-      <div class="cp-focus-val">Not chosen yet</div>
+  <div class="brand-basics">
+    <div class="cp-widget-row brand-tune-row">
+      <span class="w-name" data-drill="brand-logo">Logo</span>
+      <span class="brand-tune-val" id="brand-tune-logo-val">Not uploaded</span>
+      <span class="chev">›</span>
     </div>
-    <button class="cp-focus-change" type="button" aria-haspopup="menu" aria-expanded="false">
-      Change
-      <svg viewBox="0 0 24 24" width="12" height="12" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round"><path d="M6 9l6 6 6-6"/></svg>
-    </button>
-    <div class="cp-focus-menu" role="menu" aria-label="Change app focus">
-      <button type="button" role="menuitemradio" aria-checked="false" data-focus="loyalty">Lead with loyalty</button>
-      <button type="button" role="menuitemradio" aria-checked="false" data-focus="ordering">Lead with ordering</button>
+    <label class="cp-widget-row brand-tune-row brand-accent-row" for="gf-accent-custom">
+      <span class="w-name">Brand colour</span>
+      <span class="brand-accent-circle" id="brand-accent-circle" aria-hidden="true"></span>
+      <input type="text" class="brand-accent-hex-input" id="brand-accent-hex" value="#6D28D9" inputmode="text" spellcheck="false" autocomplete="off" aria-label="Brand colour hex value" />
+      <svg class="brand-accent-edit" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 20h9"/><path d="M16.5 3.5a2.1 2.1 0 013 3L7 19l-4 1 1-4z"/></svg>
+      <input type="color" value="#6d28d9" id="gf-accent-custom" data-accent="#6d28d9" class="brand-accent-input" aria-label="Brand colour" />
+    </label>
+    <div class="cp-widget-row brand-tune-row">
+      <span class="w-name" data-drill="brand-colours">Colours
+        <button class="ms-info" type="button" data-tip="Every colour in your app: the background, the cards that sit on it, your text and your icons.">i</button>
+      </span>
+      <span class="brand-tune-warn">Low contrast</span>
+      <span class="brand-tune-val" id="brand-tune-background-val">Solid colour</span>
+      <span class="brand-tune-swatch" id="brand-tune-background-swatch" aria-hidden="true"></span>
+      <span class="chev">›</span>
+    </div>
+    <div class="cp-widget-row brand-tune-row brand-splash-row">
+      <span class="brand-splash-ic" aria-hidden="true">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round">
+          <rect x="6.5" y="2.5" width="11" height="19" rx="2.4"/>
+          <path d="M8.6 5.5h6.8" stroke-width="1.3" opacity=".55"/>
+          <path d="M12 9.6l1 2 2 .5-1.5 1.3.4 2.1L12 14.4l-1.9 1.1.4-2.1L9 12.1l2-.5z" fill="currentColor" stroke="none"/>
+        </svg>
+      </span>
+      <span class="w-name" data-drill="brand-launch">Splash screen</span>
+      <span class="brand-tune-val" id="launch-summary">Brand default</span>
+      <span class="chev">›</span>
     </div>
   </div>
 
-  <div class="cp-section open branding-accent-section">
-    <div class="cp-head-row">Brand colour <span class="chev">›</span></div>
+  <div class="cp-section branding-tune-section">
+    <div class="cp-head-row">Advanced Branding <span class="chev">›</span></div>
     <div class="cp-body">
-      <div class="gf-swatch-row" id="gf-accent-row">
-        <button class="gf-swatch selected" style="background:#6d28d9" data-accent="#6d28d9" type="button" aria-label="Purple"></button>
-        <button class="gf-swatch" style="background:#d4a648" data-accent="#d4a648" type="button" aria-label="Gold"></button>
-        <button class="gf-swatch" style="background:#d97706" data-accent="#d97706" type="button" aria-label="Orange"></button>
-        <button class="gf-swatch" style="background:#0f766e" data-accent="#0f766e" type="button" aria-label="Teal"></button>
-        <button class="gf-swatch" style="background:#be123c" data-accent="#be123c" type="button" aria-label="Red"></button>
-        <button class="gf-swatch" style="background:#1d4ed8" data-accent="#1d4ed8" type="button" aria-label="Blue"></button>
-        <label class="sw-swatch-custom" title="Custom colour">
-          <svg viewBox="0 0 24 24"><path d="M12 20h9"/><path d="M16.5 3.5a2.1 2.1 0 013 3L7 19l-4 1 1-4z"/></svg>
-          <input type="color" value="#6d28d9" id="gf-accent-custom" />
-        </label>
+      <div class="cp-widget-row brand-tune-row">
+        <span class="w-name" data-drill="brand-header">App header</span>
+        <span class="brand-tune-val" id="brand-tune-header-val">Your Business</span>
+        <span class="chev">›</span>
       </div>
-    </div>
-  </div>
-
-  <div class="cp-section open branding-logo-section">
-    <div class="cp-head-row">Logo <span class="chev">›</span></div>
-    <div class="cp-body">
-      <div class="gf-logo-result" id="gf-logo-result" style="display:none;">
-        <div class="gf-logo-thumb"><img id="gf-logo-thumb-img" src="data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///ywAAAAAAQABAAACAUwAOw==" alt="Uploaded logo" /></div>
-        <div class="gf-logo-meta">
-          <div class="gf-logo-status">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6L9 17l-5-5"/></svg>
-            Uploaded
-          </div>
-          <div class="gf-logo-filename" id="gf-logo-filename">logo.png</div>
-          <div class="gf-logo-actions">
-            <button class="gf-logo-action" id="gf-logo-replace" type="button">Replace</button>
-            <button class="gf-logo-action danger" id="gf-logo-remove" type="button">Remove</button>
-          </div>
-        </div>
+      <div class="cp-widget-row brand-tune-row">
+        <span class="w-name" data-drill="brand-fonts">Fonts</span>
+        <span class="brand-tune-val" id="brand-tune-fonts-val">Device default</span>
+        <span class="chev">›</span>
       </div>
-      <div class="cp-upload-zone" id="gf-logo-zone">
-        <div class="cp-upload-btn">+ Upload from Computer</div>
-        <div class="cp-upload-hint">or drag &amp; drop files here</div>
-      </div>
-      <input type="file" id="gf-logo-file" accept="image/png,image/jpeg,image/jpg,image/webp" style="display:none;" />
-      <div class="cp-upload-note">Supported: png, jpg, jpeg, webp. Max 5MB.</div>
-      <div class="gf-logo-controls" id="gf-logo-controls" hidden>
-        <div class="cp-subhead">Position</div>
-        <div class="cp-radio-group">
-          <div class="cp-radio" data-bind-radio="logo-position" data-value="left">Left</div>
-          <div class="cp-radio active" data-bind-radio="logo-position" data-value="center">Center</div>
-          <div class="cp-radio" data-bind-radio="logo-position" data-value="right">Right</div>
-        </div>
-        <div class="cp-subhead">Size</div>
-        <div class="cp-slider-row">
-          <input type="range" class="cp-slider" min="30" max="120" value="60" data-bind-slider="logo-size" />
-          <span class="cp-slider-val">60%</span>
-        </div>
-      </div>
-    </div>
-  </div>
-
-  <div class="cp-section branding-header-section">
-    <div class="cp-head-row">App name <span class="chev">›</span></div>
-    <div class="cp-body">
-      <div class="cp-field">
-        <label>Business name</label>
-        <input class="cp-input-text" data-bind-text=".app-page[data-page='home'] .app-top-header .brand-text .name" value="Your Business" />
-      </div>
-      <div class="cp-field">
-        <label for="gf-branding-headline">App tagline</label>
-        <input id="gf-branding-headline" class="cp-input-text" type="text" placeholder="e.g. Fresh food, real rewards" maxlength="60" />
-        <div class="cp-hint-inline">One short line under your business name. Same tagline you set in Business details.</div>
-      </div>
-      <div class="cp-toggle-row"><span class="lbl">Show business name</span><span class="toggle on" data-bind=".app-page[data-page='home'] .app-top-header .brand-text"></span></div>
-    </div>
-  </div>
-
-  <div class="cp-section branding-font-section">
-    <div class="cp-head-row">Fonts <span class="chev">›</span></div>
-    <div class="cp-body">
-      <div class="brand-font-picker" data-font-role="title">
-        <label for="brand-title-font-open">Titles</label>
-        <input type="hidden" id="brand-title-family" value="" />
-        <button class="brand-font-trigger" type="button" id="brand-title-font-open" data-font-open aria-expanded="false" aria-controls="brand-title-font-panel"><span data-font-label>Device default</span><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m6 9 6 6 6-6"/></svg></button>
-        <div class="brand-font-panel" id="brand-title-font-panel" data-font-panel hidden>
-          <input class="cp-input-text" id="brand-title-font-search" type="search" placeholder="Search Google Fonts" aria-label="Search title fonts" autocomplete="off" />
-          <div class="brand-font-results" data-font-results aria-label="Title fonts"></div>
-        </div>
-        <div class="brand-font-status" role="status" aria-live="polite"></div>
-      </div>
-      <div class="brand-font-picker" data-font-role="body">
-        <label for="brand-body-font-open">Body text</label>
-        <input type="hidden" id="brand-body-family" value="" />
-        <button class="brand-font-trigger" type="button" id="brand-body-font-open" data-font-open aria-expanded="false" aria-controls="brand-body-font-panel"><span data-font-label>Device default</span><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m6 9 6 6 6-6"/></svg></button>
-        <div class="brand-font-panel" id="brand-body-font-panel" data-font-panel hidden>
-          <input class="cp-input-text" id="brand-body-font-search" type="search" placeholder="Search Google Fonts" aria-label="Search body fonts" autocomplete="off" />
-          <div class="brand-font-results" data-font-results aria-label="Body fonts"></div>
-        </div>
-        <div class="brand-font-status" role="status" aria-live="polite"></div>
-      </div>
-      <details class="brand-custom-font"><summary>Have your own font?</summary><button type="button" class="gf-logo-action" id="px-request-font">Add in app submission</button></details>
-    </div>
-  </div>
-
-  <div class="branding-colors" id="gf-advanced-branding-section">
-    <div class="cp-section open">
-      <div class="cp-head-row">Background <span class="chev">›</span></div>
-      <div class="cp-body">
-        <div class="brand-background-sample" id="brand-background-sample" aria-hidden="true"><span>Aa</span></div>
-        <div class="cp-seg" id="appbg-mode">
-          <button class="cp-seg-btn active" type="button" data-mode="solid" aria-pressed="true">One colour</button>
-          <button class="cp-seg-btn" type="button" data-mode="gradient" aria-pressed="false">Gradient</button>
-        </div>
-        <input type="hidden" id="appbg-mode-value" value="solid" />
-        <input type="hidden" id="appbg-direction" value="135" />
-        <div class="brand-gradient-presets" aria-label="Background colour combinations">
-          <button type="button" data-bg-start="#f0faf5" data-bg-end="#c1e8dc" title="Mint" aria-label="Mint gradient" style="--gradient-start:#f0faf5;--gradient-end:#c1e8dc;"></button>
-          <button type="button" data-bg-start="#eff7ff" data-bg-end="#cddfed" title="Sky" aria-label="Sky gradient" style="--gradient-start:#eff7ff;--gradient-end:#cddfed;"></button>
-          <button type="button" data-bg-start="#fff6f2" data-bg-end="#f5d5bd" title="Peach" aria-label="Peach gradient" style="--gradient-start:#fff6f2;--gradient-end:#f5d5bd;"></button>
-          <button type="button" data-bg-start="#fff1f5" data-bg-end="#ead8e6" title="Rose" aria-label="Rose gradient" style="--gradient-start:#fff1f5;--gradient-end:#ead8e6;"></button>
-        </div>
-        <div class="cp-color-row">
-          <div class="cp-color-swatch" style="background:#f2f2f7;">
-            <input type="color" value="#f2f2f7" id="appbg-color1" aria-label="First background colour" />
-          </div>
-          <div class="cp-color-info">
-            <div class="cp-color-label" id="appbg-label1">First colour</div>
-            <input class="cp-color-hex" value="#F2F2F7" spellcheck="false" maxlength="9" aria-label="First background colour code" />
-          </div>
-        </div>
-        <div class="cp-color-row" id="appbg-row2" hidden>
-          <div class="cp-color-swatch" style="background:#e9e7f0;">
-            <input type="color" value="#e9e7f0" id="appbg-color2" aria-label="Second background colour" />
-          </div>
-          <div class="cp-color-info">
-            <div class="cp-color-label">Second colour</div>
-            <input class="cp-color-hex" value="#E9E7F0" spellcheck="false" maxlength="9" aria-label="Second background colour code" />
-          </div>
-        </div>
-        <div id="appbg-gradient-controls" hidden>
-          <div class="brand-direction-row" role="group" aria-label="Gradient direction">
-            <button type="button" data-bg-direction="135" aria-label="Diagonal" title="Diagonal" aria-pressed="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m5 5 14 14M9 19h10V9"/></svg></button>
-            <button type="button" data-bg-direction="180" aria-label="Top to bottom" title="Top to bottom" aria-pressed="false"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 4v16m-6-6 6 6 6-6"/></svg></button>
-            <button type="button" data-bg-direction="90" aria-label="Side to side" title="Side to side" aria-pressed="false"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 12h16m-6-6 6 6-6 6"/></svg></button>
-            <button type="button" id="appbg-swap" aria-label="Swap colours" title="Swap colours"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 7h16m-4-4 4 4-4 4M20 17H4m4-4-4 4 4 4"/></svg></button>
-          </div>
-        </div>
-        <div class="cp-slider-row">
-          <label class="cp-mini-label" for="appbg-opacity">Colour strength</label>
-          <input type="range" class="cp-slider" min="0" max="100" value="100" id="appbg-opacity" aria-valuetext="Rich" />
-          <span class="cp-slider-val" id="appbg-opacity-val">Rich</span>
-        </div>
-        <label class="brand-texture-option"><input type="checkbox" id="appbg-texture" /> Soft grain</label>
-      </div>
-    </div>
-
-    <div class="cp-section">
-      <div class="cp-head-row">Text, cards and icons <span class="chev">›</span></div>
-      <div class="cp-body">
-      <div class="cp-field">
-        <div class="cp-color-row">
-          <div class="cp-color-swatch" style="background:#1a1728;">
-            <input type="color" value="#1a1728" data-bind-color="--p-panel" />
-          </div>
-          <div class="cp-color-info">
-            <div class="cp-color-label">Cards</div>
-            <input class="cp-color-hex" value="#1A1728" spellcheck="false" maxlength="9" />
-          </div>
-        </div>
-      </div>
-
-      <div class="cp-field">
-        <div class="cp-color-row">
-          <div class="cp-color-swatch" style="background:#ffffff;">
-            <input type="color" value="#ffffff" data-bind-color="--p-text" />
-          </div>
-          <div class="cp-color-info">
-            <div class="cp-color-label">Text</div>
-            <input class="cp-color-hex" value="#FFFFFF" spellcheck="false" maxlength="9" />
-          </div>
-        </div>
-      </div>
-
-      <div class="cp-field">
-        <div class="cp-color-row">
-          <div class="cp-color-swatch" style="background:#9c98ac;">
-            <input type="color" value="#9c98ac" data-bind-color="--p-text-muted" />
-          </div>
-          <div class="cp-color-info">
-            <div class="cp-color-label">Small text</div>
-            <input class="cp-color-hex" value="#9C98AC" spellcheck="false" maxlength="9" />
-          </div>
-        </div>
-      </div>
-
-      <div class="cp-field">
-        <div class="cp-color-row">
-          <div class="cp-color-swatch" style="background:#ffffff;">
-            <input type="color" value="#ffffff" data-bind-color="--p-nav-bg" />
-          </div>
-          <div class="cp-color-info">
-            <div class="cp-color-label">Top and bottom bars</div>
-            <input class="cp-color-hex" value="#FFFFFF" spellcheck="false" maxlength="9" />
-          </div>
-        </div>
-      </div>
-
-      <div class="cp-color-row">
-        <div class="cp-color-swatch" style="background:#6b6b7b;"><input type="color" value="#6b6b7b" data-bind-color="--p-icon" aria-label="Icon colour" /></div>
-        <div class="cp-color-info"><div class="cp-color-label">Icons</div><input class="cp-color-hex" value="#6B6B7B" spellcheck="false" maxlength="9" aria-label="Icon colour code" /></div>
-      </div>
-      <div class="px-contrast-result" id="px-contrast-result" role="status" aria-live="polite"></div>
-      <div class="cp-subhead">Icon look</div>
-      <div class="cp-icon-style-preview">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><path d="M3 10l9-7 9 7v10a2 2 0 01-2 2H5a2 2 0 01-2-2z"/></svg>
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><path d="M20 12v10H4V12M2 7h20v5H2zM12 22V7"/></svg>
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0118 0z"/><circle cx="12" cy="10" r="3"/></svg>
-      </div>
-      <div class="cp-radio-group">
-        <div class="cp-radio active" data-bind-radio="icon-style" data-value="outline">Line</div>
-        <div class="cp-radio" data-bind-radio="icon-style" data-value="solid">Filled</div>
-        <div class="cp-radio" data-bind-radio="icon-style" data-value="duotone">Soft fill</div>
-      </div>
-      </div>
-    </div>
-
-    <div class="cp-section">
-      <div class="cp-head-row">Shapes <span class="chev">›</span></div>
-      <div class="cp-body">
-        <div class="brand-shape-control"><label for="brand-card-shape">Cards <span id="brand-card-shape-value">Soft</span></label><input class="cp-slider" id="brand-card-shape" type="range" min="0" max="2" value="1" aria-valuetext="Soft" /><div class="brand-range-labels"><span>Square</span><span>Soft</span><span>Round</span></div></div>
-        <div class="brand-shape-control"><label for="brand-button-shape">Buttons <span id="brand-button-shape-value">Soft</span></label><input class="cp-slider" id="brand-button-shape" type="range" min="0" max="2" value="1" aria-valuetext="Soft" /><div class="brand-range-labels"><span>Square</span><span>Soft</span><span>Round</span></div></div>
+      <div class="cp-widget-row brand-tune-row">
+        <span class="w-name" data-drill="brand-shapes">Shapes &amp; icons</span>
+        <span class="brand-tune-val" id="brand-tune-shapes-val">Soft</span>
+        <span class="chev">›</span>
       </div>
     </div>
   </div>
 </div>
+
+<div class="cp-detail brand-drill" data-detail="brand-logo" data-l3="true" id="brand-logo-drill">
+  <div class="cp-detail-header">
+    <button class="cp-back" type="button">‹</button>
+    <div class="cp-detail-title">Logo</div>
+    <button class="ms-info" type="button" data-tip="PNG, JPG, JPEG or WebP up to 5 MB. A square logo on a transparent background looks best.">i</button>
+  </div>
+  <div class="gf-logo-result" id="gf-logo-result" style="display:none;">
+    <div class="gf-logo-thumb"><img id="gf-logo-thumb-img" src="data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///ywAAAAAAQABAAACAUwAOw==" alt="Uploaded logo" /></div>
+    <div class="gf-logo-meta">
+      <div class="gf-logo-status">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6L9 17l-5-5"/></svg>
+        Uploaded
+      </div>
+      <div class="gf-logo-filename" id="gf-logo-filename">logo.png</div>
+      <div class="gf-logo-actions">
+        <button class="gf-logo-action" id="gf-logo-replace" type="button">Replace</button>
+        <button class="gf-logo-action danger" id="gf-logo-remove" type="button">Remove</button>
+      </div>
+    </div>
+  </div>
+  <div class="cp-upload-zone" id="gf-logo-zone">
+    <div class="cp-upload-btn">+ Upload from Computer</div>
+    <div class="cp-upload-hint">or drag &amp; drop files here</div>
+  </div>
+  <input type="file" id="gf-logo-file" accept="image/png,image/jpeg,image/jpg,image/webp" style="display:none;" />
+  <div class="gf-logo-controls" id="gf-logo-controls" hidden>
+    <div class="cp-subhead">Position</div>
+    <div class="cp-radio-group">
+      <div class="cp-radio" data-bind-radio="logo-position" data-value="left">Left</div>
+      <div class="cp-radio active" data-bind-radio="logo-position" data-value="center">Center</div>
+      <div class="cp-radio" data-bind-radio="logo-position" data-value="right">Right</div>
+    </div>
+    <div class="cp-subhead">Size</div>
+    <div class="cp-slider-row">
+      <input type="range" class="cp-slider" min="30" max="120" value="60" data-bind-slider="logo-size" />
+      <span class="cp-slider-val">60%</span>
+    </div>
+  </div>
+</div>
+
+<div class="cp-detail brand-drill" data-detail="brand-colours" data-l3="true" id="gf-advanced-branding-section">
+  <div class="cp-detail-header">
+    <button class="cp-back" type="button">‹</button>
+    <div class="cp-detail-title">Colours</div>
+  </div>
+  <div class="cp-subhead">App background</div>
+  <div class="cp-seg" id="appbg-mode">
+    <button class="cp-seg-btn active" type="button" data-mode="solid" aria-pressed="true">Solid colour</button>
+    <button class="cp-seg-btn" type="button" data-mode="gradient" aria-pressed="false">Gradient</button>
+  </div>
+  <input type="hidden" id="appbg-mode-value" value="solid" />
+  <input type="hidden" id="appbg-direction" value="135" />
+  <div class="brand-gradient-presets" id="appbg-presets" data-mode="solid" aria-label="Background colour presets">
+    <button type="button" data-bg-start="#f0faf5" data-bg-end="#c1e8dc" data-bg-solid="#e2f3ec" title="Mint" aria-label="Mint" style="--gradient-start:#f0faf5;--gradient-end:#c1e8dc;--gradient-solid:#e2f3ec;"></button>
+    <button type="button" data-bg-start="#eff7ff" data-bg-end="#cddfed" data-bg-solid="#e4eef8" title="Sky" aria-label="Sky" style="--gradient-start:#eff7ff;--gradient-end:#cddfed;--gradient-solid:#e4eef8;"></button>
+    <button type="button" data-bg-start="#fff6f2" data-bg-end="#f5d5bd" data-bg-solid="#fbe8db" title="Peach" aria-label="Peach" style="--gradient-start:#fff6f2;--gradient-end:#f5d5bd;--gradient-solid:#fbe8db;"></button>
+    <button type="button" data-bg-start="#fff1f5" data-bg-end="#ead8e6" data-bg-solid="#f4e4ee" title="Rose" aria-label="Rose" style="--gradient-start:#fff1f5;--gradient-end:#ead8e6;--gradient-solid:#f4e4ee;"></button>
+  </div>
+  <div class="cp-color-row">
+    <div class="cp-color-swatch" style="background:#f2f2f7;">
+      <input type="color" value="#f2f2f7" id="appbg-color1" aria-label="First background colour" />
+    </div>
+    <div class="cp-color-info">
+      <div class="cp-color-label" id="appbg-label1">App background</div>
+      <input class="cp-color-hex" value="#F2F2F7" spellcheck="false" maxlength="9" aria-label="First background colour code" />
+    </div>
+  </div>
+  <div class="cp-color-row" id="appbg-row2" hidden>
+    <div class="cp-color-swatch" style="background:#e9e7f0;">
+      <input type="color" value="#e9e7f0" id="appbg-color2" aria-label="Second background colour" />
+    </div>
+    <div class="cp-color-info">
+      <div class="cp-color-label">Second colour</div>
+      <input class="cp-color-hex" value="#E9E7F0" spellcheck="false" maxlength="9" aria-label="Second background colour code" />
+    </div>
+  </div>
+  <div id="appbg-gradient-controls" hidden>
+    <div class="brand-direction-row" role="group" aria-label="Gradient direction">
+      <button type="button" data-bg-direction="135" aria-label="Diagonal" title="Diagonal" aria-pressed="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m5 5 14 14M9 19h10V9"/></svg></button>
+      <button type="button" data-bg-direction="180" aria-label="Top to bottom" title="Top to bottom" aria-pressed="false"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 4v16m-6-6 6 6 6-6"/></svg></button>
+      <button type="button" data-bg-direction="90" aria-label="Side to side" title="Side to side" aria-pressed="false"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 12h16m-6-6 6 6-6 6"/></svg></button>
+      <button type="button" id="appbg-swap" aria-label="Swap colours" title="Swap colours"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 7h16m-4-4 4 4-4 4M20 17H4m4-4-4 4 4 4"/></svg></button>
+    </div>
+  </div>
+  <div class="cp-slider-row">
+    <label class="cp-mini-label" for="appbg-opacity">Colour strength
+      <button class="ms-info" type="button" data-tip="How much of the colour comes through. Softer keeps screens close to white; richer makes the colour dominant.">i</button>
+    </label>
+    <input type="range" class="cp-slider" min="0" max="100" value="100" id="appbg-opacity" aria-valuetext="Rich" />
+    <span class="cp-slider-val" id="appbg-opacity-val">Rich</span>
+  </div>
+  <label class="brand-texture-option"><input type="checkbox" id="appbg-texture" /> Soft grain</label>
+
+  <div class="cp-subhead">Cards and bars</div>
+  <div class="cp-color-row">
+    <div class="cp-color-swatch" style="background:#1a1728;">
+      <input type="color" value="#1a1728" data-bind-color="--p-panel" aria-label="Card colour" />
+    </div>
+    <div class="cp-color-info">
+      <div class="cp-color-label">Cards</div>
+      <input class="cp-color-hex" value="#1A1728" spellcheck="false" maxlength="9" aria-label="Card colour code" />
+    </div>
+  </div>
+  <div class="cp-color-row">
+    <div class="cp-color-swatch" style="background:#ffffff;">
+      <input type="color" value="#ffffff" data-bind-color="--p-nav-bg" aria-label="Top and bottom bar colour" />
+    </div>
+    <div class="cp-color-info">
+      <div class="cp-color-label">Top and bottom bars</div>
+      <input class="cp-color-hex" value="#FFFFFF" spellcheck="false" maxlength="9" aria-label="Top and bottom bar colour code" />
+    </div>
+  </div>
+
+  <div class="cp-subhead">Text</div>
+  <div class="cp-color-row">
+    <div class="cp-color-swatch" style="background:#ffffff;">
+      <input type="color" value="#ffffff" data-bind-color="--p-text" aria-label="Text colour" />
+    </div>
+    <div class="cp-color-info">
+      <div class="cp-color-label">Text</div>
+      <input class="cp-color-hex" value="#FFFFFF" spellcheck="false" maxlength="9" aria-label="Text colour code" />
+    </div>
+  </div>
+  <div class="cp-color-row">
+    <div class="cp-color-swatch" style="background:#9c98ac;">
+      <input type="color" value="#9c98ac" data-bind-color="--p-text-muted" aria-label="Small text colour" />
+    </div>
+    <div class="cp-color-info">
+      <div class="cp-color-label">Small text</div>
+      <input class="cp-color-hex" value="#9C98AC" spellcheck="false" maxlength="9" aria-label="Small text colour code" />
+    </div>
+  </div>
+
+  <div class="cp-subhead">Icons</div>
+  <div class="cp-color-row">
+    <div class="cp-color-swatch" style="background:#6b6b7b;"><input type="color" value="#6b6b7b" data-bind-color="--p-icon" aria-label="Icon colour" /></div>
+    <div class="cp-color-info"><div class="cp-color-label">Icons</div><input class="cp-color-hex" value="#6B6B7B" spellcheck="false" maxlength="9" aria-label="Icon colour code" /></div>
+  </div>
+
+  <div class="px-contrast-result" id="px-contrast-result" role="status" aria-live="polite"></div>
+</div>
+
+<div class="cp-detail brand-drill" data-detail="brand-header" data-l3="true">
+  <div class="cp-detail-header">
+    <button class="cp-back" type="button">‹</button>
+    <div class="cp-detail-title">App header</div>
+  </div>
+  <div class="cp-field">
+    <label>Business name</label>
+    <input class="cp-input-text" data-bind-text=".app-page[data-page='home'] .app-top-header .brand-text .name" value="Your Business" />
+  </div>
+  <div class="cp-field">
+    <label for="gf-branding-headline">App tagline
+      <button class="ms-info" type="button" data-tip="One short line under your business name. It is the same tagline as Business details — editing it here updates both.">i</button>
+    </label>
+    <input id="gf-branding-headline" class="cp-input-text" type="text" placeholder="e.g. Fresh food, real rewards" maxlength="60" />
+  </div>
+  <div class="cp-toggle-row"><span class="lbl">Show business name</span><span class="toggle on" data-bind=".app-page[data-page='home'] .app-top-header .brand-text"></span></div>
+</div>
+
+<div class="cp-detail brand-drill" data-detail="brand-fonts" data-l3="true">
+  <div class="cp-detail-header">
+    <button class="cp-back" type="button">‹</button>
+    <div class="cp-detail-title">Fonts</div>
+  </div>
+  <div class="brand-font-picker" data-font-role="title">
+    <label for="brand-title-font-open">Titles</label>
+    <input type="hidden" id="brand-title-family" value="" />
+    <button class="brand-font-trigger" type="button" id="brand-title-font-open" data-font-open aria-expanded="false" aria-controls="brand-title-font-panel"><span data-font-label>Device default</span><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m6 9 6 6 6-6"/></svg></button>
+    <div class="brand-font-panel" id="brand-title-font-panel" data-font-panel hidden>
+      <input class="cp-input-text" id="brand-title-font-search" type="search" placeholder="Search Google Fonts" aria-label="Search title fonts" autocomplete="off" />
+      <div class="brand-font-results" data-font-results aria-label="Title fonts"></div>
+    </div>
+    <div class="brand-font-status" role="status" aria-live="polite"></div>
+  </div>
+  <div class="brand-font-picker" data-font-role="body">
+    <label for="brand-body-font-open">Body text</label>
+    <input type="hidden" id="brand-body-family" value="" />
+    <button class="brand-font-trigger" type="button" id="brand-body-font-open" data-font-open aria-expanded="false" aria-controls="brand-body-font-panel"><span data-font-label>Device default</span><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m6 9 6 6 6-6"/></svg></button>
+    <div class="brand-font-panel" id="brand-body-font-panel" data-font-panel hidden>
+      <input class="cp-input-text" id="brand-body-font-search" type="search" placeholder="Search Google Fonts" aria-label="Search body fonts" autocomplete="off" />
+      <div class="brand-font-results" data-font-results aria-label="Body fonts"></div>
+    </div>
+    <div class="brand-font-status" role="status" aria-live="polite"></div>
+  </div>
+  <details class="brand-custom-font">
+    <summary>Upload your own font</summary>
+    <div class="brand-custom-font-help">Accepted formats: .ttf, .otf, .woff, .woff2 (max 5 MB per file)</div>
+    <button type="button" class="gf-logo-action" id="brand-custom-font-btn">Upload font file</button>
+    <input type="file" id="brand-custom-font-file" accept=".ttf,.otf,.woff,.woff2,font/ttf,font/otf,font/woff,font/woff2" hidden />
+  </details>
+</div>
+
+<div class="cp-detail brand-drill" data-detail="brand-shapes" data-l3="true">
+  <div class="cp-detail-header">
+    <button class="cp-back" type="button">‹</button>
+    <div class="cp-detail-title">Shapes &amp; icons</div>
+  </div>
+  <div class="cp-subhead">Corners</div>
+  <div class="brand-shape-control"><label for="brand-card-shape">Cards <span id="brand-card-shape-value">Soft</span></label><input class="cp-slider" id="brand-card-shape" type="range" min="0" max="2" value="1" aria-valuetext="Soft" /><div class="brand-range-labels"><span>Square</span><span>Soft</span><span>Round</span></div></div>
+  <div class="brand-shape-control"><label for="brand-button-shape">Buttons <span id="brand-button-shape-value">Soft</span></label><input class="cp-slider" id="brand-button-shape" type="range" min="0" max="2" value="1" aria-valuetext="Soft" /><div class="brand-range-labels"><span>Square</span><span>Soft</span><span>Round</span></div></div>
+  <div class="cp-subhead">Icon look</div>
+  <div class="cp-icon-style-preview">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><path d="M3 10l9-7 9 7v10a2 2 0 01-2 2H5a2 2 0 01-2-2z"/></svg>
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><path d="M20 12v10H4V12M2 7h20v5H2zM12 22V7"/></svg>
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0118 0z"/><circle cx="12" cy="10" r="3"/></svg>
+  </div>
+  <div class="cp-radio-group">
+    <div class="cp-radio active" data-bind-radio="icon-style" data-value="outline">Line</div>
+    <div class="cp-radio" data-bind-radio="icon-style" data-value="solid">Filled</div>
+    <div class="cp-radio" data-bind-radio="icon-style" data-value="duotone">Soft fill</div>
+  </div>
+</div>
+
+<div class="cp-detail brand-drill" data-detail="brand-launch" data-l3="true" id="branding-launch-section">
+  <div class="cp-detail-header">
+    <button class="cp-back" type="button">‹</button>
+    <div class="cp-detail-title">Splash screen</div>
+    <button class="ms-info" type="button" data-tip="The first screen customers see when they open your app. Leave it empty to use your logo on your brand background.">i</button>
+  </div>
+  <div id="branding-launch-controls">
+    <button class="launch-upload" id="launch-upload" type="button">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 16V4m-4 4 4-4 4 4M4 16v4h16v-4"/></svg>
+      <strong id="launch-upload-label">Upload image, GIF, or video</strong>
+      <span>PNG, JPG, WebP, GIF, MP4 or WebM · up to 10 MB</span>
+    </button>
+    <input id="launch-file" type="file" accept="image/png,image/jpeg,image/webp,image/gif,video/mp4,video/webm" hidden />
+    <div class="launch-upload-result" id="launch-upload-result" hidden>
+      <div class="launch-upload-thumb" id="launch-upload-thumb" aria-hidden="true"></div>
+      <div class="launch-upload-meta"><span id="launch-file-name"></span><button class="gf-logo-action" id="launch-reset" type="button">Use brand default</button></div>
+    </div>
+    <p class="launch-error" id="launch-error" role="alert" hidden></p>
+    <button class="launch-play" id="launch-play" type="button">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m9 5 11 7-11 7z"/></svg>
+      <span>Preview app opening</span>
+    </button>
+  </div>
+</div>
+

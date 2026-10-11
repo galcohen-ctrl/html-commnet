@@ -4,12 +4,83 @@ import { initBrandingFonts } from './brandingFonts.js';
 export function initBranding(ctx) {
   const { markDirty, showToast, wireColorControl } = ctx;
 
-  const brandingPage = document.querySelector('.branding-page');
-  ['.branding-logo-section', '.branding-accent-section', '.branding-colors', '.branding-font-section', '.branding-header-section'].forEach((selector) => {
-    const section = brandingPage?.querySelector(selector);
-    if (section) brandingPage.appendChild(section);
-  });
   initBrandingBackground({ wireColorControl, markDirty });
+
+  // Each Fine-tune row shows the value it owns, so the merchant can skip the
+  // whole group without opening five panels to check what is in them.
+  function syncTuneSummaries() {
+    const pairs = [
+      ['brand-tune-header-val', document.querySelector('.app-page[data-page="home"] .app-top-header .brand-text .name')?.textContent, 'Not set'],
+      ['brand-tune-fonts-val', document.querySelector('#brand-title-font-open [data-font-label]')?.textContent, 'Device default'],
+      ['brand-tune-shapes-val', document.getElementById('brand-card-shape-value')?.textContent, 'Soft'],
+      ['brand-tune-logo-val', document.getElementById('gf-logo-filename')?.textContent, 'Not uploaded'],
+      ['brand-accent-hex', document.body.style.getPropertyValue('--p-accent')?.trim() || '#6D28D9', '#6D28D9'],
+      ['brand-tune-background-val', document.getElementById('appbg-mode-value')?.value === 'gradient' ? 'Gradient' : 'Solid colour', 'Solid colour'],
+    ];
+    pairs.forEach(([id, value, fallback]) => {
+      const el = document.getElementById(id);
+      if (!el) return;
+      const text = value?.toString().trim() || fallback;
+      if (id === 'brand-accent-hex') {
+        if (document.activeElement !== el) el.value = text.toUpperCase();
+        return;
+      }
+      el.textContent = text;
+    });
+    // The Logo row only shows a filename after upload. Before that, keep the fallback.
+    const logoRow = document.getElementById('brand-tune-logo-val');
+    if (logoRow && document.getElementById('gf-logo-result')?.style.display === 'none') logoRow.textContent = 'Not uploaded';
+  }
+  ['como:draft-dirty', 'como:navchange', 'como:branding-changed'].forEach((name) => document.addEventListener(name, syncTuneSummaries));
+  syncTuneSummaries();
+
+  // The native colour popup is a browser widget that cannot be typed or pasted into
+  // reliably, so the hex beside the swatch is a real text field that drives it.
+  const accentPicker = document.getElementById('gf-accent-custom');
+  const accentHex = document.getElementById('brand-accent-hex');
+  const parseHex = (raw) => {
+    const body = raw.trim().replace(/^#/, '');
+    if (/^[0-9a-f]{3}$/i.test(body)) return '#' + body.split('').map((c) => c + c).join('').toLowerCase();
+    if (/^[0-9a-f]{6}$/i.test(body)) return '#' + body.toLowerCase();
+    return null;
+  };
+  accentHex?.addEventListener('input', () => {
+    const hex = parseHex(accentHex.value);
+    accentHex.classList.toggle('invalid', !hex && accentHex.value.trim() !== '');
+    if (!hex || !accentPicker || accentPicker.value === hex) return;
+    accentPicker.value = hex;
+    accentPicker.dispatchEvent(new Event('input', { bubbles: true }));
+  });
+  accentHex?.addEventListener('blur', () => { accentHex.classList.remove('invalid'); syncTuneSummaries(); });
+  accentHex?.addEventListener('keydown', (event) => { if (event.key === 'Enter') accentHex.blur(); });
+
+  // Auto-open the Logo L3 drill the first time the merchant steps into Branding
+  // from Business — the moment upload becomes the expected next action.
+  let previousStep = null;
+  document.addEventListener('como:stepchange', (event) => {
+    const currentStep = event.detail?.step;
+    if (previousStep === 'business' && currentStep === 'branding') {
+      const logoDrill = document.querySelector('.cp-detail[data-detail="brand-logo"]');
+      if (logoDrill) {
+        window.openL3Panel?.(logoDrill);
+        // The row must show it owns the open panel, as it does after a manual click.
+        document.querySelector('#cp-branding .w-name[data-drill="brand-logo"]')?.closest('.cp-widget-row')?.classList.add('l3-active');
+      }
+    }
+    previousStep = currentStep;
+  });
+
+  // Delegated so it survives HMR. Once opened, a branding drill lives in #l3-body
+  // and has no .cp-page ancestor, so coreNavigation's generic .cp-back handler no-ops.
+  document.addEventListener('click', (event) => {
+    if (event.target.closest('.brand-drill .cp-back')) window.closeL3Panel?.();
+  });
+
+  // The stock palette already fails the 4.5:1 check, so the Fine-tune contrast badge
+  // only appears once the merchant has changed a colour themselves.
+  document.addEventListener('input', (event) => {
+    if (event.target.closest('#gf-advanced-branding-section input')) document.body.dataset.brandingTouched = 'true';
+  });
 
   // ---------- Font picker (Branding drill: list + search + custom upload) ----------
   function applyFontFamily(font, role = 'both') {
@@ -103,9 +174,47 @@ export function initBranding(ctx) {
     });
   }
 
-  // The header is transparent until the merchant picks a navigation colour.
-  document.querySelector('input[type="color"][data-bind-color="--p-nav-bg"]')?.addEventListener('input', (e) => {
-    document.body.style.setProperty('--p-header-bg', e.target.value);
+  // Custom font upload with legal-consent modal (branding step)
+  const brandFontBtn = document.getElementById('brand-custom-font-btn');
+  const brandFontFile = document.getElementById('brand-custom-font-file');
+  const fontLegalOverlay = document.getElementById('font-legal-overlay');
+  const fontLegalAgree = document.getElementById('font-legal-agree');
+  const fontLegalOk = document.getElementById('font-legal-ok');
+  const fontLegalCancel = document.getElementById('font-legal-cancel');
+  const fontLegalFile = document.getElementById('font-legal-file');
+  let pendingFontFile = null;
+
+  function openFontLegal(file) {
+    if (!fontLegalOverlay) return;
+    pendingFontFile = file;
+    if (fontLegalFile) fontLegalFile.textContent = file.name;
+    if (fontLegalAgree) fontLegalAgree.checked = false;
+    if (fontLegalOk) fontLegalOk.disabled = true;
+    fontLegalOverlay.classList.add('open');
+    fontLegalOverlay.setAttribute('aria-hidden', 'false');
+  }
+  function closeFontLegal() {
+    if (!fontLegalOverlay) return;
+    fontLegalOverlay.classList.remove('open');
+    fontLegalOverlay.setAttribute('aria-hidden', 'true');
+    pendingFontFile = null;
+  }
+  fontLegalAgree?.addEventListener('change', () => {
+    if (fontLegalOk) fontLegalOk.disabled = !fontLegalAgree.checked;
+  });
+  fontLegalCancel?.addEventListener('click', closeFontLegal);
+  fontLegalOverlay?.addEventListener('click', (e) => { if (e.target === fontLegalOverlay) closeFontLegal(); });
+  fontLegalOk?.addEventListener('click', () => {
+    if (!pendingFontFile || !fontLegalAgree?.checked) return;
+    const file = pendingFontFile;
+    closeFontLegal();
+    loadCustomFont(file);
+  });
+  brandFontBtn?.addEventListener('click', () => brandFontFile?.click());
+  brandFontFile?.addEventListener('change', (e) => {
+    const file = e.target.files && e.target.files[0];
+    if (file) openFontLegal(file);
+    e.target.value = '';
   });
 
   // ---------- Slider bindings (Logo size) ----------
@@ -206,4 +315,3 @@ export function initBranding(ctx) {
 
   return { applyFontFamily, activateFontItem, wireFontItem, loadCustomFont, applyLogo, clearLogo, handleLogoFile };
 }
-

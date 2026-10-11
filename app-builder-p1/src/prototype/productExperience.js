@@ -244,13 +244,10 @@ export function initProductExperience(ctx) {
   function syncOrderingExperience() {
     const connected = ctx.isOrderingConnected?.() === true;
     const orderingFocus = ctx.state?.goal === 'ordering' || document.body.classList.contains('focus-ordering');
-    const banner = document.getElementById('px-ordering-dependency');
-    if (banner) banner.hidden = !orderingFocus || connected;
     document.body.classList.toggle('px-ordering-sample', orderingFocus && !connected);
     updateMenuOrderingState();
   }
 
-  document.getElementById('px-connect-ordering')?.addEventListener('click', () => window.openSettings?.('online-ordering', 'chooser'));
   document.addEventListener('como:ordering', syncOrderingExperience);
   document.addEventListener('como:focus-changed', () => requestAnimationFrame(syncOrderingExperience));
 
@@ -306,19 +303,6 @@ export function initProductExperience(ctx) {
       markDirty?.('more');
     });
   });
-
-  const qrOverlay = document.getElementById('qr-preview-overlay');
-  function setQrOverlay(open) {
-    if (!qrOverlay) return;
-    qrOverlay.classList.toggle('open', open);
-    qrOverlay.setAttribute('aria-hidden', String(!open));
-  }
-  document.getElementById('top-qr-btn')?.addEventListener('click', () => {
-    setQrOverlay(true);
-    track('phone_preview_qr_opened');
-  });
-  document.getElementById('qr-preview-close')?.addEventListener('click', () => setQrOverlay(false));
-  qrOverlay?.addEventListener('click', (event) => { if (event.target === qrOverlay) setQrOverlay(false); });
 
   const SCREEN_KEYS = ['home', 'rewards', 'locations', 'menu', 'more'];
 

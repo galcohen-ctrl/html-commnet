@@ -43,7 +43,7 @@
 }
 .responsive-view-switch button:active { transform: scale(.97); }
 .responsive-view-switch button:focus-visible {
-  outline: 3px solid rgba(109, 40, 217, .25);
+  outline: 3px solid color-mix(in srgb, var(--como) 25%, transparent);
   outline-offset: 1px;
 }
 
@@ -100,7 +100,7 @@ body .cp-step-foot .cp-step-next { min-height: 48px; }
 .cp-widget-row .handle:focus-visible,
 .rw-row-head .handle:focus-visible {
   color: var(--como);
-  outline: 3px solid rgba(109, 40, 217, .22);
+  outline: 3px solid color-mix(in srgb, var(--como) 22%, transparent);
   outline-offset: -3px;
   border-radius: 9px;
 }
@@ -325,7 +325,7 @@ body .cp-step-foot .cp-step-next { min-height: 48px; }
     width: auto;
     height: 3px;
     border-radius: 3px 3px 0 0;
-    background: linear-gradient(90deg, var(--como), #a855f7);
+    background: linear-gradient(90deg, var(--como), var(--como-2));
   }
   .side-tooltip { display: none !important; }
   body .account-menu {

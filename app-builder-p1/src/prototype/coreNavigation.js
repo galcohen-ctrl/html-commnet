@@ -152,7 +152,7 @@ export function initCoreNavigation(ctx) {
   }
 
   // ---------- Goal presets (shared by the setup wizard and the top-bar preset dropdown) ----------
-  const ORDERING_WIDGET_KEYS = ['order-again', 'top-items', 'menu-categories', 'menu-reels'];
+  const ORDERING_WIDGET_KEYS = ['order-again', 'top-items', 'menu-categories'];
   const ALL_HOME_WIDGET_KEYS = ['profile', 'promo-webview', 'promo-cards', 'promo-cards-2', 'social', ...ORDERING_WIDGET_KEYS];
   const GOAL_DEFS = {
     loyalty: {

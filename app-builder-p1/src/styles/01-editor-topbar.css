@@ -14,7 +14,7 @@
   .brand { display: flex; align-items: center; gap: 10px; }
   .brand-logo {
     width: 30px; height: 30px; border-radius: 9px;
-    background: linear-gradient(135deg, var(--como), #a855f7);
+    background: linear-gradient(135deg, var(--como), var(--como-2));
     display: grid; place-items: center;
     color: #fff; font-weight: 800; font-size: 13px;
   }
@@ -71,16 +71,6 @@
   }
 
   /* ---------- Confirm-before-switch modal ---------- */
-  .top-qr-btn {
-    display: inline-flex; align-items: center; gap: 7px;
-    flex: none; padding: 7px 13px;
-    background: #fff; border: 1px solid var(--line); border-radius: 999px;
-    font: inherit; font-size: 12.5px; font-weight: 650; color: var(--ink);
-    cursor: pointer; transition: .12s;
-  }
-  .top-qr-btn:hover { border-color: var(--como); color: var(--como); }
-  .top-qr-btn svg { width: 15px; height: 15px; }
-
   .confirm-overlay {
     position: fixed; inset: 0; background: rgba(15,13,23,.45);
     display: flex; align-items: center; justify-content: center;

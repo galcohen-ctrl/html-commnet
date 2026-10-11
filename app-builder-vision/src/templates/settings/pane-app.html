@@ -1,0 +1,248 @@
+<div class="sm-pane" data-sm-pane="app-details"
+     data-sm-title="App details"
+     data-sm-sub="What shoppers read on your App Store and Google Play listing before they download."
+     data-sm-primary="Save changes">
+
+  <div class="sm-section">
+    <div class="sm-section-label">Store listing</div>
+    <div class="sm-field">
+      <label class="sm-label" for="sm-store-sub">Subtitle</label>
+      <input class="sm-input" id="sm-store-sub" type="text" value="Rewards, menu &amp; ordering">
+    </div>
+    <div class="sm-field">
+      <div class="sm-label">Description
+        <button class="sm-info" type="button" data-tip="The full listing text. Apple allows 4,000 characters; the first three lines are what most people actually read.">i</button>
+      </div>
+      <textarea class="sm-textarea" id="sm-store-desc">Collect Stars every time you eat with us, unlock rewards you actually want, and order ahead so your table is ready when you are.</textarea>
+      <div class="sm-hint">137 / 4,000 characters used.</div>
+    </div>
+    <div class="sm-row2">
+      <div class="sm-field">
+        <label class="sm-label" for="sm-store-cat">Primary category</label>
+        <select class="sm-select" id="sm-store-cat">
+          <option>Food &amp; Drink</option>
+          <option>Lifestyle</option>
+          <option>Shopping</option>
+        </select>
+      </div>
+      <div class="sm-field">
+        <label class="sm-label" for="sm-store-age">Age rating</label>
+        <select class="sm-select" id="sm-store-age">
+          <option>4+</option>
+          <option>12+</option>
+          <option>17+ (alcohol references)</option>
+        </select>
+      </div>
+    </div>
+    <div class="sm-field">
+      <label class="sm-label" for="sm-store-keywords">Keywords</label>
+      <input class="sm-input" id="sm-store-keywords" type="text" value="loyalty, rewards, restaurant, order ahead, bistro">
+      <div class="sm-hint">Comma separated. Only used by the App Store.</div>
+    </div>
+  </div>
+
+  <div class="sm-section">
+    <div class="sm-section-label">Identifiers</div>
+    <div class="sm-row2">
+      <div class="sm-field">
+        <label class="sm-label" for="sm-bundle-ios">iOS bundle ID</label>
+        <input class="sm-input" id="sm-bundle-ios" type="text" value="com.como.velvetbistro">
+      </div>
+      <div class="sm-field">
+        <label class="sm-label" for="sm-bundle-android">Android package</label>
+        <input class="sm-input" id="sm-bundle-android" type="text" value="com.como.velvetbistro">
+      </div>
+    </div>
+    <div class="sm-note">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="9"/><path d="M12 11v5M12 8h.01"/></svg>
+      <span>Identifiers are locked once your first build reaches the stores. Contact support if you need them changed.</span>
+    </div>
+  </div>
+</div>
+
+<div class="sm-pane" data-sm-pane="branding"
+     data-sm-title="Branding &amp; icons"
+     data-sm-sub="The launch assets that live outside the app — icon, splash screen and store artwork."
+     data-sm-primary="Save changes">
+
+  <div class="sm-section">
+    <div class="sm-section-label">App icon</div>
+    <div class="sm-upload">
+      <div class="sm-upload-thumb" style="background:linear-gradient(135deg,#6d28d9,#a855f7)">VB</div>
+      <div class="sm-upload-text">
+        <div class="sm-upload-name">velvet-bistro-icon.png</div>
+        <div class="sm-upload-meta">1024 × 1024 · PNG · no transparency · 248 KB</div>
+      </div>
+      <button class="sm-banner-btn" type="button">Replace</button>
+    </div>
+    <div class="sm-hint">Apple and Google both round the corners for you — upload a full square.</div>
+  </div>
+
+  <div class="sm-section">
+    <div class="sm-section-label">Splash screen</div>
+    <div class="sm-upload">
+      <div class="sm-upload-thumb" style="background:linear-gradient(135deg,#2a2438,#0f0d17)">✦</div>
+      <div class="sm-upload-text">
+        <div class="sm-upload-name">velvet-splash.png</div>
+        <div class="sm-upload-meta">Centred logo on a solid background · shown for ~1.2s at launch</div>
+      </div>
+      <button class="sm-banner-btn" type="button">Replace</button>
+    </div>
+    <div class="sm-field" style="margin-top:16px">
+      <div class="sm-label">Splash background</div>
+      <div class="sm-swatches">
+        <span class="sm-swatch on" style="background:#0f0d17"></span>
+        <span class="sm-swatch" style="background:#6d28d9"></span>
+        <span class="sm-swatch" style="background:#ffffff"></span>
+        <span class="sm-swatch" style="background:#d4a648"></span>
+        <span class="sm-swatch" style="background:#18875a"></span>
+      </div>
+    </div>
+  </div>
+
+  <div class="sm-section">
+    <div class="sm-section-label">Behaviour</div>
+    <div class="sm-toggle-row">
+      <div class="sm-toggle-text">
+        <div class="sm-toggle-name">Match store artwork to in-app branding</div>
+        <div class="sm-toggle-desc">Regenerate screenshots automatically whenever you change colours or fonts on the Branding screen.</div>
+      </div>
+      <span class="toggle on"></span>
+    </div>
+    <div class="sm-toggle-row">
+      <div class="sm-toggle-text">
+        <div class="sm-toggle-name">Dark mode icon variant</div>
+        <div class="sm-toggle-desc">Ship a second icon that iOS swaps in when the phone is in dark mode.</div>
+      </div>
+      <span class="toggle"></span>
+    </div>
+  </div>
+</div>
+
+<div class="sm-pane" data-sm-pane="loyalty"
+     data-sm-title="Loyalty program"
+     data-sm-sub="The earn-and-burn rules behind every Stars balance shown in the app."
+     data-sm-primary="Save changes">
+
+  <div class="sm-section">
+    <div class="sm-section-label">Earning</div>
+    <div class="sm-row2">
+      <div class="sm-field">
+        <label class="sm-label" for="sm-earn-rate">Stars per $1 spent</label>
+        <input class="sm-input" id="sm-earn-rate" type="text" value="10">
+      </div>
+      <div class="sm-field">
+        <div class="sm-label">Welcome bonus
+          <button class="sm-info" type="button" data-tip="Granted once, the first time a member completes registration in the app.">i</button>
+        </div>
+        <input class="sm-input" type="text" value="200 Stars">
+      </div>
+    </div>
+    <div class="sm-toggle-row">
+      <div class="sm-toggle-text">
+        <div class="sm-toggle-name">Earn on online orders</div>
+        <div class="sm-toggle-desc">Members collect Stars on orders placed through your connected ordering provider.</div>
+      </div>
+      <span class="toggle on"></span>
+    </div>
+    <div class="sm-toggle-row">
+      <div class="sm-toggle-text">
+        <div class="sm-toggle-name">Earn on gift card top-ups</div>
+        <div class="sm-toggle-desc">Off by default so members can’t double-earn on the same money.</div>
+      </div>
+      <span class="toggle"></span>
+    </div>
+  </div>
+
+  <div class="sm-section">
+    <div class="sm-section-label">Redemption</div>
+    <div class="sm-row2">
+      <div class="sm-field">
+        <label class="sm-label" for="sm-redeem-rate">Stars needed for $1 off</label>
+        <input class="sm-input" id="sm-redeem-rate" type="text" value="100">
+      </div>
+      <div class="sm-field">
+        <label class="sm-label" for="sm-expiry">Stars expire after</label>
+        <select class="sm-select" id="sm-expiry">
+          <option>12 months of inactivity</option>
+          <option>6 months of inactivity</option>
+          <option>24 months of inactivity</option>
+          <option>Never</option>
+        </select>
+      </div>
+    </div>
+    <div class="sm-note info">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="9"/><path d="M12 11v5M12 8h.01"/></svg>
+      <span>At these rates a $50 dinner earns 500 Stars, worth <b>$5 off</b> a future visit — a 10% effective return.</span>
+    </div>
+  </div>
+</div>
+
+<div class="sm-pane" data-sm-pane="notifications"
+     data-sm-title="Notifications"
+     data-sm-sub="Which push messages your app is allowed to send, and when it stays quiet."
+     data-sm-primary="Save changes">
+
+  <div class="sm-section">
+    <div class="sm-section-label">Transactional</div>
+    <div class="sm-toggle-row">
+      <div class="sm-toggle-text">
+        <div class="sm-toggle-name">Order status updates</div>
+        <div class="sm-toggle-desc">Accepted, being prepared, ready for pickup, out for delivery.</div>
+      </div>
+      <span class="toggle on"></span>
+    </div>
+    <div class="sm-toggle-row">
+      <div class="sm-toggle-text">
+        <div class="sm-toggle-name">Stars earned</div>
+        <div class="sm-toggle-desc">A short confirmation after every qualifying purchase.</div>
+      </div>
+      <span class="toggle on"></span>
+    </div>
+    <div class="sm-toggle-row">
+      <div class="sm-toggle-text">
+        <div class="sm-toggle-name">Reward unlocked</div>
+        <div class="sm-toggle-desc">Fires the moment a member crosses a redemption threshold.</div>
+      </div>
+      <span class="toggle on"></span>
+    </div>
+  </div>
+
+  <div class="sm-section">
+    <div class="sm-section-label">Marketing</div>
+    <div class="sm-toggle-row">
+      <div class="sm-toggle-text">
+        <div class="sm-toggle-name">Campaign pushes</div>
+        <div class="sm-toggle-desc">Offers and announcements you schedule from the Campaigns hub.</div>
+      </div>
+      <span class="toggle on"></span>
+    </div>
+    <div class="sm-toggle-row">
+      <div class="sm-toggle-text">
+        <div class="sm-toggle-name">Win-back reminders</div>
+        <div class="sm-toggle-desc">Automatically nudge members who haven’t visited in 30 days.</div>
+      </div>
+      <span class="toggle"></span>
+    </div>
+  </div>
+
+  <div class="sm-section">
+    <div class="sm-section-label">Delivery rules</div>
+    <div class="sm-row2">
+      <div class="sm-field">
+        <label class="sm-label" for="sm-quiet-from">Quiet hours from</label>
+        <select class="sm-select" id="sm-quiet-from"><option>22:00</option><option>21:00</option><option>23:00</option></select>
+      </div>
+      <div class="sm-field">
+        <label class="sm-label" for="sm-quiet-to">Quiet hours until</label>
+        <select class="sm-select" id="sm-quiet-to"><option>08:00</option><option>07:00</option><option>09:00</option></select>
+      </div>
+    </div>
+    <div class="sm-field">
+      <div class="sm-label">Sender name
+        <button class="sm-info" type="button" data-tip="Appears in bold at the top of every push notification on the member’s lock screen.">i</button>
+      </div>
+      <input class="sm-input" type="text" value="Velvet Bistro">
+    </div>
+  </div>
+</div>

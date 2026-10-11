@@ -84,6 +84,39 @@ export function initBindings(ctx) {
     });
   })();
 
+  // More tiles: same drag pattern; the phone grid mirrors the row order.
+  // Exposed as wireMoreDragRow so appScreenSlot can wire dynamically-added rows.
+  const moreList = document.getElementById('more-tiles-list');
+  const moreGrid = document.querySelector('.more-grid');
+  let moreDragKey = null;
+  function syncMoreGrid() {
+    if (!moreGrid || !moreList) return;
+    moreList.querySelectorAll('.cp-toggle-row[data-more-key]').forEach((row) => {
+      const tile = moreGrid.querySelector(`.more-tile[data-more-key="${row.dataset.moreKey}"]`);
+      if (tile) moreGrid.appendChild(tile);
+    });
+    markDirty();
+  }
+  function wireMoreDragRow(row) {
+    if (!row || row.dataset.moreDragReady === 'true' || !moreList) return;
+    row.dataset.moreDragReady = 'true';
+    const handle = row.querySelector('.handle');
+    row.setAttribute('draggable', 'false');
+    handle?.addEventListener('mousedown', () => row.setAttribute('draggable', 'true'));
+    row.addEventListener('dragstart', (e) => { moreDragKey = row.dataset.moreKey; row.classList.add('dragging'); e.dataTransfer.effectAllowed = 'move'; });
+    row.addEventListener('dragend', () => { moreDragKey = null; row.classList.remove('dragging'); row.setAttribute('draggable', 'false'); });
+    row.addEventListener('dragover', (e) => { if (moreDragKey && moreDragKey !== row.dataset.moreKey) e.preventDefault(); });
+    row.addEventListener('drop', (e) => {
+      e.preventDefault();
+      const moved = moreList.querySelector(`.cp-toggle-row[data-more-key="${moreDragKey}"]`);
+      if (!moved || moved === row) return;
+      const after = moved.compareDocumentPosition(row) & Node.DOCUMENT_POSITION_FOLLOWING;
+      row.insertAdjacentElement(after ? 'afterend' : 'beforebegin', moved);
+      syncMoreGrid();
+    });
+  }
+  moreList?.querySelectorAll('.cp-toggle-row[data-more-key]').forEach(wireMoreDragRow);
+
   // ---------- Radio bindings ----------
   function wireRadioGroup(g) {
     g.querySelectorAll('.cp-radio').forEach(r => {
@@ -370,6 +403,6 @@ export function initBindings(ctx) {
   });
 
 
-  return { wireToggle, wireRadioGroup, getPlainText, setupVariableInput, normalizeHex, wireColorControl, syncColorVar };
+  return { wireToggle, wireRadioGroup, getPlainText, setupVariableInput, normalizeHex, wireColorControl, syncColorVar, wireMoreDragRow };
 }
 
