@@ -61,6 +61,7 @@ jobs:
             --exclude '_site/' \
             --exclude 'app-builder-p1/' \
             --exclude 'app-builder-vision/' \
+            --exclude 'comment-relay/' \
             ./ _site/
           mkdir -p _site/app-builder-p1
           cp -R app-builder-p1/dist/. _site/app-builder-p1/

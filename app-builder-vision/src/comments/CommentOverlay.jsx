@@ -21,6 +21,7 @@ import { DEFAULT_COMMENT_CONFIG, getCommentMode } from './config.js';
 import {
   getGithubToken,
   getReviewerName,
+  hasReviewerName,
   setGithubToken,
   setReviewerName,
 } from './credentials.js';
@@ -213,14 +214,15 @@ export default function CommentOverlay({ config: configOverrides, onCommentsChan
     configOverrides?.dataBranch || DEFAULT_COMMENT_CONFIG.dataBranch;
   const assetDirectory =
     configOverrides?.assetDirectory || DEFAULT_COMMENT_CONFIG.assetDirectory;
+  const relayUrl = configOverrides?.relayUrl ?? DEFAULT_COMMENT_CONFIG.relayUrl ?? '';
   const configuredMode = configOverrides?.mode;
   const mode = useMemo(
     () => configuredMode || getCommentMode(),
     [configuredMode],
   );
   const config = useMemo(
-    () => ({ repository, page, project, dataBranch, assetDirectory }),
-    [repository, page, project, dataBranch, assetDirectory],
+    () => ({ repository, page, project, dataBranch, assetDirectory, relayUrl }),
+    [repository, page, project, dataBranch, assetDirectory, relayUrl],
   );
   const adapter = useMemo(
     () =>
@@ -449,30 +451,40 @@ export default function CommentOverlay({ config: configOverrides, onCommentsChan
       closePanels();
       return;
     }
-    if (mode === 'github' && !getGithubToken()) {
+    // Relay: only a name is needed. Otherwise the reviewer pastes a GitHub token.
+    const needsSetup =
+      mode === 'github' && (relayUrl ? !hasReviewerName() : !getGithubToken());
+    if (needsSetup) {
       setTokenInput('');
-      setNameInput(getReviewerName());
+      setNameInput(hasReviewerName() ? getReviewerName() : '');
       setTokenModalOpen(true);
       return;
     }
     closePanels();
     setCommentMode(true);
-  }, [closePanels, commentMode, mode]);
+  }, [closePanels, commentMode, mode, relayUrl]);
 
   const saveCredentials = useCallback(
     (event) => {
       event.preventDefault();
-      if (!tokenInput.trim()) {
-        showToast('Please paste your GitHub token first.');
-        return;
+      if (relayUrl) {
+        if (!nameInput.trim()) {
+          showToast('Please enter your name or email first.');
+          return;
+        }
+      } else {
+        if (!tokenInput.trim()) {
+          showToast('Please paste your GitHub token first.');
+          return;
+        }
+        setGithubToken(tokenInput);
       }
-      setGithubToken(tokenInput);
       setReviewerName(nameInput);
       setTokenModalOpen(false);
       closePanels();
       setCommentMode(true);
     },
-    [closePanels, nameInput, showToast, tokenInput],
+    [closePanels, nameInput, relayUrl, showToast, tokenInput],
   );
 
   const addClipboardImages = useCallback((event) => {
@@ -700,25 +712,36 @@ export default function CommentOverlay({ config: configOverrides, onCommentsChan
       {tokenModalOpen ? (
         <div id="hc-modal" className="open" data-comment-overlay>
           <form id="hc-modal-box" onSubmit={saveCredentials}>
-            <h3>🔑 One-time GitHub setup</h3>
-            <p>
-              Please paste the GitHub token Gal sent you. It needs Issues write +
-              Contents write for this repo.
-            </p>
-            <input
-              id="hc-tok"
-              type="password"
-              placeholder="Paste token here (stays in your browser only)"
-              value={tokenInput}
-              onChange={(event) => setTokenInput(event.target.value)}
-              autoFocus
-            />
+            {relayUrl ? (
+              <>
+                <h3>Who is commenting?</h3>
+                <p>Enter your name or email so Gal knows who left each comment.</p>
+              </>
+            ) : (
+              <>
+                <h3>🔑 One-time GitHub setup</h3>
+                <p>
+                  Please paste the GitHub token Gal sent you. It needs Issues write +
+                  Contents write for this repo.
+                </p>
+                <input
+                  id="hc-tok"
+                  type="password"
+                  placeholder="Paste token here (stays in your browser only)"
+                  value={tokenInput}
+                  onChange={(event) => setTokenInput(event.target.value)}
+                  autoFocus
+                />
+              </>
+            )}
             <input
               id="hc-nam"
               type="text"
-              placeholder="Your name (e.g. Gal, Roy, Kobi)"
+              placeholder={relayUrl ? 'Full name or email' : 'Your name (e.g. Gal, Roy, Kobi)'}
               value={nameInput}
               onChange={(event) => setNameInput(event.target.value)}
+              autoFocus={Boolean(relayUrl)}
+              maxLength={80}
             />
             <div className="hc-modal-btns">
               <button

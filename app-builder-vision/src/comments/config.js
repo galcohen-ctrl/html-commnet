@@ -4,6 +4,10 @@ export const DEFAULT_COMMENT_CONFIG = Object.freeze({
   project: 'app-builder-vision',
   dataBranch: 'data',
   assetDirectory: 'comment-assets/app-builder-vision',
+  // Google Apps Script relay (comment-relay/Code.gs in the html-commnet repo).
+  // When set, reviewers only enter a name or email; the relay holds the token.
+  // Empty: reviewers paste their own GitHub token, as before.
+  relayUrl: '',
 });
 
 export function getCommentMode(search = window.location.search) {

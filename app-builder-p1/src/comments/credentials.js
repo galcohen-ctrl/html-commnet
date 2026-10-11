@@ -17,6 +17,11 @@ export function getReviewerName() {
   return window.localStorage.getItem(NAME_KEY) || 'Reviewer';
 }
 
+export function hasReviewerName() {
+  const saved = window.localStorage.getItem(NAME_KEY) || '';
+  return Boolean(saved.trim()) && saved.trim() !== 'Reviewer';
+}
+
 export function setReviewerName(name) {
   const trimmedName = name.trim();
   if (trimmedName) window.localStorage.setItem(NAME_KEY, trimmedName);

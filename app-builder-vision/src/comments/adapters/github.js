@@ -9,10 +9,12 @@ import {
 } from '../utils.js';
 
 const GITHUB_TIMEOUT_MS = 8000;
+// The relay is a cold-starting Apps Script that also uploads screenshots.
+const RELAY_TIMEOUT_MS = 45000;
 
-async function githubFetch(url, options = {}) {
+async function githubFetch(url, options = {}, timeoutMs = GITHUB_TIMEOUT_MS) {
   const controller = new AbortController();
-  const timeout = window.setTimeout(() => controller.abort(), GITHUB_TIMEOUT_MS);
+  const timeout = window.setTimeout(() => controller.abort(), timeoutMs);
   try {
     return await fetch(url, { ...options, signal: controller.signal });
   } catch (error) {
@@ -166,8 +168,35 @@ export function createGithubCommentsAdapter(config) {
     };
   }
 
+  // Name-only commenting: the relay creates the issue with its own token.
+  // text/plain keeps this a "simple" request, so Apps Script needs no CORS preflight.
+  async function saveViaRelay(meta, pendingImages) {
+    const images = await Promise.all(
+      pendingImages.map(async ({ file }, index) => ({
+        type: file.type || 'image/png',
+        name: file.name || `screenshot-${index + 1}.${extensionForMimeType(file.type)}`,
+        data: await fileToBase64(file),
+      })),
+    );
+    const response = await githubFetch(
+      config.relayUrl,
+      {
+        method: 'POST',
+        headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+        body: JSON.stringify({ meta, images }),
+      },
+      RELAY_TIMEOUT_MS,
+    );
+    const result = await response.json().catch(() => ({}));
+    if (!response.ok || !result.ok) {
+      throw new Error(result.error || `Comment relay failed (${response.status})`);
+    }
+    return normalizeIssue(result.issue, config.project);
+  }
+
   return {
     mode: 'github',
+    usesRelay: Boolean(config.relayUrl),
     async load() {
       const issues = await fetchIssuesPage();
       return issues
@@ -181,6 +210,7 @@ export function createGithubCommentsAdapter(config) {
         .reverse();
     },
     async save(meta, pendingImages) {
+      if (config.relayUrl) return saveViaRelay(meta, pendingImages);
       let issue = await createIssue(meta);
       meta.issue = {
         number: issue.number,
