@@ -7,7 +7,7 @@ export const DEFAULT_COMMENT_CONFIG = Object.freeze({
   // Google Apps Script relay (comment-relay/Code.gs in the html-commnet repo).
   // When set, reviewers only enter a name or email; the relay holds the token.
   // Empty: reviewers paste their own GitHub token, as before.
-  relayUrl: '',
+  relayUrl: 'https://script.google.com/macros/s/AKfycbyqtqedKnOGXFkPx5ri_Z67RAMVHWZ5h0qfHz_31mT_h3KXT686hfX1C4zCIJr6m0A3nA/exec',
 });
 
 export function getCommentMode(search = window.location.search) {
