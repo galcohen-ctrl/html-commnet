@@ -191,8 +191,11 @@ export function initCoreNavigation(ctx) {
     state.goal = goal;
     document.body.classList.remove('focus-loyalty', 'focus-ordering', 'focus-blank');
     document.body.classList.add('focus-' + goal);
+    // The preset line is only a placeholder: never replace a tagline the
+    // merchant typed in Business details / Branding.
     const subEl = document.getElementById('phone-brand-sub');
-    if (subEl) subEl.textContent = def.sub;
+    const tagline = document.getElementById('gf-headline')?.value.trim();
+    if (subEl) subEl.textContent = tagline || def.sub;
     const label = document.getElementById('preset-btn-label');
     if (label) label.textContent = goal === 'blank' ? 'Choose focus' : def.label;
     document.querySelectorAll('.preset-menu-item').forEach(b => b.classList.toggle('active', b.dataset.goal === goal));
