@@ -107,7 +107,7 @@ export function initRewardsBlocks(ctx) {
         const activate = (event) => {
           event.stopPropagation();
           if (action === 'webview') {
-            if (!openWebsitePreview(b.url, b.options || {}, undefined, el.closest('.app-page')?.dataset.page)) showToast?.('Add a website address first.');
+            if (!openWebsitePreview(b.url, b.options || {}, undefined, el.closest('.app-page')?.dataset.page)) showToast?.('Add a website address first.', { variant: 'error' });
           } else if (action === 'inbox') window.openModal?.('inbox');
           else if (action === 'account') window.openAccountPage?.();
           else window.showPhonePage?.(action);
@@ -150,7 +150,8 @@ export function initRewardsBlocks(ctx) {
     row.innerHTML = `<div class="rw-row-head">
         <span class="handle">⠿</span>
         <span class="w-name" title="${esc(BLOCK_DEFS[b.type].label)}">${esc(blockName(b))}</span>
-        <button class="w-del-icon" title="Remove widget"><svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"><path d="M4 6h12M8 6V4h4v2M6 6v10a1 1 0 001 1h6a1 1 0 001-1V6"/></svg></button>
+        <button class="w-edit-icon" type="button" title="Edit section" aria-label="Edit section"><svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12.5 3l4.5 4.5-10 10H2.5v-4.5l10-10z"/><path d="M11 4.5l4.5 4.5"/></svg></button>
+        <button class="w-del-icon" title="Remove section"><svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"><path d="M4 6h12M8 6V4h4v2M6 6v10a1 1 0 001 1h6a1 1 0 001-1V6"/></svg></button>
       </div>${inline}`;
 
     row.querySelector('.rw-row-head').addEventListener('click', (e) => {
@@ -162,7 +163,7 @@ export function initRewardsBlocks(ctx) {
       blocks.splice(blocks.indexOf(b), 1);
       row.remove();
       renderPhone();
-      showToast?.(`${BLOCK_DEFS[b.type].label} removed`);
+      showToast?.(`${BLOCK_DEFS[b.type].label} removed`, { variant: 'success' });
       markDirty?.();
     });
     row.querySelectorAll('[data-inline]').forEach((field) => {
@@ -352,7 +353,7 @@ export function initRewardsBlocks(ctx) {
     const b = byId(editingId);
     if (!b || b.type !== 'image') return;
     const url = websiteUrl((gid('rw-block-webview-url')?.value || '').trim());
-    if (!url) { showToast?.('Enter a website address starting with https://.'); gid('rw-block-webview-url')?.focus(); return; }
+    if (!url) { showToast?.('Enter a website address starting with https://.', { variant: 'error' }); gid('rw-block-webview-url')?.focus(); return; }
     b.url = url;
     b.connected = true;
     b.options ||= { back: true, showurl: true, bottombar: true, inapp: true, membersonly: false };
@@ -399,13 +400,13 @@ export function initRewardsBlocks(ctx) {
     const file = imgFile.files?.[0];
     const b = byId(editingId);
     if (!file || !b) return;
-    if (file.size > 5 * 1024 * 1024) { showToast?.('File too big — max 5MB'); return; }
+    if (file.size > 5 * 1024 * 1024) { showToast?.('File too big — max 5MB', { variant: 'error' }); return; }
     const reader = new FileReader();
     reader.onload = (e) => {
       b.imgData = e.target.result;
       paintImage(b);
       renderPhone();
-      showToast?.('Image uploaded');
+      showToast?.('Image uploaded', { variant: 'success' });
       markDirty?.();
     };
     reader.readAsDataURL(file);

@@ -21,6 +21,10 @@ import { initAppScreenSlot } from './appScreenSlot.js';
 import { initInbox } from './inbox.js';
 import { initImageAdjust } from './imageAdjust.js';
 import { initLaunchScreen } from './launchScreen.js';
+import { initBuiltInPages } from './builtinPages.js';
+import { initPages } from './pages.js';
+import { initPhoneLock } from './phoneLock.js';
+import { initMoreTiles } from './moreTiles.js';
 
 let runtime;
 
@@ -39,6 +43,7 @@ export function initPrototype() {
   Object.assign(runtime, initMenuSource(runtime));
   Object.assign(runtime, initOrderingWidgets(runtime));
   Object.assign(runtime, initRewardsBlocks(runtime));
+  Object.assign(runtime, initPages(runtime));
   Object.assign(runtime, initOrderingSetup(runtime));
   Object.assign(runtime, initGuidedFlow(runtime));
   Object.assign(runtime, initProductExperience(runtime));
@@ -52,6 +57,9 @@ export function initPrototype() {
   Object.assign(runtime, initAccessibility(runtime));
   Object.assign(runtime, initAppScreenSlot(runtime));
   Object.assign(runtime, initInbox(runtime));
+  Object.assign(runtime, initPhoneLock(runtime));
   Object.assign(runtime, initReviewGallery(runtime));
+  Object.assign(runtime, initBuiltInPages(runtime));
+  Object.assign(runtime, initMoreTiles(runtime));
   return runtime;
 }

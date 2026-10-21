@@ -255,7 +255,7 @@ export function initImageAdjust(ctx) {
 
   /* -------------------------------------------------------------- session */
 
-  function open(target) {
+  function open(target, { background = false } = {}) {
     if (session) return;
     const src = backgroundUrlOf(target);
     if (!src) return;
@@ -287,11 +287,20 @@ export function initImageAdjust(ctx) {
     document.body.classList.add('ia-adjusting');
 
     const panel = buildToolbar();
+    if (background) {
+      // The app background sits behind every screen, so the screen's own content is hidden while it is moved.
+      document.body.classList.add('ia-bg-adjusting');
+      document.documentElement.style.setProperty('--ia-fill', document.getElementById('appbg-image-average')?.value || '#888888');
+      panel.querySelector('.ia-adjust-controls h4').textContent = 'Adjust background';
+      panel.querySelector('.ia-adjust-controls p').textContent = 'Sections are hidden while you move and zoom the photo.';
+    }
     // The launch screen has its own device, already scaled by responsive.js, so
     // it skips the phone-stage zoom rather than compose a second transform.
     const stage = target.closest('#launch-device-stage') ? null : document.getElementById('device-stage');
     session = {
-      target, layer, cropBox, cropBtn, panel, src, stage,
+      target, layer, cropBox, cropBtn, panel, src, stage, background,
+      // Listeners on the target outlive the session unless they are scoped to it.
+      controller: new AbortController(),
       state: { x: 0, y: 0, scale: 1, rot: 0, src },
       history: [], index: -1, cropping: false, crop: null, fitTimer: null,
       zoom: 1, pumpFrame: 0,
@@ -319,6 +328,7 @@ export function initImageAdjust(ctx) {
 
   function close() {
     if (!session) return;
+    session.controller.abort();
     clearTimeout(session.fitTimer);
     cancelAnimationFrame(session.pumpFrame);
     session.layer.remove();
@@ -327,7 +337,8 @@ export function initImageAdjust(ctx) {
     session.panel.remove();
     session.target.classList.remove('ia-active', 'ia-cropping');
     clearZoom();
-    document.body.classList.remove('ia-adjusting');
+    document.body.classList.remove('ia-adjusting', 'ia-bg-adjusting');
+    document.documentElement.style.removeProperty('--ia-fill');
     session = null;
     document.dispatchEvent(new CustomEvent('como:image-adjust', { detail: { open: false } }));
   }
@@ -376,6 +387,11 @@ export function initImageAdjust(ctx) {
     const context = canvas.getContext('2d');
     context.scale(ratio, ratio);
     context.translate(-offsetX, -offsetY);
+    // A background photo is stored as a JPEG, so any gap left by zooming out or rotating gets its average colour.
+    if (session.background) {
+      context.fillStyle = document.getElementById('appbg-image-average')?.value || '#888888';
+      context.fillRect(offsetX, offsetY, width, height);
+    }
     context.translate(target.clientWidth / 2 + state.x, target.clientHeight / 2 + state.y);
     context.scale(state.scale, state.scale);
     context.rotate((state.rot * Math.PI) / 180);
@@ -386,7 +402,7 @@ export function initImageAdjust(ctx) {
     const drawH = naturalH * cover;
     context.drawImage(layer, -drawW / 2, -drawH / 2, drawW, drawH);
     try {
-      return canvas.toDataURL('image/png');
+      return canvas.toDataURL(session.background ? 'image/jpeg' : 'image/png', 0.88);
     } catch {
       return null;
     }
@@ -395,13 +411,17 @@ export function initImageAdjust(ctx) {
   function finish() {
     if (!session) return;
     const baked = rasterize(null);
-    const { target } = session;
-    if (baked) {
+    const { target, background } = session;
+    if (baked && background) {
+      // The photo lives in --p-bg, not on this element: hand it back to the background module.
+      document.dispatchEvent(new CustomEvent('como:appbg-adjusted', { detail: { dataUrl: baked } }));
+      showToast?.('Background updated', { variant: 'success' });
+    } else if (baked) {
       target.style.backgroundImage = `url(${baked})`;
       target.style.backgroundSize = 'cover';
       target.style.backgroundPosition = 'center';
       markDirty?.();
-      showToast?.('Image updated');
+      showToast?.('Image updated', { variant: 'success' });
     }
     close();
   }
@@ -473,7 +493,8 @@ export function initImageAdjust(ctx) {
   /* -------------------------------------------------------------- wiring */
 
   function wireSession() {
-    const { target, panel, cropBox, cropBtn } = session;
+    const { target, panel, cropBox, cropBtn, controller } = session;
+    const { signal } = controller;
 
     cropBtn.addEventListener('pointerdown', (event) => event.stopPropagation());
     cropBtn.addEventListener('click', enterCrop);
@@ -521,15 +542,15 @@ export function initImageAdjust(ctx) {
       originY = session.state.y;
       session._panScale = target.getBoundingClientRect().width / (target.clientWidth || 1);
       target.setPointerCapture(event.pointerId);
-    });
+    }, { signal });
     target.addEventListener('pointermove', (event) => {
       if (!panning) return;
       const s = session._panScale || 1;
       session.state.x = originX + (event.clientX - startX) / s;
       session.state.y = originY + (event.clientY - startY) / s;
       render();
-    });
-    target.addEventListener('pointerup', () => { if (panning) { panning = false; commit(); } });
+    }, { signal });
+    target.addEventListener('pointerup', () => { if (panning) { panning = false; commit(); } }, { signal });
 
     let wheelTimer = null;
     target.addEventListener('wheel', (event) => {
@@ -544,7 +565,7 @@ export function initImageAdjust(ctx) {
       render();
       clearTimeout(wheelTimer);
       wheelTimer = setTimeout(commit, 220);
-    }, { passive: false });
+    }, { passive: false, signal });
 
     let drag = null;
     cropBox.addEventListener('pointerdown', (event) => {
@@ -601,7 +622,13 @@ export function initImageAdjust(ctx) {
 
   function beginHold(event) {
     if (session) return;
-    const target = event.target.closest(TARGET_SELECTOR);
+    let target = event.target.closest(TARGET_SELECTOR);
+    let background = false;
+    // Empty space between widgets is the app background itself, adjustable once a photo is set.
+    if (!target && document.body.dataset.appbg === 'image' && event.target.matches('.device-screen, .app-shell, .app-page')) {
+      target = shell;
+      background = true;
+    }
     if (!target || !backgroundUrlOf(target)) return;
     holding = true;
     const rect = target.getBoundingClientRect();
@@ -624,7 +651,7 @@ export function initImageAdjust(ctx) {
       fill.style.strokeDashoffset = String(RING_CIRCUMFERENCE * (1 - progress));
       if (progress >= 1) {
         stopHold();
-        open(target);
+        open(target, { background });
         return;
       }
       holdFrame = requestAnimationFrame(step);
@@ -640,6 +667,11 @@ export function initImageAdjust(ctx) {
       root.addEventListener(type, () => { if (holding) stopHold(); });
     });
     root.addEventListener('pointermove', () => { if (holding && !session) stopHold(); });
+  });
+
+  // The Colours panel has an Adjust button for the background photo, which has no widget of its own to hold.
+  document.addEventListener('como:appbg-adjust-request', () => {
+    if (!session && document.body.dataset.appbg === 'image') open(shell, { background: true });
   });
 
   // The overlays are pinned to the element's on-screen box, so anything that

@@ -1,7 +1,7 @@
       <div class="cp-master">
         <h3 class="cp-head">App screen</h3>
         <div class="cp-page-title">Home</div>
-        <div class="cp-page-sub">Click any widget to edit it. Every change reflects live on the phone.</div>
+        <div class="cp-page-sub">Click any section to edit it. Every change reflects live on the phone.</div>
 
         <div class="cp-focus-recap" id="cp-focus-recap">
           <div class="cp-focus-ic" id="cp-focus-ic"></div>
@@ -28,41 +28,33 @@
         </div>
 
         <div class="cp-section open" id="cp-home-widgets" data-pendo-guide-id="home-widget-composition">
-          <div class="cp-head-row">Home widgets <span class="chev">›</span></div>
+          <div class="cp-head-row">Home Screen Sections <span class="chev">›</span></div>
           <div class="cp-body">
             <div class="cp-widget-row off">
               <span class="handle">⠿</span>
-              <span class="w-name" data-drill="profile">Profile &amp; Loyalty</span>
-              <span class="toggle" data-bind=".greet-row, .loyalty-card" data-widget-toggle="profile" title="Add to Home">
-                <svg class="i-plus" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M10 4v12M4 10h12"/></svg>
-                <svg class="i-check" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M4 10l4 4 8-8"/></svg>
-              </span>
+              <span class="w-name" data-drill="profile">Profile and loyalty</span>
+              <span class="toggle" data-bind=".greet-row, .loyalty-card" data-widget-toggle="profile" title="Add to Home"></span>
+              <button class="w-edit-icon" type="button" title="Edit section" aria-label="Edit section"><svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12.5 3l4.5 4.5-10 10H2.5v-4.5l10-10z"/><path d="M11 4.5l4.5 4.5"/></svg></button>
             </div>
             <div class="cp-widget-row off">
               <span class="handle">⠿</span>
-              <span class="w-name" data-drill="promo-cards">Promo Cards — Featured</span>
-              <span class="toggle" data-bind=".promo-cards-widget[data-widget='promo-cards']" data-widget-toggle="promo-cards" title="Add to Home">
-                <svg class="i-plus" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M10 4v12M4 10h12"/></svg>
-                <svg class="i-check" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M4 10l4 4 8-8"/></svg>
-              </span>
+              <span class="w-name" data-drill="promo-cards">Featured promotions</span>
+              <span class="toggle" data-bind=".promo-cards-widget[data-widget='promo-cards']" data-widget-toggle="promo-cards" title="Add to Home"></span>
+              <button class="w-edit-icon" type="button" title="Edit section" aria-label="Edit section"><svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12.5 3l4.5 4.5-10 10H2.5v-4.5l10-10z"/><path d="M11 4.5l4.5 4.5"/></svg></button>
 
             </div>
             <div class="cp-widget-row off">
               <span class="handle">⠿</span>
-              <span class="w-name" data-drill="social">Social Links</span>
-              <span class="toggle" data-bind=".social-strip" data-widget-toggle="social" title="Add to Home">
-                <svg class="i-plus" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M10 4v12M4 10h12"/></svg>
-                <svg class="i-check" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M4 10l4 4 8-8"/></svg>
-              </span>
+              <span class="w-name" data-drill="social">Social links</span>
+              <span class="toggle" data-bind=".social-strip" data-widget-toggle="social" title="Add to Home"></span>
+              <button class="w-edit-icon" type="button" title="Edit section" aria-label="Edit section"><svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12.5 3l4.5 4.5-10 10H2.5v-4.5l10-10z"/><path d="M11 4.5l4.5 4.5"/></svg></button>
 
             </div>
             <div class="cp-widget-row off cp-oo-widget" data-oo-widget="order-again">
               <span class="handle">⠿</span>
               <span class="w-name" data-drill="order-again">Order Again</span>
-              <span class="toggle" data-bind=".oa-widget" data-widget-toggle="order-again" title="Add to Home">
-                <svg class="i-plus" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M10 4v12M4 10h12"/></svg>
-                <svg class="i-check" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M4 10l4 4 8-8"/></svg>
-              </span>
+              <span class="toggle" data-bind=".oa-widget" data-widget-toggle="order-again" title="Add to Home"></span>
+              <button class="w-edit-icon" type="button" title="Edit section" aria-label="Edit section"><svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12.5 3l4.5 4.5-10 10H2.5v-4.5l10-10z"/><path d="M11 4.5l4.5 4.5"/></svg></button>
 
               <span class="w-oo-lock" title="Connect online ordering to enable">
                 <svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"><rect x="4.5" y="9" width="11" height="7.5" rx="1.5"/><path d="M7 9V6.5a3 3 0 016 0V9"/></svg>
@@ -71,10 +63,8 @@
             <div class="cp-widget-row off cp-oo-widget" data-oo-widget="top-items">
               <span class="handle">⠿</span>
               <span class="w-name" data-drill="top-items">Top Items</span>
-              <span class="toggle" data-bind=".ti-widget" data-widget-toggle="top-items" title="Add to Home">
-                <svg class="i-plus" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M10 4v12M4 10h12"/></svg>
-                <svg class="i-check" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M4 10l4 4 8-8"/></svg>
-              </span>
+              <span class="toggle" data-bind=".ti-widget" data-widget-toggle="top-items" title="Add to Home"></span>
+              <button class="w-edit-icon" type="button" title="Edit section" aria-label="Edit section"><svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12.5 3l4.5 4.5-10 10H2.5v-4.5l10-10z"/><path d="M11 4.5l4.5 4.5"/></svg></button>
 
               <span class="w-oo-lock" title="Connect online ordering to enable">
                 <svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"><rect x="4.5" y="9" width="11" height="7.5" rx="1.5"/><path d="M7 9V6.5a3 3 0 016 0V9"/></svg>
@@ -84,10 +74,8 @@
             <div class="cp-widget-row off cp-oo-widget" data-oo-widget="menu-categories">
               <span class="handle">⠿</span>
               <span class="w-name" data-drill="menu-categories">Menu Categories</span>
-              <span class="toggle" data-bind=".mc-widget" data-widget-toggle="menu-categories" title="Add to Home">
-                <svg class="i-plus" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M10 4v12M4 10h12"/></svg>
-                <svg class="i-check" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M4 10l4 4 8-8"/></svg>
-              </span>
+              <span class="toggle" data-bind=".mc-widget" data-widget-toggle="menu-categories" title="Add to Home"></span>
+              <button class="w-edit-icon" type="button" title="Edit section" aria-label="Edit section"><svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12.5 3l4.5 4.5-10 10H2.5v-4.5l10-10z"/><path d="M11 4.5l4.5 4.5"/></svg></button>
 
               <span class="w-oo-lock" title="Connect online ordering to enable">
                 <svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"><rect x="4.5" y="9" width="11" height="7.5" rx="1.5"/><path d="M7 9V6.5a3 3 0 016 0V9"/></svg>
@@ -97,17 +85,15 @@
             <div class="cp-widget-row off cp-fixed-slot" title="Reels chip is pinned to the top of the phone">
               <span class="handle handle-locked" title="Reels chip position is fixed at the top">⠿</span>
               <span class="w-name" data-drill="menu-reels">Menu Reels chip</span>
-              <span class="toggle" data-bind=".phone-reels-chip" data-widget-toggle="menu-reels" title="Add reels chip to Home">
-                <svg class="i-plus" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M10 4v12M4 10h12"/></svg>
-                <svg class="i-check" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M4 10l4 4 8-8"/></svg>
-              </span>
+              <span class="toggle" data-bind=".phone-reels-chip" data-widget-toggle="menu-reels" title="Add reels chip to Home"></span>
+              <button class="w-edit-icon" type="button" title="Edit section" aria-label="Edit section"><svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12.5 3l4.5 4.5-10 10H2.5v-4.5l10-10z"/><path d="M11 4.5l4.5 4.5"/></svg></button>
 
             </div>
-            <div class="cp-hint-inline">Select a row to edit its content. Use Show to include it in the app.</div>
+            <div class="cp-hint-inline">Select a row to edit its content. Use the switch to include it in the app.</div>
             <div class="cp-add-widget-wrap">
               <button class="cp-add-widget-btn" id="add-widget-btn" type="button">
                 <svg viewBox="0 0 20 20" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M10 4v12M4 10h12"/></svg>
-                Add widget
+                Add Section
               </button>
               <div class="cp-add-widget-menu" id="add-widget-menu">
                 <button type="button" data-add="promo"><span class="aw-ic">▤</span> Promo Cards</button>
@@ -118,5 +104,5 @@
           </div>
         </div>
 
-        <div class="cp-info"><b>Direct editing:</b> select a widget here or in the phone preview. The focus preset supplies the recommended order; you only need to adjust content that matters.</div>
+        <div class="cp-info"><b>Direct editing:</b> select a section here or in the phone preview. The focus preset supplies the recommended order; you only need to adjust content that matters.</div>
       </div>

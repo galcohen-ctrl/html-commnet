@@ -1,0 +1,206 @@
+<!--
+  Built-in page editors (third panel). Parsed by src/prototype/builtinPages.js.
+  - Each <template data-bp-template> is cloned once per page key (story and about share "about-us").
+  - data-bp-field="a.b.0.c" binds a text control to that path of the page state.
+  - data-bp-toggle="name" binds a .toggle to state[name] (boolean).
+  - data-bp-include="image" is replaced with the shared image field below.
+  Control ids are generated as bp-<key>-<path> so draft persistence can restore them.
+-->
+
+<template data-bp-snippet="image">
+  <div class="cp-field bp-image-field">
+    <label data-bp-image-label>Image</label>
+    <div class="pc-edit-image-zone" data-bp-image-zone>
+      <img class="pc-edit-image-preview" data-bp-image-preview src="data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///ywAAAAAAQABAAACAUwAOw==" alt="" style="display:none;" />
+      <div class="pc-edit-image-empty" data-bp-image-empty>
+        <div class="pc-upload-prompt">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><path d="M21 15l-5-5L5 21"/></svg>
+          <span>Drop image or click</span>
+        </div>
+        <div class="pc-upload-hint">jpg · png · webp · max 5 MB</div>
+      </div>
+    </div>
+    <input type="file" data-bp-image-file accept="image/png,image/jpeg,image/jpg,image/webp" style="display:none;" />
+    <button class="pc-edit-image-remove" type="button" data-bp-image-remove style="display:none;">✕ Remove image</button>
+    <div class="cp-hint-inline bp-image-hint">Recommended: 1200 x 600 px, JPG or PNG</div>
+  </div>
+</template>
+
+<!-- ============================ My Account ============================ -->
+<template data-bp-template="account">
+  <div class="cp-detail bp-detail" data-detail="bp-account" data-bp-page="account">
+    <div class="cp-detail-header">
+      <button class="cp-back" type="button" aria-label="Back">‹</button>
+      <div class="cp-detail-title">My Account</div>
+    </div>
+    <div class="cp-detail-sub">Choose which shortcuts Members see on their profile.</div>
+    <div class="cp-section open">
+      <div class="cp-head-row">Profile shortcuts <span class="chev">›</span></div>
+      <div class="cp-body">
+        <div class="cp-toggle-row"><span class="lbl">Edit profile</span><span class="toggle on" data-bp-toggle="settings"></span></div>
+        <div class="cp-toggle-row"><span class="lbl">My gifts</span><span class="toggle on" data-bp-toggle="gifts"></span></div>
+        <div class="cp-toggle-row"><span class="lbl">Payments</span><span class="toggle" data-bp-toggle="payments"></span></div>
+        <div class="cp-toggle-row"><span class="lbl">Orders</span><span class="toggle on" data-bp-toggle="orders"></span></div>
+        <div class="cp-section-note">Orders is most useful when online ordering or a My Orders screen is in your app. My gifts opens the Gifts screen driven by your Rewards.</div>
+      </div>
+    </div>
+  </div>
+</template>
+
+<!-- ============================= My Orders ============================ -->
+<template data-bp-template="orders">
+  <div class="cp-detail bp-detail" data-detail="bp-orders" data-bp-page="orders">
+    <div class="cp-detail-header">
+      <button class="cp-back" type="button" aria-label="Back">‹</button>
+      <div class="cp-detail-title">My Orders</div>
+    </div>
+    <div class="cp-detail-sub">Choose what Members see in their order history.</div>
+    <div class="cp-section open">
+      <div class="cp-head-row">Order history <span class="chev">›</span></div>
+      <div class="cp-body">
+        <div class="cp-toggle-row"><span class="lbl">Active order tracker</span><span class="toggle on" data-bp-toggle="active"></span></div>
+        <div class="cp-toggle-row"><span class="lbl">Previous orders</span><span class="toggle on" data-bp-toggle="history"></span></div>
+        <div class="cp-toggle-row"><span class="lbl">Reorder button</span><span class="toggle on" data-bp-toggle="reorder"></span></div>
+        <div class="cp-section-note">Members see their own orders here once online ordering is connected. The preview uses sample data.</div>
+      </div>
+    </div>
+  </div>
+</template>
+
+<!-- =========================== Refer a Friend ========================= -->
+<template data-bp-template="referral">
+  <div class="cp-detail bp-detail" data-detail="bp-referral" data-bp-page="referral">
+    <div class="cp-detail-header">
+      <button class="cp-back" type="button" aria-label="Back">‹</button>
+      <div class="cp-detail-title">Refer a Friend</div>
+    </div>
+    <div class="cp-detail-sub">Let Members invite friends with a personal code. Edit the offer they see.</div>
+    <div class="cp-section open">
+      <div class="cp-head-row">Hero banner <span class="chev">›</span></div>
+      <div class="cp-body">
+        <div data-bp-include="image"></div>
+        <div class="cp-field"><label>Headline</label><input class="cp-input-text" data-bp-field="headline" placeholder="e.g. Give $10. Get $10." /></div>
+        <div class="cp-field"><label>Description</label><textarea class="cp-input-text cp-textarea" data-bp-field="description" rows="3" placeholder="Short supporting text"></textarea></div>
+        <div class="cp-field"><label>Button text</label><input class="cp-input-text" data-bp-field="buttonText" placeholder="Leave empty to hide the button" /></div>
+      </div>
+    </div>
+    <div class="cp-section open">
+      <div class="cp-head-row">Terms and conditions <span class="chev">›</span></div>
+      <div class="cp-body">
+        <div class="cp-field"><label>Fine print</label><textarea class="cp-input-text cp-textarea" data-bp-field="termsText" rows="3" placeholder="e.g. Credit is added once your friend completes their first purchase."></textarea></div>
+        <div class="cp-field"><label>Link text</label><input class="cp-input-text" data-bp-field="termsLink" placeholder="e.g. Read full terms and conditions" /></div>
+        <div class="cp-section-note">Leave both empty to hide the terms.</div>
+      </div>
+    </div>
+  </div>
+</template>
+
+<!-- ============== Our Story and About Us (same editor, own state) ====== -->
+<template data-bp-template="about-us">
+  <div class="cp-detail bp-detail" data-detail="bp-about-us" data-bp-page="about-us">
+    <div class="cp-detail-header">
+      <button class="cp-back" type="button" aria-label="Back">‹</button>
+      <div class="cp-detail-title" data-bp-title>About Us</div>
+    </div>
+    <div class="cp-detail-sub" data-bp-desc></div>
+    <div class="cp-section open">
+      <div class="cp-head-row">Hero banner <span class="chev">›</span></div>
+      <div class="cp-body">
+        <div data-bp-include="image"></div>
+        <div class="cp-field"><label>Headline</label><input class="cp-input-text" data-bp-field="headline" placeholder="e.g. A place at your table." /></div>
+        <div class="cp-field"><label>Description</label><textarea class="cp-input-text cp-textarea" data-bp-field="description" rows="3" placeholder="Short supporting text"></textarea></div>
+      </div>
+    </div>
+    <div class="cp-section open">
+      <div class="cp-head-row">Text section <span class="chev">›</span></div>
+      <div class="cp-body">
+        <div class="cp-field"><label>Heading</label><input class="cp-input-text" data-bp-field="sectionHeading" placeholder="e.g. Something to come back to" /></div>
+        <div class="cp-field"><label>Paragraph 1</label><textarea class="cp-input-text cp-textarea" data-bp-field="sectionP1" rows="3"></textarea></div>
+        <div class="cp-field"><label>Paragraph 2</label><textarea class="cp-input-text cp-textarea" data-bp-field="sectionP2" rows="3"></textarea></div>
+        <div class="cp-section-note">Leave the heading and both paragraphs empty to hide this section.</div>
+      </div>
+    </div>
+    <div class="cp-section">
+      <div class="cp-head-row">Core values <span class="chev">›</span></div>
+      <div class="cp-body">
+        <div class="cp-toggle-row"><span class="lbl">Show core values</span><span class="toggle" data-bp-toggle="showValues"></span></div>
+        <div class="cp-field"><label>Heading</label><input class="cp-input-text" data-bp-field="valuesHeading" placeholder="e.g. Our core values" /></div>
+        <div class="bp-card">
+          <div class="cp-field"><label>Value 1 title</label><input class="cp-input-text" data-bp-field="values.0.title" /></div>
+          <div class="cp-field"><label>Value 1 description</label><input class="cp-input-text" data-bp-field="values.0.desc" /></div>
+        </div>
+        <div class="bp-card">
+          <div class="cp-field"><label>Value 2 title</label><input class="cp-input-text" data-bp-field="values.1.title" /></div>
+          <div class="cp-field"><label>Value 2 description</label><input class="cp-input-text" data-bp-field="values.1.desc" /></div>
+        </div>
+        <div class="bp-card">
+          <div class="cp-field"><label>Value 3 title</label><input class="cp-input-text" data-bp-field="values.2.title" /></div>
+          <div class="cp-field"><label>Value 3 description</label><input class="cp-input-text" data-bp-field="values.2.desc" /></div>
+        </div>
+      </div>
+    </div>
+    <div class="cp-section">
+      <div class="cp-head-row">Founder quote <span class="chev">›</span></div>
+      <div class="cp-body">
+        <div class="cp-toggle-row"><span class="lbl">Show quote</span><span class="toggle" data-bp-toggle="showQuote"></span></div>
+        <div class="cp-field"><label>Quote</label><textarea class="cp-input-text cp-textarea" data-bp-field="quoteText" rows="3"></textarea></div>
+        <div class="cp-field"><label>Name</label><input class="cp-input-text" data-bp-field="quoteName" /></div>
+        <div class="cp-field"><label>Role</label><input class="cp-input-text" data-bp-field="quoteRole" /></div>
+      </div>
+    </div>
+    <div class="cp-section">
+      <div class="cp-head-row">Buttons <span class="chev">›</span></div>
+      <div class="cp-body">
+        <div class="cp-field"><label>First button text</label><input class="cp-input-text" data-bp-field="cta1" placeholder="Leave empty to hide the button" /></div>
+        <div class="cp-hint-inline" data-bp-cta1-hint></div>
+        <div class="cp-field"><label>Second button text</label><input class="cp-input-text" data-bp-field="cta2" placeholder="Leave empty to hide the button" /></div>
+        <div class="cp-hint-inline">Opens your Menu screen.</div>
+      </div>
+    </div>
+  </div>
+</template>
+
+<!-- ============================== Contact Us ========================== -->
+<template data-bp-template="contact">
+  <div class="cp-detail bp-detail" data-detail="bp-contact" data-bp-page="contact">
+    <div class="cp-detail-header">
+      <button class="cp-back" type="button" aria-label="Back">‹</button>
+      <div class="cp-detail-title">Contact Us</div>
+    </div>
+    <div class="cp-detail-sub">Give Members a way to reach you: direct contact details and a feedback prompt.</div>
+    <div class="cp-section open">
+      <div class="cp-head-row">Hero banner <span class="chev">›</span></div>
+      <div class="cp-body">
+        <div data-bp-include="image"></div>
+        <div class="cp-field"><label>Headline</label><input class="cp-input-text" data-bp-field="headline" placeholder="e.g. We are here for you." /></div>
+        <div class="cp-field"><label>Description</label><textarea class="cp-input-text cp-textarea" data-bp-field="description" rows="3" placeholder="Short supporting text"></textarea></div>
+      </div>
+    </div>
+    <div class="cp-section open">
+      <div class="cp-head-row">Direct contact <span class="chev">›</span></div>
+      <div class="cp-body">
+        <div class="bp-card">
+          <div class="cp-field"><label>Row 1 title</label><input class="cp-input-text" data-bp-field="direct.0.title" /></div>
+          <div class="cp-field"><label>Row 1 phone number</label><input class="cp-input-text" data-bp-field="direct.0.value" inputmode="tel" /></div>
+        </div>
+        <div class="bp-card">
+          <div class="cp-field"><label>Row 2 title</label><input class="cp-input-text" data-bp-field="direct.1.title" /></div>
+          <div class="cp-field"><label>Row 2 email</label><input class="cp-input-text" data-bp-field="direct.1.value" inputmode="email" /></div>
+        </div>
+        <div class="bp-card">
+          <div class="cp-field"><label>Row 3 title</label><input class="cp-input-text" data-bp-field="direct.2.title" /></div>
+          <div class="cp-field"><label>Row 3 details</label><input class="cp-input-text" data-bp-field="direct.2.value" /></div>
+          <div class="cp-hint-inline">Opens your Locations screen.</div>
+        </div>
+        <div class="cp-section-note">Leave a row's title and value empty to hide it.</div>
+      </div>
+    </div>
+    <div class="cp-section">
+      <div class="cp-head-row">Feedback <span class="chev">›</span></div>
+      <div class="cp-body">
+        <div class="cp-field"><label>Heading</label><input class="cp-input-text" data-bp-field="feedbackHeading" placeholder="e.g. How was your visit?" /></div>
+        <div class="cp-field"><label>Button text</label><input class="cp-input-text" data-bp-field="feedbackButton" placeholder="Leave empty to hide the feedback section" /></div>
+      </div>
+    </div>
+  </div>
+</template>

@@ -32,10 +32,10 @@
   /* L3 changes the layout immediately; its content supplies the transform/opacity
      transition, so opening a deep editor never animates grid width. */
   body.l3-open .workspace {
-    grid-template-columns: 216px minmax(360px, 400px) 360px 0 minmax(360px, 1fr);
+    grid-template-columns: 216px minmax(360px, 400px) 400px 0 minmax(360px, 1fr);
   }
   body.l3-open.side-collapsed .workspace {
-    grid-template-columns: 64px minmax(360px, 400px) 360px 0 minmax(360px, 1fr);
+    grid-template-columns: 64px minmax(360px, 400px) 400px 0 minmax(360px, 1fr);
   }
   /* L4 (deepest editor, e.g. a single promo card): collapse the step nav and
      shift the phone right so the fourth panel fits between config and preview. */

@@ -74,7 +74,7 @@ export function initPromoWidgets(ctx) {
         const activate = (event) => {
           event.stopPropagation();
           if (c.action === 'webview') {
-            if (!openWebsitePreview(c.webviewUrl, c.webviewOptions, undefined, pcWidget.closest('.app-page')?.dataset.page)) showToast('Add a website address first.');
+            if (!openWebsitePreview(c.webviewUrl, c.webviewOptions, undefined, pcWidget.closest('.app-page')?.dataset.page)) showToast('Add a website address first.', { variant: 'error' });
           }
           else if (c.action === 'inbox') window.openModal?.('inbox');
           else if (c.action === 'account') window.openAccountPage?.();
@@ -266,7 +266,7 @@ export function initPromoWidgets(ctx) {
       wvConnect.addEventListener('click', () => {
         const url = websiteUrl((wvUrl?.value || '').trim());
         const card = pcEditIdx !== null ? pcCards[pcEditIdx] : null;
-        if (!url || !card) { showToast('Enter a website address starting with https://.'); wvUrl?.focus(); return; }
+        if (!url || !card) { showToast('Enter a website address starting with https://.', { variant: 'error' }); wvUrl?.focus(); return; }
         card.webviewUrl = url; card.webviewConnected = true; card.action = 'webview';
         setWvState('success');
         pcRenderPhone();
@@ -398,10 +398,6 @@ export function initPromoWidgets(ctx) {
           });
         });
       }
-      const pcBgInput = gid('-bg-color');
-      if (pcBgInput) {
-        wireColorControl(pcBgInput, (hex) => pcWidget.style.setProperty('--pc-card-bg', hex));
-      }
     }
 
     pcApplySectionTitle();
@@ -419,8 +415,8 @@ export function initPromoWidgets(ctx) {
 
   // Shared image-file reader for every uploader in the config panel
   function readImageFile(file, onLoad) {
-    if (!/^image\/(png|jpeg|jpg|webp)/i.test(file.type)) { showToast('Only png, jpg, or webp'); return; }
-    if (file.size > 5 * 1024 * 1024) { showToast('Max 5 MB'); return; }
+    if (!/^image\/(png|jpeg|jpg|webp)/i.test(file.type)) { showToast('Only png, jpg, or webp', { variant: 'error' }); return; }
+    if (file.size > 5 * 1024 * 1024) { showToast('Max 5 MB', { variant: 'error' }); return; }
     const reader = new FileReader();
     reader.onload = (ev) => onLoad(ev.target.result);
     reader.readAsDataURL(file);
@@ -509,7 +505,6 @@ export function initPromoWidgets(ctx) {
   // Dynamic widget names follow their live position in the list, not the
   // monotonic dynWidgetSeq. Runs on any add/remove/reorder inside the list.
   const DYN_TYPES = [
-    { prefix: 'promo-cards-', label: 'Promo Cards' },
     { prefix: 'text-divider-', label: 'Text Divider' },
     { prefix: 'image-banner-', label: 'Image Banner' },
   ];
@@ -533,7 +528,7 @@ export function initPromoWidgets(ctx) {
     });
   }
   if (widgetsListBody) {
-    new MutationObserver(renumberDynamicWidgets).observe(widgetsListBody, { childList: true });
+    new MutationObserver(() => { renumberDynamicWidgets(); renumberPromoWidgetLabels(); }).observe(widgetsListBody, { childList: true });
   }
 
   function wireDrillNode(node) {
@@ -552,11 +547,9 @@ export function initPromoWidgets(ctx) {
     row.innerHTML =
       '<span class="handle">⠿</span>'
       + '<span class="w-name" data-drill="' + drill + '">' + escHtml(name) + '</span>'
-      + '<span class="toggle on" data-bind="' + bindSel + '" data-widget-toggle="' + key + '" title="Show on Home">'
-      + '<svg class="i-plus" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M10 4v12M4 10h12"/></svg>'
-      + '<svg class="i-check" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M4 10l4 4 8-8"/></svg>'
-      + '</span>'
-      + '<button class="w-edit-icon w-del" title="Remove widget"><svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M4 6h12M8 6V4h4v2M6 6v10a1 1 0 001 1h6a1 1 0 001-1V6"/></svg></button>';
+      + '<span class="toggle on" data-bind="' + bindSel + '" data-widget-toggle="' + key + '" title="Show on Home"></span>'
+      + '<button class="w-edit-icon" type="button" title="Edit section" aria-label="Edit section"><svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12.5 3l4.5 4.5-10 10H2.5v-4.5l10-10z"/><path d="M11 4.5l4.5 4.5"/></svg></button>'
+      + '<button class="w-edit-icon w-del" title="Remove section"><svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M4 6h12M8 6V4h4v2M6 6v10a1 1 0 001 1h6a1 1 0 001-1V6"/></svg></button>';
     const toggle = row.querySelector('.toggle');
     wireToggle(toggle);
     row.querySelector('.w-del').addEventListener('click', (e) => {
@@ -597,10 +590,6 @@ export function initPromoWidgets(ctx) {
       +     '<div class="cp-field"><label>Corners</label><div class="cp-radio-group">'
       +       '<div class="cp-radio" data-bind-radio="' + idp + '-corners" data-value="sharp">Sharp</div>'
       +       '<div class="cp-radio active" data-bind-radio="' + idp + '-corners" data-value="rounded">Rounded</div></div></div>'
-      +     '<div class="cp-field"><label>Card background</label><div class="cp-color-row compact">'
-      +       '<div class="cp-color-swatch" style="background:var(--p-panel);"><input type="color" value="#1a1728" id="' + idp + '-bg-color" /></div>'
-      +       '<div class="cp-color-info"><div class="cp-color-label">Card background</div><input class="cp-color-hex" value="#1A1728" spellcheck="false" maxlength="9" /></div>'
-      +     '</div></div>'
       +   '</div></div>'
       + '</div>'
       + '<div class="cp-detail" data-detail="' + editDrill + '">'
@@ -731,7 +720,7 @@ export function initPromoWidgets(ctx) {
     row.innerHTML = '<div class="rw-row-head">'
       + '<span class="handle">⠿</span>'
       + '<span class="w-name" data-drill="' + drill + '">' + escHtml(name) + '</span>'
-      + '<button class="w-del-icon" title="Remove widget"><svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"><path d="M4 6h12M8 6V4h4v2M6 6v10a1 1 0 001 1h6a1 1 0 001-1V6"/></svg></button>'
+      + '<button class="w-del-icon" title="Remove section"><svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"><path d="M4 6h12M8 6V4h4v2M6 6v10a1 1 0 001 1h6a1 1 0 001-1V6"/></svg></button>'
       + '</div>';
     row.querySelector('.w-del-icon').addEventListener('click', (e) => {
       e.stopPropagation();
@@ -743,12 +732,18 @@ export function initPromoWidgets(ctx) {
     return row;
   }
 
+  // One featured promotions section keeps the plain name; several are numbered
+  // so the list, breadcrumb and panel title always agree after an add or remove.
   function renumberPromoWidgetLabels() {
     const rows = [...document.querySelectorAll('#cp-home-widgets .cp-widget-row')]
       .filter((row) => row.querySelector('[data-widget-toggle]')?.dataset.widgetToggle?.startsWith('promo-'));
     rows.forEach((row, index) => {
       const label = row.querySelector('.w-name');
-      if (label) label.textContent = `Promo Card ${index + 1}`;
+      if (!label) return;
+      const text = rows.length === 1 ? 'Featured promotions' : `Featured promotions ${index + 1}`;
+      label.textContent = text;
+      const drillTitle = document.querySelector(`.cp-detail[data-detail="${label.dataset.drill}"] .cp-detail-title`);
+      if (drillTitle) drillTitle.textContent = text;
     });
   }
 
@@ -1032,7 +1027,7 @@ export function initPromoWidgets(ctx) {
     syncActionDependentFields();
     bannerWvConnect?.addEventListener('click', () => {
       const url = websiteUrl((bannerWvUrl?.value || '').trim());
-      if (!url) { showToast('Enter a website address starting with https://.'); bannerWvUrl?.focus(); return; }
+      if (!url) { showToast('Enter a website address starting with https://.', { variant: 'error' }); bannerWvUrl?.focus(); return; }
       bannerWvConnect.classList.add('is-success');
       if (bannerWvLabel) bannerWvLabel.textContent = 'Reload preview';
       if (bannerWvStatus) { bannerWvStatus.textContent = 'Page added'; bannerWvStatus.classList.remove('hidden'); }
@@ -1072,7 +1067,7 @@ export function initPromoWidgets(ctx) {
       event.stopPropagation();
       if (bannerAction === 'none') return;
       if (bannerAction === 'webview') {
-        if (!openWebsitePreview(bannerWvUrl.value, bannerOptions, undefined, el.closest('.app-page')?.dataset.page)) showToast('Add a website address first.');
+        if (!openWebsitePreview(bannerWvUrl.value, bannerOptions, undefined, el.closest('.app-page')?.dataset.page)) showToast('Add a website address first.', { variant: 'error' });
       } else if (bannerAction === 'inbox') window.openModal?.('inbox');
       else if (bannerAction === 'account') window.openAccountPage?.();
       else window.showPhonePage?.(bannerAction);

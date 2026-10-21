@@ -46,6 +46,11 @@
   }
   .ia-active.ia-animating .ia-layer { transition: transform .32s cubic-bezier(.2, .8, .2, 1); }
 
+  /* Moving the app background: only the photo stays on the phone, so the merchant sees all of it. The screen's own
+     background switches to the fill colour a baked gap would get, so zooming out previews the real result. */
+  body.ia-bg-adjusting .device-screen { background: var(--ia-fill, #888); }
+  body.ia-bg-adjusting .device-screen > :not(.ia-layer):not(.ia-cropbox) { visibility: hidden; }
+
   /* Crop launcher — perches on the frame's top edge, set in from the corner so
      a gap shows, and never covers the image it is there to crop. Lives on the
      body because .ia-active clips its own children. */

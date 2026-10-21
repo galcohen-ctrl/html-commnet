@@ -188,6 +188,19 @@
   }
   .toast-action:hover { color: #fff; }
 
+  /* Status variants: white text on a solid status colour (both pass 4.5:1), with a white badge carrying the icon. */
+  .toast-icon {
+    display: none; flex: none; place-items: center; width: 20px; height: 20px;
+    border-radius: 50%; background: #fff;
+  }
+  .toast-icon svg { width: 12px; height: 12px; }
+  .toast-hint.toast-success { background: #15803d; }
+  .toast-hint.toast-success .toast-icon-success { display: grid; color: #15803d; }
+  .toast-hint.toast-error { background: var(--danger); }
+  .toast-hint.toast-error .toast-icon-error { display: grid; color: var(--danger); }
+  .toast-hint.toast-success .toast-action,
+  .toast-hint.toast-error .toast-action { border-left-color: rgba(255,255,255,.4); color: #fff; }
+
   @media (prefers-reduced-motion: reduce) {
     .toast-hint, .highlight-target { transition-duration: .01ms !important; animation: none !important; }
   }

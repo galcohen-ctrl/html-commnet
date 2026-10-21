@@ -12,6 +12,7 @@ import menuReelsHtml from '../templates/config/menu-reels.html?raw';
 import locationsHtml from '../templates/config-locations.html?raw';
 import menuHtml from '../templates/config-menu.html?raw';
 import moreHtml from '../templates/config-more.html?raw';
+import pagesHtml from '../templates/config-pages.html?raw';
 import rewardsHtml from '../templates/config-rewards.html?raw';
 import businessHtml from '../templates/config-business.html?raw';
 import onlineOrderingHtml from '../templates/config-online-ordering.html?raw';
@@ -86,6 +87,14 @@ export default function ConfigPanel() {
           data-comment-anchor="config-more"
           style={{ display: 'none' }}
           html={pageInner(moreHtml)}
+        />
+        <StaticMarkup
+          as="div"
+          className="cp-page"
+          id="cp-pages"
+          data-comment-anchor="config-pages"
+          style={{ display: 'none' }}
+          html={pageInner(pagesHtml)}
         />
         <StaticMarkup
           as="div"

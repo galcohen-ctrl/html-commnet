@@ -114,7 +114,7 @@ export function initOrderingWidgets(ctx) {
     event.preventDefault();
     event.stopPropagation();
     openOrderingWizardFrom('home-widget:' + row.dataset.ooWidget);
-    showToast('Connect your online ordering provider to unlock this widget');
+    showToast('Connect your online ordering provider to unlock this section', { variant: 'error' });
   }, true);
 
   // React to ordering connection changes fired by the settings modal.
@@ -134,7 +134,7 @@ export function initOrderingWidgets(ctx) {
       if (homeStep) homeStep.click();
       if (row) row.scrollIntoView({ behavior: window.matchMedia('(prefers-reduced-motion: reduce)').matches ? 'auto' : 'smooth', block: 'center' });
       window.orderingWizardOrigin = null;
-      showToast('Online ordering connected · this widget is now live');
+      showToast('Online ordering connected · this section is now live', { variant: 'success' });
     }
   });
 
@@ -778,14 +778,14 @@ export function initOrderingWidgets(ctx) {
       if (!reel || !chosen) return;
       if (chosen.type.startsWith('video/')) {
         setReelMedia(reel, URL.createObjectURL(chosen), 'video', chosen.name);
-        showToast('Reel video added');
+        showToast('Reel video added', { variant: 'success' });
         return;
       }
       if (!chosen.type.startsWith('image/')) return;
       const reader = new FileReader();
       reader.onload = () => {
         setReelMedia(reel, String(reader.result), 'image', chosen.name);
-        showToast('Reel image added · press and hold it in the preview to reframe');
+        showToast('Reel image added · press and hold it in the preview to reframe', { variant: 'success' });
       };
       reader.readAsDataURL(chosen);
     }

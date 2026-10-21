@@ -109,6 +109,29 @@ body[data-branding-touched="true"][data-branding-safe="false"] .brand-tune-dots,
 body[data-branding-touched="true"][data-branding-safe="false"] .brand-tune-row:has(.brand-tune-warn) .brand-tune-val,
 body[data-branding-touched="true"][data-branding-safe="false"] .brand-tune-row:has(.brand-tune-warn) .brand-tune-swatch { display: none; }
 body[data-branding-touched="true"][data-branding-safe="false"] .brand-tune-row:has(.brand-tune-warn) { border-color: #e6ca8b; }
+.branding-contrast-warning {
+  display: grid; grid-template-columns: auto 1fr; gap: 6px 8px; align-items: start;
+  margin: 2px 0; padding: 10px 12px; border-radius: 9px;
+  background: var(--warning-soft); color: var(--warning);
+  font-size: 11.5px; font-weight: 650; line-height: 1.45;
+}
+.branding-contrast-warning::before {
+  content: "!"; grid-row: 1; width: 16px; height: 16px; margin-top: 1px; border-radius: 50%;
+  display: inline-grid; place-items: center;
+  background: var(--warning); color: #fff; font-size: 10px; font-weight: 800;
+}
+.branding-contrast-message { grid-column: 2; grid-row: 1; }
+.branding-contrast-fix {
+  grid-column: 2; justify-self: start; padding: 5px 10px;
+  border: 1px solid var(--warning); border-radius: 7px; background: transparent;
+  color: var(--warning); font: inherit; font-size: 11px; font-weight: 700; cursor: pointer;
+}
+.branding-contrast-fix:hover { background: var(--warning); color: #fff; }
+.branding-contrast-fix:focus-visible { outline: 2px solid var(--focus-ring); outline-offset: 2px; }
+.brand-image-block { display: grid; gap: 10px; margin: 14px 0; }
+.brand-image-block .cp-hint-inline { margin: 0; }
+/* The phone frame paints a background photo once; the inner scroll area would otherwise repeat it with a seam. */
+body[data-appbg="image"] .app-shell { background: transparent; }
 .brand-gradient-presets { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 8px; margin: 14px 0; }
 .brand-gradient-presets button {
   min-width: 0; height: 44px; border: 1px solid var(--line); border-radius: 6px; cursor: pointer;

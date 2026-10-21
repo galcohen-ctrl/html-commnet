@@ -1,10 +1,12 @@
 import { initBrandingBackground } from './brandingBackground.js';
+import { initBrandingContrast } from './brandingContrast.js';
 import { initBrandingFonts } from './brandingFonts.js';
 
 export function initBranding(ctx) {
   const { markDirty, showToast, wireColorControl } = ctx;
 
-  initBrandingBackground({ wireColorControl, markDirty });
+  initBrandingBackground({ wireColorControl, markDirty, showToast });
+  initBrandingContrast();
 
   // Each Fine-tune row shows the value it owns, so the merchant can skip the
   // whole group without opening five panels to check what is in them.
@@ -15,7 +17,7 @@ export function initBranding(ctx) {
       ['brand-tune-shapes-val', document.getElementById('brand-card-shape-value')?.textContent, 'Soft'],
       ['brand-tune-logo-val', document.getElementById('gf-logo-filename')?.textContent, 'Not uploaded'],
       ['brand-accent-hex', document.body.style.getPropertyValue('--p-accent')?.trim() || '#6D28D9', '#6D28D9'],
-      ['brand-tune-background-val', document.getElementById('appbg-mode-value')?.value === 'gradient' ? 'Gradient' : 'Solid colour', 'Solid colour'],
+      ['brand-tune-background-val', { gradient: 'Gradient', image: 'Image' }[document.getElementById('appbg-mode-value')?.value] || 'Solid colour', 'Solid colour'],
     ];
     pairs.forEach(([id, value, fallback]) => {
       const el = document.getElementById(id);
@@ -120,11 +122,11 @@ export function initBranding(ctx) {
   function loadCustomFont(file) {
     if (!file) return;
     if (!/\.(woff2|otf|ttf)$/i.test(file.name)) {
-      showToast('Font must be .woff2, .otf, or .ttf');
+      showToast('Font must be .woff2, .otf, or .ttf', { variant: 'error' });
       return;
     }
     if (file.size > 5 * 1024 * 1024) {
-      showToast('Font too big — max 5MB');
+      showToast('Font too big — max 5MB', { variant: 'error' });
       return;
     }
     const reader = new FileReader();
@@ -156,7 +158,7 @@ export function initBranding(ctx) {
         wireFontItem(item);
       }
       markDirty();
-      showToast('Custom font “' + file.name + '” applied');
+      showToast('Custom font “' + file.name + '” applied', { variant: 'success' });
     };
     reader.readAsDataURL(file);
   }
@@ -261,7 +263,7 @@ export function initBranding(ctx) {
     if (logoToggle && !logoToggle.classList.contains('on')) logoToggle.click();
 
     markDirty();
-    showToast('Logo uploaded · rendered live on the phone');
+    showToast('Logo uploaded · rendered live on the phone', { variant: 'success' });
   }
 
   function clearLogo() {
@@ -274,17 +276,17 @@ export function initBranding(ctx) {
     });
     if (logoFile) logoFile.value = '';
     markDirty();
-    showToast('Logo removed');
+    showToast('Logo removed', { variant: 'success' });
   }
 
   function handleLogoFile(file) {
     if (!file) return;
     if (!/^image\/(png|jpeg|jpg|webp)/i.test(file.type)) {
-      showToast('Only png, jpg, or webp supported');
+      showToast('Only png, jpg, or webp supported', { variant: 'error' });
       return;
     }
     if (file.size > 5 * 1024 * 1024) {
-      showToast('File too big — max 5MB');
+      showToast('File too big — max 5MB', { variant: 'error' });
       return;
     }
     const reader = new FileReader();

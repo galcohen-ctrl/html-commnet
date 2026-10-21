@@ -15,6 +15,7 @@ const STEPS = [
   { key: 'locations', label: 'Locations', kind: 'screen' },
   { key: 'menu', label: 'Menu', kind: 'screen' },
   { key: 'more', label: 'More', kind: 'screen' },
+  { key: 'pages', label: 'Pages', kind: 'extra' },
   { key: 'publish', label: 'Review & publish', kind: 'publish' },
 ];
 
@@ -32,6 +33,8 @@ export function initGuidedFlow(ctx) {
   const { showToast, markDirty } = ctx;
 
   const done = new Set();
+  // Rewards, Locations, Menu and More start on sample content, so track which ones the merchant has actually edited.
+  const editedScreens = new Set();
   let homeVisited = false;
   let businessEdited = false;
   const flow = { current: 'home', focus: null, bizName: '', headline: '', country: '', bizType: '', category: '', categories: [], accent: '#6d28d9', font: 'sans-serif', published: false };
@@ -40,6 +43,38 @@ export function initGuidedFlow(ctx) {
   const indexOf = (key) => STEPS.findIndex((s) => s.key === key);
 
   const REQUIRED_STEPS = ['business', 'branding', 'online-ordering', 'home'];
+
+  // Wizard lock: a first-time merchant moves forward only with Save & continue.
+  // Steps already reached stay open; later steps are greyed out until then.
+  // Once every required step is complete and Review is reached, everything unlocks.
+  const lock = { reached: 0, free: false };
+  const canEnter = (key) => lock.free || indexOf(key) <= lock.reached;
+  function lockMessage() {
+    const gate = STEPS[Math.min(lock.reached, STEPS.length - 1)];
+    return `Finish ${gate.label} and press Save & continue to unlock the next steps.`;
+  }
+  function renderLock() {
+    stepButtons.forEach((btn) => {
+      const locked = !canEnter(btn.dataset.step) && btn.dataset.step !== flow.current;
+      btn.classList.toggle('locked', locked);
+      btn.setAttribute('aria-disabled', locked ? 'true' : 'false');
+      if (locked) btn.title = lockMessage();
+      else btn.removeAttribute('title');
+    });
+  }
+  function maybeUnlock() {
+    if (lock.free || flow.current !== 'publish' || missingRequiredSteps().length) return;
+    lock.free = true;
+    showToast?.('Setup complete. You can now open any step.', { variant: 'success' });
+  }
+  window.canGoToStep = canEnter;
+  window.unlockStep = (key) => { lock.reached = Math.max(lock.reached, indexOf(key)); renderLock(); };
+  document.addEventListener('keydown', (event) => {
+    if (!(event.shiftKey && event.altKey && event.code === 'KeyU')) return;
+    lock.free = !lock.free;
+    renderLock();
+    showToast?.(lock.free ? 'Wizard lock is off (testing shortcut)' : 'Wizard lock is on');
+  });
 
   function activeHomeWidgetCount() {
     return document.querySelectorAll('#cp-home [data-widget-toggle].on').length;
@@ -66,8 +101,8 @@ export function initGuidedFlow(ctx) {
       // or menu wired up before the step is genuinely done.
       const complete = ctx.isOrderingStepComplete ? ctx.isOrderingStepComplete() : Boolean(chosen);
       let message = 'Choose how customers place online orders.';
-      if (chosen === 'native') message = 'Connect your online ordering provider to finish, or choose Not yet.';
-      else if (chosen === 'webview') message = 'Add your menu web address to finish, or choose Not yet.';
+      if (chosen === 'native') message = 'Connect your online ordering provider to finish, or choose Add online ordering later.';
+      else if (chosen === 'webview') message = 'Add your menu web address to finish, or choose Add online ordering later.';
       const error = document.getElementById('oo-choice-error');
       if (error && (showErrors || complete)) error.textContent = complete ? '' : message;
       document.getElementById('oo-choice')?.setAttribute('aria-invalid', complete ? 'false' : 'true');
@@ -76,7 +111,7 @@ export function initGuidedFlow(ctx) {
     }
     if (key === 'home') {
       const valid = homeVisited && activeHomeWidgetCount() > 0;
-      if (!valid && showErrors) showToast?.('Add at least one Home widget before publishing');
+      if (!valid && showErrors) showToast?.('Add at least one Home Screen Section before publishing', { variant: 'error' });
       if (!valid && focusFirst) document.querySelector('#cp-home [data-widget-toggle]')?.focus();
       return valid;
     }
@@ -225,7 +260,7 @@ export function initGuidedFlow(ctx) {
     if (!bar) return;
     bar.innerHTML = '';
     const trail = [{ label: step.label, exit: 2 }];
-    if (drill) trail.push({ label: titleOf(drill, 'Widget'), exit: 1 });
+    if (drill) trail.push({ label: titleOf(drill, 'Section'), exit: 1 });
     if (l3) trail.push({ label: titleOf(l3, 'Item'), exit: 0 });
 
     trail.forEach((node, i) => {
@@ -252,14 +287,16 @@ export function initGuidedFlow(ctx) {
     const level = document.createElement('span');
     level.className = 'cp-crumb-level';
     level.textContent = l3 ? 'Item'
-      : drill ? 'Widget'
+      : drill ? 'Section'
         : step.kind === 'screen' ? 'Screen'
-          : step.kind === 'publish' ? 'Publish' : 'Setup';
+          : step.kind === 'publish' ? 'Publish' : step.kind === 'extra' ? 'Optional' : 'Setup';
     bar.appendChild(level);
   }
 
   function render() {
     syncDerivedCompletion();
+    maybeUnlock();
+    renderLock();
     stepButtons.forEach((btn) => {
       const key = btn.dataset.step;
       btn.classList.toggle('done', done.has(key));
@@ -284,20 +321,21 @@ export function initGuidedFlow(ctx) {
 
     if (drill || l3) {
       const parentLabel = l3 ? titleOf(drill, step.label) : step.label;
-      if (backLabel) backLabel.textContent = `Back to ${parentLabel}`;
+      if (backLabel) backLabel.textContent = window.drillBackLabel?.() || `Back to ${parentLabel}`;
       if (backBtn) backBtn.style.visibility = '';
       if (nextLabel) nextLabel.textContent = 'Done';
       if (nextBtn) nextBtn.style.display = '';
       return;
     }
 
-    if (backLabel) backLabel.textContent = 'Back';
+    if (backLabel) backLabel.textContent = ['online-ordering', 'rewards'].includes(flow.current) ? 'Go Back' : 'Back';
     if (backBtn) backBtn.style.visibility = position === 0 ? 'hidden' : '';
     if (nextLabel) nextLabel.textContent = flow.current === 'publish' ? 'Publish content changes' : 'Save & continue';
     if (nextBtn) nextBtn.style.display = position === STEPS.length - 1 ? 'none' : '';
   }
 
   document.addEventListener('como:navchange', render);
+  document.addEventListener('como:pages-changed', () => { if (flow.current === 'publish') renderReview(); });
   document.addEventListener('click', (event) => {
     if (event.target.closest('[data-widget-toggle]')) {
       requestAnimationFrame(() => {
@@ -307,7 +345,10 @@ export function initGuidedFlow(ctx) {
     }
   });
   document.addEventListener('como:draft-dirty', (event) => {
-    if (event.detail?.scope === 'submission') return;
+    const scope = event.detail?.scope;
+    // 'screens' is an include/exclude toggle and 'submission' is store setup, so neither counts as editing content.
+    if (scope !== 'screens' && scope !== 'submission' && ['rewards', 'locations', 'menu', 'more'].includes(flow.current)) editedScreens.add(flow.current);
+    if (scope === 'submission') return;
     if (!flow.published) return;
     flow.published = false;
     done.delete('publish');
@@ -332,22 +373,43 @@ export function initGuidedFlow(ctx) {
     syncDerivedCompletion();
     const rows = STEPS.filter((s) => s.key !== 'publish').map((s) => {
       const required = REQUIRED_STEPS.includes(s.key);
+      if (s.key === 'pages') {
+        const readiness = window.getPagesReadiness?.() || { total: 0, unreachable: [] };
+        const attention = readiness.unreachable.length > 0;
+        return {
+          ...s,
+          ready: readiness.total > 0 && !attention,
+          required: false,
+          status: attention ? 'Needs attention' : readiness.total ? 'Complete' : 'Optional',
+          state: attention ? 'warn' : readiness.total ? 'ok' : 'neutral',
+          action: attention ? 'Review' : readiness.total ? 'Edit' : 'Add',
+          note: attention ? `${readiness.unreachable.join(', ')} ${readiness.unreachable.length > 1 ? 'are' : 'is'} not linked anywhere yet` : '',
+        };
+      }
       if (s.kind === 'screen' && s.key !== 'home') {
         const included = ctx.getScreenState?.(s.key) !== false;
-        return { ...s, ready: included, required: false, status: included ? 'Using proven layout' : 'Not in app', action: included ? 'Review' : 'Include' };
+        const edited = included && editedScreens.has(s.key);
+        return {
+          ...s,
+          ready: edited,
+          required: false,
+          status: !included ? 'Not in app' : edited ? 'Complete' : 'Sample content',
+          state: edited ? 'ok' : 'neutral',
+          action: included ? 'Review' : 'Include',
+        };
       }
       const ready = s.key === 'branding'
         ? done.has('branding') || document.body.dataset.brandImported === 'true'
         : validateStep(s.key);
-      return { ...s, ready, required, status: ready ? 'Ready' : 'Missing', action: required && !ready ? 'Complete' : 'Edit' };
+      return { ...s, ready, required, status: ready ? 'Complete' : 'Needs attention', state: ready ? 'ok' : 'warn', action: required && !ready ? 'Complete' : 'Edit' };
     });
     list.innerHTML = rows
       .map(
         (s) => {
           return `<div class="gf-review-row${s.ready ? ' done' : ''}">
           <span class="rv-tick" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3.4" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6L9 17l-5-5"/></svg></span>
-          <span class="gf-review-name">${s.label}</span>
-          <span class="gf-review-state ${s.status.toLowerCase().replace(/\s+/g, '-')}">${s.status}</span>
+          <span class="gf-review-name">${s.label}${s.note ? `<small class="gf-review-note">${s.note}</small>` : ''}</span>
+          <span class="gf-review-state ${s.state}">${s.status}</span>
           <button class="gf-review-edit" data-review-go="${s.key}" type="button">${s.action}</button>
         </div>`;
         },
@@ -363,7 +425,11 @@ export function initGuidedFlow(ctx) {
   /* -------------------------------------------------------- step controls */
 
   stepButtons.forEach((btn) => {
-    btn.addEventListener('click', () => goToStep(btn.dataset.step));
+    btn.addEventListener('click', () => {
+      const key = btn.dataset.step;
+      if (!canEnter(key)) { showToast?.(lockMessage()); return; }
+      goToStep(key);
+    });
   });
 
   const nextBtn = document.getElementById('gf-step-next');
@@ -377,7 +443,10 @@ export function initGuidedFlow(ctx) {
       done.add(flow.current);
       markDirty?.();
       const next = STEPS[indexOf(flow.current) + 1];
-      if (next) goToStep(next.key);
+      if (next) {
+        lock.reached = Math.max(lock.reached, indexOf(next.key));
+        goToStep(next.key);
+      }
       else render();
     });
   }
@@ -698,7 +767,7 @@ export function initGuidedFlow(ctx) {
     if (hint) {
       hint.textContent = atCap
         ? `You've picked ${MAX_CATEGORIES} of ${MAX_CATEGORIES}. Deselect one to choose a different industry.`
-        : 'Pick every industry you operate in — a restaurant with a convenience store counts as both.';
+        : 'Choose up to 3 industries that represent your business — a restaurant with a convenience store counts as both.';
     }
   }
 
@@ -711,7 +780,7 @@ export function initGuidedFlow(ctx) {
       } else if (flow.categories.length < MAX_CATEGORIES) {
         flow.categories.push(cat);
       } else {
-        showToast?.(`You can pick up to ${MAX_CATEGORIES} industries`);
+        showToast?.(`You can pick up to ${MAX_CATEGORIES} industries`, { variant: 'error' });
         return;
       }
       flow.category = flow.categories[0] || '';
@@ -785,13 +854,13 @@ export function initGuidedFlow(ctx) {
     if (logoFile) logoFile.value = '';
     paintLogoTargets(null);
     markDirty?.();
-    showToast?.('Logo removed');
+    showToast?.('Logo removed', { variant: 'success' });
   }
 
   function readLogoFile(file) {
     if (!file) return;
-    if (!/^image\/(png|jpeg|jpg|webp)/i.test(file.type)) { showToast?.('Only png, jpg, or webp supported'); return; }
-    if (file.size > 5 * 1024 * 1024) { showToast?.('File too big — max 5MB'); return; }
+    if (!/^image\/(png|jpeg|jpg|webp)/i.test(file.type)) { showToast?.('Only png, jpg, or webp supported', { variant: 'error' }); return; }
+    if (file.size > 5 * 1024 * 1024) { showToast?.('File too big — max 5MB', { variant: 'error' }); return; }
     const reader = new FileReader();
     reader.onload = (e) => {
       const dataUrl = e.target.result;
@@ -799,7 +868,7 @@ export function initGuidedFlow(ctx) {
       showLogoResult(dataUrl, file.name);
       revealPhonePreview();
       markDirty?.();
-      showToast?.('Logo uploaded');
+      showToast?.('Logo uploaded', { variant: 'success' });
     };
     reader.readAsDataURL(file);
   }
@@ -942,7 +1011,7 @@ export function initGuidedFlow(ctx) {
       publishBtn.dataset.state = 'published';
       status?.setAttribute('data-state', 'live');
       if (status) status.innerHTML = '<span class="gf-publish-status-dot"></span><span><b>Live content</b><small>Customers may need to reopen the app to see these changes.</small></span>';
-      showToast?.('Content changes published — no store review was required');
+      showToast?.('Content changes published — no store review was required', { variant: 'success' });
       ctx.savePublishedVersion?.();
       render();
       document.dispatchEvent(new CustomEvent('como:draft-save'));
@@ -959,7 +1028,7 @@ export function initGuidedFlow(ctx) {
   homeVisited = false;
 
   function exportDraft() {
-    return { ...flow, categories: [...flow.categories], done: [...done] };
+    return { ...flow, categories: [...flow.categories], done: [...done], editedScreens: [...editedScreens], lock: { ...lock } };
   }
 
   function importDraft(saved = {}) {
@@ -992,6 +1061,13 @@ export function initGuidedFlow(ctx) {
     if (saved.focus === 'loyalty' || saved.focus === 'ordering') window.applyGoalPreset?.(saved.focus);
     reflectFocus(saved.focus);
     (saved.done || []).filter((key) => key !== 'publish').forEach((key) => done.add(key));
+    (saved.editedScreens || []).forEach((key) => editedScreens.add(key));
+    if (saved.lock && typeof saved.lock === 'object') {
+      lock.reached = Number.isInteger(saved.lock.reached) ? saved.lock.reached : lock.reached;
+      lock.free = !!saved.lock.free;
+    } else {
+      lock.reached = Math.max(lock.reached, ...(saved.done || []).map((key) => indexOf(key) + 1));
+    }
     if (flow.bizName) {
       const initials = flow.bizName.trim().split(/\s+/).map((word) => word[0]).join('').slice(0, 2).toUpperCase();
       ctx.setBrand?.(flow.bizName, initials || '?', flow.headline || FOCUS_LABELS[flow.focus] || '');

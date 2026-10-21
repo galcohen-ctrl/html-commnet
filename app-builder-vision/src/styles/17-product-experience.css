@@ -344,7 +344,7 @@ body.oo-connected .px-ordering-sample-label { display: none; }
 .px-gift-copy small { color: var(--p-text-muted); font-size: 8px; }
 .px-gift-pass > button,
 .px-shop-card button,
-.px-order-history button { min-height: 30px; border: 0; border-radius: 8px; padding: 0 9px; color: #fff; background: var(--p-accent); font: inherit; font-size: 8px; font-weight: 780; }
+.px-order-history button { min-height: 30px; border: 0; border-radius: 8px; padding: 0 9px; color: var(--p-accent-ink, #fff); background: var(--p-accent); font: inherit; font-size: 8px; font-weight: 780; }
 
 .px-points-wallet { display: grid; gap: 8px; padding: 14px; }
 .px-points-wallet > div:first-of-type { display: flex; align-items: baseline; gap: 5px; }
@@ -450,7 +450,7 @@ body.oo-connected .px-ordering-sample-label { display: none; }
 
 .px-login-page { background: color-mix(in srgb, var(--p-accent) 4%, var(--p-bg)); }
 .px-login-welcome { display: grid; justify-items: center; gap: 5px; padding: 8px 16px 14px; text-align: center; }
-.px-login-mark { display: grid; place-items: center; width: 46px; height: 46px; margin-bottom: 4px; border-radius: 15px; color: #fff; background: var(--p-accent); box-shadow: 0 9px 18px color-mix(in srgb, var(--p-accent) 26%, transparent); font-size: 16px; font-weight: 850; }
+.px-login-mark { display: grid; place-items: center; width: 46px; height: 46px; margin-bottom: 4px; border-radius: 15px; color: var(--p-accent-ink, #fff); background: var(--p-accent); box-shadow: 0 9px 18px color-mix(in srgb, var(--p-accent) 26%, transparent); font-size: 16px; font-weight: 850; }
 .px-login-welcome > span { color: var(--p-accent); font-size: 8px; font-weight: 800; letter-spacing: .07em; text-transform: uppercase; }
 .px-login-welcome h2 { margin: 0; color: var(--p-text); font-size: 18px; letter-spacing: -.04em; }
 .px-login-welcome p { max-width: 29ch; color: var(--p-text-muted); font-size: 8.5px; line-height: 1.45; }
@@ -464,7 +464,7 @@ body.oo-connected .px-ordering-sample-label { display: none; }
 .px-phone-field input { min-width: 0; border: 0; outline: 0; padding: 0 9px; color: var(--p-text); background: transparent; font: inherit; font-size: 9px; }
 .px-login-primary,
 .px-login-secondary { width: 100%; min-height: 38px; margin-top: 10px; border-radius: 10px; font: inherit; font-size: 9px; font-weight: 800; }
-.px-login-primary { border: 0; color: #fff; background: var(--p-accent); }
+.px-login-primary { border: 0; color: var(--p-accent-ink, #fff); background: var(--p-accent); }
 .px-login-secondary { border: 1px solid color-mix(in srgb, var(--p-accent) 35%, transparent); color: var(--p-accent); background: transparent; }
 .px-login-help,
 .px-login-legal { color: var(--p-text-muted); font-size: 7px; line-height: 1.45; text-align: center; }

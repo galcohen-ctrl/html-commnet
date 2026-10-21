@@ -333,7 +333,7 @@ export function initSettingsModal(ctx) {
       item.addEventListener('click', () => goSubmissionStep(item.dataset.submissionGoto));
     });
     submissionPane.querySelector('[data-submission-review]').addEventListener('click', () => {
-      showToast('Review request drafted · a CSM would follow up before anything is submitted');
+      showToast('Review request drafted · a CSM would follow up before anything is submitted', { variant: 'success' });
     });
     submissionPane.querySelector('[data-connect-account="google"]').addEventListener('click', (event) => {
       const button = event.currentTarget;
@@ -347,7 +347,7 @@ export function initSettingsModal(ctx) {
         renderSubmissionState();
         syncHeader();
         markDirty('submission');
-        showToast('Google delegated access marked ready for this prototype');
+        showToast('Google delegated access marked ready for this prototype', { variant: 'success' });
       }, 450);
     });
     submissionPane.querySelectorAll('[data-listing-asset]').forEach(button => {
@@ -380,7 +380,7 @@ export function initSettingsModal(ctx) {
     submissionPane.querySelector('[data-confirm-submission]').addEventListener('click', () => {
       const selected = [...submissionPane.querySelectorAll('[data-submit-store]:checked')].map(input => input.dataset.submitStore);
       if (!selected.length) {
-        showToast('Choose at least one store to prepare');
+        showToast('Choose at least one store to prepare', { variant: 'error' });
         return;
       }
       const history = submissionPane.querySelector('[data-submission-history]');
@@ -394,7 +394,7 @@ export function initSettingsModal(ctx) {
       markDirty('submission');
       renderSubmissionState();
       goSubmissionStep('history');
-      showToast(`${selected.length === 2 ? 'Apple and Google requests' : 'Store request'} prepared · nothing was submitted externally`);
+      showToast(`${selected.length === 2 ? 'Apple and Google requests' : 'Store request'} prepared · nothing was submitted externally`, { variant: 'success' });
     });
     renderSubmissionState();
   }
@@ -497,7 +497,7 @@ export function initSettingsModal(ctx) {
   document.getElementById('sm-oo-contact')?.addEventListener('click', () => {
     ordering.salesRequested = true;
     markDirty('ordering-handoff');
-    showToast('Ordering specialist requested · your CSM will follow up');
+    showToast('Ordering specialist requested · your CSM will follow up', { variant: 'success' });
     document.getElementById('sm-oo-contact').textContent = 'Specialist requested';
     document.getElementById('sm-oo-contact').disabled = true;
   });
@@ -598,7 +598,7 @@ export function initSettingsModal(ctx) {
     setTimeout(() => {
       resyncBtn.classList.remove('busy');
       document.getElementById('sm-last-sync').textContent = 'just now';
-      showToast('Menu re-synced from ' + ordering.provider.name);
+      showToast('Menu re-synced from ' + ordering.provider.name, { variant: 'success' });
       announceOrdering('resync');
     }, 1500);
   });
@@ -632,7 +632,7 @@ export function initSettingsModal(ctx) {
         goSubmissionStep('accounts');
       } else if (submissionState.step === 'accounts') {
         if (!submissionState.accounts.apple || !submissionState.accounts.google) {
-          showToast('Connect both merchant-owned developer accounts to continue');
+          showToast('Connect both merchant-owned developer accounts to continue', { variant: 'error' });
           submissionPane.querySelector('[data-connect-account="google"]:not([hidden])')?.focus();
           return;
         }
@@ -649,15 +649,15 @@ export function initSettingsModal(ctx) {
         if (!validateTesting()) return;
         renderSubmissionState();
         goSubmissionStep('submit');
-        showToast('Native test candidate approved for submission preparation');
+        showToast('Native test candidate approved for submission preparation', { variant: 'success' });
       } else if (submissionState.step === 'submit') {
         if (!submissionReady()) {
-          showToast('Complete every setup gate before preparing a submission');
+          showToast('Complete every setup gate before preparing a submission', { variant: 'error' });
           return;
         }
         const selected = submissionPane.querySelectorAll('[data-submit-store]:checked');
         if (!selected.length) {
-          showToast('Choose at least one store to prepare');
+          showToast('Choose at least one store to prepare', { variant: 'error' });
           submissionPane.querySelector('[data-submit-store]')?.focus();
           return;
         }
@@ -671,36 +671,36 @@ export function initSettingsModal(ctx) {
     }
 
     if (pane.dataset.smPane !== 'online-ordering') {
-      showToast('Saved · ' + (pane.dataset.smTitle || 'Settings').replace(/&amp;/g, '&'));
+      showToast('Saved · ' + (pane.dataset.smTitle || 'Settings').replace(/&amp;/g, '&'), { variant: 'success' });
       markDirty();
       close();
       return;
     }
 
     if (step === 'chooser') {
-      if (!chosen) { showToast('Pick an ordering provider to continue'); return; }
+      if (!chosen) { showToast('Pick an ordering provider to continue', { variant: 'error' }); return; }
       gotoStep('locations');
     } else if (step === 'keys') {
       const account = document.getElementById('sm-oo-account').value.trim();
       const key = keyInput.value.trim();
-      if (!account || !key) { showToast('Add both an account ID and a production API key'); return; }
+      if (!account || !key) { showToast('Add both an account ID and a production API key', { variant: 'error' }); return; }
       gotoStep('syncing');
     } else if (step === 'locations') {
       refreshLocCount();
       if (!locEls.some(l => l.classList.contains('on'))) {
-        showToast('Approve at least one location to keep going');
+        showToast('Approve at least one location to keep going', { variant: 'error' });
         return;
       }
       ordering.connected = true;
       announceOrdering('connected');
       gotoStep('admin');
-      showToast(ordering.provider.name + ' connected · menu is live in the app');
+      showToast(ordering.provider.name + ' connected · menu is live in the app', { variant: 'success' });
     } else if (step === 'admin') {
       ordering.connected = true;
       announceOrdering('saved');
       markDirty();
       close();
-      showToast('Online ordering settings saved');
+      showToast('Online ordering settings saved', { variant: 'success' });
     }
   });
 

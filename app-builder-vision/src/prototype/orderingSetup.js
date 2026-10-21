@@ -176,7 +176,7 @@ export function initOrderingSetup(ctx = {}) {
 
   // A member can only have one ordering method live, so leaving a CONNECTED one
   // needs an explicit, clearly-worded confirmation before we tear it down.
-  const OO_LABELS = { native: 'ordering built into your app', webview: 'your ordering website inside the app', skip: '“Not yet”' };
+  const OO_LABELS = { native: 'ordering built into your app', webview: 'your ordering website inside the app', skip: '“Add online ordering later”' };
   const providerName = () => (document.querySelector('[data-admin-provider]')?.textContent || 'Deliverect').trim();
 
   function switchGuardFor(target) {
@@ -184,7 +184,7 @@ export function initOrderingSetup(ctx = {}) {
       const p = providerName();
       return {
         title: 'Disconnect ' + p + '?',
-        body: 'You can only run one ordering method at a time. Switching to ' + OO_LABELS[target] + ' disconnects ' + p + ', removes its “Connected” badge, and turns off the in-app ordering widgets (Order Again, Top Items, Menu).',
+        body: 'You can only run one ordering method at a time. Switching to ' + OO_LABELS[target] + ' disconnects ' + p + ', removes its “Connected” badge, and turns off the in-app ordering sections (Order Again, Top Items, Menu).',
         confirmText: 'Disconnect ' + p,
         onConfirm: () => document.getElementById('sm-oo-disconnect')?.click(),
       };

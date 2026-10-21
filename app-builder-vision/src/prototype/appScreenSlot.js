@@ -4,7 +4,16 @@ const CHOICES = [
   ['menu', 'Menu'], ['account', 'My Account'], ['orders', 'My Orders'], ['referral', 'Refer a Friend'],
   ['gifts', 'My Gifts'], ['point-shop', 'Point Shop'], ['story', 'Our Story'], ['contact', 'Contact Us'],
   ['about', 'About Us'], ['share-credit', 'Share Credit'], ['locations', 'Locations'], ['more', 'More'],
-  ['custom', 'Custom Screen'], ['website', 'Your Web Page'],
+  ['custom', 'My page'], ['website', 'Your Web Page'],
+];
+const FALLBACK_BUILTINS = [
+  ['account', 'My Account', true], ['orders', 'My Orders', true], ['referral', 'Refer a Friend', true], ['story', 'Our Story', true],
+  ['contact', 'Contact Us', true], ['about', 'About Us', true], ['gifts', 'My Gifts', false], ['point-shop', 'Point Shop', false], ['share-credit', 'Share Credit', false],
+].map(([key, label, editable]) => ({ key, label, editable }));
+const PATHS = [
+  ['custom', 'Build a custom page', 'Your own page from Promo Cards, text and images: a campaign, a secret menu or brand content.', '<rect x="3" y="3" width="18" height="18" rx="2"/><path d="M12 8v8M8 12h8"/>'],
+  ['menu', 'Set up your menu', 'Show your menu from your website, a PDF, or build it here.', '<path d="M4 4h16v16H4z"/><path d="M4 9h16M9 4v16"/>'],
+  ['builtin', 'Use a built-in page', 'My Account, Refer a Friend, Our Story and other ready-made pages.', '<path d="M12 6c-1.5-1.3-4-2-7-2v14c3 0 5.5.7 7 2 1.5-1.3 4-2 7-2V4c-3 0-5.5.7-7 2z"/><path d="M12 6v14"/>'],
 ];
 const labelFor = (key) => CHOICES.find(([value]) => value === key)?.[1] || 'Menu';
 // Already their own tabs, so offering them here shows the same screen twice.
@@ -47,7 +56,13 @@ export function initAppScreenSlot(ctx) {
 
   const header = document.createElement('div');
   header.className = 'menu-slot-header';
-  header.innerHTML = '<h1 class="cp-page-title"></h1><div class="cp-field"><label for="menu-screen-choice">Screen</label><select class="cp-select" id="menu-screen-choice"></select></div><div class="cp-field"><label for="menu-screen-name">Tab name</label><input class="cp-input-text" id="menu-screen-name" maxlength="24" /></div>';
+  header.innerHTML = '<h1 class="cp-page-title"></h1>'
+    + '<div class="slot-paths" role="group" aria-label="What this tab shows"><div class="slot-paths-lead">What should this tab show?</div>'
+    + PATHS.map(([key, label, text, icon]) => `<button type="button" class="slot-path" data-slot-path="${key}"><span class="slot-path-ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">${icon}</svg></span><span class="slot-path-text"><strong>${label}</strong><small>${text}</small></span><span class="slot-path-chev" aria-hidden="true">›</span></button>`).join('')
+    + '</div>'
+    + '<div class="slot-path-bar" hidden><span class="slot-path-kicker">This tab shows</span><strong class="slot-path-label"></strong><button type="button" class="slot-path-change">Change</button></div>'
+    + '<div class="cp-field slot-builtin-field" hidden><label for="menu-builtin-choice">Built-in page</label><select class="cp-select" id="menu-builtin-choice"></select><button type="button" class="cp-add-widget-btn slot-builtin-edit">Edit this page</button><div class="cp-hint-inline slot-builtin-note" hidden>This page shows content from Hub 2, so there is nothing to edit here.</div></div>'
+    + '<div class="cp-field slot-name-field"><label for="menu-screen-name">Tab name</label><input class="cp-input-text" id="menu-screen-name" maxlength="24" /></div>';
   const title = header.querySelector('.cp-page-title'); title.textContent = name;
   const include = panel.querySelector('[data-screen-toggle="menu"]');
   if (include) {
@@ -57,54 +72,98 @@ export function initAppScreenSlot(ctx) {
     include.setAttribute('aria-label', 'Show this screen in app');
   }
   panel.prepend(header);
-  const choice = header.querySelector('select');
-  const nameInput = header.querySelector('input'); nameInput.value = name;
-  SLOT_CHOICES.forEach(([value, label]) => {
-    const option = document.createElement('option'); option.value = value; option.textContent = label;
-    choice.appendChild(option);
-  });
+  const nameInput = header.querySelector('#menu-screen-name'); nameInput.value = name;
+  const pathsEl = header.querySelector('.slot-paths');
+  const pathBar = header.querySelector('.slot-path-bar');
+  const builtinField = header.querySelector('.slot-builtin-field');
+  const builtinChoice = header.querySelector('#menu-builtin-choice');
+  const builtinEdit = header.querySelector('.slot-builtin-edit');
+  const builtinNote = header.querySelector('.slot-builtin-note');
+  // With ordering off, the tab is the merchant's to fill: their own page, a menu,
+  // or one of the app's built-in pages. Null means they have not picked yet.
+  let path = null;
+  // A tab showing a custom page takes the page's name until the merchant renames the tab.
+  let nameFollowsPage = true;
+  const builtinList = () => (window.BUILTIN_PAGES?.length ? window.BUILTIN_PAGES : FALLBACK_BUILTINS).filter((item) => item.key !== 'menu');
+  const isBuiltin = (key) => builtinList().some((item) => item.key === key);
+  const builtinEditable = (key) => builtinList().some((item) => item.key === key && item.editable);
+  function fillBuiltinChoice() {
+    const items = builtinList();
+    const current = isBuiltin(type) ? type : items[0]?.key;
+    builtinChoice.innerHTML = items.map((item) => `<option value="${item.key}">${item.label}</option>`).join('');
+    builtinChoice.value = current;
+  }
   const customHost = document.createElement('div'); customHost.className = 'custom-screen-config'; customHost.hidden = true;
-  customHost.innerHTML = '<div class="custom-widget-list"></div><div class="cp-add-widget-wrap"><button class="cp-add-widget-btn" type="button" data-custom-add>+ Add widget</button><div class="cp-add-widget-menu"><button type="button" data-custom-widget="promo">Promo Cards</button><button type="button" data-custom-widget="divider">Text Divider</button><button type="button" data-custom-widget="image">Image Banner</button></div></div>';
+  customHost.innerHTML = '<div class="cp-field slot-page-field"><label for="menu-page-choice">Your page</label><select class="cp-select" id="menu-page-choice"></select><button class="cp-add-widget-btn" type="button" data-slot-edit-page>Edit this page</button></div><button class="cp-add-widget-btn" type="button" data-slot-create-page>+ Create a new page</button><div class="cp-hint-inline">Pages are built from Promo Cards, Text Blocks, Text Dividers and Image Banners.</div>';
   const websiteHost = document.createElement('div'); websiteHost.className = 'screen-website-host'; websiteHost.hidden = true;
   header.after(customHost, websiteHost);
   const customPage = document.createElement('div');
   customPage.className = 'app-page custom-app-page'; customPage.dataset.page = 'custom-menu';
-  customPage.innerHTML = '<div class="app-top-header"><strong></strong></div><div class="custom-widget-stage"></div><div class="custom-screen-empty">No content yet</div>';
+  customPage.innerHTML = '<div class="app-top-header"><strong></strong></div><div class="custom-screen-empty">Choose a page, or create one, to show in this tab</div>';
   const websitePage = document.createElement('div'); websitePage.className = 'app-page'; websitePage.dataset.page = 'website-menu';
   phone.append(customPage, websitePage);
-  const list = customHost.querySelector('.custom-widget-list');
-  const stage = customPage.querySelector('.custom-widget-stage');
-  const empty = customPage.querySelector('.custom-screen-empty');
+  const pageChoice = customHost.querySelector('#menu-page-choice');
+  let selectedPageId = null;
+  const customPages = () => window.getCustomPages?.() || [];
+  const selectedPage = () => customPages().find((item) => item.id === selectedPageId) || null;
+  function fillPageChoice() {
+    const pages = customPages();
+    if (!pages.some((item) => item.id === selectedPageId)) selectedPageId = pages[0]?.id || null;
+    pageChoice.innerHTML = pages.length
+      ? pages.map((item) => `<option value="${item.id}">${item.name.replace(/[&<>"]/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]))}</option>`).join('')
+      : '<option value="">No pages yet</option>';
+    pageChoice.value = selectedPageId || '';
+    customHost.querySelector('.slot-page-field').hidden = !pages.length;
+  }
+  pageChoice.addEventListener('change', () => {
+    selectedPageId = pageChoice.value || null;
+    if (isDefaultName('custom')) nameFollowsPage = true;
+    followPageName();
+    render();
+    ctx.markDirty();
+    document.dispatchEvent(new CustomEvent('como:pages-changed'));
+  });
+  customHost.querySelector('[data-slot-create-page]').addEventListener('click', () => window.createPageFlow?.({ source: 'tab' }));
+  customHost.querySelector('[data-slot-edit-page]').addEventListener('click', () => { if (selectedPageId) window.openCustomPage?.(selectedPageId, 'menu'); });
+  // The tab takes the page's name until the merchant renames the tab themselves.
+  function followPageName() {
+    const page = selectedPage();
+    if (!page || !canReplaceScreen() || type !== 'custom' || !nameFollowsPage) return;
+    name = page.name;
+    nameInput.value = name;
+    applyName();
+  }
+  window.getSlotPageKey = () => (canReplaceScreen() && type === 'custom' ? selectedPage()?.key || null : null);
+  window.setSlotPage = (id) => {
+    type = 'custom'; path = 'custom'; selectedPageId = id;
+    fillPageChoice();
+    followPageName();
+    render();
+    ctx.markDirty();
+    document.dispatchEvent(new CustomEvent('como:pages-changed'));
+  };
+  window.clearSlotPage = () => {
+    if (type !== 'custom') return;
+    selectedPageId = null;
+    fillPageChoice();
+    render({ preview: window.getCurrentStep?.() === 'menu' });
+  };
+  document.addEventListener('como:pages-changed', () => {
+    fillPageChoice();
+    const page = selectedPage();
+    if (type === 'custom' && canReplaceScreen() && nameFollowsPage && page && name !== page.name) {
+      nameInput.value = page.name;
+      applyName();
+    }
+  });
 
   function target() {
     if (!canReplaceScreen()) return 'menu';
-    if (type === 'custom' || type === 'website') return `${type}-menu`;
+    if (type === 'custom') return selectedPage()?.key || 'custom-menu';
+    if (type === 'website') return `${type}-menu`;
     if (type === 'account' && document.body.dataset.memberPreview === 'guest') return 'login';
     return type;
   }
-
-  function reorder() {
-    [...list.querySelectorAll('.cp-widget-row')].forEach((row) => {
-      const widget = widgets.find((item) => item.row === row);
-      if (widget) stage.appendChild(widget.element);
-    });
-    empty.hidden = stage.children.length > 0;
-  }
-
-  function addWidget(kind, saved, restoring = false) {
-    const factory = { promo: ctx.createPromoInstance, divider: ctx.createTextDivider, image: ctx.createImageBanner }[kind];
-    if (!factory) return;
-    widgets.push(factory({ stage, config: panel, list, saved, restoring }));
-    reorder();
-  }
-  ctx.initReorderable(list, () => { reorder(); ctx.markDirty(); });
-  new MutationObserver(reorder).observe(list, { childList: true });
-  const addMenu = customHost.querySelector('.cp-add-widget-menu');
-  customHost.querySelector('[data-custom-add]').addEventListener('click', (event) => { event.stopPropagation(); addMenu.classList.toggle('open'); });
-  document.addEventListener('click', () => addMenu.classList.remove('open'));
-  customHost.querySelectorAll('[data-custom-widget]').forEach((button) => button.addEventListener('click', () => {
-    addMenu.classList.remove('open'); addWidget(button.dataset.customWidget);
-  }));
 
   function syncVisibleName() {
     const visibleName = canReplaceScreen() ? name : orderingName;
@@ -125,15 +184,22 @@ export function initAppScreenSlot(ctx) {
 
   function render({ preview = true, resetMenu = false, syncOrdering = false } = {}) {
     const allowed = canReplaceScreen();
-    const visibleType = allowed ? type : 'menu';
+    const picking = allowed && !path;
+    const visibleType = !allowed ? 'menu' : picking ? 'pick' : type;
     panel.dataset.screenType = visibleType;
-    choice.closest('.cp-field').hidden = !allowed;
-    nameInput.closest('.cp-field').hidden = !allowed;
-    choice.disabled = !allowed;
+    pathsEl.hidden = !picking;
+    pathBar.hidden = !(allowed && path);
+    pathBar.querySelector('.slot-path-label').textContent = PATHS.find(([key]) => key === path)?.[1] || '';
+    builtinField.hidden = !(allowed && path === 'builtin');
+    if (allowed && path === 'builtin') {
+      fillBuiltinChoice();
+      builtinEdit.hidden = !builtinEditable(type);
+      builtinNote.hidden = builtinEditable(type);
+    }
+    nameInput.closest('.cp-field').hidden = !(allowed && path);
     nameInput.disabled = !allowed;
-    choice.title = allowed ? '' : 'Available when online ordering is set to Not yet.';
-    choice.value = visibleType;
-    customHost.hidden = visibleType !== 'custom';
+    customHost.hidden = !(allowed && path === 'custom');
+    if (allowed && path === 'custom') fillPageChoice();
     websiteHost.hidden = visibleType !== 'website';
     syncVisibleName();
     if (visibleType === 'website') {
@@ -149,20 +215,49 @@ export function initAppScreenSlot(ctx) {
       document.querySelectorAll('#bottom-nav .nav-item').forEach((item) => item.classList.toggle('active', item === navItem));
     }
     const navIcon = navItem.querySelector('svg');
-    if (navIcon) navIcon.innerHTML = NAV_ICONS[visibleType] || NAV_ICONS.menu;
+    if (navIcon) navIcon.innerHTML = NAV_ICONS[isBuiltin(type) || type === 'custom' ? type : 'menu'] || NAV_ICONS.menu;
   }
 
-  choice.addEventListener('change', () => {
-    if (!canReplaceScreen()) { render({ preview: false }); return; }
+  const isDefaultName = (prev) => !nameInput.value.trim() || name === labelFor(prev) || ['Menu', 'Order', 'One of my pages'].includes(name) || customPages().some((item) => item.name === name);
+  function setType(next) {
     const previous = type;
-    type = choice.value;
-    if (name === labelFor(previous) || ['Menu', 'Order'].includes(name) || !nameInput.value.trim()) nameInput.value = labelFor(type);
+    const keepName = !isDefaultName(previous);
+    type = next;
+    if (!keepName) {
+      nameInput.value = next === 'custom' ? (selectedPage()?.name || 'My page') : labelFor(next);
+      nameFollowsPage = true;
+    }
     window.closeL3Panel?.();
     applyName();
-    render({ resetMenu: type === 'menu' });
+  }
+
+  header.querySelectorAll('[data-slot-path]').forEach((button) => button.addEventListener('click', () => {
+    if (!canReplaceScreen()) return;
+    path = button.dataset.slotPath;
+    if (path === 'menu') { setType('menu'); render({ resetMenu: true }); }
+    else if (path === 'custom') { fillPageChoice(); setType('custom'); followPageName(); render(); }
+    else {
+      fillBuiltinChoice();
+      setType(builtinChoice.value);
+      render();
+      if (builtinEditable(type)) window.openBuiltInPageEditor?.(type);
+    }
+    ctx.markDirty();
+    document.dispatchEvent(new CustomEvent('como:pages-changed'));
+  }));
+  pathBar.querySelector('.slot-path-change').addEventListener('click', () => {
+    path = null;
+    window.closeL3Panel?.();
+    render();
+  });
+  builtinChoice.addEventListener('change', () => {
+    setType(builtinChoice.value);
+    render();
+    if (builtinEditable(type)) window.openBuiltInPageEditor?.(type);
     ctx.markDirty();
   });
-  nameInput.addEventListener('input', () => { applyName(); ctx.markDirty(); });
+  builtinEdit.addEventListener('click', () => window.openBuiltInPageEditor?.(type));
+  nameInput.addEventListener('input', () => { nameFollowsPage = false; applyName(); ctx.markDirty(); });
   document.addEventListener('como:screenname', (event) => {
     if (event.detail.key !== 'menu' || syncingName) return;
     if (canReplaceScreen()) name = event.detail.name;
@@ -230,9 +325,8 @@ export function initAppScreenSlot(ctx) {
 
   function capture() {
     return [{
-      key: 'menu', type, name, orderingName,
+      key: 'menu', type, path, name, orderingName, pageId: selectedPageId,
       website: website?.state || savedWebsite,
-      widgets: [...list.querySelectorAll('.cp-widget-row')].map((row) => widgets.find((widget) => widget.row === row)).filter(Boolean).map((widget) => widget.capture()),
       legacy,
     }];
   }
@@ -241,13 +335,11 @@ export function initAppScreenSlot(ctx) {
     const data = saved.find((item) => item.key === 'menu') || saved[0];
     if (!data) return;
     legacy = data.legacy || saved.filter((item) => item !== data);
-    type = SLOT_CHOICES.some(([key]) => key === data.type) ? data.type : 'menu';
+    type = SLOT_CHOICES.some(([key]) => key === data.type) && data.type !== 'website' ? data.type : 'menu';
+    path = data.path !== undefined ? data.path : type === 'custom' ? 'custom' : isBuiltin(type) ? 'builtin' : null;
+    selectedPageId = data.pageId || selectedPageId;
     name = data.name || labelFor(type); nameInput.value = name;
     orderingName = ['native', 'webview'].includes(ctx.getOrderingMode?.()) ? 'Order' : data.orderingName || defaultOrderingName();
-    [...list.querySelectorAll('.w-del-icon')].forEach((button) => button.click());
-    widgets.length = 0;
-    const restoredWidgets = data.widgets?.length ? data.widgets : legacy.find((item) => item.type === 'custom')?.widgets || [];
-    restoredWidgets.forEach((widget) => addWidget(widget.type, widget, true));
     savedWebsite = data.website || legacy.find((item) => item.type === 'website')?.website;
     if (website) {
       website.element.remove(); website = null;

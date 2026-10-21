@@ -29,6 +29,7 @@
       <span class="brand-tune-swatch" id="brand-tune-background-swatch" aria-hidden="true"></span>
       <span class="chev">›</span>
     </div>
+    <div class="branding-contrast-warning" id="branding-contrast-callout" aria-live="polite" hidden></div>
     <div class="cp-widget-row brand-tune-row brand-splash-row">
       <span class="brand-splash-ic" aria-hidden="true">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round">
@@ -114,9 +115,36 @@
   <div class="cp-seg" id="appbg-mode">
     <button class="cp-seg-btn active" type="button" data-mode="solid" aria-pressed="true">Solid colour</button>
     <button class="cp-seg-btn" type="button" data-mode="gradient" aria-pressed="false">Gradient</button>
+    <button class="cp-seg-btn" type="button" data-mode="image" aria-pressed="false">Image</button>
   </div>
   <input type="hidden" id="appbg-mode-value" value="solid" />
   <input type="hidden" id="appbg-direction" value="135" />
+  <input type="hidden" id="appbg-image-data" value="" />
+  <input type="hidden" id="appbg-image-average" value="" />
+  <input type="hidden" id="appbg-image-name" value="" />
+  <div class="brand-image-block" id="appbg-image-block" hidden>
+    <div class="cp-upload-zone" id="appbg-image-zone">
+      <div class="cp-upload-btn">+ Upload from Computer</div>
+      <div class="cp-upload-hint">or drag &amp; drop · PNG, JPG or WebP, up to 5 MB</div>
+    </div>
+    <input type="file" id="appbg-image-file" accept="image/png,image/jpeg,image/jpg,image/webp" style="display:none;" />
+    <div class="gf-logo-result" id="appbg-image-result" hidden>
+      <div class="gf-logo-thumb"><img id="appbg-image-thumb" src="data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///ywAAAAAAQABAAACAUwAOw==" alt="Background image" /></div>
+      <div class="gf-logo-meta">
+        <div class="gf-logo-status">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6L9 17l-5-5"/></svg>
+          Uploaded
+        </div>
+        <div class="gf-logo-filename" id="appbg-image-filename">Background image</div>
+        <div class="gf-logo-actions">
+          <button class="gf-logo-action" id="appbg-image-replace" type="button">Replace</button>
+          <button class="gf-logo-action" id="appbg-image-adjust" type="button">Adjust</button>
+          <button class="gf-logo-action danger" id="appbg-image-remove" type="button">Remove</button>
+        </div>
+      </div>
+    </div>
+    <div class="cp-hint-inline">Shown behind every screen in your app. Press and hold an empty area of the phone, or choose Adjust, to move and zoom it.</div>
+  </div>
   <div class="brand-gradient-presets" id="appbg-presets" data-mode="solid" aria-label="Background colour presets">
     <button type="button" data-bg-start="#f0faf5" data-bg-end="#c1e8dc" data-bg-solid="#e2f3ec" title="Mint" aria-label="Mint" style="--gradient-start:#f0faf5;--gradient-end:#c1e8dc;--gradient-solid:#e2f3ec;"></button>
     <button type="button" data-bg-start="#eff7ff" data-bg-end="#cddfed" data-bg-solid="#e4eef8" title="Sky" aria-label="Sky" style="--gradient-start:#eff7ff;--gradient-end:#cddfed;--gradient-solid:#e4eef8;"></button>

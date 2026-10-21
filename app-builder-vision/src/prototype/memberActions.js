@@ -13,7 +13,7 @@ export function initMemberActions({ showToast, showPage = (key) => window.showPh
     if (copy) {
       navigator.clipboard?.writeText(document.getElementById('px-referral-code')?.textContent || 'FRIEND10').catch(() => {});
       copy.textContent = 'Copied';
-      showToast?.('Invite code copied');
+      showToast?.('Invite code copied', { variant: 'success' });
     }
     const tab = event.target.closest('.px-login-tabs [role="tab"]');
     if (!tab) return;

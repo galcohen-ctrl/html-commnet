@@ -11,31 +11,6 @@ const SCREEN_DEFS = {
 
 const DEFAULT_SCREENS = Object.fromEntries(Object.keys(SCREEN_DEFS).map((key) => [key, true]));
 
-function hexToRgb(value) {
-  const hex = String(value || '').trim().replace('#', '');
-  if (!/^[0-9a-f]{6}$/i.test(hex)) return null;
-  return [0, 2, 4].map((index) => parseInt(hex.slice(index, index + 2), 16));
-}
-
-function luminance(value) {
-  const rgb = hexToRgb(value);
-  if (!rgb) return null;
-  const channels = rgb.map((channel) => {
-    const normalized = channel / 255;
-    return normalized <= 0.03928 ? normalized / 12.92 : ((normalized + 0.055) / 1.055) ** 2.4;
-  });
-  return (0.2126 * channels[0]) + (0.7152 * channels[1]) + (0.0722 * channels[2]);
-}
-
-function contrastRatio(a, b) {
-  const first = luminance(a);
-  const second = luminance(b);
-  if (first === null || second === null) return null;
-  const light = Math.max(first, second);
-  const dark = Math.min(first, second);
-  return (light + 0.05) / (dark + 0.05);
-}
-
 export function initProductExperience(ctx) {
   const { markDirty, showToast } = ctx;
   const screenState = { ...DEFAULT_SCREENS };
@@ -254,49 +229,9 @@ export function initProductExperience(ctx) {
   document.addEventListener('como:ordering', syncOrderingExperience);
   document.addEventListener('como:focus-changed', () => requestAnimationFrame(syncOrderingExperience));
 
-  function resolvedHex(variable, fallback) {
-    const value = getComputedStyle(document.body).getPropertyValue(variable).trim();
-    if (/^#[0-9a-f]{6}$/i.test(value)) return value;
-    return fallback;
-  }
-
-  function updateContrastFeedback() {
-    const result = document.getElementById('px-contrast-result');
-    if (!result) return;
-    const panel = resolvedHex('--p-panel', '#ffffff');
-    const primary = resolvedHex('--p-text', '#1d1d28');
-    const secondary = resolvedHex('--p-text-muted', '#6b6b7b');
-    const primaryRatio = contrastRatio(panel, primary) || 0;
-    const secondaryRatio = contrastRatio(panel, secondary) || 0;
-    const safe = primaryRatio >= 4.5 && secondaryRatio >= 4.5;
-    document.body.dataset.brandingSafe = String(safe);
-    result.className = `px-contrast-result ${safe ? 'safe' : 'warning'}`;
-    result.innerHTML = safe
-      ? '<strong>Text is easy to read</strong>'
-      : '<strong>Some text may be hard to read</strong><button type="button" data-use-safe-text>Use recommended text</button>';
-  }
-
-  function setColour(variable, value) {
-    const input = document.querySelector(`input[type="color"][data-bind-color="${variable}"]`);
-    if (!input) return;
-    input.value = value;
-    input.dispatchEvent(new Event('input', { bubbles: true }));
-  }
-
-  document.getElementById('px-contrast-result')?.addEventListener('click', (event) => {
-    if (!event.target.closest('[data-use-safe-text]')) return;
-    const panel = resolvedHex('--p-panel', '#ffffff');
-    const darkSurface = (luminance(panel) || 0) < 0.3;
-    setColour('--p-text', darkSurface ? '#ffffff' : '#1d1d28');
-    setColour('--p-text-muted', darkSurface ? '#d6d3df' : '#5f5c6b');
-    requestAnimationFrame(updateContrastFeedback);
-    showToast?.('Recommended text colours applied');
-  });
-  document.querySelectorAll('#gf-advanced-branding-section input[type="color"]').forEach((input) => input.addEventListener('input', () => requestAnimationFrame(updateContrastFeedback)));
-
   document.getElementById('px-request-font')?.addEventListener('click', () => {
     window.openSettings?.('app-submission', 'overview');
-    showToast?.('Custom font added to the native app launch checklist');
+    showToast?.('Custom font added to the native app launch checklist', { variant: 'success' });
   });
 
   document.querySelectorAll('#more-layout-group [data-more-layout]').forEach((option) => {
@@ -487,7 +422,7 @@ export function initProductExperience(ctx) {
   });
   document.getElementById('px-restore-published')?.addEventListener('click', () => {
     const restored = ctx.restorePublishedDraft?.();
-    showToast?.(restored ? 'Last published version restored as your draft' : 'No published version is available yet');
+    showToast?.(restored ? 'Last published version restored as your draft' : 'No published version is available yet', { variant: restored ? 'success' : 'error' });
   });
 
   initMemberActions({ showToast });
@@ -510,7 +445,6 @@ export function initProductExperience(ctx) {
   Object.entries(DEFAULT_SCREENS).forEach(([key, enabled]) => applyScreenVisibility(key, enabled, { dirty: false }));
   setPreviewState('returning', { dirty: false });
   syncOrderingExperience();
-  updateContrastFeedback();
 
   function exportProductExperience() {
     return {

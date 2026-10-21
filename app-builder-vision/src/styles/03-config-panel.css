@@ -563,36 +563,6 @@
     pointer-events: none;
   }
 
-  /* Compact icon-only add/added toggle */
-  .cp-widget-row .toggle {
-    width: 34px; height: 34px;
-    min-width: 0;
-    border-radius: 9px;
-    background: #f7f6fb;
-    border: 1px solid #e4e2ee;
-    color: var(--como);
-    padding: 0;
-    display: inline-flex; align-items: center; justify-content: center;
-    transition: background-color .15s, border-color .15s, color .15s, transform .15s, box-shadow .15s;
-    flex: none;
-    line-height: 1;
-  }
-  .cp-widget-row .toggle::before,
-  .cp-widget-row .toggle::after { content: none !important; display: none !important; }
-  .cp-widget-row .toggle svg { width: 16px; height: 16px; }
-  .cp-widget-row .toggle .i-check { display: none; }
-  .cp-widget-row .toggle:hover {
-    background: var(--como-soft);
-    border-color: var(--como);
-    transform: scale(1.06);
-  }
-  .cp-widget-row .toggle:active { transform: scale(0.96); }
-  .cp-widget-row .toggle.on {
-    background: var(--como);
-    border-color: var(--como);
-    color: #fff;
-    box-shadow: 0 2px 6px color-mix(in srgb, var(--como) 28%, transparent);
-  }
   .cp-widget-row { cursor: pointer; }
   .cp-widget-row.off { cursor: default; }
   .cp-widget-row .handle { cursor: grab; }
@@ -600,9 +570,6 @@
   .cp-widget-row .toggle.cp-toggle-nudge { animation: cpToggleNudge .6s ease; box-shadow: 0 0 0 4px color-mix(in srgb, var(--como) 22%, transparent); }
   .cp-social-item .cp-toggle-row .handle { cursor: grab; margin-right: 2px; color: #b9b9c6; }
   .cp-social-item.dragging { opacity: .5; }
-  .cp-widget-row .toggle.on:hover { background: var(--como-hover); border-color: var(--como-hover); }
-  .cp-widget-row .toggle.on .i-plus { display: none; }
-  .cp-widget-row .toggle.on .i-check { display: block; }
 
   /* Edit pencil icon (disabled when row is off) */
   .w-edit-icon {

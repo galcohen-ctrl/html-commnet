@@ -23,4 +23,7 @@
 @import "./22-app-screens.css";
 @import "./23-inbox.css";
 @import "./24-launch-screen.css";
+@import "./25-builtin-pages.css";
+@import "./26-pages.css";
+@import "./27-wizard-lock.css";
 @import "./vega.css"; /* Vega DS editor theme. Remove this line to return to the Como look. */
