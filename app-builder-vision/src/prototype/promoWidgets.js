@@ -1,4 +1,5 @@
 import { openWebsitePreview, websiteUrl } from './websiteScreen.js';
+import { bindMemberField, memberCopy, memberRenderer } from './multiLanguage.js';
 
 export function initPromoWidgets(ctx) {
   const {
@@ -31,12 +32,14 @@ export function initPromoWidgets(ctx) {
     const pcEyebrow = pcWidget && pcWidget.querySelector('.pc-eyebrow');
 
     const pcCards = cfg.seed;
-    let pcNextId = pcCards.length;
+    let pcNextId = Math.max(-1, ...pcCards.map(card => Number(card.id) || 0)) + 1;
+    const copyKey = (card, field) => `promo:${pcWidget?.dataset.mlId || cfg.key}:card:${card.id}:${field}`;
     let pcEditIdx = null; // which card index is being edited in the sub-drill
     let pcWvReset = null; // resets the webview connect block for the open card
 
     function pcRenderPhone() {
       if (!pcCarousel) return;
+      pcCards.forEach(card => ['headline', 'desc', 'btnText'].forEach(field => memberCopy(ctx, copyKey(card, field), card[field])));
       const visCards = pcCards.filter(c => c.visible);
       pcCarousel.innerHTML = '';
       visCards.forEach(c => {
@@ -57,9 +60,9 @@ export function initPromoWidgets(ctx) {
         card.appendChild(img);
         const body = document.createElement('div');
         body.className = 'pc-card-body';
-        body.innerHTML = '<div class="pc-card-headline">' + escHtml(c.headline) + '</div>'
-          + '<div class="pc-card-desc">' + escHtml(c.desc) + '</div>'
-          + (c.btnText.trim() ? '<button class="pc-card-btn">' + escHtml(c.btnText) + '</button>' : '');
+        body.innerHTML = '<div class="pc-card-headline">' + escHtml(memberCopy(ctx, copyKey(c, 'headline'), c.headline)) + '</div>'
+          + '<div class="pc-card-desc">' + escHtml(memberCopy(ctx, copyKey(c, 'desc'), c.desc)) + '</div>'
+          + (c.btnText.trim() ? '<button class="pc-card-btn">' + escHtml(memberCopy(ctx, copyKey(c, 'btnText'), c.btnText)) + '</button>' : '');
         card.appendChild(body);
         // Button-only tap target; with no button the whole card carries the tap action.
         const hasButton = !!c.btnText.trim() && pcWidget?.dataset.pcCta !== 'none';
@@ -153,6 +156,9 @@ export function initPromoWidgets(ctx) {
       gid('-edit-desc').value = c.desc;
       gid('-edit-action').value = c.action;
       gid('-edit-btn-text').value = c.btnText;
+      [['-edit-headline', 'headline'], ['-edit-desc', 'desc'], ['-edit-btn-text', 'btnText']].forEach(([suffix, field]) => {
+        bindMemberField(ctx, gid(suffix), copyKey(c, field), c[field]);
+      });
       pcSyncBtnField();
       pcPaintImageState(c.imgData);
       // The card list stays open in the third panel; the individual card editor
@@ -305,6 +311,10 @@ export function initPromoWidgets(ctx) {
     }
     if (pcTitleInput) {
       pcTitleInput.addEventListener('input', () => { pcApplySectionTitle(); markDirty(); });
+      bindMemberField(ctx, pcTitleInput, `promo:${pcWidget?.dataset.mlId || cfg.key}:heading`);
+      memberRenderer(ctx, () => {
+        if (pcEyebrow && pcTitleInput.isConnected) pcEyebrow.textContent = ctx.multiLanguage?.get(pcTitleInput.dataset.mlKey) ?? pcTitleInput.value;
+      });
     }
     if (pcTitleToggle && pcEyebrow) {
       pcTitleToggle.addEventListener('click', () => {
@@ -404,6 +414,7 @@ export function initPromoWidgets(ctx) {
     pcRenderPhone();
     pcRenderItemList();
     pcUpdateCount();
+    memberRenderer(ctx, () => { if (pcWidget?.isConnected) pcRenderPhone(); });
     return { cards: pcCards, renderPhone: pcRenderPhone };
   }
 
@@ -641,6 +652,7 @@ export function initPromoWidgets(ctx) {
     const widget = document.createElement('div');
     widget.className = 'promo-cards-widget';
     widget.dataset.widget = key;
+    widget.dataset.mlId = opts.saved?.mlId || crypto.randomUUID();
     widget.dataset.pcDisplay = 'carousel';
     widget.dataset.pcImage = 'cover';
     widget.dataset.pcCta = 'filled';
@@ -667,6 +679,13 @@ export function initPromoWidgets(ctx) {
         if (headingEl) { headingEl.textContent = v; headingEl.style.display = v ? '' : 'none'; }
       };
       headingInput?.addEventListener('input', () => { applyHeading(); markDirty(); });
+      bindMemberField(ctx, headingInput, `promo:${widget.dataset.mlId}:heading`, opts.saved?.heading || '');
+      memberRenderer(ctx, () => {
+        if (!widget.isConnected || !headingEl) return;
+        const value = ctx.multiLanguage?.get(headingInput.dataset.mlKey) ?? headingInput.value;
+        headingEl.textContent = value;
+        headingEl.style.display = value.trim() ? '' : 'none';
+      });
       applyHeading();
     }
 
@@ -704,7 +723,7 @@ export function initPromoWidgets(ctx) {
       openDrill('cp-home', drill);
     }
     markDirty();
-    return { key, row, element: widget, capture: () => ({ type: 'promo', cards: instance.cards, heading: mainDrill.querySelector('.pc-rw-heading-input')?.value || '', presentation: { pcDisplay: widget.dataset.pcDisplay, pcImage: widget.dataset.pcImage, pcCta: widget.dataset.pcCta, pcCorners: widget.dataset.pcCorners }, style: widget.style.cssText }) };
+    return { key, row, element: widget, capture: () => ({ type: 'promo', mlId: widget.dataset.mlId, cards: instance.cards, heading: ctx.multiLanguage?.raw(`promo:${widget.dataset.mlId}:heading`, 'en') ?? mainDrill.querySelector('.pc-rw-heading-input')?.value ?? '', presentation: { pcDisplay: widget.dataset.pcDisplay, pcImage: widget.dataset.pcImage, pcCta: widget.dataset.pcCta, pcCorners: widget.dataset.pcCorners }, style: widget.style.cssText }) };
   }
   // Rewards Add Widget → same rich promo widget as Home, plus the Heading field.
   window.createRewardsPromoInstance = () => createPromoInstance({ surface: 'rewards' });
@@ -815,6 +834,7 @@ export function initPromoWidgets(ctx) {
     const key = 'text-divider-' + n;
     const drill = 'divider-' + n;
     const label = 'New Section';
+    const mlId = opts.saved?.mlId || crypto.randomUUID();
 
     // Phone element
     const el = document.createElement('div');
@@ -880,12 +900,15 @@ export function initPromoWidgets(ctx) {
       drillNode.querySelector(`[data-dv-align="${opts.saved.align || 'center'}"]`)?.click();
       if (opts.saved.lines === false) linesToggle.click();
     }
+    const labelInput = drillNode.querySelector('.dv-label');
+    bindMemberField(ctx, labelInput, `divider:${mlId}:label`);
+    memberRenderer(ctx, () => { if (el.isConnected) el.querySelector('span').textContent = ctx.multiLanguage?.get(labelInput.dataset.mlKey) ?? labelInput.value; });
 
     reorderPhoneWidgets();
     updateHomeEmptyState();
     markDirty();
     if (!opts.restoring) openL3Panel(drillNode);
-    return { key, row, element: el, capture: () => ({ type: 'divider', label: drillNode.querySelector('.dv-label').value, align: drillNode.querySelector('[data-dv-align].active')?.dataset.dvAlign, lines: linesToggle.classList.contains('on') }) };
+    return { key, row, element: el, capture: () => ({ type: 'divider', mlId, label: ctx.multiLanguage?.raw(labelInput.dataset.mlKey, 'en') ?? labelInput.value, align: drillNode.querySelector('[data-dv-align].active')?.dataset.dvAlign, lines: linesToggle.classList.contains('on') }) };
   }
 
   if (addWidgetBtn && addWidgetMenu) {
@@ -915,6 +938,7 @@ export function initPromoWidgets(ctx) {
     const n = dynWidgetSeq++;
     const key = 'image-banner-' + n;
     const drill = 'imgbanner-' + n;
+    const mlId = opts.saved?.mlId || crypto.randomUUID();
 
     const el = document.createElement('div');
     el.className = 'hb-banner';
@@ -1117,7 +1141,18 @@ export function initPromoWidgets(ctx) {
     updateHomeEmptyState();
     markDirty();
     if (!opts.restoring) openL3Panel(drillNode);
-    return { key, row, element: el, capture: () => ({ type: 'image', layout: el.dataset.hbLayout || 'wide', heading: drillNode.querySelector('.hb-head').value, button: drillNode.querySelector('.hb-btn').value, action: bannerAction, url: bannerWvUrl.value, image: bannerImg.style.backgroundImage, imageSource: preview.getAttribute('src') }) };
+    [['.hb-head', 'heading', '.hb-h'], ['.hb-btn', 'button', '.hb-cta']].forEach(([selector, field, target]) => {
+      const input = drillNode.querySelector(selector);
+      bindMemberField(ctx, input, `banner:${mlId}:${field}`);
+      memberRenderer(ctx, () => {
+        if (!el.isConnected) return;
+        const copy = ctx.multiLanguage?.get(input.dataset.mlKey) ?? input.value;
+        const node = el.querySelector(target);
+        node.textContent = copy;
+        node.hidden = !copy.trim();
+      });
+    });
+    return { key, row, element: el, capture: () => ({ type: 'image', mlId, layout: el.dataset.hbLayout || 'wide', heading: ctx.multiLanguage?.raw(`banner:${mlId}:heading`, 'en') ?? drillNode.querySelector('.hb-head').value, button: ctx.multiLanguage?.raw(`banner:${mlId}:button`, 'en') ?? drillNode.querySelector('.hb-btn').value, action: bannerAction, url: bannerWvUrl.value, image: bannerImg.style.backgroundImage, imageSource: preview.getAttribute('src') }) };
   }
 
 

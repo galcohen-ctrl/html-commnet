@@ -7,6 +7,7 @@
  */
 
 import { openWebsitePreview, websiteUrl } from './websiteScreen.js';
+import { bindMemberField, memberCopy, memberRenderer } from './multiLanguage.js';
 
 const BLOCK_DEFS = {
   text: {
@@ -73,7 +74,15 @@ export function initRewardsBlocks(ctx) {
     });
   }
 
-  function buildBlockEl(b) {
+  function buildBlockEl(source) {
+    const b = { ...source };
+    ['heading', 'body', 'cta'].forEach(field => {
+      if (typeof b[field] === 'string') b[field] = memberCopy(ctx, `reward:${b.id}:${field}`, source[field]);
+    });
+    if (source.cards) b.cards = source.cards.map(card => {
+      card.mlId ||= crypto.randomUUID();
+      return Object.fromEntries(Object.entries(card).map(([field, value]) => [field, ['headline', 'desc', 'btnText'].includes(field) ? memberCopy(ctx, `reward:${b.id}:card:${card.mlId}:${field}`, value) : value]));
+    });
     const el = document.createElement('div');
     el.className = 'rw-block rw-block-' + b.type;
     el.dataset.widget = 'rw-block-' + b.id;
@@ -174,6 +183,7 @@ export function initRewardsBlocks(ctx) {
       });
     });
     list.appendChild(row);
+    row.querySelectorAll('[data-inline]').forEach(input => bindMemberField(ctx, input, `reward:${b.id}:${input.dataset.inline}`, b[input.dataset.inline]));
     return row;
   }
 
@@ -209,6 +219,7 @@ export function initRewardsBlocks(ctx) {
     if (!wrap) return;
     wrap.innerHTML = '';
     b.cards.forEach((c, i) => {
+      c.mlId ||= crypto.randomUUID();
       const box = document.createElement('div');
       box.className = 'rw-card-editor';
       box.innerHTML = `<div class="rw-card-editor-head">Card ${i + 1}
@@ -218,6 +229,7 @@ export function initRewardsBlocks(ctx) {
         <input class="cp-input-text" data-c="desc" value="${esc(c.desc)}" placeholder="Short description" />
         <input class="cp-input-text" data-c="btnText" value="${esc(c.btnText)}" placeholder="Button text — leave empty for no button" />`;
       box.querySelectorAll('[data-c]').forEach((inp) => {
+        bindMemberField(ctx, inp, `reward:${b.id}:card:${c.mlId}:${inp.dataset.c}`, c[inp.dataset.c]);
         inp.addEventListener('input', () => {
           c[inp.dataset.c] = inp.value;
           renderPhone();
@@ -257,6 +269,9 @@ export function initRewardsBlocks(ctx) {
     gid('rw-block-heading').value = b.heading || '';
     gid('rw-block-body').value = b.body || '';
     gid('rw-block-cta').value = b.cta || '';
+    ['heading', 'body', 'cta'].forEach(field => {
+      if (BLOCK_DEFS[b.type].fields.includes(field)) bindMemberField(ctx, gid('rw-block-' + field), `reward:${b.id}:${field}`, b[field] || '');
+    });
     if (b.type === 'promo') renderCardEditors(b);
     if (b.type === 'image') {
       paintImage(b);
@@ -482,6 +497,7 @@ export function initRewardsBlocks(ctx) {
   new MutationObserver(renumberRewardsWidgets).observe(list, { childList: true });
 
   layoutRewardsStage();
+  memberRenderer(ctx, renderPhone);
   window.layoutRewardsStage = layoutRewardsStage;
   return { layoutRewardsStage };
 }

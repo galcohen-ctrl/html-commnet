@@ -306,7 +306,7 @@ export function initSettingsModal(ctx) {
       item.addEventListener('click', () => goSubmissionStep(item.dataset.submissionGoto));
     });
     submissionPane.querySelector('[data-submission-review]').addEventListener('click', () => {
-      showToast('Review request drafted · a CSM would follow up before anything is submitted');
+      showToast('Review request drafted · a CSM would follow up before anything is submitted', { variant: 'success' });
     });
     submissionPane.querySelector('[data-connect-account="google"]').addEventListener('click', (event) => {
       const button = event.currentTarget;
@@ -320,7 +320,7 @@ export function initSettingsModal(ctx) {
         renderSubmissionState();
         syncHeader();
         markDirty('submission');
-        showToast('Google delegated access marked ready for this prototype');
+        showToast('Google delegated access marked ready for this prototype', { variant: 'success' });
       }, 450);
     });
     submissionPane.querySelectorAll('[data-listing-asset]').forEach(button => {
@@ -353,7 +353,7 @@ export function initSettingsModal(ctx) {
     submissionPane.querySelector('[data-confirm-submission]').addEventListener('click', () => {
       const selected = [...submissionPane.querySelectorAll('[data-submit-store]:checked')].map(input => input.dataset.submitStore);
       if (!selected.length) {
-        showToast('Choose at least one store to prepare');
+        showToast('Choose at least one store to prepare', { variant: 'error' });
         return;
       }
       const history = submissionPane.querySelector('[data-submission-history]');
@@ -367,7 +367,7 @@ export function initSettingsModal(ctx) {
       markDirty('submission');
       renderSubmissionState();
       goSubmissionStep('history');
-      showToast(`${selected.length === 2 ? 'Apple and Google requests' : 'Store request'} prepared · nothing was submitted externally`);
+      showToast(`${selected.length === 2 ? 'Apple and Google requests' : 'Store request'} prepared · nothing was submitted externally`, { variant: 'success' });
     });
     renderSubmissionState();
   }

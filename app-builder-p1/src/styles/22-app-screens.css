@@ -10,7 +10,7 @@
 .member-values dt { font-weight: 700; margin-bottom: 5px; font-size: 14px; }
 .member-values dd { margin: 0; font-size: 12px; line-height: 1.5; color: var(--p-text-muted); }
 .member-primary-action, .member-secondary-action { min-height: 44px; width: 100%; padding: 12px 16px; border-radius: var(--p-button-radius, 10px); font-size: 13px; font-weight: 650; cursor: pointer; }
-.member-primary-action { background: var(--p-accent); color: white; border: 0; }
+.member-primary-action { background: var(--p-accent); color: var(--p-accent-ink, #fff); border: 0; }
 .member-secondary-action { background: var(--p-panel); color: var(--p-text); border: 1px solid var(--p-border); }
 .member-contact-list { display: flex; flex-direction: column; background: var(--p-panel); border-radius: var(--p-card-radius, 12px); }
 .member-contact-list > * { display: flex; gap: 12px; align-items: center; padding: 18px 14px; color: var(--p-text); text-decoration: none; border: 0; border-bottom: 1px solid var(--p-border); background: none; text-align: left; cursor: pointer; }

@@ -135,7 +135,7 @@ export function initLaunchScreen(ctx) {
     media = { url, kind, name: file.name };
     render();
     ctx.markDirty?.();
-    if (kind !== 'video') ctx.showToast?.('Launch image added · press and hold it in the preview to reframe');
+    if (kind !== 'video') ctx.showToast?.('Launch image added · press and hold it in the preview to reframe', { variant: 'success' });
   }
 
   upload.addEventListener('click', () => input.click());

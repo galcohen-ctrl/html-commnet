@@ -4,20 +4,18 @@
   <div class="cp-page-sub">These details appear on your app's home screen. You can change them anytime.</div>
 
   <div class="gf-fieldset">
-    <label class="gf-field-label" for="gf-biz-name">Your business name <span class="gf-req">*</span></label>
+    <div class="gf-label-row"><label class="gf-field-label" for="gf-biz-name">Your business name <span class="gf-req">*</span></label><details class="gf-help"><summary aria-label="About business name">i</summary><div role="tooltip" id="gf-biz-name-hint">Shown at the top of every app screen. It also becomes your app name on the App Store and Google Play.</div></details></div>
     <input id="gf-biz-name" class="cp-input-text" type="text" placeholder="e.g. Velvet Bistro" value="" autocomplete="organization" maxlength="60" required aria-describedby="gf-biz-name-hint gf-biz-name-error" />
-    <div class="gf-field-hint" id="gf-biz-name-hint">Shown at the top of every app screen — watch it land in the preview. It also becomes your app name on the App Store and Google Play.</div>
     <div class="gf-field-error" id="gf-biz-name-error" aria-live="polite"></div>
   </div>
 
   <div class="gf-fieldset">
-    <label class="gf-field-label" for="gf-headline">Tagline under your business name</label>
+    <div class="gf-label-row"><label class="gf-field-label" for="gf-headline">Tagline</label><details class="gf-help"><summary aria-label="About tagline">i</summary><div role="tooltip">The small line directly beneath your name in the app header. Write it as a sentence, not keywords.</div></details></div>
     <input id="gf-headline" class="cp-input-text" type="text" placeholder="e.g. Fresh food, real rewards" value="" autocomplete="off" maxlength="60" />
-    <div class="gf-field-hint">The small line directly beneath your name in the app header. Write it as a sentence, not keywords.</div>
   </div>
 
   <div class="gf-fieldset">
-    <label class="gf-field-label" id="gf-cat-label">Primary industry</label>
+    <div class="gf-label-row"><label class="gf-field-label" id="gf-cat-label">Primary industry</label><details class="gf-help"><summary aria-label="About primary industry">i</summary><div role="tooltip" id="gf-cat-hint">Choose up to 3 industries that represent your business. A restaurant with a convenience store counts as both.</div></details></div>
     <div class="gf-chip-row" id="gf-cat-row" role="group" aria-labelledby="gf-cat-label" aria-describedby="gf-cat-hint">
       <button class="gf-chip" data-cat="Beauty and Spa" type="button">Beauty and Spa</button>
       <button class="gf-chip" data-cat="Entertainment" type="button">Entertainment</button>
@@ -29,6 +27,5 @@
       <button class="gf-chip" data-cat="Travel" type="button">Travel</button>
       <button class="gf-chip" data-cat="Other" type="button">Other</button>
     </div>
-    <div class="gf-field-hint" id="gf-cat-hint">Pick every industry you operate in — a restaurant with a convenience store counts as both.</div>
   </div>
 </div>

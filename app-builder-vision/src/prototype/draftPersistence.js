@@ -49,6 +49,12 @@ function serializeTheme() {
 }
 
 function capture(ctx) {
+  return ctx.withDefaultLanguage
+    ? ctx.withDefaultLanguage(() => captureDefault(ctx))
+    : captureDefault(ctx);
+}
+
+function captureDefault(ctx) {
   return {
     version: STORAGE_VERSION,
     savedAt: new Date().toISOString(),
@@ -60,6 +66,9 @@ function capture(ctx) {
     orderingWidgets: plainClone(ctx.exportOrderingWidgets?.() || {}),
     rewards: plainClone(ctx.rwTiles || {}),
     launchScreen: plainClone(ctx.exportLaunchScreen?.() || {}),
+    pages: plainClone(ctx.exportPages?.() || []),
+    builtInPages: plainClone(ctx.exportBuiltInPages?.() || {}),
+    multiLanguage: plainClone(ctx.exportMultiLanguage?.() || {}),
     controls: serializeControls(),
     toggles: serializeToggles(),
     theme: serializeTheme(),
@@ -135,6 +144,8 @@ export function initDraftPersistence(ctx) {
     document.body.classList.add('gf-restoring', 'gf-applying-preset');
     try {
       ctx.importDraft?.(payload.guided);
+      ctx.importPages?.(payload.pages);
+      ctx.importBuiltInPages?.(payload.builtInPages);
       ctx.importAppScreens?.(payload.appScreens);
       ctx.importOrderingState?.(payload.ordering);
       ctx.importMenuSource?.(payload.menu);
@@ -148,6 +159,7 @@ export function initDraftPersistence(ctx) {
       restoreTheme(payload.theme);
       ctx.importProductExperience?.(payload.product);
       ctx.importLaunchScreen?.(payload.launchScreen);
+      ctx.importMultiLanguage?.(payload.multiLanguage);
     } finally {
       document.body.classList.remove('gf-restoring', 'gf-applying-preset');
     }

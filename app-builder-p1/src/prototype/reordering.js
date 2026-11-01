@@ -133,7 +133,7 @@ export function initReordering(ctx = {}) {
     }
 
     function rowLabel(row) {
-      return row.querySelector('.w-name, .pc-item-name')?.textContent?.trim() || 'Widget';
+      return row.querySelector('.w-name, .pc-item-name')?.textContent?.trim() || 'Section';
     }
 
     function prepareHandles() {

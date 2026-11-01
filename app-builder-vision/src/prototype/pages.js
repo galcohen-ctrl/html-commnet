@@ -6,6 +6,8 @@
  * page, never deeper.
  */
 
+import { bindMemberField, memberCopy, memberRenderer } from './multiLanguage.js';
+
 const esc = (value) => String(value ?? '').replace(/[&<>"']/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
 
 const ICON = {
@@ -42,13 +44,16 @@ export function initPages(ctx) {
   function createTextBlock(opts = {}) {
     const { stage, list, saved } = opts;
     const key = 'text-block-' + textSeq++;
+    const mlId = saved?.mlId || crypto.randomUUID();
     const data = { heading: saved?.heading ?? 'A short heading', body: saved?.body ?? 'Write what Members should read here.' };
     const element = document.createElement('div');
     element.className = 'cpage-text-block';
     element.dataset.widget = key;
     const paint = () => {
-      element.innerHTML = (data.heading ? `<div class="rw-block-h">${esc(data.heading)}</div>` : '')
-        + (data.body ? `<div class="rw-block-p">${esc(data.body)}</div>` : '');
+      const heading = memberCopy(ctx, `text:${mlId}:heading`, data.heading);
+      const body = memberCopy(ctx, `text:${mlId}:body`, data.body);
+      element.innerHTML = (heading ? `<div class="rw-block-h">${esc(heading)}</div>` : '')
+        + (body ? `<div class="rw-block-p">${esc(body)}</div>` : '');
     };
     paint();
     stage.appendChild(element);
@@ -74,7 +79,9 @@ export function initPages(ctx) {
       markDirty();
     });
     list.appendChild(row);
-    return { key, row, element, capture: () => ({ type: 'text', ...data }) };
+    row.querySelectorAll('[data-inline]').forEach(input => bindMemberField(ctx, input, `text:${mlId}:${input.dataset.inline}`, data[input.dataset.inline]));
+    memberRenderer(ctx, () => { if (element.isConnected) paint(); });
+    return { key, row, element, capture: () => ({ type: 'text', mlId, ...data }) };
   }
 
   /* ----------------------------------------------------------------- Pages */
@@ -86,8 +93,9 @@ export function initPages(ctx) {
     text: createTextBlock,
   });
 
-  function createPage({ name = 'New page', silent = false } = {}) {
-    const id = 'p' + seq++;
+  function createPage({ name = 'New page', silent = false, id: savedId } = {}) {
+    const id = savedId && /^p\d+$/.test(savedId) ? savedId : 'p' + seq++;
+    seq = Math.max(seq, Number(id.slice(1)) + 1);
     const page = { id, name, widgets: [] };
     const key = keyOf(page);
 
@@ -134,6 +142,18 @@ export function initPages(ctx) {
     page.list = page.detail.querySelector('.pg-section-list');
     page.nameInput = page.detail.querySelector('.pg-name');
     page.nameInput.value = name;
+    bindMemberField(ctx, page.nameInput, `page:${id}:name`, name);
+    memberRenderer(ctx, () => {
+      if (!page.element.isConnected) return;
+      const value = memberCopy(ctx, `page:${id}:name`, page.name);
+      page.element.querySelector('.cpage-header strong').textContent = value;
+      const tile = tileOf(page);
+      if (tile) tile.querySelector('.t-name').textContent = value;
+      if (window.getSlotPageKey?.() === keyOf(page)) {
+        const label = document.querySelector('#bottom-nav [data-nav="menu"] span');
+        if (label) label.textContent = value;
+      }
+    });
     page.detail.querySelector('.cp-back').addEventListener('click', () => window.closeDrill?.('cp-pages'));
 
     const addMenu = page.detail.querySelector('.cp-add-widget-menu');
@@ -608,7 +628,7 @@ export function initPages(ctx) {
   function restorePages(saved = []) {
     [...pages].forEach((page) => removePage(page));
     saved.forEach((item) => {
-      const page = createPage({ name: item.name, silent: true });
+      const page = createPage({ name: item.name, id: item.id, silent: true });
       (item.widgets || []).forEach((widget) => addSection(page, widget.type, widget));
     });
   }

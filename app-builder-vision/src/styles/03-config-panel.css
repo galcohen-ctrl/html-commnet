@@ -177,6 +177,9 @@
   }
   .cp-toggle-row:first-child { border-top: none; padding-top: 4px; }
   .cp-toggle-row .lbl { font-weight: 600; }
+  /* Rows with a drag handle put the label between handle and toggle; keep it left-aligned instead of centred by space-between. */
+  .cp-toggle-row:has(.handle) { gap: 8px; }
+  .cp-toggle-row:has(.handle) .lbl { flex: 1; text-align: left; }
 
   /* ---------- Social icon row: toggle reveals an indented URL input below it ---------- */
   .cp-social-item { border-top: 1px solid var(--line-soft); }
@@ -454,10 +457,29 @@
   /* ---------- Rich (contenteditable) text input with inline variable tokens ---------- */
   .cp-input-rich { cursor: text; white-space: pre-wrap; word-break: break-word; }
   .cp-input-rich:empty::before { content: attr(data-placeholder); color: var(--muted); }
-  .var-token {
+  .var-token,
+  .var-dropdown-token {
     display: inline-block; background: var(--como-soft); color: var(--como);
     padding: 1px 6px; border-radius: 999px; font-weight: 700; font-size: .92em;
     white-space: nowrap; user-select: none;
+  }
+  .var-dropdown { z-index: 1000; }
+  .var-dropdown-item {
+    display: flex; align-items: center; justify-content: space-between; gap: 8px;
+  }
+  .cp-var-typing-hint {
+    font-size: 11px;
+    line-height: 1.35;
+    color: var(--muted);
+    margin-top: 4px;
+    user-select: none;
+  }
+  .cp-var-typing-hint[hidden] {
+    display: none !important;
+  }
+  .cp-var-typing-hint b {
+    font-weight: 600;
+    color: var(--ink);
   }
 
   /* ---------- Font picker ---------- */

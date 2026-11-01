@@ -25,6 +25,7 @@ import { initBuiltInPages } from './builtinPages.js';
 import { initPages } from './pages.js';
 import { initPhoneLock } from './phoneLock.js';
 import { initMoreTiles } from './moreTiles.js';
+import { initMultiLanguage } from './multiLanguage.js';
 
 let runtime;
 
@@ -61,5 +62,6 @@ export function initPrototype() {
   Object.assign(runtime, initReviewGallery(runtime));
   Object.assign(runtime, initBuiltInPages(runtime));
   Object.assign(runtime, initMoreTiles(runtime));
+  Object.assign(runtime, initMultiLanguage(runtime));
   return runtime;
 }

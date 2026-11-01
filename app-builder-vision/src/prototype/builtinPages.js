@@ -1,4 +1,5 @@
 import builtinPagesHtml from '../templates/config/builtin-pages.html?raw';
+import { bindMemberField, memberCopy, memberRenderer } from './multiLanguage.js';
 
 /*
  * Built-in page editors. Each built-in screen with fixed content (My Account,
@@ -237,6 +238,9 @@ export function initBuiltInPages(ctx = {}) {
     if (!node) return;
     node.querySelectorAll('[data-bp-field]').forEach((input) => {
       input.value = getPath(state[key], input.dataset.bpField) ?? '';
+      if (!/^direct\.[01]\.value$/.test(input.dataset.bpField)) {
+        bindMemberField(ctx, input, `builtin:${key}:${input.dataset.bpField}`, input.value);
+      }
     });
     node.querySelectorAll('[data-bp-toggle]').forEach((toggle) => {
       toggle.classList.toggle('on', !!state[key][toggle.dataset.bpToggle]);
@@ -247,6 +251,16 @@ export function initBuiltInPages(ctx = {}) {
   /* --------------------------------------------------------- phone pages */
 
   const refs = {};
+
+  function localizedState(key) {
+    const localized = clone(state[key]);
+    panels[key]?.querySelectorAll('[data-bp-field]').forEach(input => {
+      const path = input.dataset.bpField;
+      if (/^direct\.[01]\.value$/.test(path)) return;
+      setPath(localized, path, memberCopy(ctx, `builtin:${key}:${path}`, getPath(state[key], path) ?? ''));
+    });
+    return localized;
+  }
 
   function prepareAccount() {
     const page = phonePage('account');
@@ -325,7 +339,7 @@ export function initBuiltInPages(ctx = {}) {
   function renderReferral() {
     const r = refs.referral;
     if (!r) return;
-    const s = state.referral;
+    const s = localizedState('referral');
     r.photo.src = s.image || '';
     display(r.photo, !!s.image);
     display(r.people, !s.image);
@@ -354,7 +368,7 @@ export function initBuiltInPages(ctx = {}) {
   function renderAbout(key) {
     const r = refs[key];
     if (!r) return;
-    const s = state[key];
+    const s = localizedState(key);
     const hasSection = hasText(s.sectionHeading) || hasText(s.sectionP1) || hasText(s.sectionP2);
     const values = s.values.filter((v) => hasText(v.title) || hasText(v.desc));
     r.content.innerHTML = [
@@ -384,7 +398,7 @@ export function initBuiltInPages(ctx = {}) {
   function renderContact() {
     const r = refs.contact;
     if (!r) return;
-    const s = state.contact;
+    const s = localizedState('contact');
     const [phone, email, place] = s.direct;
     const row = (item, icon, open, close = 'a') => (hasText(item.title) || hasText(item.value) ? `${open}${icon}<span><strong>${esc(item.title)}</strong><small>${esc(item.value)}</small></span><span aria-hidden="true">&#8250;</span></${close}>` : '');
     const rows = [
@@ -469,6 +483,7 @@ export function initBuiltInPages(ctx = {}) {
   });
   preparePhonePages();
   Object.keys(TEMPLATE_FOR).forEach(renderPhone);
+  memberRenderer(ctx, () => Object.keys(TEMPLATE_FOR).forEach(renderPhone));
 
   return {
     builtInPages: PAGES,

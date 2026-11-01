@@ -188,7 +188,7 @@ export function initBindings(ctx) {
     });
   });
 
-  // ---------- Member variable insertion ("@" dropdown, common SaaS pattern) ----------
+  // ---------- Member variable insertion ("@" dropdown + inline @ trigger) ----------
   const MEMBER_VARS = [
     { key: 'firstName', label: 'First name' },
     { key: 'lastName', label: 'Last name' },
@@ -196,42 +196,143 @@ export function initBindings(ctx) {
     { key: 'dob', label: 'Date of birth' },
     { key: 'tier', label: 'Tier level' },
   ];
+  const VAR_EXCLUDED_IDS = new Set([
+    'menu-screen-name',
+    'gf-biz-name',
+    'gf-headline',
+    'gf-branding-headline',
+    'sw-biz-name',
+    'sw-headline',
+    'ms-webview-url',
+    'ms-custom-url',
+    'mr-item-media-url',
+    'mr-item-poster',
+    'ti-item-image',
+    'ti-item-price',
+    'mc-item-image',
+    'mc-item-count-input',
+    'ms-item-price',
+    'ms-item-cal',
+    'brand-title-font-search',
+    'brand-body-font-search',
+    'sm-search-input',
+    'brand-accent-hex',
+  ]);
+  let activeDropdownClose = null;
+
+  function isEligibleVariableInput(el) {
+    if (!(el instanceof HTMLElement)) return false;
+    if (el.dataset.vars === 'false') return false;
+    if (el.dataset.vars === 'true') return true;
+    if (!el.closest('#config-panel, #l3-panel, #l4-panel, #ms-drawer, .config-panel, .l3-panel, .l4-panel')) return false;
+    if (el.closest('#cp-business, #cp-branding, #settings-modal, #setup-wizard, #app-shell')) return false;
+    if (el.closest('[data-state-section="guest"]')) return false;
+
+    const isRich = el.isContentEditable || el.getAttribute('contenteditable') === 'true';
+    const isTextarea = el.tagName === 'TEXTAREA';
+    const isTextInput = el.tagName === 'INPUT' && (el.getAttribute('type') || 'text').toLowerCase() === 'text';
+    if (!isRich && !isTextarea && !isTextInput) return false;
+    if (!el.matches('.cp-input-text, .cp-textarea, .ms-input, .ms-textarea')) return false;
+
+    if (el.id && (VAR_EXCLUDED_IDS.has(el.id) || el.id.endsWith('-webview-url'))) return false;
+    if (el.classList.contains('pg-name')
+        || el.classList.contains('px-rename-input')
+        || el.classList.contains('ms-title-input')
+        || el.classList.contains('cp-color-hex')
+        || el.classList.contains('brand-accent-hex-input')
+        || el.classList.contains('hb-webview-url')) return false;
+    if ((el.dataset.bindText || '').includes('.brand-text')) return false;
+    const inputMode = (el.getAttribute('inputmode') || '').toLowerCase();
+    if (inputMode === 'tel' || inputMode === 'email' || inputMode === 'numeric' || inputMode === 'decimal') return false;
+    const bpField = el.dataset.bpField || '';
+    if (bpField === 'direct.0.value' || bpField === 'direct.1.value') return false;
+    const placeholder = (el.getAttribute('placeholder') || '').trim();
+    if (/^https?:\/\//i.test(placeholder)) return false;
+    return true;
+  }
+
   function setupVariableInput(input) {
+    if (!input || input.dataset.varsReady === 'true') return;
+    input.dataset.varsReady = 'true';
+    input.dataset.vars = 'true';
+
     let dropdownEl = null;
     let activeIndex = -1;
     let filtered = MEMBER_VARS;
     let atNode = null;
     let atOffset = -1;
 
+    // Do not render a permanent @ button inside the input. Instead, show a quiet
+    // hint below the field only when the merchant starts typing in it.
+    const hasStaticAtHint = !!input.closest('[data-detail="profile"]');
+    let hintEl = null;
+    if (!hasStaticAtHint && input.parentElement) {
+      hintEl = document.createElement('div');
+      hintEl.className = 'cp-var-typing-hint';
+      hintEl.hidden = true;
+      hintEl.innerHTML = 'Type <b>@</b> to insert a member variable';
+      input.insertAdjacentElement('afterend', hintEl);
+    }
+
     function closeVarDropdown() {
       if (dropdownEl) { dropdownEl.remove(); dropdownEl = null; }
+      if (activeDropdownClose === closeVarDropdown) activeDropdownClose = null;
       activeIndex = -1;
       atNode = null; atOffset = -1;
     }
     function insertVariableToken(v) {
-      if (!atNode) return;
-      const sel = window.getSelection();
-      if (!sel.rangeCount) return;
-      const caretRange = sel.getRangeAt(0);
-      const range = document.createRange();
-      range.setStart(atNode, atOffset);
-      range.setEnd(caretRange.endContainer, caretRange.endOffset);
-      range.deleteContents();
-      const span = document.createElement('span');
-      span.className = 'var-token';
-      span.contentEditable = 'false';
-      span.dataset.key = v.key;
-      span.textContent = '{' + v.key + '}';
-      range.insertNode(span);
-      const spaceNode = document.createTextNode('\u200B');
-      span.after(spaceNode);
-      const newRange = document.createRange();
-      newRange.setStart(spaceNode, 1);
-      newRange.collapse(true);
-      sel.removeAllRanges();
-      sel.addRange(newRange);
+      const isRich = input.isContentEditable || input.getAttribute('contenteditable') === 'true';
+      if (isRich) {
+        const sel = window.getSelection();
+        let range = null;
+        if (atNode && sel && sel.rangeCount) {
+          const caretRange = sel.getRangeAt(0);
+          range = document.createRange();
+          range.setStart(atNode, atOffset);
+          range.setEnd(caretRange.endContainer, caretRange.endOffset);
+          range.deleteContents();
+        } else if (sel && sel.rangeCount && input.contains(sel.getRangeAt(0).endContainer)) {
+          range = sel.getRangeAt(0).cloneRange();
+          range.deleteContents();
+        } else {
+          range = document.createRange();
+          range.selectNodeContents(input);
+          range.collapse(false);
+        }
+        const span = document.createElement('span');
+        span.className = 'var-token';
+        span.contentEditable = 'false';
+        span.dataset.key = v.key;
+        span.textContent = '{' + v.key + '}';
+        range.insertNode(span);
+        const spaceNode = document.createTextNode('\u200B');
+        span.after(spaceNode);
+        const newRange = document.createRange();
+        newRange.setStart(spaceNode, 1);
+        newRange.collapse(true);
+        if (sel) {
+          sel.removeAllRanges();
+          sel.addRange(newRange);
+        }
+        input.focus();
+        input.dispatchEvent(new Event('input', { bubbles: true }));
+        input.dispatchEvent(new Event('change', { bubbles: true }));
+        return;
+      }
+
+      const val = input.value || '';
+      const token = '{' + v.key + '}';
+      let start = typeof input.selectionStart === 'number' ? input.selectionStart : val.length;
+      const end = typeof input.selectionEnd === 'number' ? input.selectionEnd : start;
+      if (atOffset >= 0 && atOffset <= end) {
+        start = atOffset;
+      }
+      input.value = val.slice(0, start) + token + val.slice(end);
+      const nextCaret = start + token.length;
       input.focus();
+      try { input.setSelectionRange(nextCaret, nextCaret); } catch {}
       input.dispatchEvent(new Event('input', { bubbles: true }));
+      input.dispatchEvent(new Event('change', { bubbles: true }));
     }
     function highlightItem(idx) {
       if (!dropdownEl) return;
@@ -252,7 +353,8 @@ export function initBindings(ctx) {
       filtered.forEach((v, i) => {
         const item = document.createElement('div');
         item.className = 'var-dropdown-item';
-        item.textContent = v.label + '  {' + v.key + '}';
+        item.setAttribute('role', 'option');
+        item.innerHTML = '<span class="var-dropdown-label">' + v.label + '</span>  <span class="var-dropdown-token">{' + v.key + '}</span>';
         item.addEventListener('mousedown', (e) => {
           e.preventDefault();
           insertVariableToken(v);
@@ -264,30 +366,69 @@ export function initBindings(ctx) {
       activeIndex = 0;
       highlightItem(activeIndex);
     }
-    function openVarDropdown() {
-      if (dropdownEl) return;
-      dropdownEl = document.createElement('div');
-      dropdownEl.className = 'var-dropdown';
-      document.body.appendChild(dropdownEl);
+    function positionDropdown() {
+      if (!dropdownEl) return;
       const rect = input.getBoundingClientRect();
       dropdownEl.style.position = 'fixed';
       dropdownEl.style.right = 'auto';
-      dropdownEl.style.left = rect.left + 'px';
-      dropdownEl.style.top = (rect.bottom + 4) + 'px';
-      dropdownEl.style.width = rect.width + 'px';
+      dropdownEl.style.left = Math.max(8, Math.min(rect.left, window.innerWidth - Math.max(180, rect.width) - 8)) + 'px';
+      dropdownEl.style.width = Math.max(180, rect.width) + 'px';
+      const spaceBelow = window.innerHeight - rect.bottom;
+      if (spaceBelow < 190 && rect.top > 190) {
+        dropdownEl.style.top = 'auto';
+        dropdownEl.style.bottom = (window.innerHeight - rect.top + 4) + 'px';
+      } else {
+        dropdownEl.style.bottom = 'auto';
+        dropdownEl.style.top = (rect.bottom + 4) + 'px';
+      }
+    }
+    function openVarDropdown() {
+      if (activeDropdownClose && activeDropdownClose !== closeVarDropdown) {
+        activeDropdownClose();
+      }
+      if (!dropdownEl) {
+        dropdownEl = document.createElement('div');
+        dropdownEl.className = 'var-dropdown';
+        dropdownEl.setAttribute('role', 'listbox');
+        document.body.appendChild(dropdownEl);
+      }
+      activeDropdownClose = closeVarDropdown;
+      if (hintEl) hintEl.hidden = true;
+      positionDropdown();
     }
     function checkForAt() {
-      const sel = window.getSelection();
-      if (!sel.rangeCount) { closeVarDropdown(); return; }
-      const range = sel.getRangeAt(0);
-      const node = range.endContainer;
-      if (node.nodeType !== Node.TEXT_NODE || !input.contains(node)) { closeVarDropdown(); return; }
-      const textBeforeCaret = node.textContent.slice(0, range.endOffset);
+      if (hintEl && document.activeElement === input) {
+        hintEl.hidden = false;
+      }
+      const isRich = input.isContentEditable || input.getAttribute('contenteditable') === 'true';
+      if (isRich) {
+        const sel = window.getSelection();
+        if (!sel || !sel.rangeCount) { closeVarDropdown(); return; }
+        const range = sel.getRangeAt(0);
+        const node = range.endContainer;
+        if (node.nodeType !== Node.TEXT_NODE || !input.contains(node)) { closeVarDropdown(); return; }
+        const textBeforeCaret = node.textContent.slice(0, range.endOffset);
+        const atIdx = textBeforeCaret.lastIndexOf('@');
+        if (atIdx === -1) { closeVarDropdown(); return; }
+        const searchTerm = textBeforeCaret.slice(atIdx + 1);
+        if (/\s|[{}]/.test(searchTerm)) { closeVarDropdown(); return; }
+        atNode = node;
+        atOffset = atIdx;
+        const q = searchTerm.toLowerCase();
+        filtered = MEMBER_VARS.filter(v => v.label.toLowerCase().includes(q) || v.key.toLowerCase().includes(q));
+        openVarDropdown();
+        renderDropdown();
+        return;
+      }
+
+      const val = input.value || '';
+      const caret = typeof input.selectionStart === 'number' ? input.selectionStart : val.length;
+      const textBeforeCaret = val.slice(0, caret);
       const atIdx = textBeforeCaret.lastIndexOf('@');
       if (atIdx === -1) { closeVarDropdown(); return; }
       const searchTerm = textBeforeCaret.slice(atIdx + 1);
-      if (/\s/.test(searchTerm)) { closeVarDropdown(); return; }
-      atNode = node;
+      if (/\s|[{}]/.test(searchTerm)) { closeVarDropdown(); return; }
+      atNode = null;
       atOffset = atIdx;
       const q = searchTerm.toLowerCase();
       filtered = MEMBER_VARS.filter(v => v.label.toLowerCase().includes(q) || v.key.toLowerCase().includes(q));
@@ -305,19 +446,49 @@ export function initBindings(ctx) {
         e.preventDefault();
         activeIndex = Math.max(activeIndex - 1, 0);
         highlightItem(activeIndex);
-      } else if (e.key === 'Enter') {
-        e.preventDefault();
+      } else if (e.key === 'Enter' || e.key === 'Tab') {
         if (activeIndex >= 0 && filtered[activeIndex]) {
+          e.preventDefault();
           insertVariableToken(filtered[activeIndex]);
           closeVarDropdown();
         }
       } else if (e.key === 'Escape') {
+        e.preventDefault();
         closeVarDropdown();
       }
     });
-    input.addEventListener('blur', () => setTimeout(closeVarDropdown, 150));
+    input.addEventListener('blur', () => {
+      if (hintEl) hintEl.hidden = true;
+      setTimeout(closeVarDropdown, 150);
+    });
   }
-  document.querySelectorAll('.cp-input-text[data-vars="true"]').forEach(setupVariableInput);
+
+  function wireVariableInputs(root = document) {
+    const scope = root instanceof Element || root instanceof Document ? root : document;
+    const candidates = scope.querySelectorAll?.('.cp-input-text, .cp-textarea, .ms-input, .ms-textarea, [data-vars="true"]') || [];
+    candidates.forEach((el) => {
+      if (isEligibleVariableInput(el)) setupVariableInput(el);
+    });
+    if (scope instanceof HTMLElement && isEligibleVariableInput(scope)) {
+      setupVariableInput(scope);
+    }
+  }
+  window.wireVariableInputs = wireVariableInputs;
+  wireVariableInputs(document);
+  queueMicrotask(() => wireVariableInputs(document));
+  requestAnimationFrame(() => wireVariableInputs(document));
+  document.addEventListener('focusin', (e) => {
+    if (e.target instanceof HTMLElement && isEligibleVariableInput(e.target)) {
+      setupVariableInput(e.target);
+    }
+  });
+  new MutationObserver((mutations) => {
+    for (const m of mutations) {
+      for (const node of m.addedNodes) {
+        if (node.nodeType === 1) wireVariableInputs(node);
+      }
+    }
+  }).observe(document.body, { childList: true, subtree: true });
 
   // ---------- Color picker bindings (native swatch + editable HEX, two-way) ----------
   function normalizeHex(s) {
@@ -403,6 +574,6 @@ export function initBindings(ctx) {
   });
 
 
-  return { wireToggle, wireRadioGroup, getPlainText, setupVariableInput, normalizeHex, wireColorControl, syncColorVar, wireMoreDragRow };
+  return { wireToggle, wireRadioGroup, getPlainText, setupVariableInput, wireVariableInputs, isEligibleVariableInput, normalizeHex, wireColorControl, syncColorVar, wireMoreDragRow };
 }
 

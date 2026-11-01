@@ -1,5 +1,6 @@
 import { initMemberActions } from './memberActions.js';
 import { checkScreenChange } from './screenRules.js';
+import { bindMemberField, memberCopy, memberRenderer } from './multiLanguage.js';
 
 const ANALYTICS_KEY = 'como-app-builder-analytics:v1';
 const SCREEN_DEFS = {
@@ -321,6 +322,7 @@ export function initProductExperience(ctx) {
 
   function applyScreenName(key, value, original, title) {
     const clean = (value || '').trim() || original;
+    memberCopy(ctx, `tab:${key}`, clean);
     const navLabel = document.querySelector(`#bottom-nav .nav-item[data-nav="${key}"] span`);
     if (navLabel) navLabel.textContent = clean;
     const sideLabel = document.querySelector(`.side-step[data-step="${key}"] .side-lbl`);
@@ -360,12 +362,19 @@ export function initProductExperience(ctx) {
     input.setAttribute('aria-label', `Rename ${original}`);
     title.textContent = '';
     title.appendChild(input);
+    bindMemberField(ctx, input, `tab:${key}`, current);
     input.focus();
     input.select();
     let done = false;
     const commit = () => {
       if (done) return;
       done = true;
+      if (ctx.multiLanguage && ctx.multiLanguage.locale() !== 'en') {
+        title.textContent = current;
+        if (title._renameBtn) title.appendChild(title._renameBtn);
+        ctx.refreshMultiLanguage?.();
+        return;
+      }
       applyScreenName(key, input.value, original, title);
     };
     input.addEventListener('blur', commit);
@@ -380,6 +389,11 @@ export function initProductExperience(ctx) {
       const title = document.querySelector(`#cp-${key} .cp-page-title`);
       if (!title || title._renameBtn) return;
       const original = title.textContent.trim();
+      memberCopy(ctx, `tab:${key}`, document.querySelector(`#bottom-nav [data-nav="${key}"] span`)?.textContent || original);
+      memberRenderer(ctx, () => {
+        const label = document.querySelector(`#bottom-nav [data-nav="${key}"] span`);
+        if (label && ctx.multiLanguage) label.textContent = memberCopy(ctx, `tab:${key}`, ctx.memberSources.get(`tab:${key}`) || original);
+      });
       title.classList.add('px-renamable');
       const button = document.createElement('button');
       button.type = 'button';

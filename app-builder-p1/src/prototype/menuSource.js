@@ -261,7 +261,7 @@ export function initMenuSource(ctx) {
       // Show the merchant the payoff: the phone jumps to the Order tab (which is
       // the webview) so they see their site rendered inside the app.
       if (state.fromOrdering) showPhonePage('menu');
-      showToast('Loaded ' + hostOf(state.webview.url) + ' in the preview');
+      showToast('Loaded ' + hostOf(state.webview.url) + ' in the preview', { variant: 'success' });
     }, 1000);
   });
 
@@ -329,7 +329,7 @@ export function initMenuSource(ctx) {
         setPdfPreview(new Blob([file], { type: 'application/pdf' }));
         setPdf(true);
         markDirty();
-        showToast('PDF menu added');
+        showToast('PDF menu added', { variant: 'success' });
       };
       reader.onerror = () => { pdfError.textContent = 'This file could not be read. Choose another PDF.'; };
       reader.readAsDataURL(file);
@@ -374,7 +374,7 @@ export function initMenuSource(ctx) {
     state.custom.connected = true;
     markDirty();
     renderPhone();
-    showToast('Loaded ' + hostOf(state.custom.url) + ' in the preview');
+    showToast('Loaded ' + hostOf(state.custom.url) + ' in the preview', { variant: 'success' });
   });
   page.querySelectorAll('[data-custom-opt]').forEach(t => {
     t.addEventListener('click', () => {
@@ -429,7 +429,7 @@ export function initMenuSource(ctx) {
           renderCategories();
           markDirty();
           renderPhone();
-          showToast('Category removed');
+          showToast('Category removed', { variant: 'success' });
           return;
         }
         openCategory(row.dataset.cat);
@@ -481,7 +481,7 @@ export function initMenuSource(ctx) {
     renderManualHeroControl();
     markDirty();
     renderPhone();
-    showToast('Menu hero image updated in the phone preview');
+    showToast('Menu hero image updated in the phone preview', { variant: 'success' });
   });
 
   function openCategory(id) {
@@ -683,7 +683,7 @@ export function initMenuSource(ctx) {
     markDirty();
     openCategory(cat.id);
     renderPhone();
-    showToast('Item deleted');
+    showToast('Item deleted', { variant: 'success' });
   });
 
   /* -------------------------------------------------------- inline rename */

@@ -1,0 +1,16 @@
+/* Wizard lock: later steps stay greyed out until reached with Save & continue */
+.side-step.locked { opacity: .48; cursor: not-allowed; }
+.side-step.locked:hover { background: transparent; color: inherit; }
+.side-step.locked .step-dot { filter: grayscale(1); }
+.side-step.locked::after {
+  content: "";
+  flex: none;
+  width: 13px; height: 13px;
+  margin-left: auto;
+  background: no-repeat center / contain url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%235f5c6b' stroke-width='2.2' stroke-linecap='round' stroke-linejoin='round'><rect x='5' y='11' width='14' height='9' rx='2'/><path d='M8 11V8a4 4 0 018 0v3'/></svg>");
+}
+body.side-collapsed .side-step.locked::after { display: none; }
+
+/* The phone preview is view-only for editor navigation */
+#device-frame #bottom-nav .nav-item,
+#device-frame .header-tap-target { cursor: default; }

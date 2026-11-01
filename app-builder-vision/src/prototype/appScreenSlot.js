@@ -1,4 +1,5 @@
 import { createWebsiteEditor } from './websiteScreen.js';
+import { bindMemberField, memberCopy, memberRenderer } from './multiLanguage.js';
 
 const CHOICES = [
   ['menu', 'Menu'], ['account', 'My Account'], ['orders', 'My Orders'], ['referral', 'Refer a Friend'],
@@ -73,6 +74,11 @@ export function initAppScreenSlot(ctx) {
   }
   panel.prepend(header);
   const nameInput = header.querySelector('#menu-screen-name'); nameInput.value = name;
+  bindMemberField(ctx, nameInput, 'tab:menu', name);
+  memberRenderer(ctx, () => {
+    const value = memberCopy(ctx, 'tab:menu', canReplaceScreen() ? name : orderingName);
+    navItem.querySelector('span').textContent = value;
+  });
   const pathsEl = header.querySelector('.slot-paths');
   const pathBar = header.querySelector('.slot-path-bar');
   const builtinField = header.querySelector('.slot-builtin-field');
