@@ -96,12 +96,12 @@
   .cp-item.highlight { border-color: var(--como); background: var(--como-soft); }
   .cp-page-title.px-renamable { display: flex; align-items: center; gap: 8px; }
   .px-rename-btn {
-    opacity: 0; flex: none; width: 26px; height: 26px; min-height: 26px;
+    opacity: 1; flex: none; width: 26px; height: 26px; min-height: 26px;
     display: grid; place-items: center; margin-left: auto;
     background: none; border: 1px solid transparent; border-radius: 8px;
     color: var(--muted); cursor: pointer; transition: .12s;
   }
-  .cp-page-title.px-renamable:hover .px-rename-btn { opacity: 1; }
+  .cp-page-title.px-renamable:hover .px-rename-btn { color: var(--como); border-color: var(--line); }
   .px-rename-btn:hover { color: var(--como); border-color: var(--line); }
   .px-rename-btn:focus-visible { opacity: 1; }
   .px-rename-btn svg { width: 14px; height: 14px; }

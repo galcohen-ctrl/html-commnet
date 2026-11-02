@@ -4,18 +4,23 @@
   <div class="cp-page-sub">These details appear on your app's home screen. You can change them anytime.</div>
 
   <div class="gf-fieldset">
-    <div class="gf-label-row"><label class="gf-field-label" for="gf-biz-name">Your business name <span class="gf-req">*</span></label><details class="gf-help"><summary aria-label="About business name">i</summary><div role="tooltip" id="gf-biz-name-hint">Shown at the top of every app screen. It also becomes your app name on the App Store and Google Play.</div></details></div>
-    <input id="gf-biz-name" class="cp-input-text" type="text" placeholder="e.g. Velvet Bistro" value="" autocomplete="organization" maxlength="60" required aria-describedby="gf-biz-name-hint gf-biz-name-error" />
+    <div class="gf-label-row"><label class="gf-field-label" for="gf-biz-name">Your business name <span class="gf-req">*</span></label><span class="gf-source-tag">From Hub 2 (sample)</span></div>
+    <input id="gf-biz-name" class="cp-input-text" type="text" value="Velvet Bistro" autocomplete="organization" maxlength="60" required aria-describedby="gf-biz-name-hint gf-biz-name-error" />
+    <p class="gf-field-hint" id="gf-biz-name-hint">Shown on your app and in app stores.</p>
     <div class="gf-field-error" id="gf-biz-name-error" aria-live="polite"></div>
   </div>
 
   <div class="gf-fieldset">
-    <div class="gf-label-row"><label class="gf-field-label" for="gf-headline">Tagline</label><details class="gf-help"><summary aria-label="About tagline">i</summary><div role="tooltip">The small line directly beneath your name in the app header. Write it as a sentence, not keywords.</div></details></div>
-    <input id="gf-headline" class="cp-input-text" type="text" placeholder="e.g. Fresh food, real rewards" value="" autocomplete="off" maxlength="60" />
+    <div class="gf-label-row"><label class="gf-field-label" for="gf-headline">Tagline</label></div>
+    <input id="gf-headline" class="cp-input-text" type="text" placeholder="e.g. Fresh food, real rewards" value="" autocomplete="off" maxlength="60" aria-describedby="gf-tagline-hint" />
+    <p class="gf-field-hint" id="gf-tagline-hint">A short line under your business name in the app.</p>
   </div>
 
   <div class="gf-fieldset">
-    <div class="gf-label-row"><label class="gf-field-label" id="gf-cat-label">Primary industry</label><details class="gf-help"><summary aria-label="About primary industry">i</summary><div role="tooltip" id="gf-cat-hint">Choose up to 3 industries that represent your business. A restaurant with a convenience store counts as both.</div></details></div>
+    <div class="gf-label-row"><label class="gf-field-label" id="gf-cat-label">Primary industry</label><nav class="gf-chip-nav" aria-label="Industry options">
+      <button id="gf-cat-previous" type="button" aria-label="Show previous industries" title="Show previous industries" hidden><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m15 18-6-6 6-6"/></svg></button>
+      <button id="gf-cat-next" type="button" aria-label="Show more industries" title="Show more industries"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m9 18 6-6-6-6"/></svg></button>
+    </nav></div>
     <div class="gf-chip-row" id="gf-cat-row" role="group" aria-labelledby="gf-cat-label" aria-describedby="gf-cat-hint">
       <button class="gf-chip" data-cat="Beauty and Spa" type="button">Beauty and Spa</button>
       <button class="gf-chip" data-cat="Entertainment" type="button">Entertainment</button>
@@ -27,5 +32,6 @@
       <button class="gf-chip" data-cat="Travel" type="button">Travel</button>
       <button class="gf-chip" data-cat="Other" type="button">Other</button>
     </div>
+    <p class="gf-field-hint" id="gf-cat-hint">Choose up to 3 industries that best describe your business.</p>
   </div>
 </div>

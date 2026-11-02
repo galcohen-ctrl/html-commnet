@@ -2,6 +2,11 @@ import { LANGUAGE_CATALOG, createLanguageState } from './languageState.js';
 import './multiLanguage.css';
 
 const language = code => LANGUAGE_CATALOG.find(item => item.code === code) || LANGUAGE_CATALOG[0];
+const pickerIcon = {
+  chevron: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m6 9 6 6 6-6"/></svg>',
+  search: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/></svg>',
+  check: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20 6 9 17l-5-5"/></svg>',
+};
 const read = input => 'value' in input ? input.value : [...input.childNodes].map(node => node.nodeType === 1 && node.classList.contains('var-token') ? `{${node.dataset.key}}` : node.textContent).join('').replace(/\u200b/g, '');
 const write = (input, value) => {
   if ('value' in input) { if (input.value !== value) input.value = value; }
@@ -157,21 +162,90 @@ export function initMultiLanguage(ctx) {
 
   const setup = document.createElement('section'); setup.className = 'ml-setup'; setup.dataset.mlUi = '';
   const heading = document.createElement('h3'); heading.textContent = 'App languages';
-  const defaultLabel = document.createElement('label'); defaultLabel.textContent = 'Default language'; defaultLabel.htmlFor = 'ml-default-language';
-  const fixed = document.createElement('select'); fixed.className = 'cp-input-text'; fixed.id = 'ml-default-language'; fixed.setAttribute('aria-label', 'Default language');
-  LANGUAGE_CATALOG.forEach(item => { const option = document.createElement('option'); option.value = item.code; option.textContent = `${item.name} (${item.native})`; fixed.append(option); });
-  fixed.addEventListener('change', () => state.setDefaultLocale(fixed.value), { signal: abort.signal });
-  const offer = document.createElement('label'); offer.textContent = 'Also offer';
-  const add = document.createElement('select'); add.className = 'cp-input-text'; add.setAttribute('aria-label', 'Also offer');
-  offer.append(add);
-  const chips = document.createElement('div'); chips.className = 'ml-added';
-  const disclosure = document.createElement('details'); disclosure.className = 'ml-offer';
-  const summary = document.createElement('summary'); summary.textContent = 'Add languages';
-  const offerBody = document.createElement('div'); offerBody.className = 'ml-offer-body'; offerBody.append(offer, chips);
-  disclosure.append(summary, offerBody);
-  setup.append(heading, defaultLabel, fixed, disclosure);
+  const picker = document.createElement('div'); picker.className = 'ml-pick';
+  const pickerButton = document.createElement('button'); pickerButton.type = 'button'; pickerButton.className = 'ml-pick-btn';
+  pickerButton.setAttribute('aria-haspopup', 'true'); pickerButton.setAttribute('aria-expanded', 'false'); pickerButton.setAttribute('aria-label', 'Choose app languages');
+  const pickerSummary = document.createElement('span'); pickerSummary.className = 'ml-pick-summary';
+  pickerButton.append(pickerSummary); pickerButton.insertAdjacentHTML('beforeend', pickerIcon.chevron);
+  const pickerPop = document.createElement('div'); pickerPop.className = 'ml-pick-pop'; pickerPop.hidden = true;
+  const searchLabel = document.createElement('label'); searchLabel.className = 'ml-pick-search'; searchLabel.insertAdjacentHTML('afterbegin', pickerIcon.search);
+  const search = document.createElement('input'); search.type = 'text'; search.placeholder = 'Search languages'; search.autocomplete = 'off'; search.setAttribute('aria-label', 'Search languages');
+  searchLabel.append(search);
+  const languageList = document.createElement('ul'); languageList.className = 'ml-pick-list'; languageList.setAttribute('aria-label', 'App languages');
+  const empty = document.createElement('p'); empty.className = 'ml-pick-empty'; empty.textContent = 'No language found'; empty.hidden = true;
+  pickerPop.append(searchLabel, languageList, empty);
+  picker.append(pickerButton, pickerPop);
+  setup.append(heading, picker);
   document.querySelector('#cp-business .cp-master')?.append(setup);
-  add.addEventListener('change', () => { if (add.value) state.setLocales([...state.locales(), add.value]); }, { signal: abort.signal });
+  let pickerSignature = '';
+  function renderPicker() {
+    const locales = state.locales();
+    const defaultLocale = state.defaultLocale();
+    const query = search.value.trim().toLowerCase();
+    const signature = JSON.stringify([locales, defaultLocale, query]);
+    if (pickerSignature === signature) return;
+    pickerSignature = signature;
+    const focused = document.activeElement?.dataset.mlPick || document.activeElement?.dataset.mlMake || '';
+    pickerSummary.replaceChildren();
+    const lead = document.createElement('span'); lead.className = 'ml-pick-lead';
+    const leadName = document.createElement('span'); leadName.textContent = language(defaultLocale).name;
+    const defaultBadge = document.createElement('i'); defaultBadge.textContent = 'Default';
+    lead.append(leadName, defaultBadge);
+    const others = locales.filter(code => code !== defaultLocale).map(code => language(code).name);
+    const rest = document.createElement('span'); rest.className = `ml-pick-rest${others.length ? '' : ' is-hint'}`;
+    rest.textContent = others.join(' · ') || 'Add languages';
+    pickerSummary.append(lead, rest);
+
+    const matches = LANGUAGE_CATALOG.filter(item => !query || `${item.name} ${item.native} ${item.code}`.toLowerCase().includes(query));
+    languageList.replaceChildren(...matches.map(item => {
+      const selected = locales.includes(item.code);
+      const isDefault = item.code === defaultLocale;
+      const row = document.createElement('li'); row.className = `ml-pick-row${selected ? ' is-on' : ''}`;
+      const choice = document.createElement('button'); choice.type = 'button'; choice.className = 'ml-pick-toggle';
+      choice.dataset.mlPick = item.code; choice.setAttribute('role', 'checkbox'); choice.setAttribute('aria-checked', String(selected));
+      choice.disabled = isDefault && locales.length === 1;
+      choice.title = choice.disabled ? 'Keep at least one language' : `${selected ? 'Remove' : 'Add'} ${item.name}`;
+      const box = document.createElement('span'); box.className = 'ml-box'; box.insertAdjacentHTML('afterbegin', pickerIcon.check);
+      const name = document.createElement('span'); name.textContent = item.name;
+      const native = document.createElement('span'); native.className = 'ml-pick-native'; native.dir = 'auto'; native.textContent = item.native;
+      choice.append(box, name, native);
+      choice.addEventListener('click', () => {
+        const before = state.locales();
+        if (!before.includes(item.code)) state.setLocales([...before, item.code]);
+        else if (before.length > 1 && item.code === state.defaultLocale()) state.setDefaultLocale(before.find(code => code !== item.code));
+        else if (before.length > 1) state.setLocales(before.filter(code => code !== item.code));
+      }, { signal: abort.signal });
+      row.append(choice);
+      if (isDefault) {
+        const badge = document.createElement('span'); badge.className = 'ml-pick-badge'; badge.textContent = 'Default'; row.append(badge);
+      } else if (selected) {
+        const make = document.createElement('button'); make.type = 'button'; make.className = 'ml-pick-make'; make.dataset.mlMake = item.code; make.textContent = 'Make default';
+        make.addEventListener('click', () => {
+          const before = state.locales();
+          state.setDefaultLocale(item.code);
+          state.setLocales([item.code, ...before.filter(code => code !== item.code)]);
+        }, { signal: abort.signal });
+        row.append(make);
+      }
+      return row;
+    }));
+    empty.hidden = matches.length > 0;
+    if (focused) (languageList.querySelector(`[data-ml-pick="${focused}"], [data-ml-make="${focused}"]`))?.focus({ preventScroll: true });
+  }
+  function setPickerOpen(open) {
+    pickerPop.hidden = !open;
+    pickerButton.setAttribute('aria-expanded', String(open));
+    if (open) { search.focus({ preventScroll: true }); pickerPop.scrollIntoView({ block: 'nearest' }); }
+    else if (search.value) { search.value = ''; renderPicker(); }
+  }
+  pickerButton.addEventListener('click', () => setPickerOpen(pickerPop.hidden), { signal: abort.signal });
+  search.addEventListener('input', renderPicker, { signal: abort.signal });
+  pickerPop.addEventListener('keydown', event => {
+    if (event.key === 'Escape') { event.stopPropagation(); setPickerOpen(false); pickerButton.focus(); }
+  }, { signal: abort.signal });
+  document.addEventListener('click', event => {
+    if (!pickerPop.hidden && !setup.contains(event.target)) setPickerOpen(false);
+  }, { signal: abort.signal });
   const switcher = document.createElement('div'); switcher.className = 'ml-switcher'; switcher.dataset.mlUi = '';
   const phone = shell?.closest('.device-stage');
   (phone || shell)?.after(switcher);
@@ -179,19 +253,9 @@ export function initMultiLanguage(ctx) {
   function paintLanguages() {
     const missing = code => state.missing(code, [...activeKeys].filter(key => state.raw(key, 'en').trim()));
     const signature = JSON.stringify([state.locales(), state.locale(), state.locales().map(code => missing(code).length)]);
+    renderPicker();
     if (signature === switchSignature) return;
     switchSignature = signature;
-    fixed.value = state.defaultLocale();
-    const placeholder = document.createElement('option'); placeholder.value = ''; placeholder.textContent = 'Add language';
-    add.replaceChildren(placeholder, ...LANGUAGE_CATALOG.filter(item => !state.locales().includes(item.code)).map(item => {
-      const option = document.createElement('option'); option.value = item.code; option.textContent = `${item.name} (${item.native})`; return option;
-    }));
-    add.disabled = state.locales().length === LANGUAGE_CATALOG.length;
-    chips.replaceChildren(...state.locales().filter(code => code !== state.defaultLocale()).map(code => {
-      const chip = document.createElement('span'); chip.className = 'ml-added-chip';
-      chip.append(document.createTextNode(language(code).name), button('×', () => state.setLocales(state.locales().filter(item => item !== code)), `Remove ${language(code).name}`));
-      return chip;
-    }));
     switcher.hidden = state.locales().length === 1;
     switcher.replaceChildren();
     if (switcher.hidden) return;

@@ -1,7 +1,7 @@
 // Text needs 4.5:1 (WCAG AA); the brand colour and icons are graphical UI and need 3:1 (SC 1.4.11).
-const TEXT_RATIO = 4.5;
-const UI_RATIO = 3;
-const DARK_INK = '#1d1d28';
+export const TEXT_RATIO = 4.5;
+export const UI_RATIO = 3;
+export const DARK_INK = '#1d1d28';
 
 function hexToRgb(hex) {
   const body = String(hex || '').trim().replace('#', '');
@@ -19,14 +19,14 @@ function luminance(hex) {
 }
 
 // A colour we can't read counts as passing so it never raises a false warning.
-function ratio(a, b) {
+export function ratio(a, b) {
   const first = luminance(a);
   const second = luminance(b);
   if (first === null || second === null) return 21;
   return (Math.max(first, second) + 0.05) / (Math.min(first, second) + 0.05);
 }
 
-function hexToHsl(hex) {
+export function hexToHsl(hex) {
   const rgb = hexToRgb(hex);
   if (!rgb) return null;
   const [r, g, b] = rgb.map((c) => c / 255);
@@ -46,7 +46,7 @@ function hexToHsl(hex) {
   return [h, s * 100, l * 100];
 }
 
-function hslToHex(h, s, l) {
+export function hslToHex(h, s, l) {
   const hue = ((h % 360) + 360) % 360;
   const sat = s / 100;
   const lig = l / 100;
@@ -58,7 +58,7 @@ function hslToHex(h, s, l) {
 }
 
 // Moves a colour's lightness until it clears `minRatio` on every surface it sits on, keeping its hue.
-function nudgeColour(hex, surfaces, minRatio) {
+export function nudgeColour(hex, surfaces, minRatio) {
   const hsl = hexToHsl(hex);
   if (!hsl) return hex;
   const [h, s] = hsl;
@@ -89,7 +89,7 @@ const surfaceEntries = (p) => [
 ];
 
 // Everything on the palette that misses its WCAG ratio. Primary text sits on cards and the background only.
-function problems(p) {
+export function problems(p) {
   const found = [];
   surfaceEntries(p).forEach(([surface, hex]) => {
     if (surface !== 'bars' && ratio(p.text, hex) < TEXT_RATIO) found.push({ kind: 'text', subject: 'text', surface });
@@ -155,6 +155,37 @@ function describe(found, changed, complete) {
   return sentences.join(' ');
 }
 
+const FIELD_LABELS = {
+  '--p-accent': 'Brand colour',
+  '--p-panel': 'Cards',
+  '--p-nav-bg': 'Top and bottom bars',
+  '--p-text': 'Text',
+  '--p-text-muted': 'Small text',
+  '--p-icon': 'Icons',
+  background1: 'App background',
+  background2: 'Second background colour',
+};
+
+function fitColour(hex, constraints) {
+  const hsl = hexToHsl(hex);
+  if (!hsl) return null;
+  const [hue, saturation, lightness] = hsl;
+  const candidates = Array.from({ length: 95 }, (_, index) => index + 3)
+    .map(light => ({ light, colour: hslToHex(hue, saturation, light) }))
+    .sort((a, b) => Math.abs(a.light - lightness) - Math.abs(b.light - lightness));
+  return candidates.find(({ colour }) => constraints.every(([other, minimum]) => ratio(other, colour) >= minimum))?.colour || null;
+}
+
+function fitSurface(hex, palette) {
+  const foregrounds = [
+    [palette.text, TEXT_RATIO],
+    [palette.muted, TEXT_RATIO],
+    [palette.accent, UI_RATIO],
+    [palette.icon, UI_RATIO],
+  ].filter(([colour]) => colour);
+  return fitColour(hex, foregrounds);
+}
+
 export function initBrandingContrast() {
   const bgStart = document.getElementById('appbg-color1');
   const bgEnd = document.getElementById('appbg-color2');
@@ -166,6 +197,13 @@ export function initBrandingContrast() {
   const readVar = (name) => getComputedStyle(document.body).getPropertyValue(name).trim();
   const readHex = (name) => (/^#[0-9a-f]{6}$/i.test(readVar(name)) ? readVar(name).toLowerCase() : null);
   const colourInput = (name) => document.querySelector(`input[type="color"][data-bind-color="${name}"]`);
+
+  function fieldControl(key) {
+    if (key === 'background1') return bgStart;
+    if (key === 'background2') return bgEnd;
+    if (key === '--p-accent') return document.getElementById('gf-accent-custom');
+    return colourInput(key);
+  }
 
   function readPalette() {
     const backgrounds = coloursIn(readVar('--p-bg'));
@@ -208,6 +246,87 @@ export function initBrandingContrast() {
     if (fixed.backgrounds.some((hex, index) => hex !== current.backgrounds[index])) setBackgrounds(fixed.backgrounds);
   }
 
+  function replacementForField(key, current) {
+    if (key === '--p-text') return fitColour(current.text, [current.cards, ...current.backgrounds].map(surface => [surface, TEXT_RATIO]));
+    if (key === '--p-text-muted') return fitColour(current.muted, [current.cards, ...current.backgrounds, current.bars].map(surface => [surface, TEXT_RATIO]));
+    if (key === '--p-accent') return fitColour(current.accent, [current.cards, ...current.backgrounds, current.bars].map(surface => [surface, UI_RATIO]));
+    if (key === '--p-icon') return fitColour(current.icon, [current.cards, ...current.backgrounds, current.bars].map(surface => [surface, UI_RATIO]));
+    if (key === '--p-panel') return fitSurface(current.cards, current);
+    if (key === '--p-nav-bg') return fitSurface(current.bars, current);
+    if (key === 'background2') return current.backgrounds[1] ? fitSurface(current.backgrounds[1], current) : null;
+    if (key === 'background1') return fitSurface(current.backgrounds[0], current);
+    return null;
+  }
+
+  function fixField(key) {
+    const current = readPalette();
+    const control = fieldControl(key);
+    if (!control) return;
+    const replacement = replacementForField(key, current);
+    if (!replacement) return;
+    if (key.startsWith('background')) {
+      const backgrounds = [...current.backgrounds];
+      backgrounds[key === 'background2' ? 1 : 0] = replacement;
+      setBackgrounds(backgrounds);
+    } else {
+      setInput(control, replacement);
+    }
+    check();
+  }
+
+  function renderFieldIssues(current, found) {
+    const issues = new Map();
+    const surfaceKey = { cards: '--p-panel', bars: '--p-nav-bg', background: 'background1', background2: 'background2' };
+    const subjectKey = { 'text': '--p-text', 'small text': '--p-text-muted', 'brand colour': '--p-accent', icons: '--p-icon' };
+    found.forEach(({ subject, surface }) => {
+      const keys = [subjectKey[subject], surfaceKey[surface]].filter(Boolean);
+      keys.forEach(key => {
+        if (!issues.has(key)) issues.set(key, new Set());
+        issues.get(key).add(surface === 'background2' ? 'second background colour' : surface);
+      });
+    });
+    const rowByKey = (key) => {
+      const input = fieldControl(key);
+      if (!input) return null;
+      if (key === '--p-accent') return input.closest('.brand-accent-row');
+      if (key.startsWith('background')) return current.backgroundIsImage
+        ? document.getElementById('appbg-image-block')
+        : input.closest('.cp-color-row');
+      return input.closest('.cp-color-row');
+    };
+    document.querySelectorAll('.branding-inline-contrast').forEach(node => node.remove());
+    document.querySelectorAll('.has-inline-contrast').forEach(row => row.classList.remove('has-inline-contrast'));
+    issues.forEach((surfaces, key) => {
+      const row = rowByKey(key);
+      if (!row) return;
+      row.classList.add('has-inline-contrast');
+      const notice = document.createElement('div');
+      notice.className = 'branding-inline-contrast';
+      const message = document.createElement('span');
+      message.textContent = `Low contrast with ${join([...surfaces])}.`;
+      notice.append(message);
+      const replacement = current.backgroundIsImage && key.startsWith('background') ? null : replacementForField(key, current);
+      const button = document.createElement('button');
+      button.type = 'button';
+      button.className = 'branding-contrast-fix';
+      button.textContent = 'Fix it for me';
+      button.addEventListener('click', () => {
+        if (replacement) fixField(key);
+        else { apply(current, solve(current)); check(); }
+      });
+      notice.append(button);
+      if (!replacement) {
+        const hint = document.createElement('span');
+        hint.className = 'branding-inline-hint';
+        hint.textContent = current.backgroundIsImage && key.startsWith('background')
+          ? 'We will adjust the other colours. For a full fix, try a different image or a solid background.'
+          : 'This fix may adjust more than one colour to resolve the conflict.';
+        notice.append(hint);
+      }
+      row.append(notice);
+    });
+  }
+
   function changedLabels(current, fixed) {
     const changed = [];
     if (fixed.backgrounds[0] !== current.backgrounds[0]) changed.push(SURFACE_LABELS.background);
@@ -230,6 +349,7 @@ export function initBrandingContrast() {
   function check() {
     const current = readPalette();
     const found = problems(current);
+    renderFieldIssues(current, found);
     document.body.dataset.brandingSafe = String(!found.length);
     if (summary) {
       summary.hidden = found.length > 0;

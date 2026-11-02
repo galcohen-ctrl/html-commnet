@@ -1,12 +1,14 @@
 import { initBrandingBackground } from './brandingBackground.js';
 import { initBrandingContrast } from './brandingContrast.js';
 import { initBrandingFonts } from './brandingFonts.js';
+import { initBrandingThemes } from './brandingThemes.js';
 
 export function initBranding(ctx) {
   const { markDirty, showToast, wireColorControl } = ctx;
 
   initBrandingBackground({ wireColorControl, markDirty, showToast });
   initBrandingContrast();
+  initBrandingThemes({ markDirty, showToast });
 
   // Each Fine-tune row shows the value it owns, so the merchant can skip the
   // whole group without opening five panels to check what is in them.

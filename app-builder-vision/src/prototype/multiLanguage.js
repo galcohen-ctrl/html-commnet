@@ -9,6 +9,10 @@ const write = (input, value) => {
 };
 const esc = value => String(value ?? '').replace(/[&<>"']/g, character => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[character]));
 const globe = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M3 12h18M12 3c-5 5-5 13 0 18M12 3c5 5 5 13 0 18"/></svg>';
+const icon = path => `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">${path}</svg>`;
+const chevron = icon('<path d="m6 9 6 6 6-6"/>');
+const searchIcon = icon('<circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/>');
+const check = icon('<path d="M20 6 9 17l-5-5"/>');
 
 function safeRich(value) {
   const template = document.createElement('template');
@@ -77,9 +81,19 @@ export function initMultiLanguage(ctx) {
   };
   const business = document.createElement('section');
   business.className = 'ml-business gf-fieldset';
-  business.innerHTML = '<h3 class="gf-field-label">App languages</h3><label for="ml-default-language">Default language</label><select class="cp-select" id="ml-default-language" aria-label="Default language"></select><details class="ml-offer"><summary>Add languages</summary><div class="ml-offer-body"><label for="ml-add-language">Also offer</label><select class="cp-select" id="ml-add-language" aria-label="Add app language"></select><div class="ml-tags"></div></div></details>';
-  business.querySelector('#ml-default-language').innerHTML = LANGUAGE_CATALOG.map(item => `<option value="${item.code}">${esc(item.name)} - ${esc(item.native)}</option>`).join('');
+  business.innerHTML = `<div class="gf-label-row"><span class="gf-field-label" id="ml-label">App languages</span><details class="gf-help"><summary aria-label="About app languages">i</summary><div role="tooltip">Members see the default language wherever a translation is missing. Use Make default to change it.</div></details></div>
+    <div class="ml-pick"><button type="button" class="ml-pick-btn" aria-haspopup="true" aria-expanded="false" aria-labelledby="ml-label"><span class="ml-pick-summary"></span>${chevron}</button>
+    <div class="ml-pick-pop" hidden><label class="ml-pick-search">${searchIcon}<input type="text" placeholder="Search languages" autocomplete="off" aria-label="Search languages" /></label><ul class="ml-pick-list" aria-label="App languages"></ul><p class="ml-pick-empty" hidden>No language found</p></div></div>`;
   document.querySelector('#cp-business .cp-master')?.appendChild(business);
+  const picker = {
+    button: business.querySelector('.ml-pick-btn'),
+    summary: business.querySelector('.ml-pick-summary'),
+    pop: business.querySelector('.ml-pick-pop'),
+    search: business.querySelector('.ml-pick-search input'),
+    list: business.querySelector('.ml-pick-list'),
+    empty: business.querySelector('.ml-pick-empty'),
+    signature: '',
+  };
   const switcher = document.createElement('div');
   switcher.className = 'ml-switcher';
   switcher.setAttribute('aria-label', 'Editor and preview language');
@@ -130,16 +144,52 @@ export function initMultiLanguage(ctx) {
   };
   const chips = () => state.locales().map(code => `<button type="button" data-ml-locale="${code}" aria-pressed="${state.locale() === code}" title="${esc(LANGUAGE_CATALOG.find(item => item.code === code).name)}">${code.toUpperCase()}${status(code).endsWith('missing') ? '<i class="ml-dot"></i>' : ''}</button>`).join('');
 
+  const languageName = code => LANGUAGE_CATALOG.find(item => item.code === code).name;
+  const setPickerOpen = open => {
+    picker.pop.hidden = !open;
+    picker.button.setAttribute('aria-expanded', String(open));
+    if (open) { picker.search.focus({ preventScroll: true }); picker.pop.scrollIntoView({ block: 'nearest' }); }
+    else if (picker.search.value) { picker.search.value = ''; renderPicker(); }
+  };
+  function renderPicker() {
+    const selected = state.locales();
+    const lead = state.defaultLocale();
+    const query = picker.search.value.trim().toLowerCase();
+    const signature = JSON.stringify([lead, selected, query]);
+    if (picker.signature === signature) return;
+    picker.signature = signature;
+    const rest = selected.filter(code => code !== lead).map(languageName);
+    picker.summary.innerHTML = `<span class="ml-pick-lead">${esc(languageName(lead))}<i>Default</i></span>${rest.length ? `<span class="ml-pick-rest">${esc(rest.join(' \u00b7 '))}</span>` : '<span class="ml-pick-rest is-hint">Add languages</span>'}`;
+    const active = picker.list.contains(document.activeElement) ? document.activeElement : null;
+    const activeCode = active?.dataset.mlPick || active?.dataset.mlMake;
+    const matches = LANGUAGE_CATALOG.filter(item => !query || `${item.name} ${item.native} ${item.code}`.toLowerCase().includes(query));
+    picker.list.innerHTML = matches.map(item => {
+      const on = selected.includes(item.code);
+      const isDefault = item.code === lead;
+      const locked = isDefault && selected.length === 1;
+      const action = isDefault ? '<span class="ml-pick-badge">Default</span>' : on ? `<button type="button" class="ml-pick-make" data-ml-make="${item.code}">Make default</button>` : '';
+      return `<li class="ml-pick-row${on ? ' is-on' : ''}"><button type="button" class="ml-pick-toggle" role="checkbox" aria-checked="${on}"${locked ? ' aria-disabled="true" title="Keep at least one language"' : ''} data-ml-pick="${item.code}"><span class="ml-box">${check}</span><span>${esc(item.name)}</span>${item.native === item.name ? '' : `<span class="ml-pick-native" dir="auto">${esc(item.native)}</span>`}</button>${action}</li>`;
+    }).join('');
+    picker.empty.hidden = matches.length > 0;
+    if (activeCode) (picker.list.querySelector(`[data-ml-make="${activeCode}"]`) || picker.list.querySelector(`[data-ml-pick="${activeCode}"]`))?.focus({ preventScroll: true });
+  }
+  function toggleLanguage(code) {
+    const selected = state.locales();
+    if (!selected.includes(code)) { state.setLocales([...selected, code]); return; }
+    if (selected.length === 1) return;
+    const remaining = selected.filter(item => item !== code);
+    if (code === state.defaultLocale()) state.setDefaultLocale(remaining[0]);
+    state.setLocales(remaining);
+  }
+  function makeDefault(code) {
+    const before = state.locales();
+    state.setDefaultLocale(code);
+    state.setLocales(before);
+  }
+
   function renderChrome() {
     const multiple = state.locales().length > 1;
-    const languageSelect = business.querySelector('#ml-add-language');
-    business.querySelector('#ml-default-language').value = state.defaultLocale();
-    const localesSignature = JSON.stringify(state.locales());
-    if (languageSelect.dataset.locales !== localesSignature) {
-      languageSelect.dataset.locales = localesSignature;
-      languageSelect.innerHTML = '<option value="">Add language</option>' + LANGUAGE_CATALOG.filter(item => !state.locales().includes(item.code)).map(item => `<option value="${item.code}">${esc(item.name)} - ${esc(item.native)}</option>`).join('');
-    }
-    business.querySelector('.ml-tags').innerHTML = state.locales().filter(code => code !== state.defaultLocale()).map(code => `<span class="ml-tag">${esc(LANGUAGE_CATALOG.find(item => item.code === code).name)}<button type="button" data-ml-remove="${code}" aria-label="Remove ${code}" title="Remove language">&times;</button></span>`).join('');
+    renderPicker();
     switcher.hidden = !multiple;
     const signature = JSON.stringify([state.locales(), state.locale(), state.locales().map(status)]);
     if (switcher.dataset.signature !== signature) {
@@ -247,9 +297,8 @@ export function initMultiLanguage(ctx) {
   ['input', 'change', 'click', 'keydown', 'focusout'].forEach(type => document.addEventListener(type, capture, { capture: true, signal: abort.signal }));
   document.addEventListener('click', event => {
     const locale = event.target.closest('[data-ml-locale]');
-    const remove = event.target.closest('[data-ml-remove]');
     if (locale) { state.setLocale(locale.dataset.mlLocale); locale.closest('details')?.removeAttribute('open'); }
-    if (remove) state.setLocales(state.locales().filter(code => code !== remove.dataset.mlRemove));
+    if (!picker.pop.hidden && !event.target.closest('.ml-pick')) setPickerOpen(false);
   }, { signal: abort.signal });
   document.addEventListener('keydown', event => {
     if (event.key === 'Escape') {
@@ -257,11 +306,20 @@ export function initMultiLanguage(ctx) {
       switcher.querySelector('details')?.removeAttribute('open');
     }
   }, { signal: abort.signal });
-  business.querySelector('#ml-default-language').addEventListener('change', event => {
-    state.setDefaultLocale(event.target.value);
+  picker.button.addEventListener('click', () => setPickerOpen(picker.pop.hidden), { signal: abort.signal });
+  picker.search.addEventListener('input', renderPicker, { signal: abort.signal });
+  picker.list.addEventListener('click', event => {
+    const make = event.target.closest('[data-ml-make]');
+    const toggle = event.target.closest('[data-ml-pick]');
+    if (make) makeDefault(make.dataset.mlMake);
+    else if (toggle) toggleLanguage(toggle.dataset.mlPick);
   }, { signal: abort.signal });
-  business.querySelector('#ml-add-language').addEventListener('change', event => {
-    if (event.target.value) state.setLocales([...state.locales(), event.target.value]);
+  picker.pop.addEventListener('keydown', event => {
+    if (event.key === 'Escape') { event.stopPropagation(); setPickerOpen(false); picker.button.focus(); return; }
+    if (event.key !== 'ArrowDown' && event.key !== 'ArrowUp') return;
+    const items = [picker.search, ...picker.list.querySelectorAll('[data-ml-pick]')];
+    const next = items.indexOf(document.activeElement) + (event.key === 'ArrowDown' ? 1 : -1);
+    if (items[next]) { event.preventDefault(); items[next].focus(); }
   }, { signal: abort.signal });
   ['como:stepchange', 'como:navchange', 'como:draft-restored', 'como:pages-changed', 'como:screenname'].forEach(type => document.addEventListener(type, schedule, { signal: abort.signal }));
 

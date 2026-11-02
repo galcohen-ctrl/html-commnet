@@ -34,7 +34,7 @@ export function initGuidedFlow(ctx) {
   const editedScreens = new Set();
   let homeVisited = false;
   let businessEdited = false;
-  const flow = { current: 'home', focus: null, bizName: '', headline: '', country: '', bizType: '', category: '', categories: [], accent: '#6d28d9', font: 'sans-serif', published: false };
+  const flow = { current: 'home', focus: null, bizName: document.getElementById('gf-biz-name')?.value || '', headline: '', country: '', bizType: '', category: '', categories: [], accent: '#6d28d9', font: 'sans-serif', published: false };
 
   const stepButtons = [...document.querySelectorAll('.side-step[data-step]')];
   const indexOf = (key) => STEPS.findIndex((s) => s.key === key);
@@ -446,8 +446,8 @@ export function initGuidedFlow(ctx) {
   };
   const TOUR_STEPS = [
     {
-      target: '.side-nav', title: 'Follow the three setup steps',
-      text: 'Complete Business, Online ordering, and Branding in order so Como can assemble a useful first draft.',
+      target: '.side-nav', title: 'Follow your setup steps',
+      text: 'Complete Business details and Branding, then configure the screens for your app.',
       before: () => stageTourView('edit', 'business'),
     },
     {
@@ -462,7 +462,7 @@ export function initGuidedFlow(ctx) {
     },
     {
       target: '.cp-step-foot', title: 'Continue when this step is ready',
-      text: 'Move forward when the current step looks right; autosave keeps the draft recoverable.',
+      text: 'Check each step, then choose Save & continue to keep building.',
       before: () => stageTourView('edit', 'business'),
     },
     {
@@ -674,6 +674,7 @@ export function initGuidedFlow(ctx) {
       markDirty?.();
       render();
     });
+    if (nameInput.value.trim()) nameInput.dispatchEvent(new Event('input', { bubbles: true }));
   }
 
   const headlineInput = document.getElementById('gf-headline');
@@ -739,12 +740,26 @@ export function initGuidedFlow(ctx) {
       c.disabled = !on && atCap;
     });
     const hint = document.getElementById('gf-cat-hint');
-    if (hint) {
-      hint.textContent = atCap
-        ? `You've picked ${MAX_CATEGORIES} of ${MAX_CATEGORIES}. Deselect one to choose a different industry.`
-        : 'Choose up to 3 industries that represent your business — a restaurant with a convenience store counts as both.';
-    }
+    if (hint) hint.textContent = atCap
+      ? 'You chose 3. Remove one to choose a different industry.'
+      : 'Choose up to 3 industries that best describe your business.';
   }
+
+  const categoryRow = document.getElementById('gf-cat-row');
+  const categoryPrevious = document.getElementById('gf-cat-previous');
+  const categoryNext = document.getElementById('gf-cat-next');
+  function updateCategoryScroll() {
+    if (!categoryRow || !categoryPrevious || !categoryNext) return;
+    const maxScroll = categoryRow.scrollWidth - categoryRow.clientWidth;
+    categoryPrevious.hidden = maxScroll <= 1 || categoryRow.scrollLeft <= 1;
+    categoryNext.hidden = maxScroll <= 1 || categoryRow.scrollLeft >= maxScroll - 1;
+  }
+  categoryPrevious?.addEventListener('click', () => categoryRow.scrollBy({ left: -categoryRow.clientWidth * 0.8, behavior: 'smooth' }));
+  categoryNext?.addEventListener('click', () => categoryRow.scrollBy({ left: categoryRow.clientWidth * 0.8, behavior: 'smooth' }));
+  categoryRow?.addEventListener('scroll', updateCategoryScroll, { passive: true });
+  window.addEventListener('resize', updateCategoryScroll);
+  document.addEventListener('como:stepchange', () => requestAnimationFrame(updateCategoryScroll));
+  requestAnimationFrame(updateCategoryScroll);
 
   document.querySelectorAll('#gf-cat-row [data-cat]').forEach((chip) => {
     chip.addEventListener('click', () => {
@@ -959,7 +974,6 @@ export function initGuidedFlow(ctx) {
       showToast?.('Content changes published — no store review was required', { variant: 'success' });
       ctx.savePublishedVersion?.();
       render();
-      document.dispatchEvent(new CustomEvent('como:draft-save'));
     }, 850);
   });
 

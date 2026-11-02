@@ -448,7 +448,6 @@ export function initMenuSource(ctx) {
       renderPhone();
     });
   });
-  wireSwatches('ordering', (hex) => { state.ordering.color = hex; renderPhone(); });
   wireSwatches('custom', (hex) => { state.custom.color = hex; renderPhone(); });
 
   const orderingHeroThumb = document.getElementById('ms-ordering-hero-thumb');
@@ -1031,6 +1030,7 @@ export function initMenuSource(ctx) {
 
   function renderOrdering() {
     const o = state.ordering;
+    const accent = getComputedStyle(document.body).getPropertyValue('--p-accent').trim() || o.color;
     const cats = [
       { name: 'Starters', items: [
         { name: 'Truffle Arancini', desc: 'Crispy · shaved parmesan', price: '$14', color: SWATCH[0], badge: 'Vegan', tags: ['Gluten'] },
@@ -1080,7 +1080,7 @@ export function initMenuSource(ctx) {
       </div>`).join('') + '</div>';
     }).join('');
 
-    return `<div style="--pm-accent:${o.color}">${head}${banner}${hero}${body}</div>`;
+    return `<div style="--pm-accent:${accent}">${head}${banner}${hero}${body}</div>`;
   }
 
   function renderManual() {
@@ -1181,6 +1181,7 @@ export function initMenuSource(ctx) {
       || (mode === 'custom' && state.custom.connected && !state.custom.bottombar);
     setBottomNav(!hideNav);
   }
+  document.addEventListener('como:branding-changed', renderPhone);
 
   /* --------------------------------------- react to the settings-modal flow */
 

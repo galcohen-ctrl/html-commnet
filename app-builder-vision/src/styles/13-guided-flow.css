@@ -161,15 +161,29 @@
     box-shadow: inset 0 0 0 3px #fff, 0 0 0 2.5px var(--ink);
   }
   .gf-chip-row { display: flex; flex-wrap: wrap; gap: 7px; }
-  #cp-business #gf-cat-row { flex-wrap: nowrap; overflow-x: auto; padding: 3px 1px 9px; scroll-snap-type: x proximity; }
+  #cp-business #gf-cat-row { flex-wrap: nowrap; overflow-x: auto; padding: 3px 1px 9px; scroll-snap-type: x proximity; scrollbar-width: thin; scrollbar-color: var(--muted) var(--line); }
+  #cp-business #gf-cat-row::-webkit-scrollbar { height: 6px; }
+  #cp-business #gf-cat-row::-webkit-scrollbar-track { background: var(--line); border-radius: 6px; }
+  #cp-business #gf-cat-row::-webkit-scrollbar-thumb { background: var(--muted); border-radius: 6px; }
   #cp-business #gf-cat-row .gf-chip { flex: 0 0 auto; white-space: nowrap; scroll-snap-align: start; }
+  #cp-business .gf-chip-nav { display: flex; align-items: center; gap: 5px; margin-left: auto; }
+  #cp-business .gf-chip-nav button { display: inline-grid; place-items: center; width: 28px; min-height: 28px; padding: 0; border: 1px solid transparent; border-radius: 50%; background: transparent; color: var(--muted); cursor: pointer; opacity: 0; transition: opacity .12s, background-color .12s, color .12s; }
+  #cp-business .gf-chip-nav button svg { width: 16px; height: 16px; }
+  #cp-business .gf-fieldset:has(#gf-cat-row):hover .gf-chip-nav button:not([hidden]),
+  #cp-business .gf-fieldset:has(#gf-cat-row):focus-within .gf-chip-nav button:not([hidden]) { opacity: 1; }
+  #cp-business .gf-chip-nav button:hover { border-color: var(--line); background: var(--panel); color: var(--como); }
+  #cp-business .gf-chip-nav button:focus-visible { opacity: 1; outline: 2px solid var(--focus-ring); outline-offset: 2px; }
+  #cp-business .gf-chip-nav button[hidden] { display: none; }
+  @media (hover: none) { #cp-business .gf-chip-nav button:not([hidden]) { opacity: 1; } }
   #cp-business .gf-label-row { display: flex; align-items: center; gap: 8px; position: relative; }
+  #cp-business .gf-source-tag { display: inline-flex; align-items: center; min-height: 20px; margin-left: 2px; padding: 2px 6px; border-radius: 5px; background: var(--como-soft); color: var(--como); font-size: 9.5px; font-weight: 700; line-height: 1.2; white-space: nowrap; }
   #cp-business .gf-help { position: static; }
   #cp-business .gf-help summary { display: grid; place-items: center; width: 20px; height: 20px; border: 1px solid var(--line); border-radius: 50%; color: var(--muted); cursor: help; font-size: 12px; list-style: none; }
   #cp-business .gf-help summary::-webkit-details-marker { display: none; }
   #cp-business .gf-help [role="tooltip"] { position: absolute; z-index: 80; top: 100%; left: 0; width: 100%; padding: 10px 12px; border: 1px solid var(--line); border-radius: 6px; background: var(--panel); color: var(--ink); font-size: 12px; line-height: 1.5; box-shadow: 0 5px 16px #0002; }
   #cp-business .gf-help:not([open]):hover [role="tooltip"], #cp-business .gf-help:not([open]):focus-within [role="tooltip"] { display: block; }
   #cp-business .gf-fieldset { margin-bottom: 14px; }
+  #cp-business .gf-field-hint { margin: 5px 0 0; color: var(--muted); font-size: 11.5px; line-height: 1.4; }
   .gf-chip {
     padding: 7px 13px; border: 1.5px solid var(--line); border-radius: 100px;
     font-size: 12.5px; font-weight: 500; color: var(--muted);

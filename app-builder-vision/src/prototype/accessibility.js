@@ -24,7 +24,7 @@ const MODALS = [
     initial: '#preset-confirm-cancel',
     close: '#preset-confirm-cancel',
     label: '.confirm-title',
-    fallbackRestore: '#save-btn',
+    fallbackRestore: '#side-settings-btn',
   },
   {
     overlay: '#settings-modal',

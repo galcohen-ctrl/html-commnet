@@ -2,6 +2,10 @@
      APP CONTENT PATTERNS
      ============================================================ */
 
+    #device-frame .device-screen .app-page button { text-align: center; }
+    #device-frame .device-screen .app-page .px-profile-list button,
+    #device-frame .device-screen .app-page .member-contact-list button { text-align: left; }
+
   .app-top-header {
     display: flex; align-items: center; justify-content: space-between;
     padding: 14px 0 10px;

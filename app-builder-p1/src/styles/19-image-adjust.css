@@ -25,6 +25,9 @@
     overflow: hidden;
     touch-action: none;
   }
+  #device-frame .ia-active,
+  #launch-device-stage .ia-active { background-image: none !important; background-color: var(--p-panel, #fff) !important; }
+  body.ia-bg-adjusting #device-frame .ia-active { background-color: var(--ia-fill, #888) !important; }
   .ia-active::after {
     content: "";
     position: absolute; inset: 0;
@@ -151,32 +154,22 @@
   .ia-tools.is-cropping .ia-adjust-controls { display: none; }
   .ia-tools.is-cropping .ia-crop-controls { display: block; }
 
-  /* First-upload coach mark */
-  .ia-coach {
-    position: fixed; z-index: 10001; width: 216px;
-    background: #fff; color: var(--ink);
-    border: 1px solid var(--line); border-radius: 14px; padding: 15px 16px 14px;
-    box-shadow: 0 18px 44px rgba(20, 16, 40, .18);
-    opacity: 0; transform: translateX(6px); transition: .2s;
-  }
-  .ia-coach.is-open { opacity: 1; transform: none; }
-  .ia-coach-dot {
-    width: 34px; height: 34px; border-radius: 50%;
-    background: var(--como-soft); color: var(--como);
+  .ia-hint {
+    position: fixed; z-index: 10001; width: 28px; height: 28px; padding: 0;
     display: grid; place-items: center;
+    border: 2px solid #fff; border-radius: 50%; background: var(--como); color: #fff; cursor: pointer;
+    box-shadow: 0 2px 8px rgba(20, 16, 40, .28);
+    animation: iaHintIn .25s ease-out both;
   }
-  .ia-coach-dot svg { width: 18px; height: 18px; }
-  .ia-coach strong { display: block; font-size: 13.5px; margin: 9px 0 3px; }
-  .ia-coach small { display: block; font-size: 11.5px; color: var(--muted); line-height: 1.5; }
-  .ia-coach button {
-    margin-top: 11px; width: 100%;
-    background: var(--como); color: #fff; border: none; border-radius: 8px;
-    padding: 7px 10px; font: inherit; font-size: 11.5px; font-weight: 700; cursor: pointer;
-  }
+  .ia-hint svg { width: 13px; height: 13px; }
+  .ia-hint::after { content: ''; position: absolute; inset: -2px; border-radius: 50%; border: 2px solid var(--como); pointer-events: none; animation: iaHintPulse 1.4s ease-out .3s 3 both; }
+  @keyframes iaHintIn { from { opacity: 0; transform: scale(.6); } to { opacity: 1; transform: none; } }
+  @keyframes iaHintPulse { from { opacity: .75; transform: scale(1); } to { opacity: 0; transform: scale(2.2); } }
 
   @media (prefers-reduced-motion: reduce) {
     #device-stage { transition: none; }
     .ia-active::after { animation: none; }
+    .ia-hint, .ia-hint::after { animation: none; }
     .ia-active.ia-animating .ia-layer,
     .ia-active.ia-animating .ia-cropbox { transition: none; }
   }

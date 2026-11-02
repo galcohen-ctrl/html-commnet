@@ -1,47 +1,18 @@
 export function initSystem(ctx = {}) {
-  // ---------- Autosaved draft ----------
-  const saveBtn = document.getElementById('save-btn');
-  let saveTimer;
-  let dirty = false;
-
-  function renderSaveState(label, state) {
-    if (!saveBtn) return;
-    saveBtn.textContent = label;
-    saveBtn.dataset.state = state;
-    saveBtn.classList.toggle('disabled', state === 'saved');
-  }
-
-  function commitDraft() {
-    clearTimeout(saveTimer);
-    saveTimer = null;
+  function saveDraft() {
     const saved = ctx.savePersistedDraft?.();
-    if (saved === false) {
-      dirty = true;
-      renderSaveState('Retry save', 'error');
-      return false;
-    }
+    if (saved === false) return false;
     if (saved === undefined) document.dispatchEvent(new CustomEvent('como:draft-save'));
-    dirty = false;
-    renderSaveState('Draft saved', 'saved');
     return true;
   }
 
   function markDirty(scope = 'content') {
     if (document.body.classList.contains('gf-restoring')) return;
     const resolvedScope = typeof scope === 'string' ? scope : 'content';
-    dirty = true;
     document.dispatchEvent(new CustomEvent('como:draft-dirty', { detail: { scope: resolvedScope } }));
-    renderSaveState('Saving…', 'saving');
-    clearTimeout(saveTimer);
-    saveTimer = setTimeout(commitDraft, 550);
   }
-  saveBtn?.addEventListener('click', () => {
-    if (!dirty && saveBtn.dataset.state !== 'error') return;
-    if (commitDraft()) showToast('Draft saved', { variant: 'success' });
-  });
   document.addEventListener('como:draft-save-error', () => {
-    dirty = true;
-    renderSaveState('Couldn\'t save', 'error');
+    showToast('Could not save your app. Try again.', { variant: 'error' });
   });
 
   // ---------- Toast helper ----------
@@ -78,5 +49,5 @@ export function initSystem(ctx = {}) {
   }
   tick();
   setInterval(tick, 30000);
-  return { markDirty, showToast, saveDraft: commitDraft };
+  return { markDirty, showToast, saveDraft };
 }

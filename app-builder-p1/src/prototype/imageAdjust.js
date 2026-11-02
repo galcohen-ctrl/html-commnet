@@ -82,7 +82,12 @@ export function initImageAdjust(ctx) {
   const holdRoots = [shell, document.getElementById('launch-device-stage')].filter(Boolean);
 
   let session = null;
-  let coachShown = false;
+  const HINT_DELAY_MS = 4000;
+  const HINT_LIFE_MS = 9000;
+  let hint = null;
+  let hintDelay = null;
+  let hintLife = null;
+  let hintDone = false;
 
   /* ------------------------------------------------------------- overlays */
 
@@ -229,33 +234,36 @@ export function initImageAdjust(ctx) {
     stage.style.transformOrigin = '';
   }
 
-  function showCoach(target) {
-    if (coachShown) return;
-    coachShown = true;
+  function clearHint() {
+    clearTimeout(hintDelay);
+    clearTimeout(hintLife);
+    hintDelay = hintLife = null;
+    hint?.remove();
+    hint = null;
+  }
+
+  function showHint(target) {
     const rect = target.getBoundingClientRect();
-    const coach = document.createElement('div');
-    coach.className = 'ia-coach';
-    coach.innerHTML = `
-      <span class="ia-coach-dot"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 20h9"/><path d="M16.5 3.5a2.1 2.1 0 013 3L7 19l-4 1 1-4z"/></svg></span>
-      <strong>Adjust it right here</strong>
-      <small>Tap and hold the image for a moment to move, zoom, rotate and crop it on the preview.</small>
-      <button type="button">Got it</button>`;
-    document.body.appendChild(coach);
-    const width = coach.offsetWidth || 216;
-    let left = rect.left - width - 18;
-    if (left < 12) left = rect.right + 18;
-    coach.style.left = `${left}px`;
-    coach.style.top = `${clamp(rect.top - 6, 12, window.innerHeight - 190)}px`;
-    requestAnimationFrame(() => coach.classList.add('is-open'));
-    const close = () => coach.remove();
-    coach.querySelector('button').addEventListener('click', close);
-    setTimeout(close, 12000);
+    if (session || hintDone || !target.isConnected || !rect.width || !backgroundUrlOf(target)) return;
+    hintDone = true;
+    hint = document.createElement('button');
+    hint.type = 'button';
+    hint.className = 'ia-hint';
+    hint.title = 'Adjust this image';
+    hint.setAttribute('aria-label', 'Adjust this image');
+    hint.innerHTML = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 20h9"/><path d="M16.5 3.5a2.1 2.1 0 013 3L7 19l-4 1 1-4z"/></svg>';
+    hint.style.left = `${clamp(rect.right - 12, 8, window.innerWidth - 36)}px`;
+    hint.style.top = `${clamp(rect.top - 12, 8, window.innerHeight - 36)}px`;
+    document.body.appendChild(hint);
+    hint.addEventListener('click', () => { clearHint(); open(target); });
+    hintLife = setTimeout(clearHint, HINT_LIFE_MS);
   }
 
   /* -------------------------------------------------------------- session */
 
   function open(target, { background = false } = {}) {
     if (session) return;
+    clearHint();
     const src = backgroundUrlOf(target);
     if (!src) return;
 
@@ -630,6 +638,7 @@ export function initImageAdjust(ctx) {
       background = true;
     }
     if (!target || !backgroundUrlOf(target)) return;
+    clearHint();
     holding = true;
     const rect = target.getBoundingClientRect();
     ring = document.createElement('div');
@@ -674,6 +683,12 @@ export function initImageAdjust(ctx) {
     if (!session && document.body.dataset.appbg === 'image') open(shell, { background: true });
   });
 
+  document.addEventListener('click', (event) => {
+    if (session || !event.target.closest('#gf-logo-adjust')) return;
+    const logo = [...document.querySelectorAll('.app-top-header .brand-mark.has-logo')].find((node) => node.getBoundingClientRect().width);
+    if (logo) open(logo);
+  });
+
   // The overlays are pinned to the element's on-screen box, so anything that
   // moves that box has to move them too.
   window.addEventListener('resize', syncOverlays);
@@ -688,15 +703,14 @@ export function initImageAdjust(ctx) {
     if (event.key === 'Enter' && session.cropping) applyCrop();
   });
 
-  // First uploaded image in a session gets a one-step pointer to the feature.
   const observer = new MutationObserver((records) => {
-    if (coachShown) return;
-    records.forEach((record) => {
-      const element = record.target;
-      if (!(element instanceof HTMLElement) || !element.matches?.(TARGET_SELECTOR)) return;
-      if (backgroundUrlOf(element)) showCoach(element);
-    });
+    if (hintDone || hintDelay) return;
+    const record = records.find((entry) => entry.target instanceof HTMLElement && entry.target.matches?.(TARGET_SELECTOR) && backgroundUrlOf(entry.target));
+    if (!record) return;
+    hintDelay = setTimeout(() => { hintDelay = null; showHint(record.target); }, HINT_DELAY_MS);
   });
+  ['como:stepchange', 'como:navchange'].forEach((type) => document.addEventListener(type, clearHint));
+  window.addEventListener('resize', clearHint);
   observer.observe(shell, { attributes: true, attributeFilter: ['style', 'class'], subtree: true });
 
   return { openImageAdjust: open, closeImageAdjust: close };

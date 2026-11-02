@@ -13,13 +13,6 @@
       <span class="brand-tune-val" id="brand-tune-logo-val">Not uploaded</span>
       <span class="chev">›</span>
     </div>
-    <label class="cp-widget-row brand-tune-row brand-accent-row" for="gf-accent-custom">
-      <span class="w-name">Brand colour</span>
-      <span class="brand-accent-circle" id="brand-accent-circle" aria-hidden="true"></span>
-      <input type="text" class="brand-accent-hex-input" id="brand-accent-hex" value="#6D28D9" inputmode="text" spellcheck="false" autocomplete="off" aria-label="Brand colour hex value" />
-      <svg class="brand-accent-edit" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 20h9"/><path d="M16.5 3.5a2.1 2.1 0 013 3L7 19l-4 1 1-4z"/></svg>
-      <input type="color" value="#6d28d9" id="gf-accent-custom" data-accent="#6d28d9" class="brand-accent-input" aria-label="Brand colour" />
-    </label>
     <div class="cp-widget-row brand-tune-row">
       <span class="w-name" data-drill="brand-colours">Colours
         <button class="ms-info" type="button" data-tip="Every colour in your app: the background, the cards that sit on it, your text and your icons.">i</button>
@@ -82,6 +75,7 @@
       <div class="gf-logo-filename" id="gf-logo-filename">logo.png</div>
       <div class="gf-logo-actions">
         <button class="gf-logo-action" id="gf-logo-replace" type="button">Replace</button>
+        <button class="gf-logo-action" id="gf-logo-adjust" type="button">Adjust</button>
         <button class="gf-logo-action danger" id="gf-logo-remove" type="button">Remove</button>
       </div>
     </div>
@@ -111,6 +105,22 @@
     <button class="cp-back" type="button">‹</button>
     <div class="cp-detail-title">Colours</div>
   </div>
+  <div class="cp-subhead">Brand colour</div>
+  <label class="brand-accent-row" for="gf-accent-custom">
+    <span class="brand-accent-circle" id="brand-accent-circle" aria-hidden="true"></span>
+    <span class="brand-accent-label">Your brand colour</span>
+    <input type="text" class="brand-accent-hex-input" id="brand-accent-hex" value="#6D28D9" inputmode="text" spellcheck="false" autocomplete="off" aria-label="Brand colour hex value" />
+    <svg class="brand-accent-edit" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 20h9"/><path d="M16.5 3.5a2.1 2.1 0 013 3L7 19l-4 1-4z"/></svg>
+    <input type="color" value="#6d28d9" id="gf-accent-custom" data-accent="#6d28d9" class="brand-accent-input" aria-label="Brand colour" />
+  </label>
+  <section class="branding-themes" aria-labelledby="branding-themes-title">
+    <h4 id="branding-themes-title">Accessible themes</h4>
+    <div class="branding-theme-grid">
+      <button class="branding-theme-card" type="button" data-brand-theme="light"><span class="branding-theme-swatches"><i></i><i></i><i></i></span><span class="branding-theme-name">Light</span><span class="branding-theme-status"></span></button>
+      <button class="branding-theme-card" type="button" data-brand-theme="soft"><span class="branding-theme-swatches"><i></i><i></i><i></i></span><span class="branding-theme-name">Soft tint</span><span class="branding-theme-status"></span></button>
+      <button class="branding-theme-card" type="button" data-brand-theme="dark"><span class="branding-theme-swatches"><i></i><i></i><i></i></span><span class="branding-theme-name">Dark</span><span class="branding-theme-status"></span></button>
+    </div>
+  </section>
   <div class="cp-subhead">App background</div>
   <div class="cp-seg" id="appbg-mode">
     <button class="cp-seg-btn active" type="button" data-mode="solid" aria-pressed="true">Solid colour</button>

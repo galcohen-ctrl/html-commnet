@@ -1,6 +1,6 @@
 import { initMemberActions } from './memberActions.js';
 import { checkScreenChange } from './screenRules.js';
-import { bindMemberField, memberCopy, memberRenderer } from './multiLanguage.js';
+import { memberCopy, memberRenderer } from './multiLanguage.js';
 
 const ANALYTICS_KEY = 'como-app-builder-analytics:v1';
 const SCREEN_DEFS = {
@@ -362,7 +362,6 @@ export function initProductExperience(ctx) {
     input.setAttribute('aria-label', `Rename ${original}`);
     title.textContent = '';
     title.appendChild(input);
-    bindMemberField(ctx, input, `tab:${key}`, current);
     input.focus();
     input.select();
     let done = false;
